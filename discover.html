@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#1e40af">
+    <title>Discover — MyShub</title>
+    <link rel="manifest" href="/manifest-discover.json">
+    <link rel="icon" type="image/svg+xml" href="/icon.svg">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --text2: #475569;
+            --text3: #94a3b8;
+            --border: #e2e8f0;
+            --brand: #1e40af;
+            --brand-light: #3b82f6;
+            --brand-dark: #1e3a8a;
+            --brand-rgb: 30, 64, 175;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.06);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.1);
+            --transition: 0.3s cubic-bezier(0.4,0,0.2,1);
+            --tab-height: 64px;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0f172a;
+                --card: #1e293b;
+                --text: #f1f5f9;
+                --text2: #94a3b8;
+                --text3: #64748b;
+                --border: #334155;
+            }
+        }
+        html, body {
+            height: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden;
+        }
+        #app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ─── HEADER ─── */
+        .app-header {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+        .app-header .brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 800;
+            font-size: 1rem;
+            color: var(--brand);
+            text-decoration: none;
+        }
+        .app-header .brand img {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+        }
+        .app-header .actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .app-header .actions button {
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            color: var(--text2);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 10px;
+            transition: background var(--transition);
+            position: relative;
+        }
+        .app-header .actions button:hover {
+            background: var(--border);
+        }
+        .app-header .actions .notif-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #ef4444;
+            color: white;
+            font-size: 0.55rem;
+            font-weight: 700;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: translate(4px, -4px);
+        }
+        .app-header .actions .notif-badge.hidden { display: none; }
+
+        /* ─── SEARCH BAR ─── */
+        .search-section {
+            padding: 12px 16px;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg);
+            border-radius: var(--radius);
+            padding: 8px 14px;
+            border: 1.5px solid var(--border);
+            transition: border-color var(--transition);
+        }
+        .search-bar:focus-within {
+            border-color: var(--brand-light);
+        }
+        .search-bar i {
+            color: var(--text3);
+            font-size: 1rem;
+        }
+        .search-bar input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 8px 0;
+            font-size: 0.95rem;
+            color: var(--text);
+            font-family: inherit;
+            outline: none;
+        }
+        .search-bar input::placeholder {
+            color: var(--text3);
+        }
+        .search-bar .clear-btn {
+            background: none;
+            border: none;
+            color: var(--text3);
+            cursor: pointer;
+            padding: 4px;
+            display: none;
+        }
+        .search-bar .clear-btn.show { display: block; }
+        .search-bar .search-btn {
+            background: var(--brand);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 6px 16px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background var(--transition);
+            font-family: inherit;
+            white-space: nowrap;
+        }
+        .search-bar .search-btn:hover {
+            background: var(--brand-dark);
+        }
+
+        /* ─── FILTER CHIPS ─── */
+        .filter-section {
+            padding: 8px 16px;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+            overflow-x: auto;
+            display: flex;
+            gap: 8px;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        .filter-section::-webkit-scrollbar { display: none; }
+        .filter-chip {
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: var(--bg);
+            border: 1.5px solid var(--border);
+            color: var(--text2);
+            cursor: pointer;
+            transition: all var(--transition);
+            white-space: nowrap;
+            flex-shrink: 0;
+            font-family: inherit;
+        }
+        .filter-chip:hover {
+            border-color: var(--brand-light);
+            color: var(--brand);
+        }
+        .filter-chip.active {
+            background: var(--brand);
+            color: white;
+            border-color: var(--brand);
+        }
+        .filter-chip .count {
+            font-weight: 400;
+            opacity: 0.6;
+            margin-left: 4px;
+        }
+        .filter-more-btn {
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: var(--bg);
+            border: 1.5px solid var(--border);
+            color: var(--text2);
+            cursor: pointer;
+            transition: all var(--transition);
+            white-space: nowrap;
+            flex-shrink: 0;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .filter-more-btn:hover {
+            border-color: var(--brand-light);
+            color: var(--brand);
+        }
+
+        /* ─── RESULTS ─── */
+        .results-section {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .results-header .count {
+            font-size: 0.85rem;
+            color: var(--text2);
+        }
+        .results-header .view-toggle {
+            display: flex;
+            gap: 4px;
+        }
+        .results-header .view-toggle button {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 0.85rem;
+            color: var(--text3);
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .results-header .view-toggle button.active {
+            background: var(--brand);
+            color: white;
+            border-color: var(--brand);
+        }
+        .results-header .view-toggle button:hover:not(.active) {
+            background: var(--bg);
+        }
+
+        /* ─── SHOP CARDS ─── */
+        .shops-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        .shops-grid.list-view {
+            grid-template-columns: 1fr;
+        }
+        .shop-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: all var(--transition);
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text);
+            display: block;
+        }
+        .shop-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--brand-light);
+        }
+        .shop-card .card-header {
+            padding: 16px 16px 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .shop-card .card-header .logo {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            object-fit: cover;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .shop-card .card-header .info {
+            flex: 1;
+            min-width: 0;
+        }
+        .shop-card .card-header .info .name {
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .shop-card .card-header .info .name .badge {
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 30px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .shop-card .card-header .info .name .badge.pro {
+            background: #0084ff;
+            color: white;
+        }
+        .shop-card .card-header .info .name .badge.premium {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            color: white;
+        }
+        .shop-card .card-header .info .tagline {
+            font-size: 0.85rem;
+            color: var(--text2);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .shop-card .card-body {
+            padding: 0 16px 12px;
+            font-size: 0.85rem;
+            color: var(--text2);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .shop-card .card-footer {
+            padding: 10px 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text3);
+        }
+        .shop-card .card-footer .location {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .shop-card .card-footer .stats {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .shop-card .card-footer .stats span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .shop-card .card-footer .category-tag {
+            background: var(--bg);
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text2);
+        }
+
+        /* ─── FEATURED SECTION ─── */
+        .featured-section {
+            padding: 0 0 16px;
+        }
+        .featured-section .section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text3);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .featured-section .section-title i {
+            color: #f59e0b;
+        }
+        .featured-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        .featured-card {
+            background: linear-gradient(135deg, var(--brand-dark), var(--brand));
+            color: white;
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all var(--transition);
+            cursor: pointer;
+        }
+        .featured-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+        .featured-card .logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.2);
+            flex-shrink: 0;
+            background: rgba(255,255,255,0.1);
+        }
+        .featured-card .info {
+            flex: 1;
+            min-width: 0;
+        }
+        .featured-card .info .name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .featured-card .info .name .badge {
+            font-size: 0.55rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.2);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .featured-card .info .tagline {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        .featured-card .arrow {
+            color: rgba(255,255,255,0.5);
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        /* ─── ADS ─── */
+        .ads-section {
+            padding: 12px 0 0;
+        }
+        .ads-section .section-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text3);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ads-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        .ad-card {
+            background: var(--card);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            text-decoration: none;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all var(--transition);
+        }
+        .ad-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--brand-light);
+        }
+        .ad-card .icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .ad-card .info .title {
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+        .ad-card .info .desc {
+            font-size: 0.75rem;
+            color: var(--text2);
+        }
+        .ad-card .sponsored {
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text3);
+            font-weight: 700;
+        }
+
+        /* ─── EMPTY STATE ─── */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .empty-state .icon {
+            font-size: 3.5rem;
+            color: var(--text3);
+            margin-bottom: 16px;
+        }
+        .empty-state h3 {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+        }
+        .empty-state p {
+            color: var(--text2);
+            max-width: 400px;
+            margin: 0 auto 16px;
+        }
+        .empty-state .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 28px;
+            border-radius: 40px;
+            font-weight: 700;
+            background: var(--brand);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all var(--transition);
+        }
+        .empty-state .btn:hover {
+            background: var(--brand-dark);
+            transform: translateY(-2px);
+        }
+
+        /* ─── LOADING ─── */
+        .loading-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+            padding: 60px 20px;
+        }
+        .loading-state .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border);
+            border-top-color: var(--brand);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .loading-state p {
+            color: var(--text2);
+        }
+
+        /* ─── LOAD MORE ─── */
+        .load-more {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .load-more .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 28px;
+            border-radius: 40px;
+            font-weight: 700;
+            background: var(--bg);
+            color: var(--text2);
+            border: 1.5px solid var(--border);
+            cursor: pointer;
+            font-family: inherit;
+            transition: all var(--transition);
+        }
+        .load-more .btn:hover {
+            border-color: var(--brand-light);
+            color: var(--brand);
+            background: var(--card);
+        }
+
+        /* ─── BOTTOM NAV ─── */
+        .bottom-nav {
+            display: flex;
+            background: var(--card);
+            border-top: 1px solid var(--border);
+            padding: 6px 0 env(safe-area-inset-bottom, 8px);
+            flex-shrink: 0;
+            backdrop-filter: blur(12px);
+            background: rgba(255,255,255,0.92);
+        }
+        @media (prefers-color-scheme: dark) {
+            .bottom-nav {
+                background: rgba(15,23,42,0.92);
+            }
+        }
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            background: none;
+            border: none;
+            color: var(--text3);
+            font-size: 0.6rem;
+            font-weight: 500;
+            padding: 6px 0;
+            cursor: pointer;
+            transition: color var(--transition);
+            text-decoration: none;
+            font-family: inherit;
+        }
+        .nav-item i {
+            font-size: 1.2rem;
+            transition: transform var(--transition);
+        }
+        .nav-item.active {
+            color: var(--brand);
+        }
+        .nav-item.active i {
+            transform: scale(1.05);
+        }
+        .nav-item:hover:not(.active) {
+            color: var(--text2);
+        }
+
+        /* ─── TOAST ─── */
+        .toast-container {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2000;
+            max-width: 90%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+        }
+        .toast {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px 20px;
+            box-shadow: var(--shadow-lg);
+            pointer-events: auto;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            max-width: 420px;
+            width: 100%;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .toast.success { border-left: 4px solid #22c55e; }
+        .toast.error { border-left: 4px solid #ef4444; }
+        .toast.info { border-left: 4px solid var(--brand); }
+        .toast .toast-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--text3);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0 4px;
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 480px) {
+            .shops-grid {
+                grid-template-columns: 1fr;
+            }
+            .featured-grid {
+                grid-template-columns: 1fr;
+            }
+            .ads-grid {
+                grid-template-columns: 1fr;
+            }
+            .search-section {
+                padding: 8px 12px;
+            }
+            .filter-section {
+                padding: 6px 12px;
+                gap: 6px;
+            }
+            .filter-chip {
+                font-size: 0.7rem;
+                padding: 4px 12px;
+            }
+            .results-section {
+                padding: 12px;
+            }
+        }
+
+        /* ─── MODAL (filter categories) ─── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px 20px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-content .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .modal-content .modal-header h3 {
+            font-weight: 800;
+            font-size: 1.1rem;
+        }
+        .modal-content .modal-header .close {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            color: var(--text2);
+            cursor: pointer;
+            padding: 4px;
+        }
+        .modal-content .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 8px;
+        }
+        .modal-content .category-grid .cat-item {
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg);
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all var(--transition);
+            font-family: inherit;
+        }
+        .modal-content .category-grid .cat-item:hover {
+            border-color: var(--brand-light);
+            background: var(--card);
+        }
+        .modal-content .category-grid .cat-item.active {
+            background: var(--brand);
+            color: white;
+            border-color: var(--brand);
+        }
+        .modal-content .location-filters {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .modal-content .location-filters select {
+            padding: 10px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.85rem;
+            outline: none;
+        }
+        .modal-content .location-filters select:focus {
+            border-color: var(--brand-light);
+        }
+        .modal-content .apply-btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 40px;
+            font-weight: 700;
+            background: var(--brand);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            margin-top: 16px;
+            transition: background var(--transition);
+        }
+        .modal-content .apply-btn:hover {
+            background: var(--brand-dark);
+        }
+
+        @media (max-width: 480px) {
+            .modal-content .location-filters {
+                grid-template-columns: 1fr;
+            }
+            .modal-content .category-grid {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- ─── HEADER ─── -->
+        <header class="app-header">
+            <a href="/" class="brand">
+                <img src="icon.svg" alt="MyShub">
+                <span>MyShub</span>
+            </a>
+            <div class="actions">
+                <button id="notifBell" title="Notifications">
+                    <i class="fa-regular fa-bell"></i>
+                    <span class="notif-badge hidden" id="notifBadge">0</span>
+                </button>
+                <a href="/app.html" id="loginBtn" style="text-decoration:none;font-weight:600;font-size:0.85rem;color:var(--brand);padding:6px 14px;border-radius:30px;border:1.5px solid var(--brand);transition:all var(--transition);">Sign In</a>
+            </div>
+        </header>
+
+        <!-- ─── SEARCH ─── -->
+        <div class="search-section">
+            <div class="search-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="searchInput" placeholder="Search businesses, categories, locations..." autocomplete="off">
+                <button class="clear-btn" id="clearBtn"><i class="fa-regular fa-xmark"></i></button>
+                <button class="search-btn" id="searchBtn">Search</button>
+            </div>
+        </div>
+
+        <!-- ─── FILTER CHIPS ─── -->
+        <div class="filter-section" id="filterSection">
+            <button class="filter-chip active" data-category="all">All</button>
+            <!-- Categories rendered by JS -->
+            <button class="filter-more-btn" id="filterMoreBtn"><i class="fa-regular fa-sliders"></i> Filters</button>
+        </div>
+
+        <!-- ─── RESULTS ─── -->
+        <div class="results-section" id="resultsSection">
+            <div class="results-header">
+                <span class="count" id="resultCount">Loading...</span>
+                <div class="view-toggle">
+                    <button class="active" data-view="grid" title="Grid view"><i class="fa-regular fa-grid-2"></i></button>
+                    <button data-view="list" title="List view"><i class="fa-regular fa-list"></i></button>
+                </div>
+            </div>
+
+            <!-- Featured Shops -->
+            <div class="featured-section" id="featuredSection">
+                <div class="section-title"><i class="fa-solid fa-star"></i> Featured Shops</div>
+                <div class="featured-grid" id="featuredGrid"></div>
+            </div>
+
+            <!-- All Shops -->
+            <div id="shopsContainer">
+                <div class="shops-grid" id="shopsGrid"></div>
+            </div>
+
+            <!-- Ads -->
+            <div class="ads-section" id="adsSection">
+                <div class="section-title"><i class="fa-solid fa-bullhorn"></i> Sponsored</div>
+                <div class="ads-grid" id="adsGrid"></div>
+            </div>
+
+            <!-- Load More -->
+            <div class="load-more" id="loadMoreContainer">
+                <button class="btn" id="loadMoreBtn">Load More</button>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state hidden" id="emptyState">
+                <div class="icon"><i class="fa-regular fa-store-slash"></i></div>
+                <h3>No businesses found</h3>
+                <p>Try adjusting your search or filters to find what you're looking for.</p>
+                <button class="btn" onclick="resetFilters()"><i class="fa-regular fa-rotate"></i> Reset Filters</button>
+            </div>
+
+            <!-- Loading -->
+            <div class="loading-state hidden" id="loadingState">
+                <div class="spinner"></div>
+                <p>Loading businesses...</p>
+            </div>
+        </div>
+
+        <!-- ─── BOTTOM NAV ─── -->
+        <nav class="bottom-nav">
+            <a href="/discover.html" class="nav-item active">
+                <i class="fa-solid fa-compass"></i>
+                <span>Discover</span>
+            </a>
+            <a href="/app.html" class="nav-item">
+                <i class="fa-solid fa-store"></i>
+                <span>My Hub</span>
+            </a>
+            <a href="/index.html" class="nav-item">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </a>
+        </nav>
+
+        <!-- ─── TOAST ─── -->
+        <div class="toast-container" id="toastContainer"></div>
+
+        <!-- ─── FILTER MODAL ─── -->
+        <div class="modal-overlay" id="filterModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Filters</h3>
+                    <button class="close" id="closeModal"><i class="fa-regular fa-xmark"></i></button>
+                </div>
+                <div class="category-grid" id="modalCategoryGrid"></div>
+                <div class="location-filters">
+                    <select id="filterCountry">
+                        <option value="">All Countries</option>
+                    </select>
+                    <select id="filterState">
+                        <option value="">All States</option>
+                    </select>
+                </div>
+                <button class="apply-btn" id="applyFilters">Apply Filters</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════
+        //  DATA
+        // ═══════════════════════════════════════════════════════════════════
+
+        const CATEGORIES = [
+            'Beauty', 'Fashion', 'Food', 'Tech', 'Services', 'Health',
+            'Education', 'Fitness', 'Photography', 'Real Estate',
+            'Automotive', 'Entertainment', 'Travel', 'Hospitality',
+            'Finance', 'Legal', 'Consulting', 'Construction',
+            'Agriculture', 'Manufacturing', 'Retail', 'Wholesale',
+            'Logistics', 'Media', 'Marketing', 'Design',
+            'Development', 'Writing', 'Translation', 'Tutoring',
+            'Coaching', 'Therapy', 'Wellness', 'Spa', 'Salon',
+            'Barber', 'Nails', 'Makeup', 'Skincare', 'Haircare',
+            'Jewelry', 'Watches', 'Shoes', 'Bags', 'Accessories',
+            'Electronics', 'Appliances', 'Furniture', 'Home Decor'
+        ];
+
+        const COUNTRIES = [
+            'Nigeria', 'United States', 'United Kingdom', 'Canada', 'Ghana',
+            'Kenya', 'South Africa', 'India', 'Germany', 'France',
+            'Spain', 'Italy', 'Australia', 'China', 'Japan',
+            'Brazil', 'Mexico', 'Russia', 'Netherlands', 'Sweden'
+        ];
+
+        const STATES = {
+            'Nigeria': ['Lagos', 'Abuja', 'Kano', 'Oyo', 'Kaduna', 'Rivers', 'Delta', 'Ogun', 'Edo', 'Ondo'],
+            'United States': ['California', 'Texas', 'New York', 'Florida', 'Illinois', 'Georgia', 'North Carolina', 'Michigan', 'Ohio', 'Pennsylvania'],
+            'United Kingdom': ['England', 'Scotland', 'Wales', 'Northern Ireland'],
+            'Canada': ['Ontario', 'Quebec', 'British Columbia', 'Alberta'],
+            'Ghana': ['Greater Accra', 'Ashanti', 'Western', 'Central'],
+            'Kenya': ['Nairobi', 'Mombasa', 'Kisumu', 'Nakuru']
+        };
+
+        const API_BASE = 'https://emltechstudio-myshub-api.hf.space';
+        const BASE_URL = 'https://myshub.site';
+
+        // ─── ADS ──────────────────────────────────────────────────────────
+        const ADS = [
+            { title: 'Boost Your Business', desc: 'Get premium tools to grow online.', icon: 'fa-solid fa-rocket', color: '#fef3c7', link: 'https://emltechstudio.site/app-suite' },
+            { title: 'Brand Design', desc: 'Professional logos & identity.', icon: 'fa-solid fa-palette', color: '#fce7f3', link: 'https://emltechstudio.site/services#brand-designs' },
+            { title: 'Web Development', desc: 'Custom websites built for you.', icon: 'fa-solid fa-code', color: '#d1fae5', link: 'https://emltechstudio.site/services' }
+        ];
+
+        // ─── STATE ──────────────────────────────────────────────────────
+        let state = {
+            shops: [],
+            filteredShops: [],
+            featuredShops: [],
+            page: 1,
+            limit: 12,
+            hasMore: false,
+            isLoading: false,
+            searchQuery: '',
+            selectedCategory: 'all',
+            selectedCountry: '',
+            selectedState: '',
+            viewMode: 'grid',
+            isFilterModalOpen: false,
+            isLoggedIn: false,
+            notifications: []
+        };
+
+        // ─── DOM REFS ──────────────────────────────────────────────────
+        const $ = id => document.getElementById(id);
+        const searchInput = $('searchInput');
+        const clearBtn = $('clearBtn');
+        const searchBtn = $('searchBtn');
+        const filterSection = $('filterSection');
+        const filterMoreBtn = $('filterMoreBtn');
+        const filterModal = $('filterModal');
+        const closeModal = $('closeModal');
+        const modalCategoryGrid = $('modalCategoryGrid');
+        const filterCountry = $('filterCountry');
+        const filterState = $('filterState');
+        const applyFiltersBtn = $('applyFilters');
+        const resultsSection = $('resultsSection');
+        const resultCount = $('resultCount');
+        const shopsGrid = $('shopsGrid');
+        const featuredGrid = $('featuredGrid');
+        const adsGrid = $('adsGrid');
+        const loadMoreBtn = $('loadMoreBtn');
+        const loadMoreContainer = $('loadMoreContainer');
+        const emptyState = $('emptyState');
+        const loadingState = $('loadingState');
+        const notifBell = $('notifBell');
+        const notifBadge = $('notifBadge');
+        const toastContainer = $('toastContainer');
+
+        // ─── TOAST ─────────────────────────────────────────────────────
+        function showToast(msg, type = 'info', duration = 4000) {
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            const iconMap = { success: 'fa-regular fa-circle-check', error: 'fa-regular fa-circle-xmark', info: 'fa-regular fa-circle-info' };
+            t.innerHTML = `<i class="${iconMap[type] || iconMap.info}"></i><span>${msg}</span><button class="toast-close"><i class="fa-regular fa-xmark"></i></button>`;
+            toastContainer.appendChild(t);
+            requestAnimationFrame(() => t.classList.add('show'));
+            t.querySelector('.toast-close').addEventListener('click', () => {
+                t.classList.remove('show');
+                setTimeout(() => t.remove(), 300);
+            });
+            setTimeout(() => {
+                t.classList.remove('show');
+                setTimeout(() => t.remove(), 300);
+            }, duration);
+        }
+
+        // ─── NOTIFICATIONS ─────────────────────────────────────────────
+        function updateNotifBadge() {
+            const unread = state.notifications.filter(n => !n.read).length;
+            if (unread > 0) {
+                notifBadge.textContent = unread > 9 ? '9+' : unread;
+                notifBadge.classList.remove('hidden');
+            } else {
+                notifBadge.classList.add('hidden');
+            }
+        }
+
+        async function loadNotifications() {
+            try {
+                const session = JSON.parse(localStorage.getItem('myshub_session') || 'null');
+                if (!session) return;
+                const resp = await fetch(`${API_BASE}/notifications/`, {
+                    headers: { 'email': session.email, 'password': session.password }
+                });
+                if (resp.ok) {
+                    const data = await resp.json();
+                    state.notifications = data || [];
+                    updateNotifBadge();
+                }
+            } catch (e) {}
+        }
+
+        // ─── SESSION ──────────────────────────────────────────────────
+        function checkSession() {
+            const session = JSON.parse(localStorage.getItem('myshub_session') || 'null');
+            state.isLoggedIn = !!(session && session.email && session.password);
+            const loginBtn = $('loginBtn');
+            if (state.isLoggedIn) {
+                loginBtn.textContent = 'Dashboard';
+                loginBtn.href = '/app.html';
+            } else {
+                loginBtn.textContent = 'Sign In';
+                loginBtn.href = '/app.html#login';
+            }
+            if (state.isLoggedIn) {
+                loadNotifications();
+            }
+        }
+
+        // ─── BUILD FILTER CHIPS ──────────────────────────────────────
+        function buildFilterChips() {
+            // Remove existing chips except "All" and "Filters"
+            const chips = filterSection.querySelectorAll('.filter-chip:not([data-category="all"])');
+            chips.forEach(el => el.remove());
+
+            // Show first 8 categories as chips
+            const visibleCategories = CATEGORIES.slice(0, 8);
+            visibleCategories.forEach(cat => {
+                const chip = document.createElement('button');
+                chip.className = 'filter-chip';
+                chip.dataset.category = cat;
+                chip.textContent = cat;
+                chip.addEventListener('click', () => {
+                    selectCategory(cat);
+                });
+                filterSection.insertBefore(chip, filterMoreBtn);
+            });
+        }
+
+        function selectCategory(category) {
+            state.selectedCategory = category;
+            // Update chips
+            filterSection.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.classList.toggle('active', chip.dataset.category === category);
+            });
+            state.page = 1;
+            loadShops();
+        }
+
+        // ─── BUILD MODAL CATEGORIES ──────────────────────────────────
+        function buildModalCategories() {
+            modalCategoryGrid.innerHTML = '';
+            CATEGORIES.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'cat-item' + (cat === state.selectedCategory ? ' active' : '');
+                btn.textContent = cat;
+                btn.addEventListener('click', () => {
+                    modalCategoryGrid.querySelectorAll('.cat-item').forEach(el => el.classList.remove('active'));
+                    btn.classList.add('active');
+                    state.selectedCategory = cat;
+                });
+                modalCategoryGrid.appendChild(btn);
+            });
+        }
+
+        // ─── BUILD LOCATION FILTERS ──────────────────────────────────
+        function buildLocationFilters() {
+            filterCountry.innerHTML = '<option value="">All Countries</option>';
+            COUNTRIES.forEach(c => {
+                filterCountry.innerHTML += `<option value="${c}">${c}</option>`;
+            });
+            filterCountry.value = state.selectedCountry;
+
+            updateStateOptions();
+        }
+
+        function updateStateOptions() {
+            const country = filterCountry.value;
+            filterState.innerHTML = '<option value="">All States</option>';
+            if (country && STATES[country]) {
+                STATES[country].forEach(s => {
+                    filterState.innerHTML += `<option value="${s}">${s}</option>`;
+                });
+            }
+            filterState.value = state.selectedState;
+        }
+
+        filterCountry.addEventListener('change', updateStateOptions);
+
+        // ─── VIEW TOGGLE ──────────────────────────────────────────────
+        document.querySelectorAll('.view-toggle button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.viewMode = btn.dataset.view;
+                shopsGrid.className = 'shops-grid' + (state.viewMode === 'list' ? ' list-view' : '');
+                renderShops();
+            });
+        });
+
+        // ─── SEARCH ────────────────────────────────────────────────────
+        searchInput.addEventListener('input', () => {
+            clearBtn.classList.toggle('show', searchInput.value.length > 0);
+        });
+
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                doSearch();
+            }
+        });
+
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            clearBtn.classList.remove('show');
+            state.searchQuery = '';
+            state.page = 1;
+            loadShops();
+            searchInput.focus();
+        });
+
+        searchBtn.addEventListener('click', doSearch);
+
+        function doSearch() {
+            state.searchQuery = searchInput.value.trim();
+            state.page = 1;
+            loadShops();
+        }
+
+        // ─── FILTER MODAL ─────────────────────────────────────────────
+        filterMoreBtn.addEventListener('click', () => {
+            filterModal.classList.add('active');
+            state.isFilterModalOpen = true;
+            // Sync modal with current state
+            modalCategoryGrid.querySelectorAll('.cat-item').forEach(el => {
+                el.classList.toggle('active', el.textContent === state.selectedCategory);
+            });
+            filterCountry.value = state.selectedCountry;
+            updateStateOptions();
+            filterState.value = state.selectedState;
+        });
+
+        closeModal.addEventListener('click', () => {
+            filterModal.classList.remove('active');
+            state.isFilterModalOpen = false;
+        });
+
+        filterModal.addEventListener('click', (e) => {
+            if (e.target === filterModal) {
+                filterModal.classList.remove('active');
+                state.isFilterModalOpen = false;
+            }
+        });
+
+        applyFiltersBtn.addEventListener('click', () => {
+            // Get values from modal
+            const activeCat = modalCategoryGrid.querySelector('.cat-item.active');
+            if (activeCat) {
+                state.selectedCategory = activeCat.textContent;
+            } else {
+                state.selectedCategory = 'all';
+            }
+            state.selectedCountry = filterCountry.value;
+            state.selectedState = filterState.value;
+            state.page = 1;
+
+            // Update chips
+            filterSection.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.classList.toggle('active', chip.dataset.category === state.selectedCategory);
+            });
+
+            filterModal.classList.remove('active');
+            state.isFilterModalOpen = false;
+            loadShops();
+            showToast('Filters applied', 'success', 1500);
+        });
+
+        // ─── RESET FILTERS ────────────────────────────────────────────
+        window.resetFilters = function() {
+            state.searchQuery = '';
+            state.selectedCategory = 'all';
+            state.selectedCountry = '';
+            state.selectedState = '';
+            state.page = 1;
+            searchInput.value = '';
+            clearBtn.classList.remove('show');
+            filterSection.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.classList.toggle('active', chip.dataset.category === 'all');
+            });
+            loadShops();
+        };
+
+        // ─── LOAD SHOPS ──────────────────────────────────────────────
+        async function loadShops() {
+            if (state.isLoading) return;
+            state.isLoading = true;
+            loadingState.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            shopsGrid.innerHTML = '';
+
+            try {
+                // Build query params
+                const params = new URLSearchParams();
+                params.set('page', state.page);
+                params.set('limit', state.limit);
+                if (state.searchQuery) params.set('q', state.searchQuery);
+                if (state.selectedCategory !== 'all') params.set('category', state.selectedCategory);
+                if (state.selectedCountry) params.set('country', state.selectedCountry);
+                if (state.selectedState) params.set('state', state.selectedState);
+
+                // Try to fetch from API
+                let response = await fetch(`${API_BASE}/discover/search?${params.toString()}`);
+                let data = await response.json();
+
+                // If no shops or API not ready, use demo data
+                if (!data.shops || data.shops.length === 0) {
+                    data = generateDemoData();
+                }
+
+                // Store all shops for filtering
+                if (state.page === 1) {
+                    state.shops = data.shops || [];
+                    state.featuredShops = data.featured || [];
+                    state.hasMore = data.hasMore || false;
+                } else {
+                    state.shops = [...state.shops, ...(data.shops || [])];
+                    state.hasMore = data.hasMore || false;
+                }
+
+                renderAll();
+
+            } catch (error) {
+                console.error('Error loading shops:', error);
+                // Fallback to demo data
+                const data = generateDemoData();
+                state.shops = data.shops || [];
+                state.featuredShops = data.featured || [];
+                state.hasMore = false;
+                renderAll();
+            } finally {
+                state.isLoading = false;
+                loadingState.classList.add('hidden');
+            }
+        }
+
+        // ─── GENERATE DEMO DATA ──────────────────────────────────────
+        function generateDemoData() {
+            const demoShops = [
+                { slug: 'amaraglow-beauty', business_name: "Amara's Glow Beauty", tagline: "Premium skincare & beauty products", category: 'Beauty', country: 'Nigeria', state: 'Lagos', city: 'Lekki', plan: 'premium', logo_url: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=200&h=200&fit=crop&crop=face', visit_count: 1247, description: "Curating the best skincare and beauty products for melanin-rich skin. Everything is tested and trusted." },
+                { slug: 'taste-of-africa', business_name: "Taste of Africa", tagline: "Authentic African cuisine delivered to your door", category: 'Food', country: 'Nigeria', state: 'Lagos', city: 'Ikeja', plan: 'pro', logo_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=200&h=200&fit=crop&crop=center', visit_count: 856, description: "Bringing the rich flavors of Africa to your table. From jollof rice to egusi soup, we've got you covered." },
+                { slug: 'tech-solutions-ng', business_name: "Tech Solutions NG", tagline: "Web development & IT consulting", category: 'Tech', country: 'Nigeria', state: 'Abuja', city: 'Garki', plan: 'premium', logo_url: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=200&h=200&fit=crop&crop=face', visit_count: 2341, description: "Building the future of tech in Africa. We design, develop, and deploy innovative solutions for businesses of all sizes." },
+                { slug: 'fashion-forward', business_name: "Fashion Forward", tagline: "Contemporary African fashion for the modern woman", category: 'Fashion', country: 'Nigeria', state: 'Lagos', city: 'Victoria Island', plan: 'free', logo_url: 'https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?w=200&h=200&fit=crop&crop=face', visit_count: 432, description: "Elevate your style with our collection of contemporary African fashion. Quality fabrics, unique designs, and affordable prices." },
+                { slug: 'glow-spa-wellness', business_name: "Glow Spa & Wellness", tagline: "Rejuvenate your mind, body, and soul", category: 'Wellness', country: 'Nigeria', state: 'Lagos', city: 'Surulere', plan: 'pro', logo_url: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=200&h=200&fit=crop&crop=face', visit_count: 678, description: "Experience the ultimate relaxation with our spa and wellness services. From massages to facials, we've got you covered." },
+                { slug: 'build-right-construction', business_name: "Build Right Construction", tagline: "Quality construction services you can trust", category: 'Construction', country: 'Nigeria', state: 'Lagos', city: 'Ikeja', plan: 'free', logo_url: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=200&h=200&fit=crop&crop=center', visit_count: 234, description: "Building dreams one project at a time. We specialize in residential and commercial construction." },
+                { slug: 'health-first-pharmacy', business_name: "Health First Pharmacy", tagline: "Your health is our priority", category: 'Health', country: 'Nigeria', state: 'Oyo', city: 'Ibadan', plan: 'free', logo_url: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=200&h=200&fit=crop&crop=face', visit_count: 189, description: "Quality pharmaceutical products and professional healthcare services. We deliver across Nigeria." },
+                { slug: 'edu-grow-tutoring', business_name: "EduGrow Tutoring", tagline: "Unlock your child's full potential", category: 'Education', country: 'Nigeria', state: 'Abuja', city: 'Wuse', plan: 'pro', logo_url: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=200&h=200&fit=crop&crop=center', visit_count: 345, description: "Personalized tutoring services for primary and secondary school students. We make learning fun and effective." },
+                { slug: 'fit-life-gym', business_name: "Fit Life Gym", tagline: "Transform your body, transform your life", category: 'Fitness', country: 'Nigeria', state: 'Lagos', city: 'Lekki', plan: 'free', logo_url: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=200&h=200&fit=crop&crop=center', visit_count: 567, description: "State-of-the-art fitness facility with professional trainers. Join us and start your fitness journey today." },
+                { slug: 'snap-creative-photography', business_name: "Snap Creative Photography", tagline: "Capturing life's most beautiful moments", category: 'Photography', country: 'Nigeria', state: 'Lagos', city: 'Victoria Island', plan: 'premium', logo_url: 'https://images.unsplash.com/photo-1452784444945-3f422708fe5e?w=200&h=200&fit=crop&crop=face', visit_count: 789, description: "Professional photography services for weddings, events, portraits, and commercial projects. We tell your story through images." },
+                { slug: 'green-thumb-gardening', business_name: "Green Thumb Gardening", tagline: "Bringing life to your outdoor spaces", category: 'Home Decor', country: 'Nigeria', state: 'Lagos', city: 'Surulere', plan: 'free', logo_url: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=200&h=200&fit=crop&crop=center', visit_count: 123, description: "Professional landscaping and gardening services. We design, install, and maintain beautiful outdoor spaces." },
+                { slug: 'legal-ease-consulting', business_name: "LegalEase Consulting", tagline: "Expert legal advice made simple", category: 'Legal', country: 'Nigeria', state: 'Lagos', city: 'Ikeja', plan: 'pro', logo_url: 'https://images.unsplash.com/photo-1589829546156-2451ed5d6a7d?w=200&h=200&fit=crop&crop=face', visit_count: 456, description: "Professional legal consulting services for individuals and businesses. We make the law work for you." }
+            ];
+
+            // Sort: premium first, then pro, then free
+            const sortedShops = demoShops.sort((a, b) => {
+                const order = { premium: 0, pro: 1, free: 2 };
+                return (order[a.plan] || 3) - (order[b.plan] || 3);
+            });
+
+            return {
+                shops: sortedShops,
+                featured: sortedShops.filter(s => s.plan === 'premium').slice(0, 3),
+                hasMore: false
+            };
+        }
+
+        // ─── RENDER ALL ──────────────────────────────────────────────
+        function renderAll() {
+            renderFeatured();
+            renderShops();
+            renderAds();
+            updateResultCount();
+            updateLoadMore();
+        }
+
+        // ─── RENDER FEATURED ──────────────────────────────────────────
+        function renderFeatured() {
+            if (!state.featuredShops || state.featuredShops.length === 0) {
+                featuredGrid.innerHTML = '<p class="text-muted" style="padding:12px 0;">No featured shops yet.</p>';
+                return;
+            }
+            featuredGrid.innerHTML = state.featuredShops.map(shop => `
+                <a href="/shop.html?slug=${shop.slug}" class="featured-card">
+                    ${shop.logo_url ? `<img src="${shop.logo_url}" alt="${shop.business_name}" class="logo" onerror="this.style.display='none'">` : `<div class="logo" style="display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.15);"><i class="fa-solid fa-store" style="font-size:1.2rem;"></i></div>`}
+                    <div class="info">
+                        <div class="name">${shop.business_name || 'Unnamed Shop'} <span class="badge">${shop.plan || 'free'}</span></div>
+                        <div class="tagline">${shop.tagline || ''}</div>
+                    </div>
+                    <div class="arrow"><i class="fa-regular fa-chevron-right"></i></div>
+                </a>
+            `).join('');
+        }
+
+        // ─── RENDER SHOPS ─────────────────────────────────────────────
+        function renderShops() {
+            if (!state.shops || state.shops.length === 0) {
+                shopsGrid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            shopsGrid.className = 'shops-grid' + (state.viewMode === 'list' ? ' list-view' : '');
+
+            shopsGrid.innerHTML = state.shops.map(shop => `
+                <a href="/shop.html?slug=${shop.slug}" class="shop-card">
+                    <div class="card-header">
+                        ${shop.logo_url ? `<img src="${shop.logo_url}" alt="${shop.business_name}" class="logo" onerror="this.style.display='none'">` : `<div class="logo" style="display:flex;align-items:center;justify-content:center;background:var(--bg);border:1px solid var(--border);"><i class="fa-solid fa-store" style="font-size:1.2rem;color:var(--text3);"></i></div>`}
+                        <div class="info">
+                            <div class="name">
+                                ${shop.business_name || 'Unnamed Shop'}
+                                ${shop.plan === 'premium' ? `<span class="badge premium">Premium</span>` : ''}
+                                ${shop.plan === 'pro' ? `<span class="badge pro">Pro</span>` : ''}
+                            </div>
+                            ${shop.tagline ? `<div class="tagline">${shop.tagline}</div>` : ''}
+                        </div>
+                    </div>
+                    ${shop.description ? `<div class="card-body">${shop.description}</div>` : ''}
+                    <div class="card-footer">
+                        <div class="location">
+                            <i class="fa-regular fa-location-dot"></i>
+                            ${shop.city || shop.state || shop.country || 'Location not set'}
+                        </div>
+                        <div class="stats">
+                            ${shop.visit_count ? `<span><i class="fa-regular fa-eye"></i> ${shop.visit_count}</span>` : ''}
+                            <span class="category-tag">${shop.category || 'Uncategorized'}</span>
+                        </div>
+                    </div>
+                </a>
+            `).join('');
+        }
+
+        // ─── RENDER ADS ────────────────────────────────────────────────
+        function renderAds() {
+            adsGrid.innerHTML = ADS.map(ad => `
+                <a href="${ad.link}" target="_blank" class="ad-card">
+                    <div class="icon" style="background:${ad.color};">
+                        <i class="${ad.icon}" style="color:var(--brand-dark);"></i>
+                    </div>
+                    <div class="info">
+                        <div class="title">${ad.title}</div>
+                        <div class="desc">${ad.desc}</div>
+                    </div>
+                    <span class="sponsored">Sponsored</span>
+                </a>
+            `).join('');
+        }
+
+        // ─── UPDATE RESULT COUNT ──────────────────────────────────────
+        function updateResultCount() {
+            const total = state.shops.length + (state.featuredShops?.length || 0);
+            const searchText = state.searchQuery ? ` for "${state.searchQuery}"` : '';
+            const filterText = state.selectedCategory !== 'all' ? ` in ${state.selectedCategory}` : '';
+            resultCount.textContent = `${total} businesses found${searchText}${filterText}`;
+        }
+
+        // ─── UPDATE LOAD MORE ─────────────────────────────────────────
+        function updateLoadMore() {
+            if (state.hasMore) {
+                loadMoreContainer.classList.remove('hidden');
+            } else {
+                loadMoreContainer.classList.add('hidden');
+            }
+        }
+
+        // ─── LOAD MORE ────────────────────────────────────────────────
+        loadMoreBtn.addEventListener('click', () => {
+            if (state.isLoading || !state.hasMore) return;
+            state.page++;
+            loadShops();
+        });
+
+        // ─── NOTIFICATION BELL ─────────────────────────────────────────
+        notifBell.addEventListener('click', () => {
+            // Show notifications (simple for now)
+            if (state.notifications.length === 0) {
+                showToast('No notifications yet', 'info', 2000);
+                return;
+            }
+            const unread = state.notifications.filter(n => !n.read).length;
+            const msg = `You have ${state.notifications.length} notification${state.notifications.length > 1 ? 's' : ''}${unread > 0 ? ` (${unread} unread)` : ''}`;
+            showToast(msg, 'info', 3000);
+            // Mark all as read
+            state.notifications.forEach(n => n.read = true);
+            updateNotifBadge();
+        });
+
+        // ─── SERVICE WORKER ────────────────────────────────────────────
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw-discover.js').catch(() => {});
+        }
+
+        // ─── INIT ──────────────────────────────────────────────────────
+        async function init() {
+            checkSession();
+            buildFilterChips();
+            buildModalCategories();
+            buildLocationFilters();
+            await loadShops();
+
+            // Listen for auth changes
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'myshub_session') {
+                    checkSession();
+                }
+            });
+        }
+
+        init();
+        console.log('MyShub Discover loaded.');
+    </script>
+</body>
+</html>
