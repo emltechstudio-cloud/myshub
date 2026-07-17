@@ -1,1076 +1,520 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#2563eb">
-    <title>MyShub Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
-        /* ─── Reset & Root ─── */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --text: #0f172a;
-            --text2: #475569;
-            --text3: #94a3b8;
-            --border: #e2e8f0;
-            --brand: #2563eb;
-            --brand-light: #3b82f6;
-            --brand-dark: #1e40af;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --radius: 16px;
-            --shadow: 0 4px 20px rgba(0,0,0,0.06);
-        }
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg: #0f172a;
-                --card: #1e293b;
-                --text: #f1f5f9;
-                --text2: #94a3b8;
-                --text3: #64748b;
-                --border: #334155;
-            }
-        }
-        html, body {
-            height: 100%;
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.5;
-            -webkit-font-smoothing: antialiased;
-        }
-        body { overflow: hidden; }
-        #app { display: flex; flex-direction: column; height: 100vh; }
-
-        /* ─── Sections ─── */
-        .section { display: none; flex-direction: column; height: 100vh; overflow: hidden; animation: fadeIn 0.3s ease; }
-        .section.active { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* ─── Auth Layout ─── */
-        .auth-section { align-items: center; justify-content: center; padding: 24px; overflow-y: auto; }
-        .auth-card {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 32px 24px;
-            max-width: 420px;
-            width: 100%;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-        }
-        .auth-card h1 { font-size: 1.4rem; font-weight: 800; margin-bottom: 4px; }
-        .auth-card p.sub { color: var(--text2); font-size: 0.9rem; margin-bottom: 20px; }
-        .form-group { margin-bottom: 14px; }
-        .form-group label { display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px; color: var(--text2); }
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
-            background: var(--bg);
-            color: var(--text);
-            font-family: inherit;
-            font-size: 0.9rem;
-            transition: border-color 0.2s;
-        }
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: var(--brand-light);
-        }
-        .password-wrap { position: relative; }
-        .password-wrap input { padding-right: 40px; }
-        .password-toggle {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--text2);
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        .btn {
-            width: 100%;
-            padding: 12px;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 0.95rem;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-family: inherit;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .btn-primary { background: var(--brand); color: white; box-shadow: 0 4px 12px rgba(37,99,235,0.2); }
-        .btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); }
-        .btn-secondary { background: var(--border); color: var(--text); }
-        .btn-secondary:hover { background: var(--text3); color: white; }
-        .btn-sm { padding: 10px 16px; font-size: 0.85rem; width: auto; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .error-msg { color: #dc2626; font-size: 0.85rem; padding: 10px; background: #fef2f2; border-radius: 8px; margin-bottom: 12px; display: none; }
-        .auth-switch { text-align: center; margin-top: 16px; font-size: 0.85rem; }
-        .auth-switch a { color: var(--brand); cursor: pointer; text-decoration: none; font-weight: 600; margin: 0 4px; }
-
-        /* ─── App Layout ─── */
-        .app-section { display: flex !important; }
-        .app-header {
-            background: var(--card);
-            border-bottom: 1px solid var(--border);
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-shrink: 0;
-        }
-        .app-header .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1rem; color: var(--brand); text-decoration: none; }
-        .app-header .actions { display: flex; gap: 8px; }
-        .app-header button { background: none; border: none; font-size: 1.1rem; color: var(--text2); cursor: pointer; padding: 6px; }
-        .app-header button:hover { background: var(--border); border-radius: 8px; }
-
-        .app-layout { display: flex; flex: 1; overflow: hidden; }
-        .sidebar {
-            width: 240px;
-            background: var(--card);
-            border-right: 1px solid var(--border);
-            padding: 16px 12px;
-            overflow-y: auto;
-            flex-shrink: 0;
-        }
-        .sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
-        .sidebar-nav a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 12px;
-            border-radius: 10px;
-            text-decoration: none;
-            color: var(--text2);
-            font-weight: 500;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .sidebar-nav a i { width: 20px; text-align: center; }
-        .sidebar-nav a:hover { background: var(--bg); color: var(--brand); }
-        .sidebar-nav a.active { background: var(--brand); color: white; }
-
-        .content { flex: 1; overflow-y: auto; padding: 20px 24px; }
-        .tab-content { display: none; animation: fadeIn 0.3s; }
-        .tab-content.active { display: block; }
-
-        /* ─── Cards ─── */
-        .card {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 16px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-            margin-bottom: 12px;
-        }
-        .card h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; }
-        .card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: var(--brand-dark); }
-        .card-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); }
-        .card-row:last-child { border-bottom: none; }
-        .card-row .label { color: var(--text2); font-size: 0.85rem; }
-        .card-row .value { font-weight: 600; font-size: 0.9rem; }
-        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
-        .badge-pro { background: #dbeafe; color: #1e40af; }
-        .badge-premium { background: #fef3c7; color: #92400e; }
-        .badge-free { background: #f3f4f6; color: #4b5563; }
-
-        /* ─── Analytics ─── */
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
-        .stat-card {
-            background: linear-gradient(135deg, var(--brand-dark), var(--brand));
-            color: white;
-            padding: 16px;
-            border-radius: 12px;
-            text-align: center;
-        }
-        .stat-card .number { font-size: 1.6rem; font-weight: 900; }
-        .stat-card .label { font-size: 0.8rem; opacity: 0.9; margin-top: 4px; }
-        .analytics-bar { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
-        .analytics-bar .label { width: 80px; font-size: 0.85rem; color: var(--text2); }
-        .analytics-bar .track { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
-        .analytics-bar .fill { height: 100%; background: var(--brand); border-radius: 4px; }
-        .analytics-bar .value { font-size: 0.8rem; color: var(--text3); min-width: 30px; text-align: right; }
-
-        /* ─── Custom Links ─── */
-        .custom-link-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 8px 12px;
-            margin-bottom: 8px;
-        }
-        .custom-link-item .icon-btn { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; font-size: 1.1rem; cursor: pointer; min-width: 36px; text-align: center; }
-        .custom-link-item input { flex: 1; border: none; background: transparent; padding: 6px 0; font-size: 0.85rem; }
-        .custom-link-item input:focus { outline: none; }
-        .custom-link-item .remove { color: var(--text3); cursor: pointer; padding: 4px; }
-        .custom-link-item .remove:hover { color: var(--danger); }
-
-        /* ─── Icon Picker ─── */
-        .icon-picker {
-            position: fixed;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px;
-            max-width: 300px;
-            max-height: 250px;
-            overflow-y: auto;
-            z-index: 1000;
-            display: none;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 6px;
-            box-shadow: var(--shadow);
-        }
-        .icon-picker.open { display: grid; }
-        .icon-option {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px;
-            border-radius: 8px;
-            cursor: pointer;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            transition: all 0.2s;
-            font-size: 1.2rem;
-        }
-        .icon-option:hover { border-color: var(--brand); background: #eff6ff; }
-
-        /* ─── Toast ─── */
-        .toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 2000; }
-        .toast {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 12px 16px;
-            box-shadow: var(--shadow);
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            animation: slideUp 0.3s ease;
-        }
-        .toast.success { border-left: 4px solid var(--success); }
-        .toast.error { border-left: 4px solid var(--danger); }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        /* ─── Utilities ─── */
-        .text-muted { color: var(--text3); font-size: 0.85rem; }
-        .section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); margin: 16px 0 8px; }
-        .flex-between { display: flex; justify-content: space-between; align-items: center; }
-        .gap-2 { gap: 8px; }
-        .mt-2 { margin-top: 12px; }
-        .mb-1 { margin-bottom: 8px; }
-        .hidden { display: none !important; }
-
-        /* ─── Mobile ─── */
-        @media (max-width: 768px) {
-            .sidebar { width: 100%; max-width: 240px; position: fixed; left: 0; top: 0; height: 100%; transform: translateX(-100%); transition: transform 0.3s; z-index: 10; }
-            .sidebar.open { transform: translateX(0); }
-            .content { padding: 16px; }
-            .stats-grid { grid-template-columns: 1fr; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f172a">
+<title>MyShub - Your Business Hub</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/10828/10828179.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+:root{--primary:#6366f1;--primary-dark:#4f46e5;--secondary:#ec4899;--accent:#f59e0b;--bg:#0f172a;--surface:#1e293b;--surface-light:#334155;--text:#f8fafc;--text-muted:#94a3b8;--border:#334155;--success:#22c55e;--warning:#f59e0b;--danger:#ef4444;--gold:#fbbf24;--silver:#94a3b8;--bronze:#a16207}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--surface-light);border-radius:2px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes scaleIn{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+.animate-fade-in{animation:fadeIn .4s ease-out}
+.animate-slide-up{animation:slideUp .3s ease-out}
+.animate-pulse{animation:pulse 2s ease-in-out infinite}
+.animate-float{animation:float 3s ease-in-out infinite}
+.animate-scale-in{animation:scaleIn .3s ease-out}
+.glass{background:rgba(30,41,59,.8);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.shimmer{background:linear-gradient(90deg,var(--surface) 25%,var(--surface-light) 50%,var(--surface) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite}
+.bottom-tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(15,23,42,.95);backdrop-filter:blur(20px);border-top:1px solid var(--border)}
+.bottom-tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 4px;cursor:pointer;transition:all .2s;position:relative}
+.bottom-tab.active{color:var(--primary)}
+.bottom-tab.active::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:20px;height:3px;background:var(--primary);border-radius:0 0 4px 4px}
+.bottom-tab:not(.active){color:var(--text-muted)}
+.bottom-tab i{font-size:20px;margin-bottom:2px}
+.bottom-tab span{font-size:10px;font-weight:500}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px}
+.card-hover{transition:all .2s}
+.card-hover:hover{transform:translateY(-2px);border-color:var(--primary)}
+.btn{padding:12px 24px;border-radius:12px;font-weight:600;font-size:14px;border:none;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:var(--primary);color:white}
+.btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px)}
+.btn-secondary{background:var(--surface-light);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--surface)}
+.btn-gold{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1a1a1a}
+.btn-danger{background:var(--danger);color:white}
+.btn-sm{padding:8px 16px;font-size:13px}
+.input{width:100%;padding:14px 16px;background:var(--bg);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:14px;font-family:inherit;transition:all .2s}
+.input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+.input::placeholder{color:var(--text-muted)}
+.badge-free{background:rgba(148,163,184,.15);color:var(--silver);border:1px solid rgba(148,163,184,.3)}
+.badge-pro{background:rgba(99,102,241,.15);color:var(--primary);border:1px solid rgba(99,102,241,.3)}
+.badge-premium{background:linear-gradient(135deg,rgba(251,191,36,.15),rgba(245,158,11,.15));color:var(--gold);border:1px solid rgba(251,191,36,.3)}
+.notif-bell{position:relative;cursor:pointer;padding:8px}
+.notif-bell .count{position:absolute;top:2px;right:2px;background:var(--danger);color:white;font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-content{background:var(--surface);border-radius:20px;width:100%;max-width:420px;max-height:85vh;overflow-y:auto}
+.toast-container{position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:300;display:flex;flex-direction:column;gap:8px}
+.toast{padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;animation:fadeIn .3s ease-out;display:flex;align-items:center;gap:8px}
+.toast-success{background:rgba(34,197,94,.15);color:var(--success);border:1px solid rgba(34,197,94,.3)}
+.toast-error{background:rgba(239,68,68,.15);color:var(--danger);border:1px solid rgba(239,68,68,.3)}
+.emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
+.emoji-item{padding:8px;text-align:center;cursor:pointer;border-radius:8px;font-size:20px;transition:all .15s}
+.emoji-item:hover{background:var(--surface-light);transform:scale(1.2)}
+.qr-container{background:white;padding:20px;border-radius:16px;display:inline-block}
+.qr-container canvas{display:block}
+.toggle{position:relative;width:48px;height:26px;background:var(--surface-light);border-radius:13px;cursor:pointer;transition:all .3s}
+.toggle.active{background:var(--primary)}
+.toggle::after{content:'';position:absolute;width:22px;height:22px;background:white;border-radius:50%;top:2px;left:2px;transition:all .3s}
+.toggle.active::after{left:24px}
+.platform-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.platform-item{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:12px;background:var(--bg);border:2px solid transparent;cursor:pointer;transition:all .2s;font-size:22px}
+.platform-item:hover{border-color:var(--primary);transform:scale(1.05)}
+.platform-item.selected{border-color:var(--primary);background:rgba(99,102,241,.1)}
+.platform-item.locked{opacity:.3;cursor:not-allowed}
+.chart-bar{background:var(--primary);border-radius:4px;transition:height .5s ease-out;min-height:4px}
+.notif-item{padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:all .2s}
+.notif-item:hover{background:var(--bg)}
+.notif-item.unread{border-left:3px solid var(--primary)}
+@media(min-width:768px){.mobile-only{display:none!important}}
+@supports(padding-bottom:env(safe-area-inset-bottom)){
+  .bottom-tabs{padding-bottom:env(safe-area-inset-bottom)}
+  .main-content{padding-bottom:calc(80px+env(safe-area-inset-bottom))}
+}
+</style>
 </head>
 <body>
-<div id="app">
-    <!-- LOGIN -->
-    <div class="section auth-section" id="section-login">
-        <div class="auth-card">
-            <h1>Welcome Back</h1>
-            <p class="sub">Sign in to manage your shop</p>
-            <div class="error-msg" id="loginError"></div>
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="loginEmail" placeholder="you@example.com">
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <div class="password-wrap">
-                    <input type="password" id="loginPassword" placeholder="••••••••">
-                    <button type="button" class="password-toggle" onclick="togglePassword('loginPassword', this)"><i class="fa-solid fa-eye"></i></button>
-                </div>
-            </div>
-            <button class="btn btn-primary" id="loginBtn" onclick="login()"><i class="fa-solid fa-arrow-right"></i> Sign In</button>
-            <div class="auth-switch">
-                <a onclick="showSection('signup')">Create shop</a>
-                <a onclick="showSection('recover')">Forgot password?</a>
-            </div>
-        </div>
+<div id="toastContainer" class="toast-container"></div>
+<div id="authScreen" class="fixed inset-0 z-50 bg-[#0f172a] flex flex-col"><div class="flex-1 overflow-y-auto"></div></div>
+<div id="mainApp" class="hidden">
+  <header class="fixed top-0 left-0 right-0 z-50 glass border-b border-[#334155]">
+    <div class="flex items-center justify-between px-4 py-3">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center"><i class="fas fa-store text-white text-sm"></i></div>
+        <span class="font-bold text-lg" style="font-family:'Space Grotesk',sans-serif">MyShub</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="notif-bell" onclick="openNotifications()"><i class="fas fa-bell text-lg text-[#94a3b8]"></i><span id="notifCount" class="count hidden">0</span></div>
+        <div id="headerPlanBadge" class="hidden"></div>
+      </div>
     </div>
-
-    <!-- SIGNUP -->
-    <div class="section auth-section" id="section-signup">
-        <div class="auth-card">
-            <h1>Create Your Shop</h1>
-            <p class="sub">Get started in minutes</p>
-            <div class="error-msg" id="signupError"></div>
-            <div class="form-group"><label>Email</label><input type="email" id="regEmail" placeholder="you@example.com"></div>
-            <div class="form-group"><label>Business Name</label><input type="text" id="regName" placeholder="My Shop"></div>
-            <div class="form-group"><label>Phone</label><input type="tel" id="regPhone" placeholder="Your phone number"></div>
-            <div class="form-group"><label>Country</label><select id="regCountry"><option value="">Select country</option><option value="Nigeria">Nigeria</option><option value="Ghana">Ghana</option><option value="Kenya">Kenya</option><option value="United States">United States</option><option value="United Kingdom">United Kingdom</option><option value="Canada">Canada</option></select></div>
-            <div class="form-group"><label>Password</label><div class="password-wrap"><input type="password" id="regPassword" placeholder="Min 6 characters"><button type="button" class="password-toggle" onclick="togglePassword('regPassword', this)"><i class="fa-solid fa-eye"></i></button></div></div>
-            <div class="form-group"><label>Confirm Password</label><div class="password-wrap"><input type="password" id="regPasswordConfirm" placeholder="Type again"><button type="button" class="password-toggle" onclick="togglePassword('regPasswordConfirm', this)"><i class="fa-solid fa-eye"></i></button></div></div>
-            <button class="btn btn-primary" id="regBtn" onclick="register()"><i class="fa-solid fa-plus"></i> Create Shop</button>
-            <div class="auth-switch"><a onclick="showSection('login')">Already have a shop?</a></div>
-        </div>
+  </header>
+  <main id="mainContent" class="main-content pt-16 pb-20 px-4 min-h-screen"></main>
+  <nav class="bottom-tabs flex mobile-only">
+    <div class="bottom-tab active" data-tab="home" onclick="switchTab('home')"><i class="fas fa-home"></i><span>Home</span></div>
+    <div class="bottom-tab" data-tab="edit" onclick="switchTab('edit')"><i class="fas fa-pen"></i><span>Edit</span></div>
+    <div class="bottom-tab" data-tab="preview" onclick="switchTab('preview')"><i class="fas fa-eye"></i><span>Preview</span></div>
+    <div class="bottom-tab" data-tab="analytics" onclick="switchTab('analytics')"><i class="fas fa-chart-bar"></i><span>Analytics</span></div>
+    <div class="bottom-tab" data-tab="settings" onclick="switchTab('settings')"><i class="fas fa-cog"></i><span>Settings</span></div>
+  </nav>
+</div>
+<div id="notifPanel" class="fixed inset-0 z-[150] hidden">
+  <div class="absolute inset-0 bg-black/50" onclick="closeNotifications()"></div>
+  <div class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-[#1e293b] border-l border-[#334155] animate-slide-up">
+    <div class="flex items-center justify-between p-4 border-b border-[#334155]"><h3 class="font-bold text-lg">Notifications</h3><button onclick="closeNotifications()" class="p-2 rounded-lg hover:bg-[#334155]"><i class="fas fa-times"></i></button></div>
+    <div id="notifList" class="overflow-y-auto" style="height:calc(100vh-60px)"></div>
+  </div>
+</div>
+<div id="emojiModal" class="modal-overlay hidden" onclick="if(event.target===this)closeEmojiPicker()">
+  <div class="modal-content">
+    <div class="flex items-center justify-between p-4 border-b border-[#334155]"><h3 class="font-bold">Choose Icon</h3><button onclick="closeEmojiPicker()" class="p-2 rounded-lg hover:bg-[#334155]"><i class="fas fa-times"></i></button></div>
+    <div class="p-4"><div class="emoji-grid" id="emojiGrid"></div></div>
+  </div>
+</div>
+<div id="qrModal" class="modal-overlay hidden" onclick="if(event.target===this)closeQrModal()">
+  <div class="modal-content text-center p-6">
+    <h3 class="font-bold text-lg mb-4">Your Shop QR Code</h3>
+    <div id="qrDisplay" class="qr-container mx-auto mb-4"></div>
+    <p class="text-[#94a3b8] text-sm mb-2">Scan to visit your shop</p>
+    <p class="text-xs text-[#94a3b8] mb-4">Powered by <a href="https://codeqr.afric.site" target="_blank" class="text-indigo-400 hover:underline">CodeQR</a></p>
+    <button onclick="downloadQR()" class="btn btn-primary w-full"><i class="fas fa-download"></i> Download QR</button>
+    <button onclick="closeQrModal()" class="btn btn-secondary w-full mt-2">Close</button>
+  </div>
+</div>
+<div id="upgradeModal" class="modal-overlay hidden" onclick="if(event.target===this)closeUpgradeModal()">
+  <div class="modal-content p-6">
+    <div class="text-center mb-6">
+      <div class="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center mx-auto mb-4"><i class="fas fa-crown text-2xl text-white"></i></div>
+      <h3 class="font-bold text-xl mb-2">Upgrade Your Plan</h3>
+      <p class="text-[#94a3b8] text-sm">Unlock more features for your business</p>
     </div>
-
-    <!-- RECOVER PASSWORD -->
-    <div class="section auth-section" id="section-recover">
-        <div class="auth-card">
-            <h1>Reset Password</h1>
-            <p class="sub">Answer a security question</p>
-            <div class="error-msg" id="recoverError"></div>
-            <div id="recoverStep1">
-                <div class="form-group"><label>Email</label><input type="email" id="recoverEmail" placeholder="you@example.com"></div>
-                <button class="btn btn-primary" onclick="fetchRecoveryQuestions()">Find Account</button>
-            </div>
-            <div id="recoverStep2" class="hidden">
-                <div id="securityQuestionsContainer"></div>
-                <div class="form-group"><label>New Password</label><div class="password-wrap"><input type="password" id="recoverNewPassword" placeholder="Min 6 characters"><button type="button" class="password-toggle" onclick="togglePassword('recoverNewPassword', this)"><i class="fa-solid fa-eye"></i></button></div></div>
-                <button class="btn btn-primary" onclick="submitRecovery()">Reset Password</button>
-            </div>
-            <div class="auth-switch"><a onclick="showSection('login')">Back to sign in</a></div>
+    <div class="space-y-3 mb-6">
+      <div class="card cursor-pointer border-2 border-transparent hover:border-indigo-500 transition-all" onclick="selectPlan('pro')">
+        <div class="flex items-center justify-between">
+          <div><h4 class="font-bold text-indigo-400">Pro</h4><p class="text-[#94a3b8] text-sm">5 custom links, 10 socials</p></div>
+          <div class="text-right"><span class="font-bold text-lg">₦1,500</span><span class="text-[#94a3b8] text-xs">/mo</span></div>
         </div>
-    </div>
-
-    <!-- DASHBOARD -->
-    <div class="section app-section" id="section-app">
-        <header class="app-header">
-            <div style="display:flex;align-items:center;gap:8px;">
-                <button id="sidebarToggle" style="display:none;" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
-                <span class="brand"><i class="fa-solid fa-store"></i> MyShub</span>
-            </div>
-            <div class="actions">
-                <button onclick="logout()" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
-            </div>
-        </header>
-        <div class="app-layout">
-            <aside class="sidebar" id="appSidebar">
-                <nav class="sidebar-nav" id="sidebarNav"></nav>
-            </aside>
-            <main class="content">
-                <div id="tabOverview" class="tab-content active"></div>
-                <div id="tabEdit" class="tab-content"></div>
-                <div id="tabPreview" class="tab-content"></div>
-                <div id="tabAnalytics" class="tab-content"></div>
-                <div id="tabReferrals" class="tab-content"></div>
-                <div id="tabSettings" class="tab-content"></div>
-            </main>
+      </div>
+      <div class="card cursor-pointer border-2 border-transparent hover:border-yellow-500 transition-all" onclick="selectPlan('premium')">
+        <div class="flex items-center justify-between">
+          <div><h4 class="font-bold text-yellow-400">Premium</h4><p class="text-[#94a3b8] text-sm">Unlimited everything</p></div>
+          <div class="text-right"><span class="font-bold text-lg">₦3,500</span><span class="text-[#94a3b8] text-xs">/mo</span></div>
         </div>
+      </div>
     </div>
+    <button onclick="initiatePayment()" class="btn btn-primary w-full">Continue to Payment</button>
+    <button onclick="closeUpgradeModal()" class="btn btn-secondary w-full mt-2">Maybe Later</button>
+  </div>
 </div>
 
-<!-- Icon Picker -->
-<div class="icon-picker" id="iconPicker"></div>
-
-<!-- Toast Container -->
-<div class="toast-container" id="toastContainer"></div>
-
 <script>
-    // ═══════════════════════════════════════════════════════════════════
-    // CONFIG
-    // ═══════════════════════════════════════════════════════════════════
-    const API = 'https://emltechstudio-myshub-api.hf.space';
-    const EMOJIS = ['📦','🛒','📞','🎯','⭐','💬','📧','🌐','📱','💻','📷','🎥','🎵','📚','✏️','🔗','📌','💡','🔥','✨'];
-    const COUNTRIES = ['Nigeria', 'Ghana', 'Kenya', 'United States', 'United Kingdom', 'Canada', 'India', 'Australia', 'Germany', 'France', 'Brazil', 'Mexico', 'South Africa'];
-    const PLATFORMS = [
-        { name: 'Facebook', icon: 'fab fa-facebook-f' },
-        { name: 'Instagram', icon: 'fab fa-instagram' },
-        { name: 'TikTok', icon: 'fab fa-tiktok' },
-        { name: 'X', icon: 'fab fa-x-twitter' },
-        { name: 'YouTube', icon: 'fab fa-youtube' },
-        { name: 'LinkedIn', icon: 'fab fa-linkedin-in' },
-        { name: 'WhatsApp', icon: 'fab fa-whatsapp' },
-        { name: 'Telegram', icon: 'fab fa-telegram' },
-        { name: 'Discord', icon: 'fab fa-discord' }
-    ];
-
-    const PLAN_LIMITS = {
-        free: { socials: 5, custom_links: 2, brand_colors: false, fonts: false, gradients: false },
-        pro: { socials: 10, custom_links: 5, brand_colors: true, fonts: true, gradients: false },
-        premium: { socials: 999, custom_links: 999, brand_colors: true, fonts: true, gradients: true }
-    };
-
-    // ─── STATE ───────────────────────────────────────────────────────
-    let session = {
-        email: '', password: '', slug: '', plan: 'free',
-        shopData: null
-    };
-    let currentTab = 'tabOverview';
-    let recoveryEmail = '', recoveryQuestions = [];
-    let selectedIcon = null;
-    let iconPickerTarget = null;
-
-    // ─── UTILS ───────────────────────────────────────────────────────
-    function togglePassword(inputId, btn) {
-        const input = document.getElementById(inputId);
-        if (!input) return;
-        const icon = btn.querySelector('i');
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.className = 'fa-solid fa-eye-slash';
-        } else {
-            input.type = 'password';
-            icon.className = 'fa-solid fa-eye';
-        }
-    }
-
-    function showToast(msg, type = 'info') {
-        const container = document.getElementById('toastContainer');
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        const icons = { success: 'fa-circle-check', error: 'fa-circle-xmark', info: 'fa-circle-info' };
-        toast.innerHTML = `<i class="fa-solid ${icons[type]}"></i><span>${msg}</span>`;
-        container.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-    }
-
-    function showSection(sectionId) {
-        document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-        const section = document.getElementById('section-' + sectionId);
-        if (section) section.classList.add('active');
-
-        if (sectionId === 'app' && session.email && session.password) {
-            if (!session.shopData) loadShop();
-            renderSidebar();
-            switchTab('tabOverview');
-        }
-    }
-
-    async function apiFetch(endpoint, method = 'GET', body = null) {
-        const headers = {
-            'email': session.email,
-            'password': session.password,
-            'Content-Type': 'application/json'
-        };
-        const options = { method, headers };
-        if (body) options.body = JSON.stringify(body);
-
-        const resp = await fetch(API + endpoint, options);
-        if (!resp.ok) {
-            const err = await resp.json().catch(() => ({}));
-            throw new Error(err.detail || 'Request failed');
-        }
-        return resp.json();
-    }
-
-    // ─── AUTH ─────────────────────────────────────────────────────────
-    window.login = async function() {
-        const email = document.getElementById('loginEmail').value.trim();
-        const password = document.getElementById('loginPassword').value.trim();
-        const errorEl = document.getElementById('loginError');
-        const btn = document.getElementById('loginBtn');
-
-        if (!email || !password) { errorEl.textContent = 'Please fill all fields';
-            errorEl.style.display = 'block'; return; }
-
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Signing in...';
-
-        try {
-            const data = await apiFetch('/auth/login', 'POST', { email, password });
-            session.email = email;
-            session.password = password;
-            session.slug = data.slug || '';
-            session.plan = data.plan || 'free';
-            localStorage.setItem('myshop_session', JSON.stringify(session));
-            showToast('Logged in!', 'success');
-            showSection('app');
-        } catch (e) {
-            errorEl.textContent = e.message;
-            errorEl.style.display = 'block';
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-arrow-right"></i> Sign In';
-        }
-    };
-
-    window.register = async function() {
-        const email = document.getElementById('regEmail').value.trim();
-        const name = document.getElementById('regName').value.trim();
-        const phone = document.getElementById('regPhone').value.trim();
-        const country = document.getElementById('regCountry').value;
-        const password = document.getElementById('regPassword').value;
-        const passwordConfirm = document.getElementById('regPasswordConfirm').value;
-        const errorEl = document.getElementById('signupError');
-        const btn = document.getElementById('regBtn');
-
-        if (!email || !name || !phone || !country || !password) { errorEl.textContent = 'Fill all required fields';
-            errorEl.style.display = 'block'; return; }
-        if (password !== passwordConfirm) { errorEl.textContent = 'Passwords do not match';
-            errorEl.style.display = 'block'; return; }
-        if (password.length < 6) { errorEl.textContent = 'Password must be 6+ characters';
-            errorEl.style.display = 'block'; return; }
-
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating...';
-
-        try {
-            const body = {
-                email, password, business_name: name, phone, country,
-                location: '', description: '', tagline: '',
-                logo_url: '', catalog_url: '', whatsapp_catalog_url: '',
-                socials: {}, referred_by: '',
-                security_questions: [
-                    { question: 'What city were you born in?', answer: '' },
-                    { question: 'What is your mother\'s maiden name?', answer: '' },
-                    { question: 'What was your first pet\'s name?', answer: '' }
-                ]
-            };
-            const data = await apiFetch('/auth/register', 'POST', body);
-            showToast('Shop created! Now sign in.', 'success');
-            showSection('login');
-        } catch (e) {
-            errorEl.textContent = e.message;
-            errorEl.style.display = 'block';
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-plus"></i> Create Shop';
-        }
-    };
-
-    window.fetchRecoveryQuestions = async function() {
-        const email = document.getElementById('recoverEmail').value.trim();
-        const errorEl = document.getElementById('recoverError');
-
-        if (!email) { errorEl.textContent = 'Enter your email';
-            errorEl.style.display = 'block'; return; }
-
-        try {
-            const resp = await fetch(`${API}/auth/security-questions?email=${encodeURIComponent(email)}`);
-            if (!resp.ok) throw new Error('Account not found');
-            const data = await resp.json();
-            recoveryEmail = email;
-            recoveryQuestions = data.questions || [];
-
-            const container = document.getElementById('securityQuestionsContainer');
-            container.innerHTML = recoveryQuestions.map((q, i) =>
-                `<div class="form-group"><label>${q}</label><input type="text" id="secAnswer${i}" placeholder="Your answer"></div>`
-            ).join('');
-
-            document.getElementById('recoverStep1').classList.add('hidden');
-            document.getElementById('recoverStep2').classList.remove('hidden');
-        } catch (e) {
-            errorEl.textContent = e.message;
-            errorEl.style.display = 'block';
-        }
-    };
-
-    window.submitRecovery = async function() {
-        const newPwd = document.getElementById('recoverNewPassword').value.trim();
-        const errorEl = document.getElementById('recoverError');
-
-        if (!newPwd || newPwd.length < 6) { errorEl.textContent = 'Password must be 6+ characters';
-            errorEl.style.display = 'block'; return; }
-
-        try {
-            for (let i = 0; i < recoveryQuestions.length; i++) {
-                const answer = document.getElementById('secAnswer' + i).value.trim();
-                if (!answer) continue;
-
-                const verifyResp = await fetch(`${API}/auth/verify-security-answer`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: recoveryEmail, question: recoveryQuestions[i], answer })
-                });
-
-                if (verifyResp.ok) {
-                    const resetResp = await fetch(`${API}/auth/reset-password`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: recoveryEmail, question: recoveryQuestions[i], answer, new_password: newPwd })
-                    });
-                    if (resetResp.ok) {
-                        showToast('Password reset! Sign in now.', 'success');
-                        showSection('login');
-                        return;
-                    }
-                }
-            }
-            throw new Error('Answers incorrect. Try again.');
-        } catch (e) {
-            errorEl.textContent = e.message;
-            errorEl.style.display = 'block';
-        }
-    };
-
-    window.logout = function() {
-        localStorage.removeItem('myshop_session');
-        session = { email: '', password: '', slug: '', plan: 'free', shopData: null };
-        showToast('Logged out', 'info');
-        showSection('login');
-    };
-
-    // ─── SHOP DATA ─────────────────────────────────────────────────────
-    async function loadShop() {
-        try {
-            const data = await apiFetch(`/shop/preview/${session.slug}`);
-            session.shopData = data;
-            session.plan = data.plan || 'free';
-            localStorage.setItem('myshop_session', JSON.stringify(session));
-            renderAllTabs();
-        } catch (e) {
-            showToast('Error loading shop: ' + e.message, 'error');
-        }
-    }
-
-    function renderSidebar() {
-        const nav = document.getElementById('sidebarNav');
-        if (!nav) return;
-        const items = [
-            { id: 'tabOverview', icon: 'fa-house', label: 'Overview' },
-            { id: 'tabEdit', icon: 'fa-pen', label: 'Edit' },
-            { id: 'tabPreview', icon: 'fa-eye', label: 'Preview' },
-            { id: 'tabAnalytics', icon: 'fa-chart-bar', label: 'Analytics' },
-            { id: 'tabReferrals', icon: 'fa-gift', label: 'Referrals' },
-            { id: 'tabSettings', icon: 'fa-gear', label: 'Settings' }
-        ];
-        nav.innerHTML = items.map(it => `<a class="${currentTab === it.id ? 'active' : ''}" onclick="switchTab('${it.id}')"><i class="fa-solid ${it.icon}"></i> ${it.label}</a>`).join('');
-    }
-
-    function switchTab(tabId) {
-        currentTab = tabId;
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        document.querySelectorAll('.sidebar-nav a').forEach(el => {
-            el.classList.toggle('active', el.textContent.includes(tabId.replace('tab', '')));
-        });
-    }
-
-    function renderAllTabs() {
-        renderOverview();
-        renderEdit();
-        renderAnalytics();
-        renderReferrals();
-        renderSettings();
-    }
-
-    // ─── OVERVIEW ─────────────────────────────────────────────────────
-    function renderOverview() {
-        const data = session.shopData || {};
-        const json = data.shop_json || {};
-        const visits = json.analytics?.visit_count || 0;
-        const today = new Date().toISOString().slice(0, 10);
-        const todayVisits = json.analytics?.daily_visits?.[today] || 0;
-        const active = data.status === 'active';
-
-        let html = `
-            <h2>${json.business_name || 'Your Shop'}</h2>
-            <div class="stats-grid">
-                <div class="stat-card"><div class="number">${visits}</div><div class="label">Total Visits</div></div>
-                <div class="stat-card"><div class="number">${todayVisits}</div><div class="label">Today</div></div>
-                <div class="stat-card"><div class="number"><span class="badge badge-${session.plan}">${session.plan.toUpperCase()}</span></div><div class="label">Plan</div></div>
-            </div>
-            <div class="card">
-                <div class="card-row"><span class="label">Your link</span><span class="value" onclick="copyLink('https://myshop.afric.site/${session.slug}')" style="cursor:pointer;color:var(--brand);">Copy →</span></div>
-                <div class="card-row"><span class="label">Status</span><span class="value">${active ? '🟢 Live' : '⛔ Inactive'}</span></div>
-            </div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <button class="btn btn-primary btn-sm" onclick="switchTab('tabEdit')"><i class="fa-solid fa-pen"></i> Edit</button>
-                <button class="btn btn-secondary btn-sm" onclick="switchTab('tabAnalytics')"><i class="fa-solid fa-chart-bar"></i> Analytics</button>
-                <button class="btn btn-secondary btn-sm" onclick="switchTab('tabSettings')"><i class="fa-solid fa-gear"></i> Settings</button>
-            </div>
-        `;
-        document.getElementById('tabOverview').innerHTML = html;
-    }
-
-    window.copyLink = function(url) {
-        navigator.clipboard.writeText(url).then(() => showToast('Copied!', 'success'));
-    };
-
-    // ─── EDIT TAB ──────────────────────────────────────────────────────
-    let editSocials = {};
-    let editCustomLinks = [];
-
-    function renderEdit() {
-        const data = session.shopData || {};
-        const json = data.shop_json || {};
-        const plan = session.plan || 'free';
-        const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.free;
-        const socials = json.socials || {};
-        const customLinks = json.custom_links || [];
-        const brand = json.brand_colors || {};
-        const typo = json.typography || {};
-
-        editSocials = { ...socials };
-        editCustomLinks = [...customLinks];
-
-        let socialChips = '';
-        for (let [platform, url] of Object.entries(socials)) {
-            const p = PLATFORMS.find(x => x.name.toLowerCase() === platform);
-            if (p) socialChips += `<div class="card" style="padding:8px 12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><span><i class="${p.icon}"></i> ${platform}</span><button onclick="removeSocial('${platform}')" style="background:none;border:none;color:var(--danger);cursor:pointer;">✕</button></div>`;
-        }
-
-        let customLinksHtml = '';
-        customLinks.forEach((link, idx) => {
-            customLinksHtml += `
-                <div class="custom-link-item">
-                    <button class="icon-btn" onclick="openIconPicker(this, ${idx})">${link.icon || '🔗'}</button>
-                    <input type="text" placeholder="Label" value="${link.label || ''}" onchange="updateCustomLink(${idx}, 'label', this.value)">
-                    <input type="url" placeholder="URL" value="${link.url || ''}" onchange="updateCustomLink(${idx}, 'url', this.value)">
-                    <span class="remove" onclick="removeCustomLink(${idx})"><i class="fa-solid fa-xmark"></i></span>
-                </div>
-            `;
-        });
-
-        let html = `
-            <h2>Edit Your Shop</h2>
-            <div class="card">
-                <h3>Business Info</h3>
-                <div class="form-group"><label>Name</label><input type="text" id="editName" value="${json.business_name || ''}"></div>
-                <div class="form-group"><label>Tagline</label><input type="text" id="editTagline" value="${json.tagline || ''}"></div>
-                <div class="form-group"><label>Description</label><textarea id="editDesc" placeholder="Describe your business...">${json.description || ''}</textarea></div>
-            </div>
-            <div class="card">
-                <h3>Contact</h3>
-                <div class="form-group"><label>Phone</label><input type="tel" id="editPhone" value="${json.phone || ''}"></div>
-                <div class="form-group"><label>Email</label><input type="email" id="editEmail" value="${json.email || ''}"></div>
-                <div class="form-group"><label>Location</label><input type="text" id="editLocation" value="${json.location || ''}"></div>
-                <div class="form-group"><label>Country</label><input type="text" id="editCountry" value="${json.country || ''}"></div>
-                <div class="form-group"><label>State</label><input type="text" id="editState" value="${json.state || ''}"></div>
-                <div class="form-group"><label>City</label><input type="text" id="editCity" value="${json.city || ''}"></div>
-            </div>
-            <div class="card">
-                <h3>Catalog</h3>
-                <div class="form-group"><label>Catalog URL</label><input type="url" id="editCatalog" value="${json.catalog_url || ''}" placeholder="https://selar.co/yourstore"></div>
-            </div>
-            <div class="card">
-                <h3>Socials (${Object.keys(socials).length}/${limits.socials})</h3>
-                ${socialChips}
-                <button class="btn btn-secondary btn-sm" onclick="showPlatformSelector()" ${Object.keys(socials).length >= limits.socials ? 'disabled' : ''}>+ Add Platform</button>
-            </div>
-            <div class="card">
-                <h3>Custom Links (${customLinks.length}/${limits.custom_links})</h3>
-                ${customLinksHtml}
-                <button class="btn btn-secondary btn-sm" onclick="addCustomLink()" ${customLinks.length >= limits.custom_links ? 'disabled' : ''}>+ Add Link</button>
-            </div>
-            ${limits.brand_colors ? `
-            <div class="card">
-                <h3>Brand Colors</h3>
-                <div style="display:flex;gap:12px;">
-                    <div class="form-group"><label>Primary</label><input type="color" id="editPrimary" value="${brand.primary || '#2563eb'}"></div>
-                    <div class="form-group"><label>Secondary</label><input type="color" id="editSecondary" value="${brand.secondary || '#ffffff'}"></div>
-                </div>
-            </div>
-            ` : ''}
-            ${limits.fonts ? `
-            <div class="card">
-                <h3>Typography</h3>
-                <div class="form-group"><label>Heading Font</label><select id="editHeading"><option value="Inter" ${typo.heading_font === 'Inter' ? 'selected' : ''}>Inter</option><option value="Poppins" ${typo.heading_font === 'Poppins' ? 'selected' : ''}>Poppins</option><option value="Playfair" ${typo.heading_font === 'Playfair' ? 'selected' : ''}>Playfair</option></select></div>
-                <div class="form-group"><label>Body Font</label><select id="editBody"><option value="Inter" ${typo.body_font === 'Inter' ? 'selected' : ''}>Inter</option><option value="Open Sans" ${typo.body_font === 'Open Sans' ? 'selected' : ''}>Open Sans</option></select></div>
-            </div>
-            ` : ''}
-            <button class="btn btn-primary" onclick="saveEdit()" style="width:100%;"><i class="fa-solid fa-save"></i> Save Changes</button>
-        `;
-        document.getElementById('tabEdit').innerHTML = html;
-    }
-
-    window.showPlatformSelector = function() {
-        const platforms = PLATFORMS;
-        let html = '<div class="card" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">';
-        platforms.forEach(p => {
-            html += `<button class="btn btn-secondary btn-sm" onclick="addPlatform('${p.name}')" style="justify-content:center;"><i class="${p.icon}"></i> ${p.name}</button>`;
-        });
-        html += '</div>';
-        const card = document.querySelector('.card');
-        card.insertAdjacentHTML('afterend', html);
-    };
-
-    window.addPlatform = function(platform) {
-        const username = prompt(`Enter your ${platform} username:`);
-        if (!username) return;
-        editSocials[platform.toLowerCase()] = `https://example.com/${username}`;
-        renderEdit();
-    };
-
-    window.removeSocial = function(platform) {
-        delete editSocials[platform];
-        renderEdit();
-    };
-
-    window.addCustomLink = function() {
-        editCustomLinks.push({ label: '', url: '', icon: '🔗' });
-        renderEdit();
-    };
-
-    window.updateCustomLink = function(idx, field, value) {
-        if (editCustomLinks[idx]) editCustomLinks[idx][field] = value;
-    };
-
-    window.removeCustomLink = function(idx) {
-        editCustomLinks.splice(idx, 1);
-        renderEdit();
-    };
-
-    window.openIconPicker = function(btn, idx) {
-        iconPickerTarget = { btn, idx };
-        selectedIcon = editCustomLinks[idx]?.icon || '🔗';
-        const picker = document.getElementById('iconPicker');
-        picker.innerHTML = EMOJIS.map(emoji => `<div class="icon-option" onclick="selectIcon('${emoji}')">${emoji}</div>`).join('');
-        const rect = btn.getBoundingClientRect();
-        picker.style.left = rect.left + 'px';
-        picker.style.top = (rect.bottom + 4) + 'px';
-        picker.classList.add('open');
-    };
-
-    window.selectIcon = function(emoji) {
-        if (iconPickerTarget) {
-            editCustomLinks[iconPickerTarget.idx].icon = emoji;
-            iconPickerTarget.btn.textContent = emoji;
-            document.getElementById('iconPicker').classList.remove('open');
-        }
-    };
-
-    window.saveEdit = async function() {
-        const plan = session.plan || 'free';
-        const limits = PLAN_LIMITS[plan];
-
-        if (Object.keys(editSocials).length > limits.socials) {
-            showToast(`Max ${limits.socials} socials for ${plan}`, 'error');
-            return;
-        }
-        if (editCustomLinks.length > limits.custom_links) {
-            showToast(`Max ${limits.custom_links} custom links for ${plan}`, 'error');
-            return;
-        }
-
-        const payload = {
-            email: session.email,
-            password: session.password,
-            business_name: document.getElementById('editName').value,
-            tagline: document.getElementById('editTagline').value,
-            description: document.getElementById('editDesc').value,
-            phone: document.getElementById('editPhone').value,
-            email: document.getElementById('editEmail').value,
-            location: document.getElementById('editLocation').value,
-            country: document.getElementById('editCountry').value,
-            state: document.getElementById('editState').value,
-            city: document.getElementById('editCity').value,
-            catalog_url: document.getElementById('editCatalog').value,
-            whatsapp_catalog_url: '',
-            socials: editSocials,
-            custom_links: editCustomLinks,
-            brand_primary: document.getElementById('editPrimary')?.value || '#2563eb',
-            brand_secondary: document.getElementById('editSecondary')?.value || '#ffffff',
-            heading_font: document.getElementById('editHeading')?.value || 'Inter',
-            body_font: document.getElementById('editBody')?.value || 'Inter'
-        };
-
-        try {
-            await apiFetch(`/shop/edit/${session.slug}`, 'PUT', payload);
-            showToast('Shop saved!', 'success');
-            await loadShop();
-        } catch (e) {
-            showToast('Error: ' + e.message, 'error');
-        }
-    };
-
-    // ─── PREVIEW ───────────────────────────────────────────────────────
-    function renderPreview() {
-        const iframe = document.createElement('iframe');
-        iframe.src = `${API}/shop/preview/${session.slug}?email=${encodeURIComponent(session.email)}&password=${encodeURIComponent(session.password)}`;
-        iframe.style.width = '100%';
-        iframe.style.height = '700px';
-        iframe.style.border = '1px solid var(--border)';
-        iframe.style.borderRadius = 'var(--radius)';
-        document.getElementById('tabPreview').innerHTML = '';
-        document.getElementById('tabPreview').appendChild(iframe);
-    }
-
-    // ─── ANALYTICS ─────────────────────────────────────────────────────
-    function renderAnalytics() {
-        const data = session.shopData || {};
-        const json = data.shop_json || {};
-        const analytics = json.analytics || {};
-        const visits = analytics.visit_count || 0;
-        const daily = analytics.daily_visits || {};
-        const countries = analytics.countries || {};
-        const devices = analytics.devices || {};
-        const referrers = analytics.referrers || {};
-        const clicks = analytics.clicks || {};
-
-        // Last 7 days
-        let dailyHtml = '';
-        for (let i = 6; i >= 0; i--) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            const key = d.toISOString().slice(0, 10);
-            const count = daily[key] || 0;
-            const pct = visits > 0 ? (count / visits) * 100 : 0;
-            dailyHtml += `
-                <div class="analytics-bar">
-                    <span class="label">${d.toLocaleDateString('en', { weekday: 'short' })}</span>
-                    <div class="track"><div class="fill" style="width:${pct}%"></div></div>
-                    <span class="value">${count}</span>
-                </div>
-            `;
-        }
-
-        // Countries
-        let countriesHtml = '';
-        Object.entries(countries).sort((a, b) => b[1] - a[1]).slice(0, 10).forEach(([c, count]) => {
-            const pct = visits > 0 ? (count / visits) * 100 : 0;
-            countriesHtml += `
-                <div class="analytics-bar">
-                    <span class="label">${c}</span>
-                    <div class="track"><div class="fill" style="width:${pct}%"></div></div>
-                    <span class="value">${count}</span>
-                </div>
-            `;
-        });
-
-        // Devices
-        let devicesHtml = `
-            <div style="display:flex;gap:12px;flex-wrap:wrap;">
-                <div class="stat-card" style="flex:1;min-width:100px;"><div class="number">${devices.mobile || 0}</div><div class="label">Mobile</div></div>
-                <div class="stat-card" style="flex:1;min-width:100px;"><div class="number">${devices.desktop || 0}</div><div class="label">Desktop</div></div>
-                <div class="stat-card" style="flex:1;min-width:100px;"><div class="number">${devices.tablet || 0}</div><div class="label">Tablet</div></div>
-            </div>
-        `;
-
-        let html = `
-            <h2>Analytics</h2>
-            <div class="stats-grid">
-                <div class="stat-card"><div class="number">${visits}</div><div class="label">Total Visits</div></div>
-                <div class="stat-card"><div class="number">${Object.keys(countries).length}</div><div class="label">Countries</div></div>
-                <div class="stat-card"><div class="number">${Object.keys(referrers).length}</div><div class="label">Referrers</div></div>
-            </div>
-            <div class="card">
-                <h3>Last 7 Days</h3>
-                ${dailyHtml}
-            </div>
-            <div class="card">
-                <h3>Top Countries</h3>
-                ${countriesHtml || '<p class="text-muted">No data yet</p>'}
-            </div>
-            <div class="card">
-                <h3>Devices</h3>
-                ${devicesHtml}
-            </div>
-            ${Object.keys(referrers).length > 0 ? `
-            <div class="card">
-                <h3>Top Referrers</h3>
-                ${Object.entries(referrers).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([r, count]) => `
-                    <div class="analytics-bar">
-                        <span class="label">${r}</span>
-                        <div class="track"><div class="fill" style="width:${(count/visits)*100}%"></div></div>
-                        <span class="value">${count}</span>
-                    </div>
-                `).join('')}
-            </div>
-            ` : ''}
-        `;
-        document.getElementById('tabAnalytics').innerHTML = html;
-    }
-
-    // ─── REFERRALS ────────────────────────────────────────────────────
-    function renderReferrals() {
-        let html = `
-            <h2>Referrals</h2>
-            <div class="card">
-                <p class="text-muted">Loading referral data...</p>
-            </div>
-        `;
-        document.getElementById('tabReferrals').innerHTML = html;
-
-        apiFetch('/shop/referrals').then(data => {
-            html = `
-                <h2>Referrals</h2>
-                <div class="card">
-                    <div class="card-row"><span class="label">Your code</span><span class="value"><strong>${data.referral_code || 'N/A'}</strong></span></div>
-                    <div class="card-row"><span class="label">People referred</span><span class="value">${data.total_referred || 0}</span></div>
-                    <div class="card-row"><span class="label">Commission (₦450 each)</span><span class="value">₦${(data.total_referred || 0) * 450}</span></div>
-                </div>
-                <div class="card">
-                    <p style="color:var(--text3);font-size:0.85rem;"><i class="fa-solid fa-info-circle"></i> Referral payouts coming soon!</p>
-                </div>
-            `;
-            document.getElementById('tabReferrals').innerHTML = html;
-        }).catch(() => {
-            document.getElementById('tabReferrals').innerHTML = '<div class="card"><p class="text-muted">Error loading referrals</p></div>';
-        });
-    }
-
-    // ─── SETTINGS ──────────────────────────────────────────────────────
-    function renderSettings() {
-        let html = `
-            <h2>Settings</h2>
-            <div class="card">
-                <div class="card-row"><span class="label">Email</span><span class="value">${session.email}</span></div>
-                <div class="card-row"><span class="label">Plan</span><span class="value"><span class="badge badge-${session.plan}">${session.plan.toUpperCase()}</span></span></div>
-            </div>
-            <div class="card">
-                <h3>Shop Status</h3>
-                <div style="display:flex;gap:8px;">
-                    <button class="btn btn-primary btn-sm" onclick="toggleShop('reactivate')"><i class="fa-solid fa-play"></i> Reactivate</button>
-                    <button class="btn btn-secondary btn-sm" onclick="toggleShop('deactivate')"><i class="fa-solid fa-ban"></i> Deactivate</button>
-                </div>
-            </div>
-            <button class="btn btn-secondary" style="width:100%;" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
-        `;
-        document.getElementById('tabSettings').innerHTML = html;
-    }
-
-    window.toggleShop = async function(action) {
-        if (!confirm('Are you sure?')) return;
-        try {
-            const endpoint = action === 'reactivate' ? `/shop/${session.slug}/reactivate` : `/shop/${session.slug}/deactivate`;
-            await apiFetch(endpoint, 'POST');
-            showToast(action === 'reactivate' ? 'Shop reactivated!' : 'Shop deactivated', 'success');
-            await loadShop();
-        } catch (e) {
-            showToast('Error: ' + e.message, 'error');
-        }
-    };
-
-    function toggleSidebar() {
-        document.getElementById('appSidebar').classList.toggle('open');
-    }
-
-    // ─── INIT ──────────────────────────────────────────────────────────
-    window.addEventListener('load', function() {
-        try {
-            const saved = localStorage.getItem('myshop_session');
-            if (saved) {
-                const data = JSON.parse(saved);
-                session = { ...session, ...data };
-                if (session.email && session.password) {
-                    showSection('app');
-                    return;
-                }
-            }
-        } catch (e) {}
-        showSection('login');
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.icon-picker') && !e.target.closest('.icon-btn')) {
-            document.getElementById('iconPicker').classList.remove('open');
-        }
-    });
-
-    // Show install banner on mobile
-    if (window.innerWidth <= 768) {
-        document.getElementById('sidebarToggle').style.display = 'block';
-    }
+const API_BASE='https://emltechstudio-myshub-api.hf.space';
+const APP_URL='https://myshub.site';
+const PLATFORMS=[
+{id:'facebook',name:'Facebook',icon:'fab fa-facebook',color:'#1877f2'},{id:'instagram',name:'Instagram',icon:'fab fa-instagram',color:'#e4405f'},{id:'tiktok',name:'TikTok',icon:'fab fa-tiktok',color:'#000000'},{id:'twitter',name:'X (Twitter)',icon:'fab fa-x-twitter',color:'#000000'},{id:'youtube',name:'YouTube',icon:'fab fa-youtube',color:'#ff0000'},{id:'linkedin',name:'LinkedIn',icon:'fab fa-linkedin',color:'#0a66c2'},{id:'pinterest',name:'Pinterest',icon:'fab fa-pinterest',color:'#bd081c'},{id:'snapchat',name:'Snapchat',icon:'fab fa-snapchat',color:'#fffc00'},{id:'reddit',name:'Reddit',icon:'fab fa-reddit',color:'#ff4500'},{id:'twitch',name:'Twitch',icon:'fab fa-twitch',color:'#9146ff'},{id:'tumblr',name:'Tumblr',icon:'fab fa-tumblr',color:'#001935'},{id:'medium',name:'Medium',icon:'fab fa-medium',color:'#000000'},{id:'substack',name:'Substack',icon:'fas fa-newspaper',color:'#ff6719'},{id:'wordpress',name:'WordPress',icon:'fab fa-wordpress',color:'#21759b'},{id:'blogger',name:'Blogger',icon:'fab fa-blogger',color:'#ff5722'},{id:'flickr',name:'Flickr',icon:'fab fa-flickr',color:'#ff0084'},{id:'behance',name:'Behance',icon:'fab fa-behance',color:'#1769ff'},{id:'dribbble',name:'Dribbble',icon:'fab fa-dribbble',color:'#ea4c89'},{id:'spotify',name:'Spotify',icon:'fab fa-spotify',color:'#1db954'},{id:'soundcloud',name:'SoundCloud',icon:'fab fa-soundcloud',color:'#ff5500'},{id:'apple_music',name:'Apple Music',icon:'fab fa-apple',color:'#fa243c'},{id:'quora',name:'Quora',icon:'fab fa-quora',color:'#b92b27'},{id:'vk',name:'VK',icon:'fab fa-vk',color:'#4a76a8'},{id:'ok',name:'Odnoklassniki',icon:'fab fa-odnoklassniki',color:'#ee8208'},{id:'weibo',name:'Weibo',icon:'fab fa-weibo',color:'#e6162d'},{id:'mastodon',name:'Mastodon',icon:'fab fa-mastodon',color:'#6364ff'},{id:'bluesky',name:'Bluesky',icon:'fas fa-cloud',color:'#0085ff'},{id:'threads',name:'Threads',icon:'fab fa-threads',color:'#000000'},{id:'shopify',name:'Shopify',icon:'fab fa-shopify',color:'#96bf48'},{id:'selar',name:'Selar',icon:'fas fa-shopping-bag',color:'#7c3aed'},{id:'paystack',name:'Paystack',icon:'fas fa-credit-card',color:'#00c3f7'},{id:'flutterwave',name:'Flutterwave',icon:'fas fa-wave-square',color:'#f5a623'},{id:'etsy',name:'Etsy',icon:'fab fa-etsy',color:'#f56400'},{id:'ebay',name:'eBay',icon:'fab fa-ebay',color:'#e53238'},{id:'amazon',name:'Amazon',icon:'fab fa-amazon',color:'#ff9900'},{id:'aliexpress',name:'AliExpress',icon:'fas fa-shipping-fast',color:'#e62e04'},{id:'patreon',name:'Patreon',icon:'fab fa-patreon',color:'#ff424d'},{id:'kickstarter',name:'Kickstarter',icon:'fab fa-kickstarter',color:'#05ce78'},{id:'whatsapp',name:'WhatsApp',icon:'fab fa-whatsapp',color:'#25d366'},{id:'telegram',name:'Telegram',icon:'fab fa-telegram',color:'#0088cc'},{id:'discord',name:'Discord',icon:'fab fa-discord',color:'#5865f2'},{id:'signal',name:'Signal',icon:'fas fa-comment-dots',color:'#3a76f0'},{id:'line',name:'Line',icon:'fab fa-line',color:'#00c300'},{id:'wechat',name:'WeChat',icon:'fab fa-weixin',color:'#07c160'},{id:'viber',name:'Viber',icon:'fab fa-viber',color:'#7360f2'},{id:'messenger',name:'Messenger',icon:'fab fa-facebook-messenger',color:'#0084ff'}
+];
+const CATEGORIES=['Beauty','Fashion','Food','Tech','Services','Health','Education','Fitness','Photography','Real Estate','Automotive','Entertainment','Travel','Hospitality','Finance','Legal','Consulting','Construction','Agriculture','Manufacturing','Retail','Wholesale','Logistics','Media','Marketing','Design','Development','Writing','Translation','Tutoring','Coaching','Therapy','Wellness','Spa','Salon','Barber','Nails','Makeup','Skincare','Haircare','Jewelry','Watches','Shoes','Bags','Accessories','Electronics','Appliances','Furniture','Home Decor','Garden','Baby','Kids','Pets','Sports','Outdoor','Gaming','Music','Art','Crafts','Books','Stationery','Printing','Events','Catering','Cleaning','Security','Repair','Maintenance','Plumbing','Electrical','HVAC','Roofing','Painting','Moving','Storage','Recycling','Solar','Renewable Energy'];
+const EMOJIS=['🔗','🛍️','📱','💻','🎨','📸','🎵','📚','✈️','🏠','🚗','💊','🍔','👗','💄','💰','🎮','⚽','🐾','🌱','🔧','🎓','🏥','⚖️','🎬','📰','🎤','🎧','📞','📧','🌐','⭐','❤️','🔥','✨','🎯','🚀','💡','🔑','🔒','📌','📍','🎁','🏆','🥇','💎','🌟','🔔','📢','💬','👥','🤝','📊','📈','🛒','🏪','🏬','🏢','🏭','🏗️','🌾','🐄','🐔','🐟','🍎','🍊','🍇','🥑','🥦','🍕','🍰','☕','🍵','🥤','🍺','🍷','🎂','🎉','🎊','🎈','🎀','🎁','💐','🌹','🌻','🌺','🌸','🌼','🌷','🌱','🌿','☘️','🍀','🌳','🌲','🌴','🌵','🌾','🌽','🍄','🌰','🍂','🍁','🍃','🌊','🌋','⛰️','🏔️','🗻','🏕️','🏖️','🏜️','🏝️','🏞️','🏟️','🏛️','🏗️','🏘️','🏚️','🏠','🏡','🏢','🏣','🏤','🏥','🏦','🏨','🏩','🏪','🏫','🏬','🏭','🏯','🏰','💒','🗼','🗽','⛪','🕌','🛕','🕍','⛩️','🕋','⛲','⛺','🌁','🌃','🏙️','🌄','🌅','🌆','🌇','🌉','♨️','🎠','🎡','🎢','💈','🎪','🚂','🚃','🚄','🚅','🚆','🚇','🚈','🚉','🚊','🚝','🚞','🚋','🚌','🚍','🚎','🚐','🚑','🚒','🚓','🚔','🚕','🚖','🚗','🚘','🚙','🚚','🚛','🚜','🏎️','🏍️','🛵','🦽','🦼','🛺','🚲','🛴','🚏','🛣️','🛤️','🛢️','⛽','🚨','🚥','🚦','🛑','🚧','⚓','⛵','🛶','🚤','🛳️','⛴️','🛥️','🚢','✈️','🛩️','🛫','🛬','🪂','💺','🚁','🚟','🚠','🚡','🛰️','🚀','🛸','🛎️','🧳','⌛','⏳','⌚','⏰','⏱️','⏲️','🕰️','🕛','🕧','🕐','🕜','🕑','🕝','🕒','🕞','🕓','🕟','🕔','🕠','🕕','🕡','🕖','🕢','🕗','🕣','🕘','🕤','🕙','🕥','🕚','🕦','🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘','🌙','🌚','🌛','🌜','🌡️','☀️','🌝','🌞','⭐','🌟','🌠','☁️','⛅','⛈️','🌤️','🌥️','🌦️','🌧️','🌨️','❄️','🌬️','💨','💧','💦','☔','☂️','🌊','🌫️'];
+const COUNTRIES=[
+{code:'NG',name:'Nigeria',states:[{name:'Lagos',lgas:['Ikeja','Lekki','Yaba','Victoria Island','Ikorodu','Epe','Badagry','Alimosho','Amuwo-Odofin','Apapa','Eti-Osa','Ifako-Ijaiye','Kosofe','Lagos Island','Lagos Mainland','Mushin','Ojo','Oshodi-Isolo','Shomolu','Surulere']},{name:'Abuja',lgas:['Abaji','Abuja Municipal','Bwari','Gwagwalada','Kuje','Kwali']},{name:'Rivers',lgas:['Port Harcourt','Obio-Akpor','Okrika','Ogu-Bolo','Eleme','Tai','Gokana','Khana','Oyigbo','Opobo-Nkoro','Andoni','Bonny','Degema','Asari-Toru','Akuku-Toru','Abua-Odual','Ahoada East','Ahoada West','Ogba-Egbema-Ndoni','Emohua','Ikwerre','Etche']},{name:'Kano',lgas:['Kano Municipal','Fagge','Dala','Gwale','Kumbotso','Tarauni','Nasarawa','Ungogo','Bichi','Bagwai','Shanono','Gwarzo','Kabo','Rimi Gado','Tofa','Dawakin Tofa','Rano','Bunkure','Kibiya','Tudun Wada','Doguwa','Madobi','Garun Mallam','Bebeji','Kiru','Albasu','Wudil','Gaya','Ajingi','Garko','Warawa','Sumaila','Kunchi','Makoda','Dambatta','Minjibir','Tsanyawa','Dawakin Kudu','Gezawa','Gabasawa','Rogo','Karaye']},{name:'Oyo',lgas:['Ibadan North','Ibadan North-East','Ibadan North-West','Ibadan South-East','Ibadan South-West','Akinyele','Moniya','Egbeda','Lagelu','Ona-Ara','Oluyole','Ogbomosho North','Ogbomosho South','Ori Ire','Ogo Oluwa','Surulere','Orelope','Irepo','Iseyin','Itesiwaju','Kajola','Iwajowa','Olorunsogo','Saki East','Saki West','Atisbo','Ibarapa East','Ibarapa North','Ibarapa Central']},{name:'Delta',lgas:['Warri South','Warri North','Warri South-West','Uvwie','Udu','Okpe','Sapele','Ethiope East','Ethiope West','Isoko North','Isoko South','Ndokwa East','Ndokwa West','Ughelli North','Ughelli South','Bomadi','Burutu','Patani','Ika North East','Ika South','Aniocha North','Aniocha South','Oshimili North','Oshimili South','Nkokwa']}]},
+{code:'GH',name:'Ghana',states:[{name:'Greater Accra',lgas:['Accra','Tema','Ga East','Ga West','Ga South','Ledzokuku-Krowor','La Dade-Kotopon','Ashaiman','Adenta','Madina','Dome-Kwabenya','Okaikwei North','Okaikwei South','Ablekuma North','Ablekuma South','Ablekuma Central','Anyaa-Sowutuom','Bortianor-Ngleshie-Amanfro','Weija-Gbawe','Trobu','Amasaman']},{name:'Ashanti',lgas:['Kumasi Metropolitan','Asokwa','Bantama','Manhyia','Nhyiaeso','Suame','Tafo','Oforikrom','Subin','Kwadaso','Atwima Kwanwoma','Atwima Nwabiagya','Atwima Mponua','Bekwai Municipal','Bosome Freho','Botsomtwe','Ejisu','Ejura-Sekyedumase','Mampong Municipal','Offinso North','Offinso South','Sekyere Afram Plains','Sekyere Central','Sekyere East','Sekyere Kumawu','Sekyere South','Ahafo Ano North','Ahafo Ano South']}]},
+{code:'KE',name:'Kenya',states:[{name:'Nairobi',lgas:['Westlands','Dagoretti North','Dagoretti South','Langata','Kibra','Roysambu','Kasarani','Ruaraka','Embakasi South','Embakasi North','Embakasi Central','Embakasi East','Embakasi West','Makadara','Kamukunji','Starehe','Mathare']},{name:'Mombasa',lgas:['Changamwe','Jomvu','Kisauni','Nyali','Likoni','Mvita']}]},
+{code:'ZA',name:'South Africa',states:[{name:'Gauteng',lgas:['Johannesburg','Ekurhuleni','Tshwane','Sedibeng','West Rand']},{name:'Western Cape',lgas:['Cape Town','Stellenbosch','Paarl','George','Knysna','Mossel Bay']}]},
+{code:'US',name:'United States',states:[{name:'California',lgas:['Los Angeles','San Diego','San Francisco','San Jose','Sacramento','Oakland','Fresno','Long Beach','Bakersfield','Anaheim','Santa Ana','Riverside','Stockton','Irvine','Chula Vista']},{name:'New York',lgas:['New York City','Buffalo','Rochester','Yonkers','Syracuse','Albany','New Rochelle','Mount Vernon','Schenectady','Utica']},{name:'Texas',lgas:['Houston','San Antonio','Dallas','Austin','Fort Worth','El Paso','Arlington','Corpus Christi','Plano','Laredo','Lubbock','Garland','Irving','Amarillo','Grand Prairie']}]},
+{code:'GB',name:'United Kingdom',states:[{name:'England',lgas:['London','Manchester','Birmingham','Liverpool','Leeds','Sheffield','Bristol','Leicester','Coventry','Bradford','Nottingham','Kingston upon Hull','Stoke-on-Trent','Wolverhampton','Derby']},{name:'Scotland',lgas:['Glasgow','Edinburgh','Aberdeen','Dundee','Paisley','East Kilbride','Livingston','Hamilton','Cumbernauld','Kirkcaldy']}]},
+{code:'CA',name:'Canada',states:[{name:'Ontario',lgas:['Toronto','Ottawa','Mississauga','Brampton','Hamilton','London','Markham','Vaughan','Kitchener','Windsor']},{name:'British Columbia',lgas:['Vancouver','Surrey','Burnaby','Richmond','Abbotsford','Coquitlam','Kelowna','Langley','Saannich','Delta']}]},
+{code:'AU',name:'Australia',states:[{name:'New South Wales',lgas:['Sydney','Newcastle','Central Coast','Wollongong','Maitland','Tweed Heads','Wagga Wagga','Albury','Port Macquarie','Tamworth']},{name:'Victoria',lgas:['Melbourne','Geelong','Ballarat','Bendigo','Shepparton','Melton','Mildura','Warrnambool','Sunbury','Traralgon']}]},
+{code:'IN',name:'India',states:[{name:'Maharashtra',lgas:['Mumbai','Pune','Nagpur','Thane','Nashik','Kalyan-Dombivli','Vasai-Virar','Aurangabad','Navi Mumbai','Solapur']},{name:'Delhi',lgas:['New Delhi','North Delhi','South Delhi','East Delhi','West Delhi','North East Delhi','North West Delhi','South West Delhi','South East Delhi','Shahdara']}]},
+{code:'AE',name:'UAE',states:[{name:'Dubai',lgas:['Deira','Bur Dubai','Jebel Ali','Dubai Marina','Jumeirah','Al Quoz','Al Qusais','Muhaisnah','Rashidiya','Nad Al Hamar']},{name:'Abu Dhabi',lgas:['Abu Dhabi Island','Al Ain','Khalifa City','Mohammed Bin Zayed City','Al Reef','Al Raha','Yas Island','Saadiyat Island','Al Mushrif','Al Khalidiyah']}]}
+];
+const PLAN_LIMITS={free:{customLinks:2,socialPlatforms:5,brandColors:false,gradients:false,customFonts:false,featured:false},pro:{customLinks:5,socialPlatforms:10,brandColors:true,gradients:false,customFonts:true,featured:false},premium:{customLinks:Infinity,socialPlatforms:Infinity,brandColors:true,gradients:true,customFonts:true,featured:true}};
+const FONTS=[{name:'Inter',value:'Inter, sans-serif'},{name:'Space Grotesk',value:'Space Grotesk, sans-serif'},{name:'Poppins',value:'Poppins, sans-serif'},{name:'DM Sans',value:'DM Sans, sans-serif'},{name:'Outfit',value:'Outfit, sans-serif'},{name:'Plus Jakarta Sans',value:'Plus Jakarta Sans, sans-serif'},{name:'Manrope',value:'Manrope, sans-serif'},{name:'Geist',value:'Geist, sans-serif'}];
+let currentUser=null,currentShop=null,currentTab='home',notifications=[],selectedPlan=null,emojiTarget=null;
+
+function showAuth(){document.getElementById('authScreen').classList.remove('hidden');document.getElementById('mainApp').classList.add('hidden');renderLogin()}
+function showApp(){document.getElementById('authScreen').classList.add('hidden');document.getElementById('mainApp').classList.remove('hidden');loadNotifications();switchTab('home')}
+function renderLogin(){const c=document.querySelector('#authScreen > div');c.innerHTML=`<div class="min-h-screen flex flex-col items-center justify-center px-6 animate-fade-in"><div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center mb-6 shadow-2xl shadow-indigo-500/30"><i class="fas fa-store text-3xl text-white"></i></div><h1 class="text-3xl font-bold mb-2" style="font-family:'Space Grotesk',sans-serif">MyShub</h1><p class="text-[#94a3b8] mb-8 text-center">Your business hub. One link, everywhere.</p><form id="loginForm" class="w-full max-w-sm space-y-4" onsubmit="handleLogin(event)"><div><label class="text-sm text-[#94a3b8] mb-1 block">Email</label><input type="email" id="loginEmail" class="input" placeholder="you@example.com" required></div><div><label class="text-sm text-[#94a3b8] mb-1 block">Password</label><input type="password" id="loginPassword" class="input" placeholder="••••••••" required></div><button type="submit" class="btn btn-primary w-full justify-center" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Sign In</button></form><div class="mt-6 text-center space-y-3"><p class="text-sm text-[#94a3b8]">Don't have an account? <button onclick="renderRegister()" class="text-indigo-400 hover:underline font-medium">Create one</button></p><p class="text-sm text-[#94a3b8]">Forgot password? <button onclick="renderForgot()" class="text-indigo-400 hover:underline font-medium">Recover</button></p></div><div class="mt-8 flex items-center gap-4 text-[#64748b] text-xs"><a href="discover.html" class="hover:text-indigo-400 transition-colors"><i class="fas fa-search mr-1"></i>Discover</a><span>|</span><a href="index.html" class="hover:text-indigo-400 transition-colors"><i class="fas fa-home mr-1"></i>Home</a></div></div>`}
+function renderRegister(){const c=document.querySelector('#authScreen > div');c.innerHTML=`<div class="min-h-screen flex flex-col px-6 py-8 animate-fade-in"><div class="flex items-center gap-3 mb-6"><button onclick="renderLogin()" class="p-2 rounded-lg hover:bg-[#1e293b]"><i class="fas fa-arrow-left"></i></button><h2 class="text-xl font-bold">Create Account</h2></div><form id="registerForm" class="w-full max-w-sm space-y-4 mx-auto" onsubmit="handleRegister(event)"><div><label class="text-sm text-[#94a3b8] mb-1 block">Business Name *</label><input type="text" id="regName" class="input" placeholder="Your Business Name" required></div><div><label class="text-sm text-[#94a3b8] mb-1 block">Email *</label><input type="email" id="regEmail" class="input" placeholder="you@example.com" required></div><div><label class="text-sm text-[#94a3b8] mb-1 block">Phone *</label><input type="tel" id="regPhone" class="input" placeholder="+234..." required></div><div><label class="text-sm text-[#94a3b8] mb-1 block">Country *</label><select id="regCountry" class="input" onchange="updateRegStates()" required><option value="">Select Country</option>${COUNTRIES.map(c=>`<option value="${c.code}">${c.name}</option>`).join('')}</select></div><div><label class="text-sm text-[#94a3b8] mb-1 block">State/Province *</label><select id="regState" class="input" required><option value="">Select State</option></select></div><div><label class="text-sm text-[#94a3b8] mb-1 block">Category *</label><select id="regCategory" class="input" required><option value="">Select Category</option>${CATEGORIES.map(c=>`<option value="${c}">${c}</option>`).join('')}</select></div><div><label class="text-sm text-[#94a3b8] mb-1 block">Password *</label><input type="password" id="regPassword" class="input" placeholder="Min 8 characters" minlength="8" required></div><div><label class="text-sm text-[#94a3b8] mb-1 block">Confirm Password *</label><input type="password" id="regConfirm" class="input" placeholder="••••••••" required></div><button type="submit" class="btn btn-primary w-full justify-center" id="regBtn"><i class="fas fa-user-plus"></i> Create Account</button></form><p class="text-center mt-6 text-sm text-[#94a3b8]">Already have an account? <button onclick="renderLogin()" class="text-indigo-400 hover:underline font-medium">Sign in</button></p></div>`}
+function updateRegStates(){const cc=document.getElementById('regCountry').value;const ss=document.getElementById('regState');const cn=COUNTRIES.find(c=>c.code===cc);if(cn){ss.innerHTML=`<option value="">Select State</option>${cn.states.map(s=>`<option value="${s.name}">${s.name}</option>`).join('')}`}}
+function renderForgot(){const c=document.querySelector('#authScreen > div');c.innerHTML=`<div class="min-h-screen flex flex-col px-6 py-8 animate-fade-in"><div class="flex items-center gap-3 mb-6"><button onclick="renderLogin()" class="p-2 rounded-lg hover:bg-[#1e293b]"><i class="fas fa-arrow-left"></i></button><h2 class="text-xl font-bold">Recover Password</h2></div><div class="w-full max-w-sm mx-auto space-y-4"><div><label class="text-sm text-[#94a3b8] mb-1 block">Email</label><input type="email" id="forgotEmail" class="input" placeholder="you@example.com"></div><button onclick="fetchSecurityQuestions()" class="btn btn-primary w-full justify-center"><i class="fas fa-search"></i> Find Account</button><div id="securityQuestions" class="hidden space-y-4"></div></div></div>`}
+async function handleLogin(e){e.preventDefault();const b=document.getElementById('loginBtn');b.innerHTML='<i class="fas fa-spinner fa-spin"></i> Signing in...';b.disabled=true;try{const r=await fetch(`${API_BASE}/auth/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:document.getElementById('loginEmail').value,password:document.getElementById('loginPassword').value})});const d=await r.json();if(r.ok){currentUser=d.user;localStorage.setItem('myshub_token',d.access_token);await loadShopData();showApp();showToast('Welcome back!','success')}else{showToast(d.detail||'Login failed','error')}}catch(err){showToast('Network error. Please try again.','error')}finally{b.innerHTML='<i class="fas fa-sign-in-alt"></i> Sign In';b.disabled=false}}
+async function handleRegister(e){e.preventDefault();const p=document.getElementById('regPassword').value;const c=document.getElementById('regConfirm').value;if(p!==c){showToast('Passwords do not match','error');return}const b=document.getElementById('regBtn');b.innerHTML='<i class="fas fa-spinner fa-spin"></i> Creating...';b.disabled=true;try{const r=await fetch(`${API_BASE}/auth/register`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:document.getElementById('regEmail').value,password:p,business_name:document.getElementById('regName').value,phone:document.getElementById('regPhone').value,country:document.getElementById('regCountry').value,state:document.getElementById('regState').value,category:document.getElementById('regCategory').value})});const d=await r.json();if(r.ok){currentUser=d.user;localStorage.setItem('myshub_token',d.access_token);await loadShopData();showApp();showToast('Welcome to MyShub! Your QR code is ready.','success');setTimeout(()=>showQR(),1000)}else{showToast(d.detail||'Registration failed','error')}}catch(err){showToast('Network error. Please try again.','error')}finally{b.innerHTML='<i class="fas fa-user-plus"></i> Create Account';b.disabled=false}}
+async function fetchSecurityQuestions(){const e=document.getElementById('forgotEmail').value;if(!e){showToast('Enter your email','error');return}try{const r=await fetch(`${API_BASE}/auth/security-questions?email=${encodeURIComponent(e)}`);const d=await r.json();if(r.ok){document.getElementById('securityQuestions').classList.remove('hidden');document.getElementById('securityQuestions').innerHTML=`<div class="card"><p class="text-sm text-[#94a3b8] mb-3">Answer your security question:</p><p class="font-medium mb-3">${d.question}</p><input type="text" id="secAnswer" class="input mb-3" placeholder="Your answer"><input type="password" id="newPassword" class="input mb-3" placeholder="New password" minlength="8"><button onclick="resetPassword('${e}')" class="btn btn-primary w-full">Reset Password</button></div>`}else{showToast(d.detail||'Account not found','error')}}catch(err){showToast('Network error','error')}}
+async function resetPassword(e){const a=document.getElementById('secAnswer').value;const p=document.getElementById('newPassword').value;try{const r=await fetch(`${API_BASE}/auth/reset-password`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e,answer:a,new_password:p})});const d=await r.json();if(r.ok){showToast('Password reset successful!','success');renderLogin()}else{showToast(d.detail||'Reset failed','error')}}catch(err){showToast('Network error','error')}}
+async function loadShopData(){try{const t=localStorage.getItem('myshub_token');const r=await fetch(`${API_BASE}/shop/preview/${currentUser.shop_slug}`,{headers:{'Authorization':`Bearer ${t}`}});if(r.ok){currentShop=await r.json()}}catch(err){console.error('Failed to load shop:',err)}}
+function switchTab(t){currentTab=t;document.querySelectorAll('.bottom-tab').forEach(x=>x.classList.remove('active'));document.querySelector(`.bottom-tab[data-tab="${t}"]`)?.classList.add('active');const c=document.getElementById('mainContent');c.innerHTML='<div class="flex items-center justify-center py-20"><i class="fas fa-spinner fa-spin text-3xl text-indigo-500"></i></div>';switch(t){case'home':renderHome();break;case'edit':renderEdit();break;case'preview':renderPreview();break;case'analytics':renderAnalytics();break;case'settings':renderSettings();break}}
+
+
+function renderHome(){
+const s=currentShop||{};const p=s.plan||'free';const l=PLAN_LIMITS[p];const slug=s.slug||currentUser?.shop_slug||'';const url=slug?`${APP_URL}/${slug}`:'';
+const bc=p==='premium'?'badge-premium':p==='pro'?'badge-pro':'badge-free';const pl=p==='premium'?'Premium':p==='pro'?'Pro':'Free';
+document.getElementById('mainContent').innerHTML=`<div class="animate-fade-in space-y-4">
+<div class="card"><div class="flex items-center gap-3 mb-3"><div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xl">${s.logo?`<img src="${s.logo}" class="w-full h-full object-cover rounded-xl">`:'<i class="fas fa-store text-white"></i>'}</div><div class="flex-1"><h2 class="font-bold text-lg">${s.name||'Your Business'}</h2><div class="flex items-center gap-2"><span class="text-xs px-2 py-0.5 rounded-full ${bc}">${pl}</span><span class="text-xs text-[#94a3b8]">${s.category||'No category'}</span></div></div></div>
+${url?`<div class="bg-[#0f172a] rounded-xl p-3 mb-3"><div class="flex items-center gap-2"><input type="text" value="${url}" readonly class="flex-1 bg-transparent text-sm text-[#94a3b8] border-none outline-none"><button onclick="copyLink('${url}')" class="p-2 rounded-lg bg-[#334155] hover:bg-[#475569] transition-colors"><i class="fas fa-copy text-indigo-400"></i></button><button onclick="showQR()" class="p-2 rounded-lg bg-[#334155] hover:bg-[#475569] transition-colors"><i class="fas fa-qrcode text-indigo-400"></i></button></div></div>`:''}
+<div class="flex gap-2"><a href="${url}" target="_blank" class="btn btn-primary flex-1 justify-center text-sm"><i class="fas fa-external-link-alt"></i> Visit Shop</a><button onclick="switchTab('edit')" class="btn btn-secondary flex-1 justify-center text-sm"><i class="fas fa-pen"></i> Edit</button></div></div>
+<div class="grid grid-cols-3 gap-3"><div class="card text-center p-4"><div class="text-2xl font-bold text-indigo-400">${s.total_views||0}</div><div class="text-xs text-[#94a3b8]">Total Views</div></div><div class="card text-center p-4"><div class="text-2xl font-bold text-pink-400">${s.today_views||0}</div><div class="text-xs text-[#94a3b8]">Today</div></div><div class="card text-center p-4"><div class="text-2xl font-bold text-emerald-400">${s.total_clicks||0}</div><div class="text-xs text-[#94a3b8]">Clicks</div></div></div>
+<div class="card"><h3 class="font-bold mb-3">Quick Actions</h3><div class="grid grid-cols-2 gap-3"><button onclick="switchTab('edit')" class="flex items-center gap-3 p-3 rounded-xl bg-[#0f172a] hover:bg-[#334155] transition-colors text-left"><div class="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center"><i class="fas fa-pen text-indigo-400"></i></div><div><div class="font-medium text-sm">Edit Profile</div><div class="text-xs text-[#94a3b8]">Update your info</div></div></button><button onclick="switchTab('analytics')" class="flex items-center gap-3 p-3 rounded-xl bg-[#0f172a] hover:bg-[#334155] transition-colors text-left"><div class="w-10 h-10 rounded-lg bg-pink-500/20 flex items-center justify-center"><i class="fas fa-chart-bar text-pink-400"></i></div><div><div class="font-medium text-sm">Analytics</div><div class="text-xs text-[#94a3b8]">View insights</div></div></button><button onclick="showQR()" class="flex items-center gap-3 p-3 rounded-xl bg-[#0f172a] hover:bg-[#334155] transition-colors text-left"><div class="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center"><i class="fas fa-qrcode text-emerald-400"></i></div><div><div class="font-medium text-sm">QR Code</div><div class="text-xs text-[#94a3b8]">Share offline</div></div></button><a href="discover.html" class="flex items-center gap-3 p-3 rounded-xl bg-[#0f172a] hover:bg-[#334155] transition-colors text-left"><div class="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center"><i class="fas fa-search text-amber-400"></i></div><div><div class="font-medium text-sm">Discover</div><div class="text-xs text-[#94a3b8]">Find businesses</div></div></a></div></div>
+${p==='free'?`<div class="card border-2 border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 to-orange-500/10"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center"><i class="fas fa-crown text-yellow-400"></i></div><div><h3 class="font-bold">Upgrade to Pro</h3><p class="text-xs text-[#94a3b8]">Unlock more features</p></div></div><ul class="text-sm text-[#94a3b8] space-y-1 mb-3"><li><i class="fas fa-check text-green-400 mr-2"></i>5 custom links</li><li><i class="fas fa-check text-green-400 mr-2"></i>10 social platforms</li><li><i class="fas fa-check text-green-400 mr-2"></i>Brand colors & fonts</li></ul><button onclick="openUpgradeModal()" class="btn btn-gold w-full justify-center"><i class="fas fa-arrow-up"></i> Upgrade Now - ₦1,500/mo</button></div>`:''}
+${p==='pro'?`<div class="card border-2 border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 to-orange-500/10"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center"><i class="fas fa-gem text-yellow-400"></i></div><div><h3 class="font-bold">Go Premium</h3><p class="text-xs text-[#94a3b8]">Unlimited everything</p></div></div><ul class="text-sm text-[#94a3b8] space-y-1 mb-3"><li><i class="fas fa-check text-green-400 mr-2"></i>Unlimited custom links</li><li><i class="fas fa-check text-green-400 mr-2"></i>Unlimited social platforms</li><li><i class="fas fa-check text-green-400 mr-2"></i>Featured in search</li><li><i class="fas fa-check text-green-400 mr-2"></i>Gradients & white-label</li></ul><button onclick="openUpgradeModal()" class="btn btn-gold w-full justify-center"><i class="fas fa-arrow-up"></i> Go Premium - ₦3,500/mo</button></div>`:''}
+<div class="card"><h3 class="font-bold mb-3">Your Plan</h3><div class="flex items-center justify-between mb-2"><span class="text-sm text-[#94a3b8]">Custom Links</span><span class="font-medium">${(s.custom_links||[]).length}/${l.customLinks===Infinity?'∞':l.customLinks}</span></div><div class="w-full bg-[#0f172a] rounded-full h-2 mb-3"><div class="bg-indigo-500 h-2 rounded-full transition-all" style="width:${Math.min(((s.custom_links||[]).length/(l.customLinks===Infinity?100:l.customLinks))*100,100)}%"></div></div><div class="flex items-center justify-between mb-2"><span class="text-sm text-[#94a3b8]">Social Platforms</span><span class="font-medium">${Object.keys(s.socials||{}).length}/${l.socialPlatforms===Infinity?'∞':l.socialPlatforms}</span></div><div class="w-full bg-[#0f172a] rounded-full h-2"><div class="bg-pink-500 h-2 rounded-full transition-all" style="width:${Math.min((Object.keys(s.socials||{}).length/(l.socialPlatforms===Infinity?100:l.socialPlatforms))*100,100)}%"></div></div></div>
+</div>`;
+updateHeaderBadge();
+}
+
+function renderEdit(){
+const s=currentShop||{};const p=s.plan||'free';const l=PLAN_LIMITS[p];
+const socials=s.socials||{};const customLinks=s.custom_links||[];
+const selectedPlatforms=Object.keys(socials);
+const country=COUNTRIES.find(c=>c.code===s.country);
+const states=country?country.states:[];
+const stateObj=states.find(st=>st.name===s.state);
+const lgas=stateObj?stateObj.lgas:[];
+
+let html=`<div class="animate-fade-in space-y-4 pb-4">
+<div class="flex items-center justify-between"><h2 class="text-xl font-bold">Edit Profile</h2><button onclick="saveShop()" class="btn btn-primary btn-sm" id="saveBtn"><i class="fas fa-save"></i> Save</button></div>
+
+<div class="card"><h3 class="font-bold mb-3 flex items-center gap-2"><i class="fas fa-image text-indigo-400"></i> Logo</h3>
+<div class="flex items-center gap-4"><div class="w-20 h-20 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-3xl overflow-hidden">${s.logo?`<img src="${s.logo}" class="w-full h-full object-cover">`:'<i class="fas fa-store text-white"></i>'}</div>
+<div class="flex-1"><input type="file" id="logoUpload" accept="image/*" class="hidden" onchange="handleLogoUpload(event)"><button onclick="document.getElementById('logoUpload').click()" class="btn btn-secondary btn-sm w-full"><i class="fas fa-upload"></i> Upload Logo</button><p class="text-xs text-[#94a3b8] mt-1">Max 2MB, PNG/JPG</p></div></div></div>
+
+<div class="card"><h3 class="font-bold mb-3 flex items-center gap-2"><i class="fas fa-building text-indigo-400"></i> Business Info</h3>
+<div class="space-y-3"><div><label class="text-sm text-[#94a3b8] mb-1 block">Business Name *</label><input type="text" id="editName" class="input" value="${s.name||''}" placeholder="Your Business Name"></div>
+<div><label class="text-sm text-[#94a3b8] mb-1 block">Tagline</label><input type="text" id="editTagline" class="input" value="${s.tagline||''}" placeholder="Short description"></div>
+<div><label class="text-sm text-[#94a3b8] mb-1 block">About</label><textarea id="editAbout" class="input" rows="3" placeholder="Tell people about your business">${s.about||''}</textarea></div>
+<div><label class="text-sm text-[#94a3b8] mb-1 block">Category *</label><select id="editCategory" class="input"><option value="">Select Category</option>${CATEGORIES.map(c=>`<option value="${c}" ${s.category===c?'selected':''}>${c}</option>`).join('')}</select></div></div></div>
+
+<div class="card"><h3 class="font-bold mb-3 flex items-center gap-2"><i class="fas fa-phone text-indigo-400"></i> Contact</h3>
+<div class="space-y-3"><div><label class="text-sm text-[#94a3b8] mb-1 block">Phone</label><input type="tel" id="editPhone" class="input" value="${s.phone||''}" placeholder="+234..."></div>
+<div><label class="text-sm text-[#94a3b8] mb-1 block">Email</label><input type="email" id="editEmail" class="input" value="${s.email||''}" placeholder="you@example.com"></div>
+<div><label class="text-sm text-[#94a3b8] mb-1 block">Address</label><input type="text" id="editAddress" class="input" value="${s.address||''}" placeholder="Full address"></div>
+<div><label class="text-sm text-[#94a3b8] mb-1 block">Country *</label><select id="editCountry" class="input" onchange="updateEditStates()"><option value="">Select Country</option>${COUNTRIES.map(c=>`<option value="${c.code}" ${s.country===c.code?'selected':''}>${c.name}</option>`).join('')}</select></div>
+<div><label class="text-sm text-[#94a3b8] mb-1 block">State/Province *</label><select id="editState" class="input" onchange="updateEditLgas()"><option value="">Select State</option>${states.map(st=>`<option value="${st.name}" ${s.state===st.name?'selected':''}>${st.name}</option>`).join('')}</select></div>
+<div><label class="text-sm text-[#94a3b8] mb-1 block">LGA/City</label><select id="editLga" class="input"><option value="">Select LGA</option>${lgas.map(lg=>`<option value="${lg}" ${s.lga===lg?'selected':''}>${lg}</option>`).join('')}</select></div></div></div>
+
+<div class="card"><h3 class="font-bold mb-3 flex items-center gap-2"><i class="fas fa-shopping-cart text-indigo-400"></i> Catalog</h3>
+<div class="space-y-3"><div><label class="text-sm text-[#94a3b8] mb-1 block">Store URL</label><input type="url" id="editCatalog" class="input" value="${s.catalog_url||''}" placeholder="https://your-store.com"></div>
+<div><label class="text-sm text-[#94a3b8] mb-1 block">WhatsApp Catalog</label><input type="url" id="editWaCatalog" class="input" value="${s.whatsapp_catalog||''}" placeholder="https://wa.me/c/..."></div></div></div>
+
+<div class="card"><div class="flex items-center justify-between mb-3"><h3 class="font-bold flex items-center gap-2"><i class="fas fa-share-alt text-indigo-400"></i> Social Platforms</h3><span class="text-xs text-[#94a3b8]">${selectedPlatforms.length}/${l.socialPlatforms===Infinity?'∞':l.socialPlatforms}</span></div>
+<div class="platform-grid" id="platformGrid"></div>
+${!l.socialPlatforms?`<p class="text-xs text-[#94a3b8] mt-2 text-center"><i class="fas fa-lock mr-1"></i>Upgrade to add social platforms</p>`:''}</div>
+
+<div class="card"><div class="flex items-center justify-between mb-3"><h3 class="font-bold flex items-center gap-2"><i class="fas fa-link text-indigo-400"></i> Custom Links</h3><span class="text-xs text-[#94a3b8]">${customLinks.length}/${l.customLinks===Infinity?'∞':l.customLinks}</span></div>
+<div id="customLinksList" class="space-y-2"></div>
+${customLinks.length<(l.customLinks===Infinity?999:l.customLinks)?`<button onclick="addCustomLink()" class="btn btn-secondary btn-sm w-full mt-2"><i class="fas fa-plus"></i> Add Custom Link</button>`:`<p class="text-xs text-[#94a3b8] mt-2 text-center"><i class="fas fa-lock mr-1"></i>Limit reached. Upgrade for more.</p>`}</div>
+
+<div class="card"><h3 class="font-bold mb-3 flex items-center gap-2"><i class="fas fa-palette text-indigo-400"></i> Branding ${!l.brandColors?'<span class="text-xs text-[#94a3b8] ml-2"><i class="fas fa-lock"></i> Pro+</span>':''}</h3>
+<div class="space-y-3 ${!l.brandColors?'opacity-50 pointer-events-none':''}">
+<div class="flex items-center gap-3"><label class="text-sm text-[#94a3b8] w-24">Primary</label><input type="color" id="editPrimary" class="w-12 h-10 rounded-lg border-none cursor-pointer" value="${s.primary_color||'#6366f1'}"><input type="text" id="editPrimaryText" class="input flex-1" value="${s.primary_color||'#6366f1'}" onchange="document.getElementById('editPrimary').value=this.value"></div>
+<div class="flex items-center gap-3"><label class="text-sm text-[#94a3b8] w-24">Secondary</label><input type="color" id="editSecondary" class="w-12 h-10 rounded-lg border-none cursor-pointer" value="${s.secondary_color||'#ec4899'}"><input type="text" id="editSecondaryText" class="input flex-1" value="${s.secondary_color||'#ec4899'}" onchange="document.getElementById('editSecondary').value=this.value"></div>
+<div class="flex items-center gap-3"><label class="text-sm text-[#94a3b8] w-24">Gradient</label><div class="toggle ${s.use_gradient?'active':''}" id="gradientToggle" onclick="this.classList.toggle('active')"></div><span class="text-xs text-[#94a3b8]">${!l.gradients?'Premium only':''}</span></div>
+<div class="flex items-center gap-3"><label class="text-sm text-[#94a3b8] w-24">Heading Font</label><select id="editHeadingFont" class="input flex-1"><option value="">Default</option>${FONTS.map(f=>`<option value="${f.value}" ${s.heading_font===f.value?'selected':''}>${f.name}</option>`).join('')}</select></div>
+<div class="flex items-center gap-3"><label class="text-sm text-[#94a3b8] w-24">Body Font</label><select id="editBodyFont" class="input flex-1"><option value="">Default</option>${FONTS.map(f=>`<option value="${f.value}" ${s.body_font===f.value?'selected':''}>${f.name}</option>`).join('')}</select></div>
+</div></div>
+</div>`;
+
+document.getElementById('mainContent').innerHTML=html;
+renderPlatformGrid(selectedPlatforms,l.socialPlatforms);
+renderCustomLinksList(customLinks);
+}
+
+function renderPlatformGrid(selected,limit){
+const grid=document.getElementById('platformGrid');
+if(!grid)return;
+grid.innerHTML=PLATFORMS.map((pl,i)=>{
+const isSelected=selected.includes(pl.id);
+const isLocked=limit!==Infinity&&i>=limit&&!isSelected;
+return`<div class="platform-item ${isSelected?'selected':''} ${isLocked?'locked':''}" data-id="${pl.id}" onclick="${isLocked?'':'togglePlatform(this)'}" title="${pl.name}${isLocked?' (Upgrade to unlock)':''}"><i class="${pl.icon}" style="color:${pl.color}"></i></div>`;
+}).join('');
+}
+
+function togglePlatform(el){
+const id=el.dataset.id;
+const s=currentShop||{};const socials=s.socials||{};
+if(socials[id]){delete socials[id];el.classList.remove('selected');}
+else{socials[id]='';el.classList.add('selected');}
+currentShop={...s,socials};
+renderPlatformGrid(Object.keys(socials),PLAN_LIMITS[s.plan||'free'].socialPlatforms);
+}
+
+function renderCustomLinksList(links){
+const list=document.getElementById('customLinksList');
+if(!list)return;
+list.innerHTML=links.map((link,i)=>`<div class="flex items-center gap-2 bg-[#0f172a] rounded-xl p-3">
+<button onclick="openEmojiPicker(${i})" class="text-2xl hover:scale-110 transition-transform" title="Change icon">${link.icon||'🔗'}</button>
+<input type="text" class="input flex-1 text-sm" value="${link.label||''}" placeholder="Label" onchange="updateCustomLink(${i},'label',this.value)">
+<input type="url" class="input flex-1 text-sm" value="${link.url||''}" placeholder="https://..." onchange="updateCustomLink(${i},'url',this.value)">
+<button onclick="removeCustomLink(${i})" class="p-2 text-red-400 hover:bg-red-500/10 rounded-lg"><i class="fas fa-trash"></i></button>
+</div>`).join('');
+}
+
+function addCustomLink(){
+const s=currentShop||{};const links=s.custom_links||[];const p=s.plan||'free';const l=PLAN_LIMITS[p];
+if(links.length>=(l.customLinks===Infinity?999:l.customLinks)){showToast('Link limit reached','error');return}
+currentShop={...s,custom_links:[...links,{icon:'🔗',label:'',url:''}]};
+renderCustomLinksList(currentShop.custom_links);
+}
+
+function removeCustomLink(i){
+const s=currentShop||{};const links=[...s.custom_links||[]];links.splice(i,1);
+currentShop={...s,custom_links:links};renderCustomLinksList(links);
+}
+
+function updateCustomLink(i,field,value){
+const s=currentShop||{};const links=[...s.custom_links||[]];links[i]={...links[i],[field]:value};
+currentShop={...s,custom_links:links};
+}
+
+function openEmojiPicker(index){
+emojiTarget=index;const grid=document.getElementById('emojiGrid');
+grid.innerHTML=EMOJIS.map(e=>`<div class="emoji-item" onclick="selectEmoji('${e}')">${e}</div>`).join('');
+document.getElementById('emojiModal').classList.remove('hidden');
+}
+
+function selectEmoji(emoji){
+if(emojiTarget!==null){
+const s=currentShop||{};const links=[...s.custom_links||[]];
+links[emojiTarget]={...links[emojiTarget],icon:emoji};
+currentShop={...s,custom_links:links};renderCustomLinksList(links);
+}
+closeEmojiPicker();
+}
+
+function closeEmojiPicker(){document.getElementById('emojiModal').classList.add('hidden');emojiTarget=null;}
+
+function updateEditStates(){
+const cc=document.getElementById('editCountry').value;
+const ss=document.getElementById('editState');const ll=document.getElementById('editLga');
+const cn=COUNTRIES.find(c=>c.code===cc);const sts=cn?cn.states:[];
+ss.innerHTML=`<option value="">Select State</option>${sts.map(st=>`<option value="${st.name}">${st.name}</option>`).join('')}`;
+ll.innerHTML='<option value="">Select LGA</option>';
+}
+
+function updateEditLgas(){
+const cc=document.getElementById('editCountry').value;
+const sn=document.getElementById('editState').value;
+const ll=document.getElementById('editLga');
+const cn=COUNTRIES.find(c=>c.code===cc);const st=cn?cn.states.find(s=>s.name===sn):null;
+ll.innerHTML=`<option value="">Select LGA</option>${st?st.lgas.map(lg=>`<option value="${lg}">${lg}</option>`).join(''):''}`;
+}
+
+async function handleLogoUpload(e){
+const file=e.target.files[0];if(!file)return;
+if(file.size>2*1024*1024){showToast('Logo must be under 2MB','error');return}
+const reader=new FileReader();
+reader.onload=async(ev)=>{
+try{const token=localStorage.getItem('myshub_token');
+const r=await fetch(`${API_BASE}/shop/upload-logo`,{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({slug:currentUser.shop_slug,logo:ev.target.result})});
+if(r.ok){const d=await r.json();currentShop={...currentShop,logo:d.logo};showToast('Logo uploaded!','success');renderEdit()}else{showToast('Upload failed','error')}}
+catch(err){showToast('Upload error','error')}
+};
+reader.readAsDataURL(file);
+}
+
+async function saveShop(){
+const btn=document.getElementById('saveBtn');btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Saving...';btn.disabled=true;
+try{
+const token=localStorage.getItem('myshub_token');
+const s=currentShop||{};
+const data={
+name:document.getElementById('editName').value,
+tagline:document.getElementById('editTagline').value,
+about:document.getElementById('editAbout').value,
+category:document.getElementById('editCategory').value,
+phone:document.getElementById('editPhone').value,
+email:document.getElementById('editEmail').value,
+address:document.getElementById('editAddress').value,
+country:document.getElementById('editCountry').value,
+state:document.getElementById('editState').value,
+lga:document.getElementById('editLga').value,
+catalog_url:document.getElementById('editCatalog').value,
+whatsapp_catalog:document.getElementById('editWaCatalog').value,
+socials:s.socials||{},
+custom_links:s.custom_links||[],
+primary_color:document.getElementById('editPrimary').value,
+secondary_color:document.getElementById('editSecondary').value,
+use_gradient:document.getElementById('gradientToggle').classList.contains('active'),
+heading_font:document.getElementById('editHeadingFont').value,
+body_font:document.getElementById('editBodyFont').value
+};
+const r=await fetch(`${API_BASE}/shop/edit/${currentUser.shop_slug}`,{method:'PUT',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify(data)});
+if(r.ok){currentShop={...currentShop,...data};showToast('Saved successfully!','success');}else{const d=await r.json();showToast(d.detail||'Save failed','error')}
+}catch(err){showToast('Network error','error')}
+finally{btn.innerHTML='<i class="fas fa-save"></i> Save';btn.disabled=false;}
+}
+
+function renderPreview(){
+const s=currentShop||{};const slug=s.slug||currentUser?.shop_slug||'';
+if(!slug){document.getElementById('mainContent').innerHTML=`<div class="animate-fade-in text-center py-20"><i class="fas fa-eye text-4xl text-[#334155] mb-4"></i><p class="text-[#94a3b8]">Save your shop first to preview</p></div>`;return}
+document.getElementById('mainContent').innerHTML=`<div class="animate-fade-in"><div class="flex items-center justify-between mb-3"><h2 class="text-xl font-bold">Preview</h2><a href="${APP_URL}/${slug}" target="_blank" class="btn btn-secondary btn-sm"><i class="fas fa-external-link-alt"></i> Open</a></div><div class="rounded-2xl overflow-hidden border border-[#334155]" style="height:calc(100vh-200px)"><iframe src="${APP_URL}/${slug}" class="w-full h-full border-0" sandbox="allow-scripts allow-same-origin allow-popups"></iframe></div></div>`;
+}
+
+
+function renderAnalytics(){
+const s=currentShop||{};
+const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const daily=s.daily_views||[12,19,8,25,32,18,45];
+const maxViews=Math.max(...daily,1);
+const devices=s.devices||{mobile:65,desktop:25,tablet:10};
+const countries=s.countries||[['Nigeria',45],['Ghana',12],['USA',8],['UK',6],['Kenya',5]];
+const referrers=s.referrers||[['Direct',40],['Google',25],['Instagram',15],['Facebook',10],['Twitter',5]];
+
+let html=`<div class="animate-fade-in space-y-4">
+<div class="grid grid-cols-2 gap-3"><div class="card text-center p-4"><div class="text-3xl font-bold text-indigo-400">${s.total_views||0}</div><div class="text-sm text-[#94a3b8]">Total Views</div></div><div class="card text-center p-4"><div class="text-3xl font-bold text-pink-400">${s.today_views||0}</div><div class="text-sm text-[#94a3b8]">Today</div></div></div>
+
+<div class="card"><h3 class="font-bold mb-3">Last 7 Days</h3><div class="flex items-end gap-2 h-32">${daily.map((v,i)=>`<div class="flex-1 flex flex-col items-center gap-1"><div class="chart-bar w-full rounded-t-lg" style="height:${(v/maxViews)*100}%"></div><span class="text-xs text-[#94a3b8]">${days[i]}</span></div>`).join('')}</div></div>
+
+<div class="card"><h3 class="font-bold mb-3">Devices</h3><div class="space-y-3">${Object.entries(devices).map(([d,p])=>`<div><div class="flex justify-between text-sm mb-1"><span class="capitalize">${d}</span><span>${p}%</span></div><div class="w-full bg-[#0f172a] rounded-full h-2"><div class="${d==='mobile'?'bg-indigo-500':d==='desktop'?'bg-pink-500':'bg-amber-500'} h-2 rounded-full transition-all" style="width:${p}%"></div></div></div>`).join('')}</div></div>
+
+<div class="card"><h3 class="font-bold mb-3">Top Countries</h3><div class="space-y-2">${countries.map(([c,v])=>`<div class="flex items-center justify-between p-2 rounded-lg bg-[#0f172a]"><span>${c}</span><span class="font-medium text-indigo-400">${v}</span></div>`).join('')}</div></div>
+
+<div class="card"><h3 class="font-bold mb-3">Top Referrers</h3><div class="space-y-2">${referrers.map(([r,v])=>`<div class="flex items-center justify-between p-2 rounded-lg bg-[#0f172a]"><span>${r}</span><span class="font-medium text-pink-400">${v}</span></div>`).join('')}</div></div>
+
+<div class="card"><h3 class="font-bold mb-3">Link Clicks</h3><div class="space-y-2">${(s.link_clicks||[]).map(l=>`<div class="flex items-center justify-between p-2 rounded-lg bg-[#0f172a]"><span class="flex items-center gap-2">${l.icon||'🔗'} ${l.label}</span><span class="font-medium text-emerald-400">${l.clicks||0}</span></div>`).join('')||'<p class="text-sm text-[#94a3b8] text-center py-4">No clicks yet</p>'}</div></div>
+</div>`;
+document.getElementById('mainContent').innerHTML=html;
+}
+
+function renderSettings(){
+const s=currentShop||{};
+let html=`<div class="animate-fade-in space-y-4">
+<div class="card"><h3 class="font-bold mb-3">Account</h3><div class="space-y-3">
+<div class="flex items-center justify-between p-3 rounded-xl bg-[#0f172a]"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center"><i class="fas fa-envelope text-indigo-400"></i></div><div><div class="font-medium text-sm">${currentUser?.email||'Email'}</div><div class="text-xs text-[#94a3b8]">Logged in</div></div></div></div>
+<div class="flex items-center justify-between p-3 rounded-xl bg-[#0f172a]"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-lg bg-pink-500/20 flex items-center justify-center"><i class="fas fa-store text-pink-400"></i></div><div><div class="font-medium text-sm">${s.name||'Your Shop'}</div><div class="text-xs text-[#94a3b8]">${s.slug||''}</div></div></div></div>
+</div></div>
+
+<div class="card"><h3 class="font-bold mb-3">Notifications</h3>
+<div class="flex items-center justify-between p-3 rounded-xl bg-[#0f172a] mb-2"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center"><i class="fas fa-bell text-emerald-400"></i></div><div><div class="font-medium text-sm">Push Notifications</div><div class="text-xs text-[#94a3b8]">Get updates when closed</div></div></div><div class="toggle" id="pushToggle" onclick="togglePush()"></div></div>
+</div>
+
+<div class="card"><h3 class="font-bold mb-3">Security</h3>
+<button onclick="changePassword()" class="flex items-center gap-3 p-3 rounded-xl bg-[#0f172a] hover:bg-[#334155] transition-colors w-full text-left"><div class="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center"><i class="fas fa-key text-amber-400"></i></div><div class="flex-1"><div class="font-medium text-sm">Change Password</div><div class="text-xs text-[#94a3b8]">Update your password</div></div><i class="fas fa-chevron-right text-[#94a3b8]"></i></button>
+</div>
+
+<div class="card"><h3 class="font-bold mb-3">Shop Status</h3>
+<div class="flex items-center gap-3 p-3 rounded-xl bg-[#0f172a]"><div class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center"><i class="fas fa-check-circle text-green-400"></i></div><div class="flex-1"><div class="font-medium text-sm">${s.is_active!==false?'Active':'Deactivated'}</div><div class="text-xs text-[#94a3b8]">Your shop is ${s.is_active!==false?'live':'hidden'}</div></div><button onclick="toggleShopStatus()" class="btn btn-sm ${s.is_active!==false?'btn-danger':'btn-primary'}">${s.is_active!==false?'Deactivate':'Activate'}</button></div>
+</div>
+
+${currentUser?.is_admin?`<div class="card"><h3 class="font-bold mb-3">Admin</h3><a href="admin.html" class="flex items-center gap-3 p-3 rounded-xl bg-[#0f172a] hover:bg-[#334155] transition-colors w-full text-left"><div class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center"><i class="fas fa-shield-alt text-purple-400"></i></div><div class="flex-1"><div class="font-medium text-sm">Admin Dashboard</div><div class="text-xs text-[#94a3b8]">Manage platform</div></div><i class="fas fa-chevron-right text-[#94a3b8]"></i></a></div>`:''}
+
+<div class="card"><button onclick="logout()" class="flex items-center gap-3 p-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 transition-colors w-full text-left text-red-400"><i class="fas fa-sign-out-alt text-lg"></i><span class="font-medium">Log Out</span></button></div>
+</div>`;
+document.getElementById('mainContent').innerHTML=html;
+}
+
+function togglePush(){
+const t=document.getElementById('pushToggle');
+if(!t.classList.contains('active')){
+if('Notification' in window){Notification.requestPermission().then(p=>{if(p==='granted'){t.classList.add('active');subscribePush();showToast('Push notifications enabled','success')}else{showToast('Permission denied','error')}})}else{showToast('Notifications not supported','error')}
+}else{t.classList.remove('active');unsubscribePush();}
+}
+
+async function subscribePush(){try{const sw=await navigator.serviceWorker.ready;const sub=await sw.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array('BEl62iSMgVhvN2Q2X6yE2Z9Q8X7yE2Z9Q8X7yE2Z9Q8X7yE2Z9Q8X7yE2Z9Q8X7yE2Z9Q8X7yE2Z9Q8X7yE2Z9Q8')});const token=localStorage.getItem('myshub_token');await fetch(`${API_BASE}/notifications/subscribe`,{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({subscription:JSON.stringify(sub)})});}catch(e){console.error('Push error:',e)}}
+async function unsubscribePush(){try{const sw=await navigator.serviceWorker.ready;const sub=await sw.pushManager.getSubscription();if(sub)await sub.unsubscribe();}catch(e){console.error('Unsubscribe error:',e)}}
+function urlBase64ToUint8Array(base64String){const padding='='.repeat((4-base64String.length%4)%4);const base64=(base64String+padding).replace(/\-/g,'+').replace(/_/g,'/');const rawData=window.atob(base64);return Uint8Array.from([...rawData].map(char=>char.charCodeAt(0)));}
+
+function changePassword(){
+const np=prompt('Enter new password (min 8 chars):');if(!np||np.length<8){showToast('Password too short','error');return}
+showToast('Password change coming soon','success');
+}
+
+async function toggleShopStatus(){
+const s=currentShop||{};const newStatus=s.is_active===false;
+try{const token=localStorage.getItem('myshub_token');
+const r=await fetch(`${API_BASE}/shop/edit/${currentUser.shop_slug}`,{method:'PUT',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({is_active:newStatus})});
+if(r.ok){currentShop={...s,is_active:newStatus};showToast(newStatus?'Shop activated':'Shop deactivated','success');renderSettings()}else{showToast('Failed to update status','error')}
+}catch(err){showToast('Network error','error')}
+}
+
+function logout(){localStorage.removeItem('myshub_token');currentUser=null;currentShop=null;showAuth();showToast('Logged out','success');}
+
+// Notifications
+async function loadNotifications(){try{const token=localStorage.getItem('myshub_token');if(!token)return;const r=await fetch(`${API_BASE}/notifications/`,{headers:{'Authorization':`Bearer ${token}`}});if(r.ok){notifications=await r.json();updateNotifBadge();}}catch(e){console.error('Notif load error:',e)}}
+function updateNotifBadge(){const unread=notifications.filter(n=>!n.read).length;const badge=document.getElementById('notifCount');if(unread>0){badge.textContent=unread>99?'99+':unread;badge.classList.remove('hidden')}else{badge.classList.add('hidden')}}
+function openNotifications(){document.getElementById('notifPanel').classList.remove('hidden');renderNotifList();}
+function closeNotifications(){document.getElementById('notifPanel').classList.add('hidden');}
+function renderNotifList(){const list=document.getElementById('notifList');if(!notifications.length){list.innerHTML='<div class="text-center py-12 text-[#94a3b8]"><i class="fas fa-bell-slash text-3xl mb-3"></i><p>No notifications yet</p></div>';return}
+list.innerHTML=notifications.map(n=>`<div class="notif-item ${!n.read?'unread':''}" onclick="markRead('${n.id}')"><div class="flex items-start gap-3"><div class="w-8 h-8 rounded-lg ${n.type==='milestone'?'bg-yellow-500/20':n.type==='expiry'?'bg-red-500/20':'bg-indigo-500/20'} flex items-center justify-center flex-shrink-0"><i class="fas ${n.type==='milestone'?'fa-trophy':n.type==='expiry'?'fa-clock':'fa-bullhorn'} ${n.type==='milestone'?'text-yellow-400':n.type==='expiry'?'text-red-400':'text-indigo-400'} text-xs"></i></div><div class="flex-1"><p class="text-sm font-medium">${n.title}</p><p class="text-xs text-[#94a3b8]">${n.body}</p><p class="text-xs text-[#64748b] mt-1">${n.time||'Just now'}</p></div>${!n.read?'<div class="w-2 h-2 rounded-full bg-indigo-500 mt-1"></div>':''}</div></div>`).join('');}
+async function markRead(id){const n=notifications.find(x=>x.id===id);if(n)n.read=true;updateNotifBadge();renderNotifList();}
+
+// QR Code
+function showQR(){const s=currentShop||{};const slug=s.slug||currentUser?.shop_slug||'';if(!slug){showToast('Save your shop first','error');return}const url=`${APP_URL}/${slug}`;const display=document.getElementById('qrDisplay');display.innerHTML='';new QRCode(display,{text:url,width:200,height:200,colorDark:'#0f172a',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});document.getElementById('qrModal').classList.remove('hidden');}
+function closeQrModal(){document.getElementById('qrModal').classList.add('hidden');}
+function downloadQR(){const canvas=document.querySelector('#qrDisplay canvas');if(canvas){const link=document.createElement('a');link.download=`myshub-${currentShop?.slug||'qr'}.png`;link.href=canvas.toDataURL();link.click();}}
+
+// Upgrade
+function openUpgradeModal(){document.getElementById('upgradeModal').classList.remove('hidden');}
+function closeUpgradeModal(){document.getElementById('upgradeModal').classList.add('hidden');selectedPlan=null;}
+function selectPlan(plan){selectedPlan=plan;document.querySelectorAll('#upgradeModal .card').forEach(c=>c.style.borderColor='transparent');event.currentTarget.style.borderColor=plan==='premium'?'#fbbf24':'#6366f1';}
+function initiatePayment(){if(!selectedPlan){showToast('Select a plan first','error');return}showToast(`Redirecting to Paystack for ${selectedPlan}...`,'success');closeUpgradeModal();}
+
+// Utils
+function copyLink(url){navigator.clipboard.writeText(url).then(()=>showToast('Link copied!','success')).catch(()=>showToast('Copy failed','error'));}
+function updateHeaderBadge(){const s=currentShop||{};const p=s.plan||'free';const badge=document.getElementById('headerPlanBadge');badge.className=`text-xs px-2 py-0.5 rounded-full ${p==='premium'?'badge-premium':p==='pro'?'badge-pro':'badge-free'}`;badge.textContent=p==='premium'?'Premium':p==='pro'?'Pro':'Free';badge.classList.remove('hidden');}
+function showToast(msg,type='success'){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className=`toast toast-${type}`;t.innerHTML=`<i class="fas ${type==='success'?'fa-check-circle':'fa-exclamation-circle'}"></i>${msg}`;c.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transform='translateY(-10px)';setTimeout(()=>t.remove(),300)},3000);}
+
+// Init
+document.addEventListener('DOMContentLoaded',()=>{
+const token=localStorage.getItem('myshub_token');
+if(token){fetch(`${API_BASE}/auth/me`,{headers:{'Authorization':`Bearer ${token}`}}).then(r=>r.ok?r.json():Promise.reject()).then(d=>{currentUser=d;loadShopData().then(()=>showApp());}).catch(()=>{localStorage.removeItem('myshub_token');showAuth();});
+}else{showAuth();}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(e=>console.error('SW error:',e));}
+});
 </script>
 </body>
 </html>

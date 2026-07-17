@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f172a">
+<title>Admin - MyShub</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+:root{--primary:#6366f1;--primary-dark:#4f46e5;--secondary:#ec4899;--accent:#f59e0b;--bg:#0f172a;--surface:#1e293b;--surface-light:#334155;--text:#f8fafc;--text-muted:#94a3b8;--border:#334155;--success:#22c55e;--danger:#ef4444;--gold:#fbbf24}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--surface-light);border-radius:2px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.animate-fade-in{animation:fadeIn .4s ease-out}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px}
+.btn{padding:10px 20px;border-radius:10px;font-weight:600;font-size:13px;border:none;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--primary);color:white}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-danger{background:var(--danger);color:white}
+.btn-secondary{background:var(--surface-light);color:var(--text);border:1px solid var(--border)}
+.input{width:100%;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;font-family:inherit}
+.input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+.table-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 100px;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);align-items:center;font-size:13px}
+.table-row:hover{background:rgba(99,102,241,.05)}
+.table-header{font-weight:600;color:var(--text-muted);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+.tab-btn{padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;border:none;background:transparent;color:var(--text-muted)}
+.tab-btn.active{background:var(--primary);color:white}
+.tab-btn:hover:not(.active){background:var(--surface-light);color:var(--text)}
+.toast-container{position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:300;display:flex;flex-direction:column;gap:8px}
+.toast{padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;animation:fadeIn .3s ease-out;display:flex;align-items:center;gap:8px}
+.toast-success{background:rgba(34,197,94,.15);color:var(--success);border:1px solid rgba(34,197,94,.3)}
+.toast-error{background:rgba(239,68,68,.15);color:var(--danger);border:1px solid rgba(239,68,68,.3)}
+</style>
+</head>
+<body>
+<div id="toastContainer" class="toast-container"></div>
+
+<!-- Header -->
+<header class="border-b border-[#334155] bg-[#0f172a]/80 backdrop-blur-xl sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+        <i class="fas fa-shield-alt text-white text-sm"></i>
+      </div>
+      <span class="font-bold text-lg" style="font-family:'Space Grotesk',sans-serif">MyShub Admin</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <span id="adminEmail" class="text-sm text-[#94a3b8] hidden md:block"></span>
+      <a href="app.html" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back to App</a>
+      <button onclick="logout()" class="btn btn-danger btn-sm"><i class="fas fa-sign-out-alt"></i></button>
+    </div>
+  </div>
+</header>
+
+<!-- Main -->
+<main class="max-w-7xl mx-auto px-4 py-6">
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="card">
+      <div class="text-2xl font-bold text-indigo-400" id="statTotalShops">-</div>
+      <div class="text-xs text-[#94a3b8]">Total Shops</div>
+    </div>
+    <div class="card">
+      <div class="text-2xl font-bold text-pink-400" id="statTotalUsers">-</div>
+      <div class="text-xs text-[#94a3b8]">Total Users</div>
+    </div>
+    <div class="card">
+      <div class="text-2xl font-bold text-emerald-400" id="statTotalViews">-</div>
+      <div class="text-xs text-[#94a3b8]">Total Views</div>
+    </div>
+    <div class="card">
+      <div class="text-2xl font-bold text-amber-400" id="statPremiumShops">-</div>
+      <div class="text-xs text-[#94a3b8]">Premium Shops</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="flex gap-2 mb-6 overflow-x-auto">
+    <button class="tab-btn active" data-tab="shops" onclick="switchTab('shops')">🏪 Shops</button>
+    <button class="tab-btn" data-tab="users" onclick="switchTab('users')">👤 Users</button>
+    <button class="tab-btn" data-tab="analytics" onclick="switchTab('analytics')">📊 Analytics</button>
+    <button class="tab-btn" data-tab="notifications" onclick="switchTab('notifications')">🔔 Broadcast</button>
+    <button class="tab-btn" data-tab="payments" onclick="switchTab('payments')">💳 Payments</button>
+  </div>
+
+  <!-- Content -->
+  <div id="tabContent" class="animate-fade-in">
+    <!-- Rendered by JS -->
+  </div>
+</main>
+
+<script>
+const API_BASE='https://emltechstudio-myshub-api.hf.space';
+let currentTab='shops';
+let shopsData=[];
+let usersData=[];
+
+function init(){
+  const token=localStorage.getItem('myshub_token');
+  if(!token){window.location.href='app.html';return}
+  fetch(`${API_BASE}/auth/me`,{headers:{'Authorization':`Bearer ${token}`}})
+    .then(r=>r.ok?r.json():Promise.reject())
+    .then(u=>{
+      if(!u.is_admin){window.location.href='app.html';return}
+      document.getElementById('adminEmail').textContent=u.email;
+      loadStats();switchTab('shops');
+    })
+    .catch(()=>{localStorage.removeItem('myshub_token');window.location.href='app.html'});
+}
+
+async function loadStats(){
+  const token=localStorage.getItem('myshub_token');
+  try{
+    const r=await fetch(`${API_BASE}/admin/stats`,{headers:{'Authorization':`Bearer ${token}`}});
+    if(r.ok){
+      const d=await r.json();
+      document.getElementById('statTotalShops').textContent=d.total_shops||0;
+      document.getElementById('statTotalUsers').textContent=d.total_users||0;
+      document.getElementById('statTotalViews').textContent=(d.total_views||0).toLocaleString();
+      document.getElementById('statPremiumShops').textContent=d.premium_shops||0;
+    }
+  }catch(e){console.error('Stats error:',e)}
+}
+
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
+  document.querySelector(`.tab-btn[data-tab="${tab}"]`)?.classList.add('active');
+  const content=document.getElementById('tabContent');
+  content.innerHTML='<div class="flex items-center justify-center py-12"><i class="fas fa-spinner fa-spin text-2xl text-indigo-500"></i></div>';
+  switch(tab){
+    case'shops':renderShopsTab();break;
+    case'users':renderUsersTab();break;
+    case'analytics':renderAnalyticsTab();break;
+    case'notifications':renderNotificationsTab();break;
+    case'payments':renderPaymentsTab();break;
+  }
+}
+
+async function renderShopsTab(){
+  const token=localStorage.getItem('myshub_token');
+  try{
+    const r=await fetch(`${API_BASE}/admin/shops`,{headers:{'Authorization':`Bearer ${token}`}});
+    if(r.ok){shopsData=await r.json();}else{shopsData=[]}
+  }catch(e){shopsData=[]}
+
+  document.getElementById('tabContent').innerHTML=`<div class="card">
+    <div class="flex items-center justify-between mb-4"><h3 class="font-bold">All Shops</h3><input type="text" class="input max-w-xs" placeholder="Search shops..." oninput="filterShops(this.value)"></div>
+    <div class="overflow-x-auto">
+      <div class="table-row table-header"><div>Name</div><div>Plan</div><div>Views</div><div>Status</div><div>Actions</div></div>
+      <div id="shopsList">${shopsData.map(s=>renderShopRow(s)).join('')}</div>
+    </div>
+  </div>`;
+}
+
+function renderShopRow(s){
+  const planClass=s.plan==='premium'?'text-yellow-400':s.plan==='pro'?'text-indigo-400':'text-[#94a3b8]';
+  return`<div class="table-row">
+    <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs">🏪</div><div><div class="font-medium">${s.name}</div><div class="text-xs text-[#64748b]">${s.slug}</div></div></div>
+    <div class="${planClass} font-medium capitalize">${s.plan||'free'}</div>
+    <div>${s.total_views||0}</div>
+    <div><span class="px-2 py-0.5 rounded-full text-xs ${s.is_active!==false?'bg-green-500/10 text-green-400':'bg-red-500/10 text-red-400'}">${s.is_active!==false?'Active':'Inactive'}</span></div>
+    <div class="flex gap-1"><button onclick="viewShop('${s.slug}')" class="p-1.5 rounded-lg hover:bg-[#334155]" title="View"><i class="fas fa-eye text-[#94a3b8]"></i></button><button onclick="toggleShop('${s.slug}',${s.is_active!==false})" class="p-1.5 rounded-lg hover:bg-[#334155]" title="${s.is_active!==false?'Deactivate':'Activate'}"><i class="fas ${s.is_active!==false?'fa-pause':'fa-play'} text-[#94a3b8]"></i></button></div>
+  </div>`;
+}
+
+function filterShops(q){
+  const filtered=shopsData.filter(s=>s.name.toLowerCase().includes(q.toLowerCase())||s.slug.toLowerCase().includes(q.toLowerCase()));
+  document.getElementById('shopsList').innerHTML=filtered.map(s=>renderShopRow(s)).join('');
+}
+
+async function renderUsersTab(){
+  const token=localStorage.getItem('myshub_token');
+  try{
+    const r=await fetch(`${API_BASE}/admin/users`,{headers:{'Authorization':`Bearer ${token}`}});
+    if(r.ok){usersData=await r.json();}else{usersData=[]}
+  }catch(e){usersData=[]}
+
+  document.getElementById('tabContent').innerHTML=`<div class="card">
+    <div class="flex items-center justify-between mb-4"><h3 class="font-bold">All Users</h3><input type="text" class="input max-w-xs" placeholder="Search users..." oninput="filterUsers(this.value)"></div>
+    <div class="overflow-x-auto">
+      <div class="table-row table-header"><div>User</div><div>Shop</div><div>Plan</div><div>Joined</div><div>Actions</div></div>
+      <div id="usersList">${usersData.map(u=>renderUserRow(u)).join('')}</div>
+    </div>
+  </div>`;
+}
+
+function renderUserRow(u){
+  return`<div class="table-row">
+    <div><div class="font-medium">${u.email}</div><div class="text-xs text-[#64748b]">${u.phone||''}</div></div>
+    <div class="text-[#94a3b8]">${u.shop_name||'No shop'}</div>
+    <div class="${u.plan==='premium'?'text-yellow-400':u.plan==='pro'?'text-indigo-400':'text-[#94a3b8]'} font-medium capitalize">${u.plan||'free'}</div>
+    <div class="text-[#94a3b8] text-xs">${u.created_at?new Date(u.created_at).toLocaleDateString():'-'}</div>
+    <div class="flex gap-1"><button onclick="viewUser('${u.id}')" class="p-1.5 rounded-lg hover:bg-[#334155]" title="View"><i class="fas fa-eye text-[#94a3b8]"></i></button></div>
+  </div>`;
+}
+
+function filterUsers(q){
+  const filtered=usersData.filter(u=>u.email.toLowerCase().includes(q.toLowerCase())||(u.shop_name||'').toLowerCase().includes(q.toLowerCase()));
+  document.getElementById('usersList').innerHTML=filtered.map(u=>renderUserRow(u)).join('');
+}
+
+function renderAnalyticsTab(){
+  document.getElementById('tabContent').innerHTML=`<div class="grid md:grid-cols-2 gap-4">
+    <div class="card"><h3 class="font-bold mb-4">Views Over Time</h3><div class="h-48 flex items-end gap-2">${[30,45,25,60,40,80,55,70,90,65,50,75].map(v=>`<div class="flex-1 bg-indigo-500/30 rounded-t-lg hover:bg-indigo-500/50 transition-all" style="height:${v}%"></div>`).join('')}</div><div class="flex justify-between mt-2 text-xs text-[#64748b]"><span>Jan</span><span>Dec</span></div></div>
+    <div class="card"><h3 class="font-bold mb-4">Plans Distribution</h3><div class="space-y-3"><div><div class="flex justify-between text-sm mb-1"><span>Free</span><span>65%</span></div><div class="w-full bg-[#0f172a] rounded-full h-2"><div class="bg-[#94a3b8] h-2 rounded-full" style="width:65%"></div></div></div><div><div class="flex justify-between text-sm mb-1"><span>Pro</span><span>25%</span></div><div class="w-full bg-[#0f172a] rounded-full h-2"><div class="bg-indigo-500 h-2 rounded-full" style="width:25%"></div></div></div><div><div class="flex justify-between text-sm mb-1"><span>Premium</span><span>10%</span></div><div class="w-full bg-[#0f172a] rounded-full h-2"><div class="bg-yellow-400 h-2 rounded-full" style="width:10%"></div></div></div></div></div>
+    <div class="card"><h3 class="font-bold mb-4">Top Countries</h3><div class="space-y-2">${[['Nigeria',45],['Ghana',12],['USA',8],['UK',6],['Kenya',5]].map(([c,v])=>`<div class="flex items-center justify-between p-2 rounded-lg bg-[#0f172a]"><span>${c}</span><span class="font-medium text-indigo-400">${v}%</span></div>`).join('')}</div></div>
+    <div class="card"><h3 class="font-bold mb-4">Top Categories</h3><div class="space-y-2">${[['Beauty',18],['Fashion',15],['Food',12],['Tech',10],['Services',8]].map(([c,v])=>`<div class="flex items-center justify-between p-2 rounded-lg bg-[#0f172a]"><span>${c}</span><span class="font-medium text-pink-400">${v}%</span></div>`).join('')}</div></div>
+  </div>`;
+}
+
+function renderNotificationsTab(){
+  document.getElementById('tabContent').innerHTML=`<div class="max-w-xl">
+    <div class="card mb-4">
+      <h3 class="font-bold mb-4">Send Broadcast Notification</h3>
+      <div class="space-y-3">
+        <div><label class="text-sm text-[#94a3b8] mb-1 block">Target</label><select id="notifTarget" class="input"><option value="all">All Users</option><option value="free">Free Users</option><option value="pro">Pro Users</option><option value="premium">Premium Users</option></select></div>
+        <div><label class="text-sm text-[#94a3b8] mb-1 block">Title</label><input type="text" id="notifTitle" class="input" placeholder="Notification title"></div>
+        <div><label class="text-sm text-[#94a3b8] mb-1 block">Message</label><textarea id="notifBody" class="input" rows="3" placeholder="Your message..."></textarea></div>
+        <button onclick="sendBroadcast()" class="btn btn-primary w-full justify-center" id="sendNotifBtn"><i class="fas fa-paper-plane"></i> Send Broadcast</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="font-bold mb-4">Recent Broadcasts</h3>
+      <div class="space-y-2" id="broadcastList"><p class="text-sm text-[#94a3b8] text-center py-4">No broadcasts yet</p></div>
+    </div>
+  </div>`;
+}
+
+async function sendBroadcast(){
+  const target=document.getElementById('notifTarget').value;
+  const title=document.getElementById('notifTitle').value;
+  const body=document.getElementById('notifBody').value;
+  if(!title||!body){showToast('Title and message required','error');return}
+  const btn=document.getElementById('sendNotifBtn');btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';btn.disabled=true;
+  try{
+    const token=localStorage.getItem('myshub_token');
+    const r=await fetch(`${API_BASE}/admin/broadcast`,{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({target,title,body})});
+    if(r.ok){showToast('Broadcast sent!','success');document.getElementById('notifTitle').value='';document.getElementById('notifBody').value='';}else{const d=await r.json();showToast(d.detail||'Failed','error')}
+  }catch(e){showToast('Network error','error')}
+  finally{btn.innerHTML='<i class="fas fa-paper-plane"></i> Send Broadcast';btn.disabled=false;}
+}
+
+function renderPaymentsTab(){
+  document.getElementById('tabContent').innerHTML=`<div class="card">
+    <h3 class="font-bold mb-4">Payment Transactions</h3>
+    <div class="overflow-x-auto">
+      <div class="table-row table-header"><div>User</div><div>Plan</div><div>Amount</div><div>Status</div><div>Date</div></div>
+      <div class="text-center py-8 text-[#94a3b8]"><i class="fas fa-receipt text-3xl mb-2"></i><p>No transactions yet</p></div>
+    </div>
+  </div>`;
+}
+
+function viewShop(slug){window.open(`https://myshub.site/${slug}`,'_blank')}
+function viewUser(id){showToast('User details coming soon','success')}
+async function toggleShop(slug,currentStatus){
+  const token=localStorage.getItem('myshub_token');
+  try{
+    const r=await fetch(`${API_BASE}/admin/shop/${slug}/toggle`,{method:'POST',headers:{'Authorization':`Bearer ${token}`}});
+    if(r.ok){showToast(currentStatus?'Shop deactivated':'Shop activated','success');renderShopsTab();}else{showToast('Failed','error')}
+  }catch(e){showToast('Network error','error')}
+}
+
+function logout(){localStorage.removeItem('myshub_token');window.location.href='app.html'}
+function showToast(msg,type='success'){
+  const c=document.getElementById('toastContainer');
+  const t=document.createElement('div');
+  t.className=`toast toast-${type}`;
+  t.innerHTML=`<i class="fas ${type==='success'?'fa-check-circle':'fa-exclamation-circle'}"></i>${msg}`;
+  c.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateY(-10px)';setTimeout(()=>t.remove(),300)},3000);
+}
+
+init();
+</script>
+</body>
+</html>

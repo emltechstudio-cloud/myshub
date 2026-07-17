@@ -1,0 +1,12 @@
+{
+  "name": "MyShub",
+  "short_name": "MyShub",
+  "start_url": "/app.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "portrait",
+  "icons": [
+    {"src": "https://cdn-icons-png.flaticon.com/512/10828/10828179.png", "sizes": "512x512", "type": "image/png"}
+  ]
+}
