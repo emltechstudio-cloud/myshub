@@ -3,331 +3,167 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0f172a">
-<title>Discover - MyShub</title>
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/10828/10828179.png">
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-:root{--primary:#6366f1;--primary-dark:#4f46e5;--secondary:#ec4899;--accent:#f59e0b;--bg:#0f172a;--surface:#1e293b;--surface-light:#334155;--text:#f8fafc;--text-muted:#94a3b8;--border:#334155;--success:#22c55e;--gold:#fbbf24;--silver:#94a3b8}
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--surface-light);border-radius:2px}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-.animate-fade-in{animation:fadeIn .4s ease-out}
-.shimmer{background:linear-gradient(90deg,var(--surface) 25%,var(--surface-light) 50%,var(--surface) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite}
-.glass{background:rgba(30,41,59,.8);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden}
-.card-hover{transition:all .2s}
-.card-hover:hover{transform:translateY(-2px);border-color:var(--primary)}
-.badge-free{background:rgba(148,163,184,.15);color:var(--silver);border:1px solid rgba(148,163,184,.3)}
-.badge-pro{background:rgba(99,102,241,.15);color:var(--primary);border:1px solid rgba(99,102,241,.3)}
-.badge-premium{background:linear-gradient(135deg,rgba(251,191,36,.15),rgba(245,158,11,.15));color:var(--gold);border:1px solid rgba(251,191,36,.3)}
-.bottom-tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(15,23,42,.95);backdrop-filter:blur(20px);border-top:1px solid var(--border)}
-.bottom-tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 4px;cursor:pointer;transition:all .2s;position:relative}
-.bottom-tab.active{color:var(--primary)}
-.bottom-tab.active::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:20px;height:3px;background:var(--primary);border-radius:0 0 4px 4px}
-.bottom-tab:not(.active){color:var(--text-muted)}
-.bottom-tab i{font-size:20px;margin-bottom:2px}
-.bottom-tab span{font-size:10px;font-weight:500}
-.search-input{width:100%;padding:14px 16px 14px 44px;background:var(--bg);border:1px solid var(--border);border-radius:14px;color:var(--text);font-size:14px;font-family:inherit;transition:all .2s}
-.search-input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,.15)}
-.filter-chip{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--bg);border:1px solid var(--border);border-radius:999px;font-size:13px;cursor:pointer;transition:all .2s;white-space:nowrap}
-.filter-chip:hover,.filter-chip.active{background:var(--primary);color:white;border-color:var(--primary)}
-.shop-card{display:flex;gap:12px;padding:14px;cursor:pointer;transition:all .2s;border-bottom:1px solid var(--border)}
-.shop-card:hover{background:rgba(99,102,241,.05)}
-.shop-card:last-child{border-bottom:none}
-.ad-card{background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(236,72,153,.1));border:1px solid rgba(99,102,241,.2)}
-.toast-container{position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:300;display:flex;flex-direction:column;gap:8px}
-.toast{padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;animation:fadeIn .3s ease-out;display:flex;align-items:center;gap:8px}
-.toast-success{background:rgba(34,197,94,.15);color:var(--success);border:1px solid rgba(34,197,94,.3)}
-@media(min-width:768px){.mobile-only{display:none!important}}
-@supports(padding-bottom:env(safe-area-inset-bottom)){
-  .bottom-tabs{padding-bottom:env(safe-area-inset-bottom)}
-  .main-content{padding-bottom:calc(80px+env(safe-area-inset-bottom))}
-}
-</style>
+<title>Discover - MY.SHUB</title>
+<link rel="stylesheet" href="app.css">
 </head>
 <body>
-<div id="toastContainer" class="toast-container"></div>
+<div class="screen" id="discoverScreen">
+  <div class="section" style="padding-top:8px;">
+    <!-- Search Bar -->
+    <div class="card" style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8a8d91" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" class="form-input" id="searchInput" placeholder="Search shops..." style="border:none;background:transparent;padding:0;flex:1;" oninput="searchShops(this.value)">
+    </div>
 
-<!-- Header -->
-<header class="fixed top-0 left-0 right-0 z-50 glass border-b border-[#334155]">
-  <div class="px-4 py-3">
-    <div class="flex items-center justify-between mb-3">
-      <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-          <i class="fas fa-store text-white text-sm"></i>
-        </div>
-        <span class="font-bold text-lg" style="font-family:'Space Grotesk',sans-serif">MyShub</span>
+    <!-- Categories -->
+    <div style="display:flex;gap:8px;overflow-x:auto;padding:4px 0;margin-bottom:12px;scrollbar-width:none;">
+      <button class="btn btn-primary" style="padding:6px 14px;font-size:13px;border-radius:20px;white-space:nowrap;" onclick="filterCategory('all')">All</button>
+      <button class="btn btn-outline" style="padding:6px 14px;font-size:13px;border-radius:20px;white-space:nowrap;" onclick="filterCategory('fashion')">Fashion</button>
+      <button class="btn btn-outline" style="padding:6px 14px;font-size:13px;border-radius:20px;white-space:nowrap;" onclick="filterCategory('electronics')">Electronics</button>
+      <button class="btn btn-outline" style="padding:6px 14px;font-size:13px;border-radius:20px;white-space:nowrap;" onclick="filterCategory('food')">Food</button>
+      <button class="btn btn-outline" style="padding:6px 14px;font-size:13px;border-radius:20px;white-space:nowrap;" onclick="filterCategory('beauty')">Beauty</button>
+      <button class="btn btn-outline" style="padding:6px 14px;font-size:13px;border-radius:20px;white-space:nowrap;" onclick="filterCategory('home')">Home</button>
+    </div>
+
+    <!-- Shops Grid -->
+    <div id="shopsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <!-- Loading skeletons -->
+      <div class="card" style="padding:16px;text-align:center;">
+        <div class="skeleton skeleton-avatar" style="margin:0 auto 12px;"></div>
+        <div class="skeleton skeleton-title" style="margin:0 auto 8px;"></div>
+        <div class="skeleton skeleton-text" style="width:60%;margin:0 auto;"></div>
       </div>
-      <a href="app.html" class="text-sm text-indigo-400 hover:underline"><i class="fas fa-plus mr-1"></i>Create</a>
+      <div class="card" style="padding:16px;text-align:center;">
+        <div class="skeleton skeleton-avatar" style="margin:0 auto 12px;"></div>
+        <div class="skeleton skeleton-title" style="margin:0 auto 8px;"></div>
+        <div class="skeleton skeleton-text" style="width:60%;margin:0 auto;"></div>
+      </div>
     </div>
-    <div class="relative">
-      <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-[#64748b]"></i>
-      <input type="text" id="searchInput" class="search-input" placeholder="Search businesses, categories..." oninput="handleSearch()" onkeydown="if(event.key==='Enter')doSearch()">
-    </div>
-  </div>
 
-  <!-- Filter Chips -->
-  <div class="px-4 pb-3 flex gap-2 overflow-x-auto scrollbar-hide" id="filterChips">
-    <button class="filter-chip active" data-filter="all" onclick="setFilter('all')"><i class="fas fa-th-large text-xs"></i> All</button>
-    <button class="filter-chip" data-filter="premium" onclick="setFilter('premium')"><i class="fas fa-crown text-xs"></i> Premium</button>
-    <button class="filter-chip" data-filter="nearby" onclick="setFilter('nearby')"><i class="fas fa-map-marker-alt text-xs"></i> Nearby</button>
-    <button class="filter-chip" data-filter="trending" onclick="setFilter('trending')"><i class="fas fa-fire text-xs"></i> Trending</button>
-  </div>
-</header>
-
-<!-- Main Content -->
-<main id="mainContent" class="main-content pt-36 pb-20 px-4 min-h-screen">
-  <!-- Content rendered by JS -->
-</main>
-
-<!-- Bottom Tabs -->
-<nav class="bottom-tabs flex mobile-only">
-  <div class="bottom-tab active" data-tab="discover"><i class="fas fa-search"></i><span>Discover</span></div>
-  <div class="bottom-tab" onclick="window.location.href='app.html'"><i class="fas fa-store"></i><span>My Hub</span></div>
-  <div class="bottom-tab" onclick="window.location.href='index.html'"><i class="fas fa-home"></i><span>Home</span></div>
-</nav>
-
-<!-- Location Modal -->
-<div id="locationModal" class="fixed inset-0 z-[200] hidden" onclick="if(event.target===this)closeLocationModal()">
-  <div class="absolute inset-0 bg-black/50"></div>
-  <div class="absolute bottom-0 left-0 right-0 bg-[#1e293b] rounded-t-3xl p-6 animate-fade-in" style="max-height:70vh;overflow-y:auto">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="font-bold text-lg">Filter by Location</h3>
-      <button onclick="closeLocationModal()" class="p-2 rounded-lg hover:bg-[#334155]"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="space-y-3">
-      <div><label class="text-sm text-[#94a3b8] mb-1 block">Country</label><select id="locCountry" class="w-full p-3 bg-[#0f172a] border border-[#334155] rounded-xl text-white" onchange="updateLocStates()"><option value="">All Countries</option></select></div>
-      <div><label class="text-sm text-[#94a3b8] mb-1 block">State</label><select id="locState" class="w-full p-3 bg-[#0f172a] border border-[#334155] rounded-xl text-white" onchange="updateLocLgas()"><option value="">All States</option></select></div>
-      <div><label class="text-sm text-[#94a3b8] mb-1 block">City/LGA</label><select id="locLga" class="w-full p-3 bg-[#0f172a] border border-[#334155] rounded-xl text-white"><option value="">All Cities</option></select></div>
-      <button onclick="applyLocationFilter()" class="w-full py-3 bg-indigo-500 text-white rounded-xl font-semibold mt-2">Apply Filter</button>
+    <!-- Empty State (hidden by default) -->
+    <div class="empty-state hidden" id="emptyState">
+      <div class="empty-state-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8a8d91" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      </div>
+      <div class="empty-state-title">No shops found</div>
+      <div class="empty-state-desc">Try a different search or category</div>
     </div>
   </div>
 </div>
 
 <script>
-const API_BASE='https://emltechstudio-myshub-api.hf.space';
-const APP_URL='https://myshub.site';
-const COUNTRIES=[
-{code:'NG',name:'Nigeria',states:[{name:'Lagos',lgas:['Ikeja','Lekki','Yaba','Victoria Island','Ikorodu']},{name:'Abuja',lgas:['Central','Garki','Wuse','Maitama']},{name:'Rivers',lgas:['Port Harcourt','Obio-Akpor']},{name:'Kano',lgas:['Kano Municipal','Fagge']},{name:'Oyo',lgas:['Ibadan','Ogbomosho']},{name:'Delta',lgas:['Warri','Asaba']}]},
-{code:'GH',name:'Ghana',states:[{name:'Greater Accra',lgas:['Accra','Tema']},{name:'Ashanti',lgas:['Kumasi','Obuasi']}]},
-{code:'KE',name:'Kenya',states:[{name:'Nairobi',lgas:['Westlands','Kibra']},{name:'Mombasa',lgas:['Mvita','Nyali']}]},
-{code:'ZA',name:'South Africa',states:[{name:'Gauteng',lgas:['Johannesburg','Pretoria']},{name:'Western Cape',lgas:['Cape Town','Stellenbosch']}]},
-{code:'US',name:'United States',states:[{name:'California',lgas:['Los Angeles','San Francisco']},{name:'New York',lgas:['Manhattan','Brooklyn']},{name:'Texas',lgas:['Houston','Dallas']}]},
-{code:'GB',name:'United Kingdom',states:[{name:'England',lgas:['London','Manchester']},{name:'Scotland',lgas:['Glasgow','Edinburgh']}]},
-{code:'CA',name:'Canada',states:[{name:'Ontario',lgas:['Toronto','Ottawa']},{name:'British Columbia',lgas:['Vancouver','Victoria']}]},
-{code:'AU',name:'Australia',states:[{name:'New South Wales',lgas:['Sydney','Newcastle']},{name:'Victoria',lgas:['Melbourne','Geelong']}]},
-{code:'IN',name:'India',states:[{name:'Maharashtra',lgas:['Mumbai','Pune']},{name:'Delhi',lgas:['New Delhi','South Delhi']}]},
-{code:'AE',name:'UAE',states:[{name:'Dubai',lgas:['Deira','Dubai Marina']},{name:'Abu Dhabi',lgas:['Abu Dhabi Island','Al Ain']}]}
-];
+const API_BASE = 'https://emltechstudio-myshub-api.hf.space';
+var allShops = [];
 
-let currentFilter='all';
-let searchQuery='';
-let shops=[];
-let loading=false;
-let page=1;
-let hasMore=true;
-
-function init(){
-  populateCountries();
-  loadShops();
-  detectLocation();
-  if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(e=>console.error('SW error:',e));}
+function showToast(message, type) {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + (type || 'info');
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 3000);
 }
 
-function populateCountries(){
-  const sel=document.getElementById('locCountry');
-  sel.innerHTML='<option value="">All Countries</option>'+COUNTRIES.map(c=>`<option value="${c.code}">${c.name}</option>`).join('');
-}
-
-function updateLocStates(){
-  const cc=document.getElementById('locCountry').value;
-  const ss=document.getElementById('locState');
-  const ll=document.getElementById('locLga');
-  const cn=COUNTRIES.find(c=>c.code===cc);
-  ss.innerHTML='<option value="">All States</option>'+(cn?cn.states.map(s=>`<option value="${s.name}">${s.name}</option>`).join(''):'');
-  ll.innerHTML='<option value="">All Cities</option>';
-}
-
-function updateLocLgas(){
-  const cc=document.getElementById('locCountry').value;
-  const sn=document.getElementById('locState').value;
-  const ll=document.getElementById('locLga');
-  const cn=COUNTRIES.find(c=>c.code===cc);
-  const st=cn?cn.states.find(s=>s.name===sn):null;
-  ll.innerHTML='<option value="">All Cities</option>'+(st?st.lgas.map(l=>`<option value="${l}">${l}</option>`).join(''):'');
-}
-
-function openLocationModal(){document.getElementById('locationModal').classList.remove('hidden');}
-function closeLocationModal(){document.getElementById('locationModal').classList.add('hidden');}
-function applyLocationFilter(){closeLocationModal();doSearch();}
-
-async function detectLocation(){
-  try{
-    const r=await fetch('https://ipapi.co/json/');
-    if(r.ok){const d=await r.json();console.log('Location:',d.city,d.country_name);}
-  }catch(e){console.log('Location detection failed');}
-}
-
-function handleSearch(){
-  searchQuery=document.getElementById('searchInput').value;
-  clearTimeout(window.searchTimeout);
-  window.searchTimeout=setTimeout(doSearch,500);
-}
-
-function setFilter(f){
-  currentFilter=f;
-  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
-  document.querySelector(`.filter-chip[data-filter="${f}"]`)?.classList.add('active');
-  page=1;shops=[];hasMore=true;loadShops();
-}
-
-async function doSearch(){
-  searchQuery=document.getElementById('searchInput').value;
-  page=1;shops=[];hasMore=true;await loadShops();
-}
-
-async function loadShops(){
-  if(loading||!hasMore)return;
-  loading=true;
-  const content=document.getElementById('mainContent');
-  if(page===1)content.innerHTML=renderSkeletons(6);
-
-  try{
-    const params=new URLSearchParams();
-    if(searchQuery)params.append('q',searchQuery);
-    if(currentFilter==='premium')params.append('plan','premium');
-    if(currentFilter==='trending')params.append('sort','views');
-    const country=document.getElementById('locCountry')?.value;
-    const state=document.getElementById('locState')?.value;
-    const lga=document.getElementById('locLga')?.value;
-    if(country)params.append('country',country);
-    if(state)params.append('state',state);
-    if(lga)params.append('city',lga);
-    params.append('page',page);
-    params.append('limit',20);
-
-    const r=await fetch(`${API_BASE}/discover/search?${params.toString()}`);
-    if(r.ok){
-      const data=await r.json();
-      const newShops=data.shops||[];
-      if(page===1)shops=newShops;else shops=shops.concat(newShops);
-      hasMore=newShops.length===20;
-      renderShops();
-    }else{
-      if(page===1)renderEmpty();
+async function loadShops() {
+  try {
+    // Try to fetch from a public endpoint - if not available, show sample data
+    var response = await fetch(API_BASE + '/shop/live/all').catch(function() { return {ok:false}; });
+    if (!response.ok) {
+      // Fallback: try admin/shops or show demo data
+      response = await fetch(API_BASE + '/admin/shops?page=1&limit=50');
     }
-  }catch(err){
-    console.error('Load error:',err);
-    if(page===1)renderEmpty();
-  }finally{
-    loading=false;
+    var data = await response.json().catch(function() { return {shops:[]}; });
+    allShops = data.shops || data || [];
+    renderShops(allShops);
+  } catch (err) {
+    // Show demo data if API fails
+    allShops = [
+      { shop_name: 'Fashion Hub', slug: 'fashion-hub', category: 'fashion', visits: 1240 },
+      { shop_name: 'Tech World', slug: 'tech-world', category: 'electronics', visits: 890 },
+      { shop_name: 'Sweet Treats', slug: 'sweet-treats', category: 'food', visits: 650 },
+      { shop_name: 'Glow Beauty', slug: 'glow-beauty', category: 'beauty', visits: 430 },
+      { shop_name: 'Home Comfort', slug: 'home-comfort', category: 'home', visits: 320 },
+      { shop_name: 'Fit Life', slug: 'fit-life', category: 'sports', visits: 210 }
+    ];
+    renderShops(allShops);
   }
 }
 
-function renderSkeletons(n){
-  return Array(n).fill(0).map(()=>`<div class="shop-card"><div class="w-16 h-16 rounded-xl shimmer flex-shrink-0"></div><div class="flex-1 space-y-2"><div class="h-4 w-32 shimmer rounded"></div><div class="h-3 w-48 shimmer rounded"></div><div class="h-3 w-24 shimmer rounded"></div></div></div>`).join('');
-}
+function renderShops(shops) {
+  var grid = document.getElementById('shopsGrid');
+  var empty = document.getElementById('emptyState');
 
-function renderShops(){
-  const content=document.getElementById('mainContent');
-  if(!shops.length){renderEmpty();return}
-
-  let html='';
-
-  // Featured section (premium shops)
-  const featured=shops.filter(s=>s.plan==='premium').slice(0,3);
-  if(featured.length&&page===1){
-    html+=`<div class="mb-4"><h3 class="font-bold text-lg mb-3 flex items-center gap-2"><i class="fas fa-star text-yellow-400"></i> Featured</h3><div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">`;
-    html+=featured.map(s=>`
-      <div class="card card-hover flex-shrink-0" style="width:260px" onclick="visitShop('${s.slug}')">
-        <div class="h-24 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
-          ${s.logo?`<img src="${s.logo}" class="w-12 h-12 rounded-xl object-cover">`:`<div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xl">🏪</div>`}
-        </div>
-        <div class="p-3">
-          <div class="flex items-center gap-2 mb-1"><span class="font-bold text-sm">${s.name}</span><span class="text-[10px] px-1.5 py-0.5 rounded-full badge-premium">Premium</span></div>
-          <p class="text-xs text-[#94a3b8] line-clamp-1">${s.tagline||s.category||''}</p>
-          <div class="flex items-center gap-3 mt-2 text-xs text-[#64748b]"><span><i class="fas fa-map-marker-alt mr-1"></i>${s.state||s.country||''}</span><span><i class="fas fa-eye mr-1"></i>${s.total_views||0}</span></div>
-        </div>
-      </div>
-    `).join('');
-    html+=`</div></div>`;
+  if (!shops || shops.length === 0) {
+    grid.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
   }
 
-  // Ads section (sponsored)
-  if(page===1){
-    html+=`<div class="mb-4"><div class="ad-card rounded-2xl p-4">
-      <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xl">🚀</div>
-        <div class="flex-1">
-          <div class="flex items-center gap-2"><span class="font-bold text-sm">EML Tech Studio</span><span class="text-[10px] px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400">Sponsored</span></div>
-          <p class="text-xs text-[#94a3b8]">Web development, mobile apps, AI solutions & more</p>
-        </div>
-        <a href="https://emltechstudio.com" target="_blank" class="px-3 py-1.5 bg-indigo-500 text-white text-xs rounded-lg font-medium">Visit</a>
-      </div>
-    </div></div>`;
+  empty.classList.add('hidden');
+  grid.innerHTML = '';
+
+  shops.forEach(function(shop) {
+    var card = document.createElement('a');
+    card.className = 'card';
+    card.style.cssText = 'padding:16px;text-align:center;text-decoration:none;display:block;transition:transform 0.2s;';
+    card.style.animation = 'scaleIn 0.3s ease forwards';
+    card.href = 'https://emltechstudio-myshub-api.hf.space/shop/live/' + shop.slug;
+    card.target = '_blank';
+
+    var initial = (shop.shop_name || 'S').charAt(0).toUpperCase();
+    var categoryLabel = shop.category ? shop.category.charAt(0).toUpperCase() + shop.category.slice(1) : 'Shop';
+    var visits = shop.visits || 0;
+
+    card.innerHTML = 
+      '<div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#1877f2,#166fe5);color:white;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;margin:0 auto 12px;">' + initial + '</div>' +
+      '<div style="font-size:15px;font-weight:700;color:#1c1e21;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (shop.shop_name || 'Unnamed Shop') + '</div>' +
+      '<div style="font-size:12px;color:#65676b;margin-bottom:8px;">' + categoryLabel + '</div>' +
+      '<div style="font-size:12px;color:#8a8d91;">' + visits + ' visits</div>';
+
+    grid.appendChild(card);
+  });
+}
+
+function searchShops(query) {
+  query = query.toLowerCase().trim();
+  if (!query) {
+    renderShops(allShops);
+    return;
   }
+  var filtered = allShops.filter(function(s) {
+    return (s.shop_name && s.shop_name.toLowerCase().includes(query)) ||
+           (s.slug && s.slug.toLowerCase().includes(query)) ||
+           (s.category && s.category.toLowerCase().includes(query));
+  });
+  renderShops(filtered);
+}
 
-  // Shop list
-  html+=`<div class="card"><h3 class="font-bold p-4 pb-2 flex items-center gap-2"><i class="fas fa-list text-indigo-400"></i> ${searchQuery?`Results for "${searchQuery}"`:'All Businesses'}</h3>`;
-  html+=shops.map(s=>`
-    <div class="shop-card" onclick="visitShop('${s.slug}')">
-      <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
-        ${s.logo?`<img src="${s.logo}" class="w-full h-full object-cover">`:`<div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-lg">🏪</div>`}
-      </div>
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2 mb-0.5">
-          <span class="font-bold text-sm truncate">${s.name}</span>
-          <span class="text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0 ${s.plan==='premium'?'badge-premium':s.plan==='pro'?'badge-pro':'badge-free'}">${s.plan==='premium'?'Premium':s.plan==='pro'?'Pro':'Free'}</span>
-        </div>
-        <p class="text-xs text-[#94a3b8] line-clamp-1 mb-1">${s.tagline||s.category||''}</p>
-        <div class="flex items-center gap-3 text-xs text-[#64748b]">
-          <span><i class="fas fa-map-marker-alt mr-1"></i>${s.state||s.country||''}</span>
-          <span><i class="fas fa-eye mr-1"></i>${s.total_views||0}</span>
-          <span><i class="fas fa-folder mr-1"></i>${s.category||''}</span>
-        </div>
-      </div>
-      <i class="fas fa-chevron-right text-[#334155] self-center"></i>
-    </div>
-  `).join('');
-  html+=`</div>`;
+function filterCategory(cat) {
+  // Update button styles
+  var buttons = document.querySelectorAll('.section button');
+  buttons.forEach(function(btn) {
+    if (btn.textContent.toLowerCase() === cat || (cat === 'all' && btn.textContent === 'All')) {
+      btn.className = 'btn btn-primary';
+      btn.style.cssText = 'padding:6px 14px;font-size:13px;border-radius:20px;white-space:nowrap;';
+    } else {
+      btn.className = 'btn btn-outline';
+      btn.style.cssText = 'padding:6px 14px;font-size:13px;border-radius:20px;white-space:nowrap;';
+    }
+  });
 
-  if(hasMore){
-    html+=`<div class="text-center py-4"><button onclick="loadMore()" class="px-6 py-2 bg-[#1e293b] border border-[#334155] rounded-xl text-sm hover:bg-[#334155] transition-colors">Load More</button></div>`;
+  if (cat === 'all') {
+    renderShops(allShops);
+  } else {
+    var filtered = allShops.filter(function(s) {
+      return s.category === cat;
+    });
+    renderShops(filtered);
   }
-
-  content.innerHTML=html;
 }
 
-function renderEmpty(){
-  document.getElementById('mainContent').innerHTML=`<div class="text-center py-20 animate-fade-in"><div class="w-20 h-20 rounded-full bg-[#1e293b] flex items-center justify-center mx-auto mb-4 text-3xl">🔍</div><h3 class="font-bold text-lg mb-2">No businesses found</h3><p class="text-sm text-[#94a3b8] mb-4">${searchQuery?`No results for "${searchQuery}"`:'Be the first to list your business!'}</p>${!searchQuery?`<a href="app.html" class="inline-block px-6 py-2 bg-indigo-500 text-white rounded-xl font-medium">Create Your Shop</a>`:''}</div>`;
-}
-
-function loadMore(){page++;loadShops();}
-function visitShop(slug){window.open(`${APP_URL}/${slug}`,'_blank');}
-
-function showToast(msg,type='success'){
-  const c=document.getElementById('toastContainer');
-  const t=document.createElement('div');
-  t.className=`toast toast-${type}`;
-  t.innerHTML=`<i class="fas ${type==='success'?'fa-check-circle':'fa-exclamation-circle'}"></i>${msg}`;
-  c.appendChild(t);
-  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateY(-10px)';setTimeout(()=>t.remove(),300)},3000);
-}
-
-// Infinite scroll
-window.addEventListener('scroll',()=>{
-  if(window.innerHeight+window.scrollY>=document.body.offsetHeight-200)loadMore();
-});
-
-init();
+// Load on init
+loadShops();
 </script>
 </body>
 </html>

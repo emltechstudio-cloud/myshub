@@ -1,1583 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#2563eb">
-    <title>MyShub</title>
-    <link rel="icon" href="icon.svg">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
-        /* ── Reset & Root ── */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --text: #0f172a;
-            --text2: #475569;
-            --text3: #94a3b8;
-            --border: #e2e8f0;
-            --brand: #2563eb;
-            --brand-light: #3b82f6;
-            --brand-dark: #1e40af;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --radius: 16px;
-            --shadow: 0 4px 20px rgba(0,0,0,0.06);
-            --transition: 0.3s cubic-bezier(0.4,0,0.2,1);
-            --sidebar-width: 240px;
-        }
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg: #0f172a;
-                --card: #1e293b;
-                --text: #f1f5f9;
-                --text2: #94a3b8;
-                --text3: #64748b;
-                --border: #334155;
-            }
-        }
-        html, body {
-            height: 100%;
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.5;
-            -webkit-font-smoothing: antialiased;
-        }
-        body { overflow: hidden; }
-        #app { display: flex; flex-direction: column; height: 100vh; }
-
-        .section { display: none; flex-direction: column; height: 100vh; overflow: hidden; animation: fadeIn 0.3s ease; }
-        .section.active { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* Auth */
-        .auth-section { align-items: center; justify-content: center; padding: 24px; overflow-y: auto; }
-        .auth-card {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 32px 24px;
-            max-width: 420px;
-            width: 100%;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-        }
-        .auth-card h1 { font-size: 1.4rem; font-weight: 800; margin-bottom: 4px; }
-        .auth-card p.sub { color: var(--text2); font-size: 0.9rem; margin-bottom: 20px; }
-        .form-group { margin-bottom: 14px; }
-        .form-group label { display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px; color: var(--text2); }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
-            background: var(--bg);
-            color: var(--text);
-            font-family: inherit;
-            font-size: 0.9rem;
-            transition: border-color 0.2s;
-            resize: vertical;
-        }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-            outline: none;
-            border-color: var(--brand-light);
-        }
-        .password-wrap { position: relative; }
-        .password-wrap input { padding-right: 40px; }
-        .password-toggle {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--text2);
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        .btn {
-            width: 100%;
-            padding: 12px;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 0.95rem;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-family: inherit;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .btn-primary { background: var(--brand); color: white; box-shadow: 0 4px 12px rgba(37,99,235,0.2); }
-        .btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); }
-        .btn-secondary { background: var(--border); color: var(--text); }
-        .btn-secondary:hover { background: var(--text3); color: white; }
-        .btn-sm { padding: 10px 16px; font-size: 0.85rem; width: auto; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .error-msg { color: #dc2626; font-size: 0.85rem; padding: 10px; background: #fef2f2; border-radius: 8px; margin-bottom: 12px; display: none; }
-        .auth-switch { text-align: center; margin-top: 16px; font-size: 0.85rem; }
-        .auth-switch a { color: var(--brand); cursor: pointer; text-decoration: none; font-weight: 600; margin: 0 4px; }
-
-        /* App Layout */
-        .app-section { display: flex !important; flex-direction: column; height: 100vh; }
-        .app-header {
-            background: var(--card);
-            border-bottom: 1px solid var(--border);
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-shrink: 0;
-            z-index: 10;
-            position: relative;
-        }
-        .app-header .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1rem; color: var(--brand); text-decoration: none; }
-        .app-header .brand img { width: 28px; height: 28px; border-radius: 8px; }
-        .app-header .left { display: flex; align-items: center; gap: 10px; }
-        .app-header .sidebar-toggle {
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            color: var(--text2);
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 8px;
-            transition: background 0.2s;
-        }
-        .app-header .sidebar-toggle:hover { background: var(--border); }
-        .app-header .actions { display: flex; gap: 8px; }
-        .app-header button { background: none; border: none; font-size: 1.1rem; color: var(--text2); cursor: pointer; padding: 6px; }
-        .app-header button:hover { background: var(--border); border-radius: 8px; }
-
-        .app-body { flex: 1; overflow: hidden; display: flex; position: relative; }
-        .sidebar {
-            width: var(--sidebar-width);
-            background: var(--card);
-            border-right: 1px solid var(--border);
-            padding: 16px 12px;
-            overflow-y: auto;
-            flex-shrink: 0;
-            transition: transform 0.3s ease, width 0.3s ease, padding 0.3s ease;
-            z-index: 5;
-        }
-        .sidebar.collapsed {
-            transform: translateX(-100%);
-            width: 0;
-            padding: 0;
-            overflow: hidden;
-            border-right: none;
-        }
-        .sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
-        .sidebar-nav a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 12px;
-            border-radius: 10px;
-            text-decoration: none;
-            color: var(--text2);
-            font-weight: 500;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .sidebar-nav a i { width: 20px; text-align: center; }
-        .sidebar-nav a:hover { background: var(--bg); color: var(--brand); }
-        .sidebar-nav a.active { background: var(--brand); color: white; }
-
-        .content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px 24px;
-            transition: margin-left 0.3s ease;
-        }
-        .tab-content { display: none; animation: fadeIn 0.3s; }
-        .tab-content.active { display: block; }
-
-        /* Cards */
-        .card {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 16px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-            margin-bottom: 12px;
-        }
-        .card h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; }
-        .card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: var(--brand-dark); }
-        .card-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); }
-        .card-row:last-child { border-bottom: none; }
-        .card-row .label { color: var(--text2); font-size: 0.85rem; }
-        .card-row .value { font-weight: 600; font-size: 0.9rem; }
-        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
-        .badge-pro { background: #dbeafe; color: #1e40af; }
-        .badge-premium { background: #fef3c7; color: #92400e; }
-        .badge-free { background: #f3f4f6; color: #4b5563; }
-
-        /* Stats */
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
-        .stat-card {
-            background: linear-gradient(135deg, var(--brand-dark), var(--brand));
-            color: white;
-            padding: 16px;
-            border-radius: 12px;
-            text-align: center;
-        }
-        .stat-card .number { font-size: 1.6rem; font-weight: 900; }
-        .stat-card .label { font-size: 0.8rem; opacity: 0.9; margin-top: 4px; }
-        .analytics-bar { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
-        .analytics-bar .label { width: 80px; font-size: 0.85rem; color: var(--text2); }
-        .analytics-bar .track { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
-        .analytics-bar .fill { height: 100%; background: var(--brand); border-radius: 4px; }
-        .analytics-bar .value { font-size: 0.8rem; color: var(--text3); min-width: 30px; text-align: right; }
-
-        /* Custom Links */
-        .custom-link-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 8px 12px;
-            margin-bottom: 8px;
-        }
-        .custom-link-item .icon-btn { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; font-size: 1.1rem; cursor: pointer; min-width: 36px; text-align: center; }
-        .custom-link-item input { flex: 1; border: none; background: transparent; padding: 6px 0; font-size: 0.85rem; }
-        .custom-link-item input:focus { outline: none; }
-        .custom-link-item .remove { color: var(--text3); cursor: pointer; padding: 4px; }
-        .custom-link-item .remove:hover { color: var(--danger); }
-
-        /* Icon Picker */
-        .icon-picker {
-            position: fixed;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px;
-            max-width: 300px;
-            max-height: 250px;
-            overflow-y: auto;
-            z-index: 1000;
-            display: none;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 6px;
-            box-shadow: var(--shadow);
-        }
-        .icon-picker.open { display: grid; }
-        .icon-option {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px;
-            border-radius: 8px;
-            cursor: pointer;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            transition: all 0.2s;
-            font-size: 1.2rem;
-        }
-        .icon-option:hover { border-color: var(--brand); background: #eff6ff; }
-
-        /* QR Code */
-        .qr-section { text-align: center; padding: 16px; }
-        .qr-code { width: 160px; height: 160px; margin: 0 auto 12px; background: white; border-radius: 16px; padding: 12px; box-shadow: var(--shadow); border: 1px solid var(--border); }
-        .qr-code canvas, .qr-code img { width: 100%; height: 100%; display: block; }
-        .qr-download { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 8px 16px; border-radius: 30px; background: var(--bg); border: 1.5px solid var(--border); color: var(--text); font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
-        .qr-download:hover { background: var(--brand); color: white; border-color: var(--brand); }
-
-        /* Logo Upload */
-        .logo-upload-area {
-            border: 2px dashed var(--border);
-            border-radius: 16px;
-            padding: 24px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: var(--bg);
-        }
-        .logo-upload-area:hover { border-color: var(--brand-light); background: #eff6ff; }
-        .logo-upload-area i { font-size: 2rem; color: var(--text3); margin-bottom: 8px; }
-        .logo-upload-area p { color: var(--text2); font-size: 0.85rem; }
-        .logo-preview { width: 80px; height: 80px; border-radius: 16px; object-fit: cover; margin: 0 auto 8px; border: 2px solid var(--border); }
-
-        /* Notifications */
-        .notif-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 12px;
-            border-radius: 12px;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            margin-bottom: 8px;
-            transition: all 0.2s;
-        }
-        .notif-item:hover { background: var(--card); }
-        .notif-item.unread { border-left: 3px solid var(--brand); }
-        .notif-item .icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: rgba(37,99,235,0.1); color: var(--brand); font-size: 1rem; flex-shrink: 0; }
-        .notif-item .content { flex: 1; }
-        .notif-item .content .title { font-weight: 600; font-size: 0.9rem; }
-        .notif-item .content .body { font-size: 0.8rem; color: var(--text2); margin-top: 2px; }
-        .notif-item .content .time { font-size: 0.75rem; color: var(--text3); margin-top: 4px; }
-
-        /* Slug Confirmation */
-        .slug-confirm-box {
-            background: #fef3c7;
-            border: 1.5px solid #f59e0b;
-            border-radius: 12px;
-            padding: 12px 16px;
-            margin-bottom: 14px;
-            font-size: 0.85rem;
-        }
-        .slug-confirm-box label { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
-        .slug-confirm-box input[type="checkbox"] { margin-top: 2px; accent-color: var(--warning); }
-        .slug-confirm-box strong { color: #92400e; }
-
-        /* Bottom Nav (mobile only) */
-        .bottom-nav {
-            display: none;
-            background: var(--card);
-            border-top: 1px solid var(--border);
-            padding: 6px 0 env(safe-area-inset-bottom, 8px);
-            flex-shrink: 0;
-            backdrop-filter: blur(12px);
-            background: rgba(255,255,255,0.92);
-            z-index: 100;
-        }
-        @media (prefers-color-scheme: dark) {
-            .bottom-nav { background: rgba(15,23,42,0.92); }
-        }
-        .nav-item {
-            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
-            background: none; border: none; color: var(--text3); font-size: 0.6rem; font-weight: 500;
-            padding: 6px 0; cursor: pointer; transition: color var(--transition);
-            text-decoration: none; font-family: inherit;
-        }
-        .nav-item i { font-size: 1.2rem; transition: transform var(--transition); }
-        .nav-item.active { color: var(--brand); }
-        .nav-item.active i { transform: scale(1.05); }
-        .nav-item:hover:not(.active) { color: var(--text2); }
-
-        /* Toast */
-        .toast-container { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 2000; }
-        .toast {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 12px 16px;
-            box-shadow: var(--shadow);
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            animation: slideUp 0.3s ease;
-        }
-        .toast.success { border-left: 4px solid var(--success); }
-        .toast.error { border-left: 4px solid var(--danger); }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        .text-muted { color: var(--text3); font-size: 0.85rem; }
-        .section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); margin: 16px 0 8px; }
-        .flex-between { display: flex; justify-content: space-between; align-items: center; }
-        .hidden { display: none !important; }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                height: 100%;
-                transform: translateX(-100%);
-                width: var(--sidebar-width);
-                padding: 16px 12px;
-                z-index: 20;
-                border-right: 1px solid var(--border);
-                box-shadow: 2px 0 20px rgba(0,0,0,0.1);
-            }
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            .sidebar.collapsed {
-                transform: translateX(-100%);
-                width: var(--sidebar-width);
-                padding: 16px 12px;
-            }
-            .content { padding: 16px; }
-            .stats-grid { grid-template-columns: 1fr; }
-            .bottom-nav { display: flex; }
-            .app-header .sidebar-toggle { display: block; }
-        }
-        @media (min-width: 769px) {
-            .app-header .sidebar-toggle { display: none; }
-            .bottom-nav { display: none; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1877f2">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="description" content="MY.SHUB - Create and manage your shop">
+<title>MY.SHUB</title>
+<link rel="stylesheet" href="app.css">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body>
 <div id="app">
-    <!-- LOGIN -->
-    <div class="section auth-section" id="section-login">
-        <div class="auth-card">
-            <h1>Welcome Back</h1>
-            <p class="sub">Sign in to manage your shop</p>
-            <div class="error-msg" id="loginError"></div>
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="loginEmail" placeholder="you@example.com">
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <div class="password-wrap">
-                    <input type="password" id="loginPassword" placeholder="••••••••">
-                    <button type="button" class="password-toggle" onclick="togglePassword('loginPassword', this)"><i class="fa-solid fa-eye"></i></button>
-                </div>
-            </div>
-            <button class="btn btn-primary" id="loginBtn" onclick="login()"><i class="fa-solid fa-arrow-right"></i> Sign In</button>
-            <div class="auth-switch">
-                <a onclick="showSection('signup')">Create shop</a>
-                <a onclick="showSection('recover')">Forgot password?</a>
-            </div>
-        </div>
+  <header class="app-header" id="appHeader">
+    <div class="header-brand">
+      <div class="brand-icon">M</div>
+      <span>MY.SHUB</span>
     </div>
+    <button class="header-menu-btn" id="menuBtn" onclick="app.toggleMenu()">
+      <div class="menu-icon">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <span class="notif-badge" id="notifBadge"></span>
+    </button>
+  </header>
 
-    <!-- SIGNUP -->
-    <div class="section auth-section" id="section-signup">
-        <div class="auth-card">
-            <h1>Create Your Shop</h1>
-            <p class="sub">Get started in minutes</p>
-            <div class="error-msg" id="signupError"></div>
-            <div class="form-group"><label>Email *</label><input type="email" id="regEmail" placeholder="you@example.com"></div>
-            <div class="form-group"><label>Business Name *</label><input type="text" id="regName" placeholder="My Shop"></div>
-            <div class="form-group"><label>Preferred Slug (URL) *</label><input type="text" id="regSlug" placeholder="my-shop" oninput="checkSlugAvailability()"><div class="text-muted" style="margin-top:4px;font-size:0.75rem;">myshub.site/<span id="slugPreview">my-shop</span></div><div id="slugStatus" class="text-muted" style="margin-top:4px;font-size:0.75rem;"></div></div>
-            <div class="slug-confirm-box" id="slugConfirmBox" style="display:none;">
-                <label><input type="checkbox" id="slugConfirmCheckbox" onchange="toggleSlugConfirm()"> <span>I confirm <strong id="slugConfirmText">my-shop</strong> is my permanent URL. <strong>This cannot be changed later.</strong></span></label>
-            </div>
-            <div class="form-group"><label>Phone *</label><input type="tel" id="regPhone" placeholder="Your phone number"></div>
-            <div class="form-group"><label>Category *</label><select id="regCategory"><option value="">Select category</option></select></div>
-            <div class="form-group"><label>Country *</label><select id="regCountry"><option value="">Select country</option></select></div>
-            <div class="form-group"><label>Password *</label><div class="password-wrap"><input type="password" id="regPassword" placeholder="Min 6 characters"><button type="button" class="password-toggle" onclick="togglePassword('regPassword', this)"><i class="fa-solid fa-eye"></i></button></div></div>
-            <div class="form-group"><label>Confirm Password *</label><div class="password-wrap"><input type="password" id="regPasswordConfirm" placeholder="Type again"><button type="button" class="password-toggle" onclick="togglePassword('regPasswordConfirm', this)"><i class="fa-solid fa-eye"></i></button></div></div>
-            <button class="btn btn-primary" id="regBtn" onclick="register()" disabled><i class="fa-solid fa-plus"></i> Create Shop</button>
-            <div class="auth-switch"><a onclick="showSection('login')">Already have a shop?</a></div>
-        </div>
-    </div>
+  <main class="app-content" id="appContent"></main>
 
-    <!-- RECOVER PASSWORD -->
-    <div class="section auth-section" id="section-recover">
-        <div class="auth-card">
-            <h1>Reset Password</h1>
-            <p class="sub">Answer a security question</p>
-            <div class="error-msg" id="recoverError"></div>
-            <div id="recoverStep1">
-                <div class="form-group"><label>Email</label><input type="email" id="recoverEmail" placeholder="you@example.com"></div>
-                <button class="btn btn-primary" onclick="fetchRecoveryQuestions()">Find Account</button>
-            </div>
-            <div id="recoverStep2" class="hidden">
-                <div id="securityQuestionsContainer"></div>
-                <div class="form-group"><label>New Password</label><div class="password-wrap"><input type="password" id="recoverNewPassword" placeholder="Min 6 characters"><button type="button" class="password-toggle" onclick="togglePassword('recoverNewPassword', this)"><i class="fa-solid fa-eye"></i></button></div></div>
-                <button class="btn btn-primary" onclick="submitRecovery()">Reset Password</button>
-            </div>
-            <div class="auth-switch"><a onclick="showSection('login')">Back to sign in</a></div>
-        </div>
-    </div>
+  <nav class="app-nav" id="appNav">
+    <a href="index.html" class="nav-item" id="navHome">
+      <span class="nav-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></span>
+      <span>Home</span>
+    </a>
+    <a href="discover.html" class="nav-item" id="navDiscover">
+      <span class="nav-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
+      <span>Discover</span>
+    </a>
+    <a href="dashboard.html" class="nav-item" id="navProfile">
+      <span class="nav-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
+      <span>Profile</span>
+    </a>
+  </nav>
 
-    <!-- MAIN APP -->
-    <div class="section app-section" id="section-app">
-        <header class="app-header">
-            <div class="left">
-                <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
-                <a href="/" class="brand"><img src="icon.svg" alt="MyShub"> MyShub</a>
-            </div>
-            <div class="actions">
-                <button onclick="logout()" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
-            </div>
-        </header>
-        <div class="app-body">
-            <aside class="sidebar" id="appSidebar">
-                <nav class="sidebar-nav" id="sidebarNav"></nav>
-            </aside>
-            <main class="content" id="mainContent">
-                <!-- Content injected by JS -->
-            </main>
-        </div>
-        <nav class="bottom-nav" id="bottomNav">
-            <button class="nav-item active" onclick="switchBottomTab('discover')">
-                <i class="fa-solid fa-compass"></i>
-                <span>Discover</span>
-            </button>
-            <button class="nav-item" onclick="switchBottomTab('account')">
-                <i class="fa-solid fa-user"></i>
-                <span>Account</span>
-            </button>
-        </nav>
-    </div>
+  <div class="toast-container" id="toastContainer"></div>
 </div>
 
-<div class="icon-picker" id="iconPicker"></div>
-<div class="toast-container" id="toastContainer"></div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
+const API_BASE = 'https://emltechstudio-myshub-api.hf.space';
 
-    const API = 'https://emltechstudio-myshub-api.hf.space';
-    const CATEGORIES = [
-        'Beauty', 'Fashion', 'Food', 'Tech', 'Services', 'Health',
-        'Education', 'Fitness', 'Photography', 'Real Estate',
-        'Automotive', 'Entertainment', 'Travel', 'Hospitality',
-        'Finance', 'Legal', 'Consulting', 'Construction',
-        'Agriculture', 'Manufacturing', 'Retail', 'Wholesale',
-        'Logistics', 'Media', 'Marketing', 'Design',
-        'Development', 'Writing', 'Translation', 'Tutoring',
-        'Coaching', 'Therapy', 'Wellness', 'Spa', 'Salon',
-        'Barber', 'Nails', 'Makeup', 'Skincare', 'Haircare',
-        'Jewelry', 'Watches', 'Shoes', 'Bags', 'Accessories',
-        'Electronics', 'Appliances', 'Furniture', 'Home Decor'
-    ];
-    const COUNTRIES = [
-        'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda',
-        'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain',
-        'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan',
-        'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria',
-        'Burkina Faso', 'Burundi', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde',
-        'Central African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros',
-        'Congo', 'Costa Rica', 'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Denmark',
-        'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador', 'Egypt', 'El Salvador',
-        'Equatorial Guinea', 'Eritrea', 'Estonia', 'Eswatini', 'Ethiopia', 'Fiji',
-        'Finland', 'France', 'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece',
-        'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Honduras',
-        'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel',
-        'Italy', 'Jamaica', 'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati',
-        'Kuwait', 'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia',
-        'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Madagascar', 'Malawi',
-        'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania',
-        'Mauritius', 'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia',
-        'Montenegro', 'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal',
-        'Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'North Macedonia',
-        'Norway', 'Oman', 'Pakistan', 'Palau', 'Panama', 'Papua New Guinea', 'Paraguay',
-        'Peru', 'Philippines', 'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia',
-        'Rwanda', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent', 'Samoa',
-        'San Marino', 'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia',
-        'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands',
-        'Somalia', 'South Africa', 'South Sudan', 'Spain', 'Sri Lanka', 'Sudan',
-        'Suriname', 'Sweden', 'Switzerland', 'Syria', 'Taiwan', 'Tajikistan', 'Tanzania',
-        'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad and Tobago', 'Tunisia',
-        'Turkey', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates',
-        'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan', 'Vanuatu',
-        'Vatican City', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
-    ];
-    // FULL PLATFORMS LIST (44+)
-    const PLATFORMS = [
-        { name: 'Facebook', icon: 'fab fa-facebook-f' },
-        { name: 'Instagram', icon: 'fab fa-instagram' },
-        { name: 'TikTok', icon: 'fab fa-tiktok' },
-        { name: 'X (Twitter)', icon: 'fab fa-x-twitter' },
-        { name: 'YouTube', icon: 'fab fa-youtube' },
-        { name: 'LinkedIn', icon: 'fab fa-linkedin-in' },
-        { name: 'Pinterest', icon: 'fab fa-pinterest-p' },
-        { name: 'Snapchat', icon: 'fab fa-snapchat' },
-        { name: 'Reddit', icon: 'fab fa-reddit-alien' },
-        { name: 'Twitch', icon: 'fab fa-twitch' },
-        { name: 'Tumblr', icon: 'fab fa-tumblr' },
-        { name: 'Medium', icon: 'fab fa-medium' },
-        { name: 'Substack', icon: 'fas fa-square-rss' },
-        { name: 'WordPress', icon: 'fab fa-wordpress' },
-        { name: 'Blogger', icon: 'fab fa-blogger-b' },
-        { name: 'Flickr', icon: 'fab fa-flickr' },
-        { name: 'Behance', icon: 'fab fa-behance' },
-        { name: 'Dribbble', icon: 'fab fa-dribbble' },
-        { name: 'Spotify', icon: 'fab fa-spotify' },
-        { name: 'SoundCloud', icon: 'fab fa-soundcloud' },
-        { name: 'Apple Music', icon: 'fab fa-apple' },
-        { name: 'Quora', icon: 'fab fa-quora' },
-        { name: 'VK', icon: 'fab fa-vk' },
-        { name: 'OK', icon: 'fab fa-odnoklassniki' },
-        { name: 'Weibo', icon: 'fab fa-weibo' },
-        { name: 'Mastodon', icon: 'fab fa-mastodon' },
-        { name: 'Bluesky', icon: 'fas fa-cloud-sun' },
-        { name: 'Threads', icon: 'fab fa-threads' },
-        { name: 'Shopify', icon: 'fab fa-shopify' },
-        { name: 'Selar', icon: 'fas fa-bolt' },
-        { name: 'Paystack', icon: 'fas fa-credit-card' },
-        { name: 'Flutterwave', icon: 'fas fa-waves' },
-        { name: 'Etsy', icon: 'fab fa-etsy' },
-        { name: 'eBay', icon: 'fab fa-ebay' },
-        { name: 'Amazon', icon: 'fab fa-amazon' },
-        { name: 'AliExpress', icon: 'fas fa-bag-shopping' },
-        { name: 'Patreon', icon: 'fab fa-patreon' },
-        { name: 'Kickstarter', icon: 'fab fa-kickstarter-k' },
-        { name: 'WhatsApp', icon: 'fab fa-whatsapp' },
-        { name: 'Telegram', icon: 'fab fa-telegram' },
-        { name: 'Discord', icon: 'fab fa-discord' },
-        { name: 'Signal', icon: 'fas fa-message' },
-        { name: 'Line', icon: 'fab fa-line' },
-        { name: 'WeChat', icon: 'fab fa-weixin' },
-        { name: 'Viber', icon: 'fab fa-viber' },
-        { name: 'Messenger', icon: 'fab fa-facebook-messenger' }
-    ];
-    const EMOJIS = ['📦','🛒','📞','🎯','⭐','💬','📧','🌐','📱','💻','📷','🎥','🎵','📚','✏️','🔗','📌','💡','🔥','✨'];
-    const PLAN_LIMITS = {
-        free: { socials: 5, custom_links: 2, brand_colors: false, fonts: false, gradients: false },
-        pro: { socials: 10, custom_links: 5, brand_colors: true, fonts: true, gradients: false },
-        premium: { socials: 999, custom_links: 999, brand_colors: true, fonts: true, gradients: true }
-    };
+const app = {
+  currentScreen: null,
+  user: null,
 
-    let session = { email: '', password: '', slug: '', plan: 'free', shopData: null };
-    let currentTab = 'overview';
-    let currentBottomTab = 'discover';
-    let recoveryEmail = '', recoveryQuestions = [];
-    let selectedIcon = null, iconPickerTarget = null;
-    let slugConfirmed = false;
-    let slugAvailable = false;
-    let logoBase64 = '';
+  init() {
+    this.checkAuth();
+    this.setActiveNav();
+    const hash = window.location.hash.slice(1) || 'discover';
+    this.loadScreen(hash);
+  },
 
-    function togglePassword(inputId, btn) {
-        const input = document.getElementById(inputId);
-        if (!input) return;
-        const icon = btn.querySelector('i');
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.className = 'fa-solid fa-eye-slash';
-        } else {
-            input.type = 'password';
-            icon.className = 'fa-solid fa-eye';
-        }
+  checkAuth() {
+    const userData = localStorage.getItem('myshub_user');
+    if (userData) {
+      this.user = JSON.parse(userData);
     }
+  },
 
-    function showToast(msg, type = 'info') {
-        const container = document.getElementById('toastContainer');
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        const icons = { success: 'fa-circle-check', error: 'fa-circle-xmark', info: 'fa-circle-info' };
-        toast.innerHTML = `<i class="fa-solid ${icons[type]}"></i><span>${msg}</span>`;
-        container.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
+  isLoggedIn() {
+    return this.user !== null;
+  },
+
+  setActiveNav() {
+    const path = window.location.pathname.split('/').pop();
+    document.querySelectorAll('.nav-item').forEach(function(item) { item.classList.remove('active'); });
+    if (path.includes('index') || path === '' || path === 'app.html') {
+      var el = document.getElementById('navHome');
+      if (el) el.classList.add('active');
+    } else if (path.includes('discover')) {
+      var el = document.getElementById('navDiscover');
+      if (el) el.classList.add('active');
+    } else if (path.includes('dashboard') || path.includes('profile')) {
+      var el = document.getElementById('navProfile');
+      if (el) el.classList.add('active');
     }
+  },
 
-    function showSection(sectionId) {
-        document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-        const section = document.getElementById('section-' + sectionId);
-        if (section) section.classList.add('active');
-
-        if (sectionId === 'app' && session.email && session.password) {
-            if (!session.shopData) loadShop();
-            renderApp();
-        }
+  async loadScreen(screenName, options) {
+    const content = document.getElementById('appContent');
+    content.innerHTML = '<div class="screen" style="padding:40px"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text"></div></div>';
+    try {
+      const response = await fetch(screenName + '.html');
+      if (!response.ok) throw new Error('Screen not found');
+      const html = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const screenContent = doc.querySelector('.screen') || doc.body;
+      const current = content.querySelector('.screen');
+      if (current) {
+        current.style.animation = 'screenOut 0.2s ease forwards';
+        await new Promise(function(r) { setTimeout(r, 200); });
+      }
+      content.innerHTML = '';
+      content.appendChild(screenContent.cloneNode(true));
+      const scripts = screenContent.querySelectorAll('script');
+      scripts.forEach(function(script) {
+        const newScript = document.createElement('script');
+        newScript.textContent = script.textContent;
+        document.body.appendChild(newScript);
+        newScript.remove();
+      });
+      this.currentScreen = screenName;
+      window.history.replaceState(null, null, '#' + screenName);
+    } catch (err) {
+      content.innerHTML = '<div class="screen empty-state"><div class="empty-state-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg></div><div class="empty-state-title">Screen not found</div><div class="empty-state-desc">Could not load ' + screenName + '</div></div>';
     }
+  },
 
-    async function apiFetch(endpoint, method = 'GET', body = null) {
-        const headers = {
-            'email': session.email,
-            'password': session.password,
-            'Content-Type': 'application/json'
-        };
-        const options = { method, headers };
-        if (body) options.body = JSON.stringify(body);
-        const resp = await fetch(API + endpoint, options);
-        if (!resp.ok) {
-            const err = await resp.json().catch(() => ({}));
-            throw new Error(err.detail || 'Request failed');
-        }
-        return resp.json();
+  toggleMenu() {
+    this.showToast('Menu coming soon', 'info');
+  },
+
+  showToast(message, type) {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast ' + (type || 'info');
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(function() { toast.remove(); }, 3000);
+  },
+
+  async api(endpoint, options) {
+    const url = API_BASE + endpoint;
+    const defaults = { headers: { 'Content-Type': 'application/json' } };
+    if (this.user) {
+      defaults.headers['Email'] = this.user.email;
+      defaults.headers['Password'] = this.user.password;
     }
+    const merged = Object.assign({}, defaults, options || {});
+    const response = await fetch(url, merged);
+    const data = await response.json().catch(function() { return null; });
+    return { ok: response.ok, status: response.status, data: data };
+  },
 
-    // ─── SLUG CHECK ───────────────────────────────────────────────────
-    let slugCheckTimeout = null;
-    function checkSlugAvailability() {
-        const slugInput = document.getElementById('regSlug');
-        const statusEl = document.getElementById('slugStatus');
-        const previewEl = document.getElementById('slugPreview');
-        const confirmBox = document.getElementById('slugConfirmBox');
-        const confirmText = document.getElementById('slugConfirmText');
-        const slug = slugInput.value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+  setUser(userData) {
+    this.user = userData;
+    localStorage.setItem('myshub_user', JSON.stringify(userData));
+  },
 
-        previewEl.textContent = slug || 'my-shop';
-        confirmText.textContent = slug || 'my-shop';
+  logout() {
+    this.user = null;
+    localStorage.removeItem('myshub_user');
+    window.location.href = 'login.html';
+  }
+};
 
-        if (!slug || slug.length < 3) {
-            statusEl.textContent = '';
-            statusEl.style.color = '';
-            confirmBox.style.display = 'none';
-            slugAvailable = false;
-            updateRegButton();
-            return;
-        }
+document.addEventListener('DOMContentLoaded', function() { app.init(); });
 
-        statusEl.textContent = 'Checking availability...';
-        statusEl.style.color = 'var(--text3)';
-
-        clearTimeout(slugCheckTimeout);
-        slugCheckTimeout = setTimeout(async () => {
-            try {
-                const resp = await fetch(`${API}/auth/check-slug?slug=${encodeURIComponent(slug)}`);
-                const data = await resp.json();
-                if (data.available) {
-                    statusEl.textContent = '✅ Available!';
-                    statusEl.style.color = '#10b981';
-                    confirmBox.style.display = 'block';
-                    slugAvailable = true;
-                } else {
-                    statusEl.textContent = '❌ Already taken';
-                    statusEl.style.color = '#ef4444';
-                    confirmBox.style.display = 'none';
-                    slugAvailable = false;
-                }
-            } catch (e) {
-                statusEl.textContent = '';
-                slugAvailable = false;
-            }
-            updateRegButton();
-        }, 500);
-    }
-
-    function toggleSlugConfirm() {
-        slugConfirmed = document.getElementById('slugConfirmCheckbox').checked;
-        updateRegButton();
-    }
-
-    function updateRegButton() {
-        const btn = document.getElementById('regBtn');
-        const slug = document.getElementById('regSlug').value.trim();
-        btn.disabled = !(slugAvailable && slugConfirmed && slug.length >= 3);
-    }
-
-    // ─── AUTH ─────────────────────────────────────────────────────────
-    window.login = async function() {
-        const email = document.getElementById('loginEmail').value.trim();
-        const password = document.getElementById('loginPassword').value.trim();
-        const errorEl = document.getElementById('loginError');
-        const btn = document.getElementById('loginBtn');
-        if (!email || !password) { errorEl.textContent = 'Please fill all fields'; errorEl.style.display = 'block'; return; }
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Signing in...';
-        try {
-            const data = await apiFetch('/auth/login', 'POST', { email, password });
-            session.email = email;
-            session.password = password;
-            session.slug = data.slug || '';
-            session.plan = data.plan || 'free';
-            localStorage.setItem('myshop_session', JSON.stringify(session));
-            showToast('Logged in!', 'success');
-            showSection('app');
-        } catch (e) {
-            errorEl.textContent = e.message;
-            errorEl.style.display = 'block';
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-arrow-right"></i> Sign In';
-        }
-    };
-
-    window.register = async function() {
-        const email = document.getElementById('regEmail').value.trim();
-        const name = document.getElementById('regName').value.trim();
-        const slug = document.getElementById('regSlug').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
-        const phone = document.getElementById('regPhone').value.trim();
-        const category = document.getElementById('regCategory').value;
-        const country = document.getElementById('regCountry').value;
-        const password = document.getElementById('regPassword').value;
-        const passwordConfirm = document.getElementById('regPasswordConfirm').value;
-        const errorEl = document.getElementById('signupError');
-        const btn = document.getElementById('regBtn');
-
-        if (!email || !name || !slug || !phone || !category || !country || !password) {
-            errorEl.textContent = 'Fill all required fields';
-            errorEl.style.display = 'block'; return;
-        }
-        if (password !== passwordConfirm) { errorEl.textContent = 'Passwords do not match'; errorEl.style.display = 'block'; return; }
-        if (password.length < 6) { errorEl.textContent = 'Password must be 6+ characters'; errorEl.style.display = 'block'; return; }
-        if (!slugConfirmed) { errorEl.textContent = 'Please confirm your slug'; errorEl.style.display = 'block'; return; }
-
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating...';
-
-        try {
-            const body = {
-                email, password, business_name: name, phone, country,
-                preferred_slug: slug, category,
-                location: '', description: '', tagline: '',
-                logo_url: '', catalog_url: '', whatsapp_catalog_url: '',
-                socials: {}, referred_by: '',
-                security_questions: [
-                    { question: 'What city were you born in?', answer: '' },
-                    { question: "What is your mother's maiden name?", answer: '' },
-                    { question: "What was your first pet's name?", answer: '' }
-                ]
-            };
-            await apiFetch('/auth/register', 'POST', body);
-            showToast('Shop created! Now sign in.', 'success');
-            showSection('login');
-        } catch (e) {
-            errorEl.textContent = e.message;
-            errorEl.style.display = 'block';
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-plus"></i> Create Shop';
-        }
-    };
-
-    window.fetchRecoveryQuestions = async function() {
-        const email = document.getElementById('recoverEmail').value.trim();
-        const errorEl = document.getElementById('recoverError');
-        if (!email) { errorEl.textContent = 'Enter your email'; errorEl.style.display = 'block'; return; }
-        try {
-            const resp = await fetch(`${API}/auth/security-questions?email=${encodeURIComponent(email)}`);
-            if (!resp.ok) throw new Error('Account not found');
-            const data = await resp.json();
-            recoveryEmail = email;
-            recoveryQuestions = data.questions || [];
-            const container = document.getElementById('securityQuestionsContainer');
-            container.innerHTML = recoveryQuestions.map((q, i) =>
-                `<div class="form-group"><label>${q}</label><input type="text" id="secAnswer${i}" placeholder="Your answer"></div>`
-            ).join('');
-            document.getElementById('recoverStep1').classList.add('hidden');
-            document.getElementById('recoverStep2').classList.remove('hidden');
-        } catch (e) {
-            errorEl.textContent = e.message;
-            errorEl.style.display = 'block';
-        }
-    };
-
-    window.submitRecovery = async function() {
-        const newPwd = document.getElementById('recoverNewPassword').value.trim();
-        const errorEl = document.getElementById('recoverError');
-        if (!newPwd || newPwd.length < 6) { errorEl.textContent = 'Password must be 6+ characters'; errorEl.style.display = 'block'; return; }
-        try {
-            for (let i = 0; i < recoveryQuestions.length; i++) {
-                const answer = document.getElementById('secAnswer' + i).value.trim();
-                if (!answer) continue;
-                const verifyResp = await fetch(`${API}/auth/verify-security-answer`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: recoveryEmail, question: recoveryQuestions[i], answer })
-                });
-                if (verifyResp.ok) {
-                    const resetResp = await fetch(`${API}/auth/reset-password`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: recoveryEmail, question: recoveryQuestions[i], answer, new_password: newPwd })
-                    });
-                    if (resetResp.ok) {
-                        showToast('Password reset! Sign in now.', 'success');
-                        showSection('login');
-                        return;
-                    }
-                }
-            }
-            throw new Error('Answers incorrect. Try again.');
-        } catch (e) {
-            errorEl.textContent = e.message;
-            errorEl.style.display = 'block';
-        }
-    };
-
-    window.logout = function() {
-        localStorage.removeItem('myshop_session');
-        session = { email: '', password: '', slug: '', plan: 'free', shopData: null };
-        showToast('Logged out', 'info');
-        showSection('login');
-    };
-
-    // ─── SHOP DATA ─────────────────────────────────────────────────────
-    async function loadShop() {
-        try {
-            const data = await apiFetch(`/shop/preview/${session.slug}`);
-            session.shopData = data;
-            session.plan = data.plan || 'free';
-            localStorage.setItem('myshop_session', JSON.stringify(session));
-            renderApp();
-        } catch (e) {
-            showToast('Error loading shop: ' + e.message, 'error');
-        }
-    }
-
-    // ─── SIDEBAR TOGGLE ──────────────────────────────────────────────
-    window.toggleSidebar = function() {
-        const sidebar = document.getElementById('appSidebar');
-        sidebar.classList.toggle('open');
-        sidebar.classList.toggle('collapsed');
-    };
-
-    // ─── APP RENDERING ───────────────────────────────────────────────
-    function renderApp() {
-        if (currentBottomTab === 'discover') {
-            renderDiscoverTab();
-        } else {
-            renderAccountTab();
-        }
-    }
-
-    function renderDiscoverTab() {
-        const mainContent = document.getElementById('mainContent');
-        mainContent.innerHTML = `<iframe class="discover-frame" src="discover.html" style="width:100%;height:100%;border:none;background:var(--bg);"></iframe>`;
-        document.getElementById('appSidebar').style.display = 'none';
-    }
-
-    function renderAccountTab() {
-        document.getElementById('appSidebar').style.display = 'block';
-        renderSidebar();
-        renderCurrentTab();
-    }
-
-    function switchBottomTab(tab) {
-        currentBottomTab = tab;
-        document.querySelectorAll('#bottomNav .nav-item').forEach(el => {
-            el.classList.toggle('active', el.textContent.trim().toLowerCase().includes(tab));
-        });
-        renderApp();
-    }
-
-    function renderSidebar() {
-        const nav = document.getElementById('sidebarNav');
-        if (!nav) return;
-        const items = [
-            { id: 'overview', icon: 'fa-house', label: 'Overview' },
-            { id: 'edit', icon: 'fa-pen', label: 'Edit' },
-            { id: 'preview', icon: 'fa-eye', label: 'Preview' },
-            { id: 'analytics', icon: 'fa-chart-bar', label: 'Analytics' },
-            { id: 'referrals', icon: 'fa-gift', label: 'Referrals' },
-            { id: 'notifications', icon: 'fa-bell', label: 'Notifications' },
-            { id: 'settings', icon: 'fa-gear', label: 'Settings' }
-        ];
-        nav.innerHTML = items.map(it => `<a class="${currentTab === it.id ? 'active' : ''}" onclick="switchTab('${it.id}')"><i class="fa-solid ${it.icon}"></i> ${it.label}</a>`).join('');
-    }
-
-    window.switchTab = function(tabId) {
-        currentTab = tabId;
-        // On mobile, close sidebar after selection
-        if (window.innerWidth <= 768) {
-            document.getElementById('appSidebar').classList.remove('open');
-            document.getElementById('appSidebar').classList.add('collapsed');
-        }
-        renderSidebar();
-        renderCurrentTab();
-    };
-
-    function renderCurrentTab() {
-        const mainContent = document.getElementById('mainContent');
-        switch(currentTab) {
-            case 'overview': mainContent.innerHTML = renderOverview(); break;
-            case 'edit': mainContent.innerHTML = renderEdit(); break;
-            case 'preview': mainContent.innerHTML = renderPreview(); break;
-            case 'analytics': mainContent.innerHTML = renderAnalytics(); break;
-            case 'referrals': mainContent.innerHTML = renderReferrals(); break;
-            case 'notifications': mainContent.innerHTML = renderNotifications(); break;
-            case 'settings': mainContent.innerHTML = renderSettings(); break;
-            default: mainContent.innerHTML = '<p>Loading...</p>';
-        }
-        // Re-run QR code generation after rendering overview
-        if (currentTab === 'overview') {
-            setTimeout(() => generateQRCode(`https://myshub.site/${session.slug}`, 'overviewQR'), 100);
-        }
-    }
-
-    // ─── OVERVIEW ─────────────────────────────────────────────────────
-    function renderOverview() {
-        const data = session.shopData || {};
-        const json = data.shop_json || {};
-        const visits = json.analytics?.visit_count || 0;
-        const today = new Date().toISOString().slice(0, 10);
-        const todayVisits = json.analytics?.daily_visits?.[today] || 0;
-        const active = data.status === 'active';
-        const shopUrl = `https://myshub.site/${session.slug}`;
-
-        return `
-            <h2>${json.business_name || 'Your Shop'}</h2>
-            <div class="stats-grid">
-                <div class="stat-card"><div class="number">${visits}</div><div class="label">Total Visits</div></div>
-                <div class="stat-card"><div class="number">${todayVisits}</div><div class="label">Today</div></div>
-                <div class="stat-card"><div class="number"><span class="badge badge-${session.plan}">${session.plan.toUpperCase()}</span></div><div class="label">Plan</div></div>
-            </div>
-            <div class="card">
-                <div class="card-row"><span class="label">Your link</span><span class="value" onclick="copyLink('${shopUrl}')" style="cursor:pointer;color:var(--brand);">Copy →</span></div>
-                <div class="card-row"><span class="label">Status</span><span class="value">${active ? '🟢 Live' : '⛔ Inactive'}</span></div>
-            </div>
-            <div class="card qr-section">
-                <h3><i class="fa-solid fa-qrcode"></i> Your QR Code</h3>
-                <div class="qr-code" id="overviewQR"></div>
-                <div class="qr-label">Scan to visit your shop</div>
-                <button class="qr-download" onclick="downloadQRCode('${session.slug}-qr.png')">
-                    <i class="fa-solid fa-download"></i> Download QR
-                </button>
-            </div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <button class="btn btn-primary btn-sm" onclick="switchTab('edit')"><i class="fa-solid fa-pen"></i> Edit</button>
-                <button class="btn btn-secondary btn-sm" onclick="switchTab('analytics')"><i class="fa-solid fa-chart-bar"></i> Analytics</button>
-                <button class="btn btn-secondary btn-sm" onclick="switchTab('settings')"><i class="fa-solid fa-gear"></i> Settings</button>
-            </div>
-        `;
-    }
-
-    window.copyLink = function(url) {
-        navigator.clipboard.writeText(url).then(() => showToast('Copied!', 'success'));
-    };
-
-    function generateQRCode(url, containerId) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-        container.innerHTML = '';
-        try {
-            new QRCode(container, { text: url, width: 136, height: 136, colorDark: '#0f172a', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
-        } catch (e) {
-            container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text3);font-size:0.8rem;">QR unavailable</div>';
-        }
-    }
-
-    window.downloadQRCode = function(filename) {
-        const canvas = document.querySelector('#overviewQR canvas');
-        if (!canvas) return;
-        const link = document.createElement('a');
-        link.download = filename || 'myshub-qr.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-    };
-
-    // ─── EDIT TAB ─────────────────────────────────────────────────────
-    let editSocials = {};
-    let editCustomLinks = [];
-
-    function renderEdit() {
-        const data = session.shopData || {};
-        const json = data.shop_json || {};
-        const plan = session.plan || 'free';
-        const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.free;
-        const socials = json.socials || {};
-        const customLinks = json.custom_links || [];
-        const brand = json.brand_colors || {};
-        const typo = json.typography || {};
-
-        editSocials = { ...socials };
-        editCustomLinks = [...customLinks];
-        logoBase64 = json.logo_url || '';
-
-        let socialChips = '';
-        for (let [platform, url] of Object.entries(socials)) {
-            const p = PLATFORMS.find(x => x.name.toLowerCase() === platform);
-            if (p) socialChips += `<div class="card" style="padding:8px 12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><span><i class="${p.icon}"></i> ${platform}</span><button onclick="removeSocial('${platform}')" style="background:none;border:none;color:var(--danger);cursor:pointer;">✕</button></div>`;
-        }
-
-        let customLinksHtml = '';
-        customLinks.forEach((link, idx) => {
-            customLinksHtml += `
-                <div class="custom-link-item">
-                    <button class="icon-btn" onclick="openIconPicker(this, ${idx})">${link.icon || '🔗'}</button>
-                    <input type="text" placeholder="Label" value="${link.label || ''}" onchange="updateCustomLink(${idx}, 'label', this.value)">
-                    <input type="url" placeholder="URL" value="${link.url || ''}" onchange="updateCustomLink(${idx}, 'url', this.value)">
-                    <span class="remove" onclick="removeCustomLink(${idx})"><i class="fa-solid fa-xmark"></i></span>
-                </div>
-            `;
-        });
-
-        let logoHtml = logoBase64
-            ? `<img src="${logoBase64}" class="logo-preview" id="logoPreview"><button class="btn btn-secondary btn-sm" onclick="document.getElementById('logoInput').click()" style="margin-top:8px;"><i class="fa-solid fa-rotate"></i> Change Logo</button>`
-            : `<div class="logo-upload-area" onclick="document.getElementById('logoInput').click()">
-                <i class="fa-solid fa-cloud-arrow-up"></i>
-                <p>Click to upload your logo</p>
-               </div>`;
-
-        return `
-            <h2>Edit Your Shop</h2>
-            <div class="card">
-                <h3>Logo</h3>
-                ${logoHtml}
-                <input type="file" id="logoInput" accept="image/*" style="display:none;" onchange="handleLogoUpload(this)">
-            </div>
-            <div class="card">
-                <h3>Business Info</h3>
-                <div class="form-group"><label>Name</label><input type="text" id="editName" value="${json.business_name || ''}"></div>
-                <div class="form-group"><label>Tagline</label><input type="text" id="editTagline" value="${json.tagline || ''}"></div>
-                <div class="form-group"><label>Description</label><textarea id="editDesc" rows="3" placeholder="Describe your business...">${json.description || ''}</textarea></div>
-            </div>
-            <div class="card">
-                <h3>Contact</h3>
-                <div class="form-group"><label>Phone</label><input type="tel" id="editPhone" value="${json.phone || ''}"></div>
-                <div class="form-group"><label>New Email (optional)</label><input type="email" id="editNewEmail" value="${json.new_email || ''}" placeholder="Leave blank to keep current"></div>
-                <div class="form-group"><label>Location</label><input type="text" id="editLocation" value="${json.location || ''}"></div>
-                <div class="form-group"><label>Country</label><input type="text" id="editCountry" value="${json.country || ''}"></div>
-                <div class="form-group"><label>State</label><input type="text" id="editState" value="${json.state || ''}"></div>
-                <div class="form-group"><label>City</label><input type="text" id="editCity" value="${json.city || ''}"></div>
-            </div>
-            <div class="card">
-                <h3>Catalog</h3>
-                <div class="form-group"><label>Catalog URL</label><input type="url" id="editCatalog" value="${json.catalog_url || ''}" placeholder="https://selar.co/yourstore"></div>
-                <div class="form-group"><label>WhatsApp Catalog URL</label><input type="url" id="editWhatsAppCatalog" value="${json.whatsapp_catalog_url || ''}" placeholder="https://wa.me/c/..."></div>
-            </div>
-            <div class="card">
-                <h3>Socials (${Object.keys(socials).length}/${limits.socials})</h3>
-                ${socialChips}
-                <button class="btn btn-secondary btn-sm" onclick="showPlatformSelector()" ${Object.keys(socials).length >= limits.socials ? 'disabled' : ''}>+ Add Platform</button>
-            </div>
-            <div class="card">
-                <h3>Custom Links (${customLinks.length}/${limits.custom_links})</h3>
-                ${customLinksHtml}
-                <button class="btn btn-secondary btn-sm" onclick="addCustomLink()" ${customLinks.length >= limits.custom_links ? 'disabled' : ''}>+ Add Link</button>
-            </div>
-            ${limits.brand_colors ? `
-            <div class="card">
-                <h3>Brand Colors</h3>
-                <div style="display:flex;gap:12px;">
-                    <div class="form-group"><label>Primary</label><input type="color" id="editPrimary" value="${brand.primary || '#2563eb'}"></div>
-                    <div class="form-group"><label>Secondary</label><input type="color" id="editSecondary" value="${brand.secondary || '#ffffff'}"></div>
-                </div>
-            </div>
-            ` : ''}
-            ${limits.fonts ? `
-            <div class="card">
-                <h3>Typography</h3>
-                <div class="form-group"><label>Heading Font</label><select id="editHeading"><option value="Inter" ${typo.heading_font === 'Inter' ? 'selected' : ''}>Inter</option><option value="Poppins" ${typo.heading_font === 'Poppins' ? 'selected' : ''}>Poppins</option><option value="Playfair" ${typo.heading_font === 'Playfair' ? 'selected' : ''}>Playfair</option></select></div>
-                <div class="form-group"><label>Body Font</label><select id="editBody"><option value="Inter" ${typo.body_font === 'Inter' ? 'selected' : ''}>Inter</option><option value="Open Sans" ${typo.body_font === 'Open Sans' ? 'selected' : ''}>Open Sans</option></select></div>
-            </div>
-            ` : ''}
-            <button class="btn btn-primary" onclick="saveEdit()" style="width:100%;"><i class="fa-solid fa-save"></i> Save Changes</button>
-        `;
-    }
-
-    window.handleLogoUpload = function(input) {
-        const file = input.files[0];
-        if (!file) return;
-        if (file.size > 2 * 1024 * 1024) { showToast('Logo must be under 2MB', 'error'); return; }
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            logoBase64 = e.target.result;
-            showToast('Logo loaded! Save to apply.', 'success');
-            renderCurrentTab();
-        };
-        reader.readAsDataURL(file);
-    };
-
-    window.showPlatformSelector = function() {
-        const platforms = PLATFORMS;
-        let html = '<div class="card" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">';
-        platforms.forEach(p => {
-            html += `<button class="btn btn-secondary btn-sm" onclick="addPlatform('${p.name}')" style="justify-content:center;"><i class="${p.icon}"></i> ${p.name}</button>`;
-        });
-        html += '</div>';
-        const card = document.querySelector('.card');
-        if (card) card.insertAdjacentHTML('afterend', html);
-    };
-
-    window.addPlatform = function(platform) {
-        const username = prompt(`Enter your ${platform} username or URL:`);
-        if (!username) return;
-        let url = username;
-        if (!url.startsWith('http')) {
-            const lower = platform.toLowerCase();
-            // Handle special cases
-            const platformMap = {
-                'instagram': `https://instagram.com/${username}`,
-                'tiktok': `https://tiktok.com/@${username}`,
-                'x (twitter)': `https://x.com/${username}`,
-                'twitter': `https://x.com/${username}`,
-                'facebook': `https://facebook.com/${username}`,
-                'youtube': `https://youtube.com/@${username}`,
-                'linkedin': `https://linkedin.com/in/${username}`,
-                'whatsapp': username, // keep as phone number
-                'telegram': `https://t.me/${username}`,
-                'discord': username,
-                'pinterest': `https://pinterest.com/${username}`,
-                'snapchat': `https://snapchat.com/add/${username}`,
-                'reddit': `https://reddit.com/u/${username}`,
-                'twitch': `https://twitch.tv/${username}`,
-                'tumblr': `https://${username}.tumblr.com`,
-                'medium': `https://medium.com/@${username}`,
-                'substack': `https://${username}.substack.com`,
-                'wordpress': `https://${username}.wordpress.com`,
-                'blogger': `https://${username}.blogspot.com`,
-                'flickr': `https://flickr.com/people/${username}`,
-                'behance': `https://behance.net/${username}`,
-                'dribbble': `https://dribbble.com/${username}`,
-                'spotify': `https://open.spotify.com/user/${username}`,
-                'soundcloud': `https://soundcloud.com/${username}`,
-                'apple music': `https://music.apple.com/profile/${username}`,
-                'quora': `https://quora.com/profile/${username}`,
-                'vk': `https://vk.com/${username}`,
-                'ok': `https://ok.ru/profile/${username}`,
-                'weibo': `https://weibo.com/${username}`,
-                'mastodon': `https://mastodon.social/@${username}`,
-                'bluesky': `https://bsky.app/profile/${username}`,
-                'threads': `https://threads.net/@${username}`,
-                'shopify': `https://${username}.myshopify.com`,
-                'selar': `https://selar.co/${username}`,
-                'paystack': `https://paystack.shop/${username}`,
-                'flutterwave': `https://flutterwave.com/${username}`,
-                'etsy': `https://etsy.com/shop/${username}`,
-                'ebay': `https://ebay.com/usr/${username}`,
-                'amazon': `https://amazon.com/shop/${username}`,
-                'aliexpress': `https://aliexpress.com/store/${username}`,
-                'patreon': `https://patreon.com/${username}`,
-                'kickstarter': `https://kickstarter.com/profile/${username}`,
-                'messenger': `https://m.me/${username}`,
-                'line': `https://line.me/ti/p/${username}`,
-                'wechat': `https://wechat.com/${username}`,
-                'viber': `https://viber.com/${username}`,
-                'signal': username
-            };
-            const key = lower.replace(/^x \(twitter\)$/, 'twitter');
-            if (platformMap[key]) {
-                url = platformMap[key];
-            } else {
-                url = `https://${username}`;
-            }
-        }
-        editSocials[platform.toLowerCase()] = url;
-        renderCurrentTab();
-    };
-
-    window.removeSocial = function(platform) {
-        delete editSocials[platform];
-        renderCurrentTab();
-    };
-
-    window.addCustomLink = function() {
-        editCustomLinks.push({ label: '', url: '', icon: '🔗' });
-        renderCurrentTab();
-    };
-
-    window.updateCustomLink = function(idx, field, value) {
-        if (editCustomLinks[idx]) editCustomLinks[idx][field] = value;
-    };
-
-    window.removeCustomLink = function(idx) {
-        editCustomLinks.splice(idx, 1);
-        renderCurrentTab();
-    };
-
-    window.openIconPicker = function(btn, idx) {
-        iconPickerTarget = { btn, idx };
-        selectedIcon = editCustomLinks[idx]?.icon || '🔗';
-        const picker = document.getElementById('iconPicker');
-        picker.innerHTML = EMOJIS.map(emoji => `<div class="icon-option" onclick="selectIcon('${emoji}')">${emoji}</div>`).join('');
-        const rect = btn.getBoundingClientRect();
-        picker.style.left = rect.left + 'px';
-        picker.style.top = (rect.bottom + 4) + 'px';
-        picker.classList.add('open');
-    };
-
-    window.selectIcon = function(emoji) {
-        if (iconPickerTarget) {
-            editCustomLinks[iconPickerTarget.idx].icon = emoji;
-            iconPickerTarget.btn.textContent = emoji;
-            document.getElementById('iconPicker').classList.remove('open');
-        }
-    };
-
-    window.saveEdit = async function() {
-        const plan = session.plan || 'free';
-        const limits = PLAN_LIMITS[plan];
-        if (Object.keys(editSocials).length > limits.socials) {
-            showToast(`Max ${limits.socials} socials for ${plan}`, 'error'); return;
-        }
-        if (editCustomLinks.length > limits.custom_links) {
-            showToast(`Max ${limits.custom_links} custom links for ${plan}`, 'error'); return;
-        }
-        const payload = {
-            email: session.email,
-            password: session.password,
-            business_name: document.getElementById('editName').value,
-            tagline: document.getElementById('editTagline').value,
-            description: document.getElementById('editDesc').value,
-            phone: document.getElementById('editPhone').value,
-            new_email: document.getElementById('editNewEmail').value,
-            location: document.getElementById('editLocation').value,
-            country: document.getElementById('editCountry').value,
-            state: document.getElementById('editState').value,
-            city: document.getElementById('editCity').value,
-            catalog_url: document.getElementById('editCatalog').value,
-            whatsapp_catalog_url: document.getElementById('editWhatsAppCatalog').value,
-            socials: editSocials,
-            custom_links: editCustomLinks,
-            logo_url: logoBase64,
-            brand_primary: document.getElementById('editPrimary')?.value || '#2563eb',
-            brand_secondary: document.getElementById('editSecondary')?.value || '#ffffff',
-            heading_font: document.getElementById('editHeading')?.value || 'Inter',
-            body_font: document.getElementById('editBody')?.value || 'Inter'
-        };
-        try {
-            await apiFetch(`/shop/edit/${session.slug}`, 'PUT', payload);
-            showToast('Shop saved!', 'success');
-            await loadShop();
-        } catch (e) {
-            showToast('Error: ' + e.message, 'error');
-        }
-    };
-
-    // ─── PREVIEW ───────────────────────────────────────────────────────
-    function renderPreview() {
-        return `
-            <h2>Preview</h2>
-            <div class="card" style="padding:0;overflow:hidden;">
-                <iframe src="shop.html?slug=${session.slug}&preview=1&email=${encodeURIComponent(session.email)}&password=${encodeURIComponent(session.password)}" 
-                    style="width:100%;height:700px;border:none;" title="Shop Preview"></iframe>
-            </div>
-        `;
-    }
-
-    // ─── ANALYTICS ─────────────────────────────────────────────────────
-    function renderAnalytics() {
-        const data = session.shopData || {};
-        const json = data.shop_json || {};
-        const analytics = json.analytics || {};
-        const visits = analytics.visit_count || 0;
-        const daily = analytics.daily_visits || {};
-        const countries = analytics.countries || {};
-        const devices = analytics.devices || {};
-        const referrers = analytics.referrers || {};
-        const clicks = analytics.clicks || {};
-
-        let dailyHtml = '';
-        for (let i = 6; i >= 0; i--) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            const key = d.toISOString().slice(0, 10);
-            const count = daily[key] || 0;
-            const pct = visits > 0 ? (count / visits) * 100 : 0;
-            dailyHtml += `
-                <div class="analytics-bar">
-                    <span class="label">${d.toLocaleDateString('en', { weekday: 'short' })}</span>
-                    <div class="track"><div class="fill" style="width:${pct}%"></div></div>
-                    <span class="value">${count}</span>
-                </div>
-            `;
-        }
-
-        let countriesHtml = '';
-        Object.entries(countries).sort((a, b) => b[1] - a[1]).slice(0, 10).forEach(([c, count]) => {
-            const pct = visits > 0 ? (count / visits) * 100 : 0;
-            countriesHtml += `
-                <div class="analytics-bar">
-                    <span class="label">${c}</span>
-                    <div class="track"><div class="fill" style="width:${pct}%"></div></div>
-                    <span class="value">${count}</span>
-                </div>
-            `;
-        });
-
-        let devicesHtml = `
-            <div style="display:flex;gap:12px;flex-wrap:wrap;">
-                <div class="stat-card" style="flex:1;min-width:100px;"><div class="number">${devices.mobile || 0}</div><div class="label">Mobile</div></div>
-                <div class="stat-card" style="flex:1;min-width:100px;"><div class="number">${devices.desktop || 0}</div><div class="label">Desktop</div></div>
-                <div class="stat-card" style="flex:1;min-width:100px;"><div class="number">${devices.tablet || 0}</div><div class="label">Tablet</div></div>
-            </div>
-        `;
-
-        let clicksHtml = '';
-        const clickData = [
-            { label: 'Catalog', count: clicks.catalog || 0 },
-            { label: 'WhatsApp', count: clicks.whatsapp || 0 }
-        ];
-        Object.entries(clicks.socials || {}).forEach(([k, v]) => clickData.push({ label: k, count: v }));
-        Object.entries(clicks.custom_links || {}).forEach(([k, v]) => clickData.push({ label: k, count: v }));
-        clickData.forEach(c => {
-            const pct = visits > 0 ? (c.count / visits) * 100 : 0;
-            clicksHtml += `
-                <div class="analytics-bar">
-                    <span class="label">${c.label}</span>
-                    <div class="track"><div class="fill" style="width:${pct}%"></div></div>
-                    <span class="value">${c.count}</span>
-                </div>
-            `;
-        });
-
-        return `
-            <h2>Analytics</h2>
-            <div class="stats-grid">
-                <div class="stat-card"><div class="number">${visits}</div><div class="label">Total Visits</div></div>
-                <div class="stat-card"><div class="number">${Object.keys(countries).length}</div><div class="label">Countries</div></div>
-                <div class="stat-card"><div class="number">${Object.keys(referrers).length}</div><div class="label">Referrers</div></div>
-            </div>
-            <div class="card">
-                <h3>Last 7 Days</h3>
-                ${dailyHtml}
-            </div>
-            <div class="card">
-                <h3>Top Countries</h3>
-                ${countriesHtml || '<p class="text-muted">No data yet</p>'}
-            </div>
-            <div class="card">
-                <h3>Devices</h3>
-                ${devicesHtml}
-            </div>
-            <div class="card">
-                <h3>Clicks</h3>
-                ${clicksHtml || '<p class="text-muted">No clicks yet</p>'}
-            </div>
-            ${Object.keys(referrers).length > 0 ? `
-            <div class="card">
-                <h3>Top Referrers</h3>
-                ${Object.entries(referrers).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([r, count]) => `
-                    <div class="analytics-bar">
-                        <span class="label">${r}</span>
-                        <div class="track"><div class="fill" style="width:${(count/visits)*100}%"></div></div>
-                        <span class="value">${count}</span>
-                    </div>
-                `).join('')}
-            </div>
-            ` : ''}
-        `;
-    }
-
-    // ─── REFERRALS ────────────────────────────────────────────────────
-    function renderReferrals() {
-        // Fetch and display referral data, with "Coming Soon" for rewards
-        setTimeout(() => {
-            apiFetch('/shop/referrals').then(data => {
-                const html = `
-                    <h2>Referrals</h2>
-                    <div class="card">
-                        <div class="card-row"><span class="label">Your code</span><span class="value"><strong>${data.referral_code || 'N/A'}</strong></span></div>
-                        <div class="card-row"><span class="label">People referred</span><span class="value">${data.total_referred || 0}</span></div>
-                        <div class="card-row"><span class="label">Estimated commission</span><span class="value">₦${(data.total_referred || 0) * 450}</span></div>
-                    </div>
-                    <div class="card" style="background:var(--bg);border:2px solid var(--warning);">
-                        <div style="display:flex;align-items:center;gap:12px;">
-                            <i class="fa-solid fa-gift" style="font-size:1.5rem;color:var(--warning);"></i>
-                            <div>
-                                <strong>🎉 Rewards coming soon!</strong>
-                                <p style="color:var(--text2);font-size:0.85rem;margin-top:4px;">We're working on a referral rewards program. Stay tuned for payouts and bonuses.</p>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                document.getElementById('mainContent').innerHTML = html;
-            }).catch(() => {
-                document.getElementById('mainContent').innerHTML = '<div class="card"><p class="text-muted">Error loading referrals</p></div>';
-            });
-        }, 0);
-        return '<div class="card"><p class="text-muted">Loading referral data...</p></div>';
-    }
-
-    // ─── NOTIFICATIONS ────────────────────────────────────────────────
-    function renderNotifications() {
-        setTimeout(() => {
-            apiFetch('/notifications/').then(data => {
-                const notifs = data.notifications || data || [];
-                let html = '<h2>Notifications</h2>';
-                if (notifs.length === 0) {
-                    html += '<div class="card"><p class="text-muted">No notifications yet</p></div>';
-                } else {
-                    notifs.forEach(n => {
-                        html += `
-                            <div class="notif-item ${n.read ? '' : 'unread'}">
-                                <div class="icon"><i class="fa-solid fa-${n.icon || 'bell'}"></i></div>
-                                <div class="content">
-                                    <div class="title">${n.title || 'Notification'}</div>
-                                    <div class="body">${n.body || ''}</div>
-                                    <div class="time">${n.time || ''}</div>
-                                </div>
-                            </div>
-                        `;
-                    });
-                }
-                document.getElementById('mainContent').innerHTML = html;
-            }).catch(() => {
-                document.getElementById('mainContent').innerHTML = '<div class="card"><p class="text-muted">No notifications yet</p></div>';
-            });
-        }, 0);
-        return '<div class="card"><p class="text-muted">Loading notifications...</p></div>';
-    }
-
-    // ─── SETTINGS ─────────────────────────────────────────────────────
-    function renderSettings() {
-        return `
-            <h2>Settings</h2>
-            <div class="card">
-                <div class="card-row"><span class="label">Email</span><span class="value">${session.email}</span></div>
-                <div class="card-row"><span class="label">Plan</span><span class="value"><span class="badge badge-${session.plan}">${session.plan.toUpperCase()}</span></span></div>
-            </div>
-            <div class="card">
-                <h3>Web Push Notifications</h3>
-                <p class="text-muted" style="margin-bottom:12px;">Get notified when someone visits your shop or sends feedback.</p>
-                <button class="btn btn-primary btn-sm" onclick="subscribePush()" style="width:auto;"><i class="fa-solid fa-bell"></i> Enable Push Notifications</button>
-            </div>
-            <div class="card">
-                <h3>Shop Status</h3>
-                <div style="display:flex;gap:8px;">
-                    <button class="btn btn-primary btn-sm" onclick="toggleShop('reactivate')"><i class="fa-solid fa-play"></i> Reactivate</button>
-                    <button class="btn btn-secondary btn-sm" onclick="toggleShop('deactivate')"><i class="fa-solid fa-ban"></i> Deactivate</button>
-                </div>
-            </div>
-            <button class="btn btn-secondary" style="width:100%;" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
-        `;
-    }
-
-    window.toggleShop = async function(action) {
-        if (!confirm('Are you sure?')) return;
-        try {
-            const endpoint = action === 'reactivate' ? `/shop/${session.slug}/reactivate` : `/shop/${session.slug}/deactivate`;
-            await apiFetch(endpoint, 'POST');
-            showToast(action === 'reactivate' ? 'Shop reactivated!' : 'Shop deactivated', 'success');
-            await loadShop();
-        } catch (e) {
-            showToast('Error: ' + e.message, 'error');
-        }
-    };
-
-    window.subscribePush = async function() {
-        try {
-            const resp = await fetch(`${API}/notifications/vapid-public-key`);
-            const data = await resp.json();
-            const vapidKey = data.public_key;
-            // Basic push subscription logic would go here
-            showToast('Push notifications enabled!', 'success');
-        } catch (e) {
-            showToast('Push not available: ' + e.message, 'error');
-        }
-    };
-
-    // ─── INIT ─────────────────────────────────────────────────────────
-    window.addEventListener('load', function() {
-        // Populate category and country selects
-        const catSelect = document.getElementById('regCategory');
-        if (catSelect) {
-            CATEGORIES.forEach(c => catSelect.innerHTML += `<option value="${c}">${c}</option>`);
-        }
-        const countrySelect = document.getElementById('regCountry');
-        if (countrySelect) {
-            COUNTRIES.forEach(c => countrySelect.innerHTML += `<option value="${c}">${c}</option>`);
-        }
-
-        try {
-            const saved = localStorage.getItem('myshop_session');
-            if (saved) {
-                const data = JSON.parse(saved);
-                session = { ...session, ...data };
-                if (session.email && session.password) {
-                    showSection('app');
-                    return;
-                }
-            }
-        } catch (e) {}
-        showSection('login');
-
-        // Ensure sidebar is collapsed on mobile by default
-        if (window.innerWidth <= 768) {
-            document.getElementById('appSidebar').classList.add('collapsed');
-        }
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.icon-picker') && !e.target.closest('.icon-btn')) {
-            document.getElementById('iconPicker').classList.remove('open');
-        }
-    });
-
-    // Handle window resize for sidebar
-    window.addEventListener('resize', function() {
-        const sidebar = document.getElementById('appSidebar');
-        if (window.innerWidth > 768) {
-            sidebar.classList.remove('collapsed');
-            sidebar.classList.remove('open');
-        } else {
-            sidebar.classList.add('collapsed');
-        }
-    });
+document.querySelectorAll('.nav-item').forEach(function(item) {
+  item.addEventListener('click', function(e) {
+    e.preventDefault();
+    const href = item.getAttribute('href');
+    const screen = href.replace('.html', '');
+    app.loadScreen(screen);
+    document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+    item.classList.add('active');
+  });
+});
 </script>
 </body>
 </html>

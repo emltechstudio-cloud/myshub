@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Plans - MY.SHUB</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="screen" id="paymentScreen">
+  <div class="section" style="padding-top:8px;">
+    <div class="section-title">Choose Your Plan</div>
+
+    <!-- Free Plan -->
+    <div class="card" style="border:2px solid var(--border);position:relative;overflow:hidden;">
+      <div style="position:absolute;top:0;right:0;background:var(--text-muted);color:white;font-size:11px;font-weight:700;padding:4px 12px;border-radius:0 0 0 8px;">CURRENT</div>
+      <div style="font-size:20px;font-weight:800;color:var(--text-primary);margin-bottom:4px;">Free</div>
+      <div style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;">Perfect for getting started</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#42b72a" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          1 shop page
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#42b72a" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Basic analytics
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#42b72a" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          2 custom links
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#42b72a" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          5 social platforms
+        </div>
+      </div>
+      <button class="btn btn-outline" style="width:100%;" disabled>Current Plan</button>
+    </div>
+
+    <!-- Pro Plan -->
+    <div class="card" style="border:2px solid var(--primary);position:relative;overflow:hidden;">
+      <div style="position:absolute;top:0;right:0;background:var(--primary);color:white;font-size:11px;font-weight:700;padding:4px 12px;border-radius:0 0 0 8px;">POPULAR</div>
+      <div style="font-size:20px;font-weight:800;color:var(--text-primary);margin-bottom:4px;">Pro</div>
+      <div style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;">Grow your business</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#42b72a" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Everything in Free
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#42b72a" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          5 custom links
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#42b72a" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          10 social platforms
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#42b72a" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Brand colors
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#42b72a" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Custom fonts
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;" onclick="openPayment('pro')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+        See Price
+      </button>
+    </div>
+
+    <!-- Premium Plan -->
+    <div class="card" style="border:2px solid var(--border);position:relative;overflow:hidden;">
+      <div style="font-size:20px;font-weight:800;color:var(--text-primary);margin-bottom:4px;">Premium</div>
+      <div style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;">For power users</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#42b72a" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Everything in Pro
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#42b72a" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Unlimited links
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#42b72a" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Unlimited socials
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#42b72a" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Gradient themes
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#42b72a" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Priority support
+        </div>
+      </div>
+      <button class="btn btn-success" style="width:100%;" onclick="openPayment('premium')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+        See Price
+      </button>
+    </div>
+
+    <div style="text-align:center;padding:16px;font-size:12px;color:var(--text-muted);">
+      Prices are shown in your local currency. Payment is secure and encrypted.
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'https://emltechstudio-myshub-api.hf.space';
+
+function getUser() {
+  var data = localStorage.getItem('myshub_user');
+  return data ? JSON.parse(data) : null;
+}
+
+function showToast(message, type) {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + (type || 'info');
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 3000);
+}
+
+function openPayment(plan) {
+  var user = getUser();
+  var url = API_BASE + '/payment?plan=' + plan;
+  if (user && user.email) {
+    url += '&email=' + encodeURIComponent(user.email);
+  }
+  // Open in-app using window.open - stays within PWA context
+  var win = window.open(url, '_blank');
+  if (!win || win.closed || typeof win.closed === 'undefined') {
+    // Fallback: open in same window if popup blocked
+    window.location.href = url;
+  }
+}
+</script>
+</body>
+</html>

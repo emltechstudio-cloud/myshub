@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Preview - MY.SHUB</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="screen" id="previewScreen">
+  <div class="section" style="padding-top:8px;">
+    <div class="section-title">Shop Preview</div>
+
+    <!-- Preview Card -->
+    <div class="card" style="text-align:center;padding:24px 16px;">
+      <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#1877f2,#166fe5);color:white;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;margin:0 auto 16px;" id="previewLogo">M</div>
+      <div style="font-size:20px;font-weight:700;color:#1c1e21;margin-bottom:4px;" id="previewName">Loading...</div>
+      <div style="font-size:14px;color:#65676b;margin-bottom:16px;" id="previewDesc">Your shop description</div>
+      <a href="#" target="_blank" class="btn btn-primary" style="max-width:200px;margin:0 auto;" id="previewLiveLink">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+        View Live Shop
+      </a>
+    </div>
+
+    <!-- Share Section -->
+    <div class="card">
+      <div class="card-title">Share Your Shop</div>
+      <div style="margin-top:12px;display:flex;gap:8px;">
+        <input type="text" class="form-input" id="shareUrl" readonly style="flex:1;background:#f0f2f5;">
+        <button class="btn btn-primary" style="width:auto;padding:12px 16px;" onclick="copyUrl()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- QR Code Placeholder -->
+    <div class="card" style="text-align:center;">
+      <div class="card-title">QR Code</div>
+      <div style="width:160px;height:160px;background:#f0f2f5;border-radius:12px;margin:12px auto;display:flex;align-items:center;justify-content:center;">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#8a8d91" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg>
+      </div>
+      <div style="font-size:12px;color:#8a8d91;">Scan to visit your shop</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'https://emltechstudio-myshub-api.hf.space';
+
+function getUser() {
+  var data = localStorage.getItem('myshub_user');
+  return data ? JSON.parse(data) : null;
+}
+
+function showToast(message, type) {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + (type || 'info');
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 3000);
+}
+
+async function loadPreview() {
+  var user = getUser();
+  if (!user || !user.slug) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  var liveUrl = 'https://emltechstudio-myshub-api.hf.space/shop/live/' + user.slug;
+  document.getElementById('shareUrl').value = liveUrl;
+  document.getElementById('previewLiveLink').href = liveUrl;
+
+  try {
+    var response = await fetch(API_BASE + '/shop/preview/' + encodeURIComponent(user.slug) + '?email=' + encodeURIComponent(user.email) + '&password=' + encodeURIComponent(user.password));
+    var data = await response.json().catch(function() { return {}; });
+
+    if (data.shop_name) {
+      document.getElementById('previewName').textContent = data.shop_name;
+      document.getElementById('previewLogo').textContent = data.shop_name.charAt(0).toUpperCase();
+    }
+    if (data.description) {
+      document.getElementById('previewDesc').textContent = data.description;
+    }
+
+  } catch (err) {
+    console.log('Preview load error:', err);
+  }
+}
+
+function copyUrl() {
+  var input = document.getElementById('shareUrl');
+  input.select();
+  input.setSelectionRange(0, 99999);
+  navigator.clipboard.writeText(input.value).then(function() {
+    showToast('Link copied!', 'success');
+  }).catch(function() {
+    document.execCommand('copy');
+    showToast('Link copied!', 'success');
+  });
+}
+
+loadPreview();
+</script>
+</body>
+</html>

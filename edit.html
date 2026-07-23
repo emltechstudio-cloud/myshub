@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Edit Shop - MY.SHUB</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="screen" id="editScreen">
+  <div class="section" style="padding-top:8px;">
+    <div class="section-title">Edit Shop</div>
+
+    <div class="card">
+      <div class="card-title">Shop Details</div>
+      <div style="margin-top:12px;">
+        <div class="form-group">
+          <label class="form-label">Shop Name</label>
+          <input type="text" class="form-input" id="editShopName" placeholder="Your shop name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-input" id="editDescription" placeholder="Describe your shop..." rows="3" style="resize:none;"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="form-select" id="editCategory">
+            <option value="">Select category</option>
+            <option value="fashion">Fashion & Clothing</option>
+            <option value="electronics">Electronics</option>
+            <option value="food">Food & Drinks</option>
+            <option value="beauty">Beauty & Health</option>
+            <option value="home">Home & Garden</option>
+            <option value="sports">Sports & Fitness</option>
+            <option value="books">Books & Stationery</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Links</div>
+      <div style="margin-top:12px;" id="linksContainer">
+        <div class="form-group" style="display:flex;gap:8px;align-items:center;">
+          <input type="text" class="form-input" placeholder="Link title" style="flex:1;">
+          <input type="url" class="form-input" placeholder="https://..." style="flex:2;">
+          <button type="button" style="color:#ff4444;padding:8px;" onclick="this.parentElement.remove()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+      </div>
+      <button class="btn btn-outline" style="margin-top:12px;font-size:13px;" onclick="addLinkField()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;vertical-align:middle;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Add Link
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Social Media</div>
+      <div style="margin-top:12px;">
+        <div class="form-group">
+          <label class="form-label">Instagram</label>
+          <input type="url" class="form-input" id="editInstagram" placeholder="https://instagram.com/...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Twitter / X</label>
+          <input type="url" class="form-input" id="editTwitter" placeholder="https://x.com/...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">WhatsApp</label>
+          <input type="text" class="form-input" id="editWhatsapp" placeholder="+234...">
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" style="margin-bottom:24px;" onclick="saveShop()" id="saveShopBtn">
+      <span class="spinner"></span>
+      <span class="btn-text">Save Changes</span>
+    </button>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'https://emltechstudio-myshub-api.hf.space';
+
+function getUser() {
+  var data = localStorage.getItem('myshub_user');
+  return data ? JSON.parse(data) : null;
+}
+
+function showToast(message, type) {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + (type || 'info');
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 3000);
+}
+
+function addLinkField() {
+  var container = document.getElementById('linksContainer');
+  var div = document.createElement('div');
+  div.className = 'form-group';
+  div.style.cssText = 'display:flex;gap:8px;align-items:center;';
+  div.innerHTML = '<input type="text" class="form-input" placeholder="Link title" style="flex:1;"><input type="url" class="form-input" placeholder="https://..." style="flex:2;"><button type="button" style="color:#ff4444;padding:8px;" onclick="this.parentElement.remove()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>';
+  container.appendChild(div);
+}
+
+async function loadShopData() {
+  var user = getUser();
+  if (!user || !user.slug) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  try {
+    var response = await fetch(API_BASE + '/shop/preview/' + encodeURIComponent(user.slug) + '?email=' + encodeURIComponent(user.email) + '&password=' + encodeURIComponent(user.password));
+    var data = await response.json().catch(function() { return {}; });
+
+    if (data.shop_name) document.getElementById('editShopName').value = data.shop_name;
+    if (data.description) document.getElementById('editDescription').value = data.description;
+    if (data.category) document.getElementById('editCategory').value = data.category;
+    if (data.instagram) document.getElementById('editInstagram').value = data.instagram;
+    if (data.twitter) document.getElementById('editTwitter').value = data.twitter;
+    if (data.whatsapp) document.getElementById('editWhatsapp').value = data.whatsapp;
+
+  } catch (err) {
+    console.log('Load shop error:', err);
+  }
+}
+
+async function saveShop() {
+  var user = getUser();
+  if (!user) return;
+
+  var btn = document.getElementById('saveShopBtn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  var payload = {
+    shop_name: document.getElementById('editShopName').value.trim(),
+    description: document.getElementById('editDescription').value.trim(),
+    category: document.getElementById('editCategory').value,
+    instagram: document.getElementById('editInstagram').value.trim(),
+    twitter: document.getElementById('editTwitter').value.trim(),
+    whatsapp: document.getElementById('editWhatsapp').value.trim()
+  };
+
+  try {
+    var response = await fetch(API_BASE + '/shop/edit/' + encodeURIComponent(user.slug), {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Email': user.email,
+        'Password': user.password
+      },
+      body: JSON.stringify(payload)
+    });
+
+    var data = await response.json().catch(function() { return {}; });
+
+    if (response.ok) {
+      user.shop_name = payload.shop_name;
+      localStorage.setItem('myshub_user', JSON.stringify(user));
+      showToast('Shop updated!', 'success');
+    } else {
+      showToast(data.detail || 'Failed to update', 'error');
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+loadShopData();
+</script>
+</body>
+</html>

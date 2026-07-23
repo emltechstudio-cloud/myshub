@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Analytics - MY.SHUB</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="screen" id="analyticsScreen">
+  <div class="section" style="padding-top:8px;">
+    <div class="section-title">Analytics</div>
+
+    <!-- Stats Cards -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+      <div class="card" style="text-align:center;">
+        <div style="font-size:28px;font-weight:700;color:#1877f2;" id="analyticTotal">-</div>
+        <div style="font-size:12px;color:#65676b;">Total Visits</div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div style="font-size:28px;font-weight:700;color:#42b72a;" id="analyticToday">-</div>
+        <div style="font-size:12px;color:#65676b;">Today</div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div style="font-size:28px;font-weight:700;color:#f7b928;" id="analyticWeek">-</div>
+        <div style="font-size:12px;color:#65676b;">This Week</div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div style="font-size:28px;font-weight:700;color:#ff4444;" id="analyticClicks">-</div>
+        <div style="font-size:12px;color:#65676b;">Link Clicks</div>
+      </div>
+    </div>
+
+    <!-- Simple Bar Chart -->
+    <div class="card">
+      <div class="card-title">Visit Trends</div>
+      <div id="chartContainer" style="margin-top:16px;height:160px;display:flex;align-items:flex-end;justify-content:space-around;gap:8px;padding:0 8px;">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:100%;background:#1877f2;border-radius:4px 4px 0 0;transition:height 0.5s ease;" id="bar1" data-height="40%"></div>
+          <span style="font-size:10px;color:#65676b;">Mon</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:100%;background:#1877f2;border-radius:4px 4px 0 0;transition:height 0.5s ease;" id="bar2" data-height="65%"></div>
+          <span style="font-size:10px;color:#65676b;">Tue</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:100%;background:#1877f2;border-radius:4px 4px 0 0;transition:height 0.5s ease;" id="bar3" data-height="45%"></div>
+          <span style="font-size:10px;color:#65676b;">Wed</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:100%;background:#1877f2;border-radius:4px 4px 0 0;transition:height 0.5s ease;" id="bar4" data-height="80%"></div>
+          <span style="font-size:10px;color:#65676b;">Thu</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:100%;background:#1877f2;border-radius:4px 4px 0 0;transition:height 0.5s ease;" id="bar5" data-height="55%"></div>
+          <span style="font-size:10px;color:#65676b;">Fri</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:100%;background:#1877f2;border-radius:4px 4px 0 0;transition:height 0.5s ease;" id="bar6" data-height="90%"></div>
+          <span style="font-size:10px;color:#65676b;">Sat</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:100%;background:#1877f2;border-radius:4px 4px 0 0;transition:height 0.5s ease;" id="bar7" data-height="70%"></div>
+          <span style="font-size:10px;color:#65676b;">Sun</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Links -->
+    <div class="card">
+      <div class="card-title">Top Links Clicked</div>
+      <div id="topLinksList" style="margin-top:12px;">
+        <div class="empty-state" style="padding:16px 0;">
+          <div class="empty-state-desc">No click data yet</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'https://emltechstudio-myshub-api.hf.space';
+
+function getUser() {
+  var data = localStorage.getItem('myshub_user');
+  return data ? JSON.parse(data) : null;
+}
+
+async function loadAnalytics() {
+  var user = getUser();
+  if (!user || !user.slug) return;
+
+  try {
+    var response = await fetch(API_BASE + '/shop/preview/' + encodeURIComponent(user.slug) + '?email=' + encodeURIComponent(user.email) + '&password=' + encodeURIComponent(user.password));
+    var data = await response.json().catch(function() { return {}; });
+
+    if (data.visits !== undefined) {
+      document.getElementById('analyticTotal').textContent = data.visits;
+    }
+    if (data.today_visits !== undefined) {
+      document.getElementById('analyticToday').textContent = data.today_visits;
+    }
+
+    // Animate bars
+    for (var i = 1; i <= 7; i++) {
+      var bar = document.getElementById('bar' + i);
+      if (bar) {
+        var h = bar.getAttribute('data-height');
+        bar.style.height = h;
+      }
+    }
+
+    // Demo click data
+    document.getElementById('analyticClicks').textContent = Math.floor((data.visits || 0) * 0.3);
+    document.getElementById('analyticWeek').textContent = Math.floor((data.visits || 0) * 0.15);
+
+  } catch (err) {
+    console.log('Analytics load error:', err);
+  }
+}
+
+loadAnalytics();
+</script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Settings - MY.SHUB</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="screen" id="settingsScreen">
+  <div class="section" style="padding-top:8px;">
+    <div class="section-title">Settings</div>
+
+    <!-- Account Section -->
+    <div class="card">
+      <div class="card-title">Account</div>
+      <div style="margin-top:12px;">
+        <div class="form-group">
+          <label class="form-label">Shop Name</label>
+          <input type="text" class="form-input" id="settingShopName" placeholder="Your shop name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" id="settingEmail" placeholder="your@email.com" disabled style="background:#f0f2f5;">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Slug</label>
+          <input type="text" class="form-input" id="settingSlug" placeholder="your-slug" disabled style="background:#f0f2f5;">
+        </div>
+        <button class="btn btn-primary" style="margin-top:8px;" onclick="saveAccount()" id="saveAccountBtn">
+          <span class="spinner"></span>
+          <span class="btn-text">Save Changes</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Security Section -->
+    <div class="card">
+      <div class="card-title">Security</div>
+      <div style="margin-top:12px;">
+        <a href="forgot-password.html" class="list-item" style="border-radius:8px;margin-bottom:8px;">
+          <div class="list-item-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1877f2" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </div>
+          <div class="list-item-content">
+            <div class="list-item-title">Change Password</div>
+            <div class="list-item-desc">Update your password</div>
+          </div>
+          <div class="list-item-arrow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8a8d91" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Shop Actions -->
+    <div class="card">
+      <div class="card-title">Shop Actions</div>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;">
+        <button class="btn btn-outline" onclick="deactivateShop()" id="deactivateBtn">
+          <span class="spinner"></span>
+          <span class="btn-text">Deactivate Shop</span>
+        </button>
+        <button class="btn btn-outline" style="color:#ff4444;border-color:#ff4444;" onclick="deleteAccount()">
+          Delete Account
+        </button>
+      </div>
+    </div>
+
+    <!-- About -->
+    <div class="card">
+      <div class="card-title">About</div>
+      <div style="margin-top:8px;font-size:13px;color:#65676b;line-height:1.6;">
+        <p>MY.SHUB v1.0</p>
+        <p>Create and manage your online shop with ease.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'https://emltechstudio-myshub-api.hf.space';
+
+function getUser() {
+  var data = localStorage.getItem('myshub_user');
+  return data ? JSON.parse(data) : null;
+}
+
+function showToast(message, type) {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + (type || 'info');
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 3000);
+}
+
+function initSettings() {
+  var user = getUser();
+  if (!user) {
+    window.location.href = 'login.html';
+    return;
+  }
+  if (user.shop_name) document.getElementById('settingShopName').value = user.shop_name;
+  if (user.email) document.getElementById('settingEmail').value = user.email;
+  if (user.slug) document.getElementById('settingSlug').value = user.slug;
+}
+
+async function saveAccount() {
+  var user = getUser();
+  if (!user) return;
+
+  var shopName = document.getElementById('settingShopName').value.trim();
+  var btn = document.getElementById('saveAccountBtn');
+
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  try {
+    var response = await fetch(API_BASE + '/shop/edit/' + encodeURIComponent(user.slug), {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Email': user.email,
+        'Password': user.password
+      },
+      body: JSON.stringify({ shop_name: shopName })
+    });
+
+    var data = await response.json().catch(function() { return {}; });
+
+    if (response.ok) {
+      user.shop_name = shopName;
+      localStorage.setItem('myshub_user', JSON.stringify(user));
+      showToast('Changes saved!', 'success');
+    } else {
+      showToast(data.detail || 'Failed to save', 'error');
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+async function deactivateShop() {
+  var user = getUser();
+  if (!user) return;
+
+  if (!confirm('Are you sure you want to deactivate your shop? Visitors will not be able to see it.')) return;
+
+  var btn = document.getElementById('deactivateBtn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  try {
+    var response = await fetch(API_BASE + '/shop/' + encodeURIComponent(user.slug) + '/deactivate', {
+      method: 'POST',
+      headers: { 
+        'Email': user.email,
+        'Password': user.password
+      }
+    });
+
+    if (response.ok) {
+      showToast('Shop deactivated', 'info');
+      btn.innerHTML = '<span class="btn-text">Reactivate Shop</span>';
+      btn.onclick = reactivateShop;
+    } else {
+      showToast('Failed to deactivate', 'error');
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+async function reactivateShop() {
+  var user = getUser();
+  if (!user) return;
+
+  var btn = document.getElementById('deactivateBtn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  try {
+    var response = await fetch(API_BASE + '/shop/' + encodeURIComponent(user.slug) + '/reactivate', {
+      method: 'POST',
+      headers: { 
+        'Email': user.email,
+        'Password': user.password
+      }
+    });
+
+    if (response.ok) {
+      showToast('Shop reactivated!', 'success');
+      btn.innerHTML = '<span class="btn-text">Deactivate Shop</span>';
+      btn.onclick = deactivateShop;
+    } else {
+      showToast('Failed to reactivate', 'error');
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+function deleteAccount() {
+  alert('Please contact support to delete your account permanently.');
+}
+
+initSettings();
+</script>
+</body>
+</html>

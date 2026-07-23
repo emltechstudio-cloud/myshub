@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Login - MY.SHUB</title>
+<link rel="stylesheet" href="app.css">
+<style>
+.app-header .header-menu-btn { display: none !important; }
+.app-nav { display: none !important; }
+.app-content { margin-bottom: 0 !important; }
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="app-header">
+    <div class="header-brand">
+      <div class="brand-icon">M</div>
+      <span>MY.SHUB</span>
+    </div>
+  </header>
+
+  <main class="app-content">
+    <div class="screen auth-screen">
+      <div class="auth-logo">M</div>
+      <h1 class="auth-title">Welcome back</h1>
+      <p class="auth-subtitle">Login to manage your shop</p>
+
+      <div class="auth-card">
+        <form class="auth-form" id="loginForm" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="email" placeholder="Enter your email" required autocomplete="email">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" id="password" placeholder="Enter your password" required autocomplete="current-password">
+          </div>
+
+          <div class="form-error" id="formError"></div>
+
+          <button type="submit" class="btn btn-primary" id="loginBtn">
+            <span class="spinner"></span>
+            <span class="btn-text">Log In</span>
+          </button>
+
+          <a href="forgot-password.html" class="btn btn-ghost">Forgot password?</a>
+        </form>
+
+        <div class="auth-divider">or</div>
+
+        <a href="signup.html" class="btn btn-success">Create New Account</a>
+      </div>
+
+      <div class="auth-footer">
+        <p>Do not have a shop? <a href="signup.html">Sign up</a></p>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast-container" id="toastContainer"></div>
+</div>
+
+<script>
+const API_BASE = 'https://emltechstudio-myshub-api.hf.space';
+
+function showToast(message, type) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + (type || 'info');
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 3000);
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
+
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const btn = document.getElementById('loginBtn');
+  const errorEl = document.getElementById('formError');
+
+  errorEl.textContent = '';
+  errorEl.classList.remove('show');
+
+  if (!email || !password) {
+    errorEl.textContent = 'Please fill in all fields';
+    errorEl.classList.add('show');
+    return;
+  }
+
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  try {
+    const response = await fetch(API_BASE + '/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, password: password })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      const userData = { email: email, password: password };
+      if (data.shop_name) userData.shop_name = data.shop_name;
+      if (data.slug) userData.slug = data.slug;
+      localStorage.setItem('myshub_user', JSON.stringify(userData));
+      showToast('Login successful!', 'success');
+      setTimeout(function() {
+        window.location.href = 'dashboard.html';
+      }, 500);
+    } else {
+      errorEl.textContent = (data.detail || data.message || 'Invalid email or password');
+      errorEl.classList.add('show');
+    }
+  } catch (err) {
+    errorEl.textContent = 'Network error. Please try again.';
+    errorEl.classList.add('show');
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+var user = localStorage.getItem('myshub_user');
+if (user) {
+  window.location.href = 'dashboard.html';
+}
+</script>
+</body>
+</html>
