@@ -1,175 +1,618 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head><!-- PLAYABLE_TOUCH_PATCH_V1 --><script>
+(function() {
+  if (window.__playableTouchPatchInstalled) return;
+  window.__playableTouchPatchInstalled = true;
+  var origAdd = EventTarget.prototype.addEventListener;
+  var blockedTypes = { touchstart: 1, touchmove: 1, wheel: 1 };
+  EventTarget.prototype.addEventListener = function(type, listener, options) {
+    if (blockedTypes[type]) {
+      if (options === undefined || options === null) {
+        options = { passive: true };
+      } else if (typeof options === 'boolean') {
+        options = { capture: options, passive: true };
+      } else {
+        options = Object.assign({}, options, { passive: true });
+      }
+    }
+    return origAdd.call(this, type, listener, options);
+  };
+})();
+</script><script>window.Intl=window.Intl||{};Intl.t=function(s){return(Intl._locale&&Intl._locale[s])||s;};</script>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#1877f2">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="description" content="MY.SHUB - Create and manage your shop">
-<title>MY.SHUB</title>
-<link rel="stylesheet" href="app.css">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#2563eb">
+<title>MyShub — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{
+--brand:#2563eb;--brand-dark:#1d4ed8;--brand-soft:#eff6ff;
+--bg:#f8fafc;--surface:#ffffff;--surface-hover:#f1f5f9;
+--text:#0f172a;--text-secondary:#475569;--text-tertiary:#94a3b8;
+--border:#e2e8f0;--border-light:#f1f5f9;
+--success:#10b981;--success-soft:#d1fae5;--danger:#ef4444;--danger-soft:#fee2e2;
+--warning:#f59e0b;--warning-soft:#fef3c7;--purple:#8b5cf6;--purple-soft:#ede9fe;
+--radius:20px;--radius-sm:12px;--radius-lg:24px;
+--shadow:0 4px 24px rgba(0,0,0,0.06);--shadow-lg:0 12px 40px rgba(0,0,0,0.10);
+--transition:all 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:Inter,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
+.sec{display:none;flex-direction:column;height:100%;overflow:hidden;width:100%}
+.sec.active{display:flex}
+.page{display:none;max-width:720px;width:100%;margin:0 auto;animation:fadeInUp .3s ease}
+.page.on{display:block}
+#page-discover.page.on,#page-preview.page.on{max-width:100%;height:100%;display:flex;flex-direction:column}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+@keyframes slideInRight{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+.btn{border:none;cursor:pointer;font-family:inherit;font-weight:600;transition:var(--transition);display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:12px;padding:12px 20px;font-size:14px}
+.btn-primary{background:var(--brand);color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.25)}
+.btn-primary:hover{background:var(--brand-dark);transform:translateY(-1px)}
+.btn-ghost{background:var(--surface);color:var(--text);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--surface-hover)}
+.btn-sm{padding:8px 14px;font-size:13px}
+.btn-block{width:100%}
+.btn-lg{padding:14px 24px;font-size:15px;border-radius:16px}
+.app-head{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;position:sticky;top:0;z-index:10}
+.head-left{display:flex;align-items:center;gap:12px}
+.hamburger{width:40px;height:40px;border-radius:10px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary)}
+.head-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px}
+.head-brand-icon{width:36px;height:36px;background:var(--brand);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff}
+.head-actions{display:flex;align-items:center;gap:8px}
+.icon-btn{width:40px;height:40px;border-radius:10px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);position:relative}
+.badge{position:absolute;top:-4px;right:-4px;background:var(--danger);color:#fff;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid var(--surface)}
+.app-body{flex:1;overflow-y:auto;padding:20px 16px 100px;-webkit-overflow-scrolling:touch}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:20px;box-shadow:0 1px 2px rgba(0,0,0,.04);padding:20px;margin-bottom:16px}
+.card-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.drawer-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(4px);z-index:50;display:none}
+.drawer-overlay.on{display:block;animation:fadeIn .2s}
+.drawer{position:fixed;top:0;left:0;bottom:0;width:300px;max-width:85vw;background:var(--surface);z-index:60;transform:translateX(-100%);transition:transform .3s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;box-shadow:var(--shadow-lg)}
+.drawer.on{transform:translateX(0)}
+.drawer-head{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.drawer-avatar{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--brand),var(--purple));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px}
+.drawer-menu{flex:1;overflow-y:auto;padding:12px}
+.drawer-item{width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:none;background:none;font-family:inherit;font-size:14px;font-weight:500;color:var(--text-secondary);cursor:pointer;text-align:left;transition:var(--transition)}
+.drawer-item:hover{background:var(--surface-hover);color:var(--text)}
+.drawer-item.active{background:var(--brand-soft);color:var(--brand)}
+.drawer-item i{width:20px;text-align:center}
+.drawer-footer{padding:12px;border-top:1px solid var(--border)}
+.identity-card{background:linear-gradient(135deg,#ffffff 0%,#f8fafc 100%);border:1.5px solid var(--border);border-radius:28px;padding:22px;position:relative;overflow:hidden;margin-bottom:18px;box-shadow:0 8px 32px rgba(0,0,0,0.06)}
+.identity-card::before{content:'';position:absolute;top:-50px;right:-50px;width:150px;height:150px;background:radial-gradient(circle, rgba(37,99,235,0.08) 0%, transparent 70%);pointer-events:none}
+.identity-top{display:flex;gap:16px;align-items:flex-start}
+.identity-logo{width:72px;height:72px;border-radius:20px;object-fit:cover;background:var(--surface-hover);border:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:var(--brand)}
+.identity-info{flex:1;min-width:0}
+.identity-name{font-size:20px;font-weight:800;line-height:1.2;margin-bottom:4px}
+.identity-tagline{font-size:13px;color:var(--text-secondary);line-height:1.4;margin-bottom:10px}
+.identity-link{display:flex;align-items:center;gap:8px;background:var(--surface-hover);border:1px solid var(--border);border-radius:12px;padding:10px 12px;font-size:13px}
+.identity-link input{flex:1;border:none;background:none;font-family:inherit;font-size:13px;color:var(--text);outline:none}
+.identity-qr-section{margin-top:16px;display:flex;gap:16px;align-items:center;background:var(--surface);border:1px solid var(--border-light);border-radius:16px;padding:14px}
+.qr-box{width:100px;height:100px;border-radius:12px;background:#fff;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.qr-box img,.qr-box canvas{width:100%;height:100%;object-fit:contain}
+.qr-actions{flex:1;display:flex;flex-direction:column;gap:8px}
+.qr-title{font-size:13px;font-weight:700}
+.qr-desc{font-size:11px;color:var(--text-secondary);line-height:1.3}
+.qr-buttons{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.analytics-mini{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.mini-stat{background:linear-gradient(135deg,#ffffff 0%,#fbfdff 100%);border:1.5px solid var(--border);border-radius:20px;padding:18px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.04);position:relative;overflow:hidden;transition:var(--transition)}
+.mini-stat:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+.mini-stat-val{font-size:26px;font-weight:800;line-height:1}
+.mini-stat-label{font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-top:6px}
+.cta-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
+.cta-card{background:linear-gradient(135deg,#ffffff 0%,#fcfdff 100%);border:1.5px solid var(--border);border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:10px;cursor:pointer;transition:var(--transition);text-align:left;box-shadow:0 2px 12px rgba(0,0,0,0.03)}
+.cta-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,0.08);border-color:var(--brand)}
+.cta-card-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.cta-card-title{font-size:14px;font-weight:700}
+.cta-card-desc{font-size:11px;color:var(--text-secondary);line-height:1.3}
+.cta-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.cta-list-item{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:var(--transition)}
+.cta-list-item:hover{background:var(--surface-hover);transform:translateY(-1px)}
+.cta-list-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.upsell-banner{background:linear-gradient(135deg,var(--brand) 0%,var(--purple) 100%);color:#fff;border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer}
+.upsell-banner i{width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.install-banner{background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);color:#fff;border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer}
+.install-banner i{width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center}
+.edit-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px;-webkit-overflow-scrolling:touch}
+.edit-tab{white-space:nowrap;padding:8px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface);font-size:12px;font-weight:600;cursor:pointer;color:var(--text-secondary)}
+.edit-tab.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+.edit-content{display:none}
+.edit-content.active{display:block;animation:fadeIn .2s}
+.icon-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px}
+.icon-option{aspect-ratio:1;border:1.5px solid var(--border);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;background:var(--surface);transition:var(--transition)}
+.icon-option:hover{border-color:var(--brand);background:var(--brand-soft)}
+.icon-option.selected{border-color:var(--brand);background:var(--brand-soft);box-shadow:0 0 0 2px var(--brand-soft)}
+.icon-option i{font-size:18px}
+.icon-option span{font-size:9px;font-weight:600;line-height:1}
+.form-group{margin-bottom:14px}
+.form-group label{font-size:13px;font-weight:600;margin-bottom:6px;display:block;color:var(--text-secondary)}
+.form-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:inherit;background:var(--surface);color:var(--text);transition:var(--transition);outline:none}
+.form-input:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+.input-wrap{position:relative}
+.input-wrap .form-input{padding-right:44px}
+.pw-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:8px;border:none;background:var(--surface-hover);display:flex;align-items:center;justify-content:center;color:var(--text-tertiary);cursor:pointer}
+.auth-error{background:var(--danger-soft);color:var(--danger);padding:10px 12px;border-radius:10px;font-size:13px;display:none;margin-bottom:14px;border:1px solid #fecaca}
+.auth-error.show{display:block}
+.platform-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.platform-item{border:1.5px solid var(--border);border-radius:12px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;text-align:center}
+.platform-item.on{border-color:var(--brand);background:var(--brand-soft)}
+.platform-item i{font-size:20px;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff}
+.platform-item span{font-size:10px;font-weight:600}
+.toast-wrap{position:fixed;top:16px;right:16px;left:16px;z-index:100;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:380px;margin-left:auto}
+.toast{pointer-events:auto;background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow-lg);border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;animation:slideInRight .3s;cursor:pointer}
+.toast.success{border-left:4px solid var(--success)}
+.toast.info{border-left:4px solid var(--brand)}
+.toast.warning{border-left:4px solid var(--warning)}
+.bot-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:8px 0 max(8px, env(safe-area-inset-bottom));z-index:20}
+.bot-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px;cursor:pointer;color:var(--text-tertiary);border:none;background:none;font-family:inherit}
+.bot-item.on{color:var(--brand)}
+.bot-item i{font-size:20px}
+.bot-item span{font-size:10px;font-weight:600}
+.iframe-wrap{flex:1;display:flex;flex-direction:column;min-height:0}
+.iframe-wrap iframe{flex:1;width:100%;border:none;background:var(--bg)}
+.empty{text-align:center;padding:40px 20px;color:var(--text-secondary)}
+.empty i{font-size:32px;color:var(--text-tertiary);margin-bottom:12px;display:block}
+.modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:70;padding:16px}
+.modal-bg.on{display:flex;animation:fadeIn .2s}
+.modal-box{background:var(--surface);border-radius:20px;box-shadow:var(--shadow-lg);width:100%;max-width:480px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;animation:scaleIn .25s}
+.modal-head{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-body{flex:1;overflow-y:auto;padding:16px}
+.color-row{display:flex;gap:10px;align-items:center}
+.color-input{width:48px;height:40px;border-radius:10px;border:1px solid var(--border);padding:2px;cursor:pointer}
+.font-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.locked-overlay{position:relative}
+.locked-overlay::after{content:' Upgrade to unlock';font-family:'Font Awesome 6 Free';font-weight:900;position:absolute;inset:0;background:rgba(248,250,252,.85);backdrop-filter:blur(2px);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text-secondary);gap:6px}
+@media(min-width:700px){.cta-grid{grid-template-columns:repeat(4,1fr)}}
+</style>
 </head>
 <body>
 <div id="app">
-  <header class="app-header" id="appHeader">
-    <div class="header-brand">
-      <div class="brand-icon">M</div>
-      <span>MY.SHUB</span>
-    </div>
-    <button class="header-menu-btn" id="menuBtn" onclick="app.toggleMenu()">
-      <div class="menu-icon">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-      <span class="notif-badge" id="notifBadge"></span>
-    </button>
-  </header>
-
-  <main class="app-content" id="appContent"></main>
-
-  <nav class="app-nav" id="appNav">
-    <a href="index.html" class="nav-item" id="navHome">
-      <span class="nav-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></span>
-      <span>Home</span>
-    </a>
-    <a href="discover.html" class="nav-item" id="navDiscover">
-      <span class="nav-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
-      <span>Discover</span>
-    </a>
-    <a href="dashboard.html" class="nav-item" id="navProfile">
-      <span class="nav-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
-      <span>Profile</span>
-    </a>
-  </nav>
-
-  <div class="toast-container" id="toastContainer"></div>
+<section id="sec-landing" class="sec active" style="background:linear-gradient(135deg,#2563eb 0%,#7c3aed 50%,#2563eb 100%);color:#fff;align-items:center;justify-content:center;text-align:center;padding:32px 20px;overflow-y:auto">
+<div style="max-width:520px;width:100%">
+<div style="width:64px;height:64px;background:#fff;border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;color:#2563eb;font-weight:800">M</div>
+<h1 style="font-size:36px;font-weight:800;line-height:1.1;margin-bottom:12px">Build your business hub, get discovered, grow faster</h1>
+<p style="opacity:.9;margin-bottom:28px">One professional link for everything — socials, catalog, custom links, analytics and more.</p>
+<div style="display:flex;flex-direction:column;gap:12px;margin-bottom:32px">
+<button class="btn btn-primary btn-lg btn-block" style="background:#fff;color:#2563eb" onclick="showAuth('register')">Get Started Free</button>
+<button class="btn btn-lg btn-block" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.25)" onclick="showAuth('login')">Sign In</button>
 </div>
-
+</div>
+</section>
+<section id="sec-login" class="sec">
+<div style="flex:1;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--bg);overflow-y:auto">
+<div class="card" style="max-width:420px;width:100%">
+<div style="width:48px;height:48px;background:var(--brand);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:#fff;font-weight:800;font-size:20px">M</div>
+<h2 style="font-size:22px;font-weight:700;text-align:center;margin-bottom:6px">Welcome back</h2>
+<p style="font-size:13px;color:var(--text-secondary);text-align:center;margin-bottom:20px">Sign in to manage your hub</p>
+<div id="loginError" style="display:none;background:var(--danger-soft);color:var(--danger);padding:10px;border-radius:10px;font-size:13px;margin-bottom:14px"></div>
+<div class="form-group"><label>Email</label><input id="loginEmail" class="form-input" type="email" placeholder="you@business.com"></div>
+<div class="form-group"><label>Password</label><div class="input-wrap"><input id="loginPassword" class="form-input" type="password" placeholder="••••••••"><button type="button" class="pw-toggle" onclick="togglePw('loginPassword', this)"><i class="fa-solid fa-eye"></i></button></div></div>
+<button id="loginBtn" class="btn btn-primary btn-block btn-lg" onclick="doLogin()">Sign In</button>
+<div style="font-size:13px;text-align:center;margin-top:16px;color:var(--text-secondary)">No account? <a onclick="showAuth('register')" style="color:var(--brand);font-weight:600;cursor:pointer">Create free account</a></div>
+<div style="font-size:13px;text-align:center;margin-top:8px"><a onclick="showAuth('landing')" style="color:var(--text-tertiary);cursor:pointer">Back to home</a></div>
+</div>
+</div>
+</section>
+<section id="sec-register" class="sec">
+<div style="flex:1;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--bg);overflow-y:auto">
+<div class="card" style="max-width:480px;width:100%">
+<h2 style="font-size:20px;font-weight:800;text-align:center;margin-bottom:16px">Create your hub</h2>
+<div id="registerError" style="display:none;background:var(--danger-soft);color:var(--danger);padding:10px;border-radius:10px;font-size:13px;margin-bottom:14px"></div>
+<div class="form-group"><label>Business Name *</label><input id="regBusiness" class="form-input" placeholder="Emel's Fashion"></div>
+<div class="form-group"><label>Email *</label><input id="regEmail" class="form-input" type="email" placeholder="you@business.com"></div>
+<div class="form-group"><label>Preferred Link *</label><input id="regSlug" class="form-input" placeholder="emelsfashion"></div>
+<div class="form-group"><label>Password *</label><div class="input-wrap"><input id="regPassword" class="form-input" type="password" placeholder="Min 6 characters"><button type="button" class="pw-toggle" onclick="togglePw('regPassword', this)"><i class="fa-solid fa-eye"></i></button></div></div>
+<div class="form-group"><label>Phone</label><input id="regPhone" class="form-input" placeholder="+234..."></div>
+<div class="form-group"><label>Category</label><select id="regCategory" class="form-input"><option value="">Select category</option><option>Fashion</option><option>Beauty</option><option>Food</option><option>Tech</option><option>Education</option><option>Services</option><option>Retail</option><option>Other</option></select></div>
+<button id="registerBtn" class="btn btn-primary btn-block btn-lg" onclick="doRegister()">Create Account</button>
+<div style="font-size:13px;text-align:center;margin-top:16px;color:var(--text-secondary)">Already have account? <a onclick="showAuth('login')" style="color:var(--brand);font-weight:600;cursor:pointer">Sign in</a></div>
+</div>
+</div>
+</section>
+<section id="sec-recover" class="sec">
+<div style="flex:1;display:flex;align-items:center;justify-content:center;padding:20px">
+<div class="card" style="max-width:420px;width:100%">
+<h2 style="font-size:20px;font-weight:800;text-align:center;margin-bottom:16px">Reset password</h2>
+<div id="recoverError" style="display:none;background:var(--danger-soft);color:var(--danger);padding:10px;border-radius:10px;font-size:13px;margin-bottom:14px"></div>
+<div id="recoverStep1"><div class="form-group"><label>Email</label><input id="recoverEmail" class="form-input" type="email"></div><button class="btn btn-primary btn-block" onclick="fetchRecoveryQuestions()">Get Security Questions</button></div>
+<div id="recoverStep2" style="display:none"><div id="recoverQuestionsBox"></div><div class="form-group"><label>New Password</label><div class="input-wrap"><input id="recoverNewPw" class="form-input" type="password" placeholder="New password"><button type="button" class="pw-toggle" onclick="togglePw('recoverNewPw', this)"><i class="fa-solid fa-eye"></i></button></div></div><button class="btn btn-primary btn-block" onclick="submitRecovery()">Reset Password</button></div>
+<div style="text-align:center;margin-top:12px"><a onclick="showAuth('login')" style="font-size:13px;color:var(--text-secondary);cursor:pointer">Back to login</a></div>
+</div>
+</div>
+</section>
+<section id="sec-app" class="sec">
+<header id="appHead" class="app-head">
+<div class="head-left">
+<button class="hamburger" onclick="openDrawer()"><i class="fa-solid fa-bars"></i></button>
+<div class="head-brand"><div class="head-brand-icon">M</div><span>MyShub</span></div>
+</div>
+<div class="head-actions">
+<button class="icon-btn" onclick="go('notifications')"><i class="fa-regular fa-bell"></i><span id="notifBadge" class="badge" style="display:none">0</span></button>
+<button class="icon-btn" onclick="go('upgrade')" style="color:var(--warning)"><i class="fa-solid fa-crown"></i></button>
+</div>
+</header>
+<div id="drawerOverlay" class="drawer-overlay" onclick="closeDrawer()"></div>
+<div id="drawer" class="drawer">
+<div class="drawer-head">
+<div id="drawerAvatar" class="drawer-avatar">M</div>
+<div style="flex:1;min-width:0"><div id="drawerName" style="font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">My Shop</div><div id="drawerPlan" style="font-size:11px;color:var(--text-secondary);text-transform:uppercase">Free plan</div></div>
+<button class="icon-btn" style="width:32px;height:32px" onclick="closeDrawer()"><i class="fa-solid fa-xmark"></i></button>
+</div>
+<div class="drawer-menu">
+<button class="drawer-item active" data-page="overview" onclick="go('overview');closeDrawer()"><i class="fa-solid fa-house"></i> Home Dashboard</button>
+<button class="drawer-item" data-page="preview" onclick="go('preview');closeDrawer()"><i class="fa-solid fa-eye"></i> Shop Preview</button>
+<button class="drawer-item" data-page="edit" onclick="go('edit');closeDrawer()"><i class="fa-solid fa-pen"></i> Edit Shop</button>
+<button class="drawer-item" data-page="analytics" onclick="go('analytics');closeDrawer()"><i class="fa-solid fa-chart-line"></i> Analytics</button>
+<button class="drawer-item" data-page="upgrade" onclick="go('upgrade');closeDrawer()"><i class="fa-solid fa-crown"></i> Upgrade Plan</button>
+<button class="drawer-item" data-page="discover" onclick="go('discover');closeDrawer()"><i class="fa-solid fa-compass"></i> Discover</button>
+<button class="drawer-item" data-page="referrals" onclick="go('referrals');closeDrawer()"><i class="fa-solid fa-gift"></i> Referrals</button>
+<button class="drawer-item" data-page="settings" onclick="go('settings');closeDrawer()"><i class="fa-solid fa-gear"></i> Settings</button>
+<div style="height:1px;background:var(--border);margin:12px 0"></div>
+<button class="drawer-item" onclick="window.open('https://myshub.site/','_blank')"><i class="fa-solid fa-bolt"></i> What's New</button>
+<button class="drawer-item" onclick="window.open('https://myshub.site/install.html','_blank')"><i class="fa-solid fa-download"></i> Install App</button>
+</div>
+<div class="drawer-footer">
+<button class="drawer-item" onclick="doLogout()" style="color:var(--danger)"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+</div>
+</div>
+<div id="appBody" class="app-body">
+<div id="page-overview" class="page on"></div>
+<div id="page-preview" class="page"></div>
+<div id="page-edit" class="page"></div>
+<div id="page-analytics" class="page"></div>
+<div id="page-discover" class="page"><div class="iframe-wrap"><iframe id="discoverFrame" src="https://myshub.site/discover.html" title="Discover"></iframe></div></div>
+<div id="page-upgrade" class="page"></div>
+<div id="page-referrals" class="page"></div>
+<div id="page-settings" class="page"></div>
+<div id="page-notifications" class="page"></div>
+<div id="page-profile" class="page"></div>
+</div>
+<nav id="bottomNav" class="bot-nav">
+<button class="bot-item on" data-page="overview" onclick="go('overview')"><i class="fa-solid fa-house"></i><span>Home</span></button>
+<button class="bot-item" data-page="discover" onclick="go('discover')"><i class="fa-solid fa-compass"></i><span>Discover</span></button>
+<button class="bot-item" data-page="preview" onclick="go('preview')"><i class="fa-solid fa-eye"></i><span>Preview</span></button>
+<button class="bot-item" data-page="settings" onclick="go('settings')"><i class="fa-solid fa-gear"></i><span>Settings</span></button>
+</nav>
+</section>
+<div id="platformModal" class="modal-bg" onclick="if(event.target===this) closePlatformModal()"><div class="modal-box"><div class="modal-head"><h3 id="platformModalTitle">Add Platform</h3><button class="icon-btn" style="width:32px;height:32px" onclick="closePlatformModal()"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><div style="position:relative;margin-bottom:12px"><i class="fa-solid fa-magnifying-glass" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-tertiary);font-size:13px"></i><input id="platformSearch" class="form-input" placeholder="Search platforms..." style="padding-left:34px" oninput="filterPlatforms()"></div><div id="platformGrid" class="platform-grid"></div><div id="platformInputGroup" style="display:none;margin-top:14px;padding:12px;background:var(--surface-hover);border:1px solid var(--border);border-radius:12px"><label id="platformInputLabel" style="font-size:13px;font-weight:600;display:block;margin-bottom:6px"></label><input id="platformUsername" class="form-input" placeholder="yourusername"><div id="platformHint" style="font-size:11px;color:var(--text-secondary);margin-top:6px"></div><button class="btn btn-primary btn-block" style="margin-top:10px" onclick="confirmPlatform()">Add Platform</button></div></div></div></div>
+<div id="iconPickerModal" class="modal-bg" onclick="if(event.target===this) closeIconPicker()"><div class="modal-box"><div class="modal-head"><h3>Choose Icon</h3><button class="icon-btn" style="width:32px;height:32px" onclick="closeIconPicker()"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><div id="iconGrid" class="icon-grid"></div><div id="premiumEmojiBox" style="display:none;margin-top:14px;padding:12px;background:var(--surface-hover);border-radius:12px"><label style="font-size:12px;font-weight:600">Premium: Use emoji instead</label><input id="emojiInput" class="form-input" placeholder="Paste an emoji e.g. 🔥" style="margin-top:6px"><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="confirmEmoji()">Use Emoji</button><div style="font-size:10px;color:var(--text-secondary);margin-top:6px">Only Premium can use emojis</div></div></div></div></div>
+<div id="qrModal" class="modal-bg" onclick="if(event.target===this) closeQrModal()"><div class="modal-box" style="text-align:center"><div class="modal-head"><h3>Your Shop QR</h3><button class="icon-btn" style="width:32px;height:32px" onclick="closeQrModal()"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><div id="qrModalImg" style="width:220px;height:220px;margin:0 auto 16px;background:#fff;border-radius:16px;padding:10px;border:1px solid var(--border)"></div><div id="qrModalInfo" style="font-size:13px;color:var(--text-secondary);margin-bottom:16px"></div><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button class="btn btn-primary btn-sm" onclick="downloadQr()"><i class="fa-solid fa-download"></i> Download QR</button><button class="btn btn-ghost btn-sm" onclick="downloadBusinessCard()"><i class="fa-solid fa-id-card"></i> Business Card</button><button class="btn btn-ghost btn-sm" onclick="downloadVCard()"><i class="fa-solid fa-address-card"></i> vCard</button></div></div></div></div>
+<div id="toastWrap" class="toast-wrap"></div>
+</div>
 <script>
-const API_BASE = 'https://emltechstudio-myshub-api.hf.space';
-
-const app = {
-  currentScreen: null,
-  user: null,
-
-  init() {
-    this.checkAuth();
-    this.setActiveNav();
-    const hash = window.location.hash.slice(1) || 'discover';
-    this.loadScreen(hash);
-  },
-
-  checkAuth() {
-    const userData = localStorage.getItem('myshub_user');
-    if (userData) {
-      this.user = JSON.parse(userData);
-    }
-  },
-
-  isLoggedIn() {
-    return this.user !== null;
-  },
-
-  setActiveNav() {
-    const path = window.location.pathname.split('/').pop();
-    document.querySelectorAll('.nav-item').forEach(function(item) { item.classList.remove('active'); });
-    if (path.includes('index') || path === '' || path === 'app.html') {
-      var el = document.getElementById('navHome');
-      if (el) el.classList.add('active');
-    } else if (path.includes('discover')) {
-      var el = document.getElementById('navDiscover');
-      if (el) el.classList.add('active');
-    } else if (path.includes('dashboard') || path.includes('profile')) {
-      var el = document.getElementById('navProfile');
-      if (el) el.classList.add('active');
-    }
-  },
-
-  async loadScreen(screenName, options) {
-    const content = document.getElementById('appContent');
-    content.innerHTML = '<div class="screen" style="padding:40px"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text"></div></div>';
-    try {
-      const response = await fetch(screenName + '.html');
-      if (!response.ok) throw new Error('Screen not found');
-      const html = await response.text();
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-      const screenContent = doc.querySelector('.screen') || doc.body;
-      const current = content.querySelector('.screen');
-      if (current) {
-        current.style.animation = 'screenOut 0.2s ease forwards';
-        await new Promise(function(r) { setTimeout(r, 200); });
-      }
-      content.innerHTML = '';
-      content.appendChild(screenContent.cloneNode(true));
-      const scripts = screenContent.querySelectorAll('script');
-      scripts.forEach(function(script) {
-        const newScript = document.createElement('script');
-        newScript.textContent = script.textContent;
-        document.body.appendChild(newScript);
-        newScript.remove();
-      });
-      this.currentScreen = screenName;
-      window.history.replaceState(null, null, '#' + screenName);
-    } catch (err) {
-      content.innerHTML = '<div class="screen empty-state"><div class="empty-state-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg></div><div class="empty-state-title">Screen not found</div><div class="empty-state-desc">Could not load ' + screenName + '</div></div>';
-    }
-  },
-
-  toggleMenu() {
-    this.showToast('Menu coming soon', 'info');
-  },
-
-  showToast(message, type) {
-    const container = document.getElementById('toastContainer');
-    const toast = document.createElement('div');
-    toast.className = 'toast ' + (type || 'info');
-    toast.textContent = message;
-    container.appendChild(toast);
-    setTimeout(function() { toast.remove(); }, 3000);
-  },
-
-  async api(endpoint, options) {
-    const url = API_BASE + endpoint;
-    const defaults = { headers: { 'Content-Type': 'application/json' } };
-    if (this.user) {
-      defaults.headers['Email'] = this.user.email;
-      defaults.headers['Password'] = this.user.password;
-    }
-    const merged = Object.assign({}, defaults, options || {});
-    const response = await fetch(url, merged);
-    const data = await response.json().catch(function() { return null; });
-    return { ok: response.ok, status: response.status, data: data };
-  },
-
-  setUser(userData) {
-    this.user = userData;
-    localStorage.setItem('myshub_user', JSON.stringify(userData));
-  },
-
-  logout() {
-    this.user = null;
-    localStorage.removeItem('myshub_user');
-    window.location.href = 'login.html';
-  }
-};
-
-document.addEventListener('DOMContentLoaded', function() { app.init(); });
-
-document.querySelectorAll('.nav-item').forEach(function(item) {
-  item.addEventListener('click', function(e) {
-    e.preventDefault();
-    const href = item.getAttribute('href');
-    const screen = href.replace('.html', '');
-    app.loadScreen(screen);
-    document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
-    item.classList.add('active');
-  });
-});
+const API='https://emltechstudio-myshub-api.hf.space';
+const APP_URL='https://myshub.site';
+let S={email:'',password:'',slug:'',plan:'free',shopData:null,shopJson:null,notifications:[],unreadCount:0,currentPage:'overview',editSocials:{},editLinks:[],logoBase64:null,recoveryEmail:'',recoveryQuestions:[],_tempLogoUrl:null,_pendingQrUrl:null,regStep:1,selectedPlatform:null,platformMode:'all',editTab:'info',editingLinkIndex:-1,qrDataUrl:''};
+const ALL_PLATFORMS=[
+{name:'Facebook',icon:'fa-brands fa-facebook',category:'social',urlTemplate:'https://facebook.com/{username}',color:'#1877F2'},
+{name:'Instagram',icon:'fa-brands fa-instagram',category:'social',urlTemplate:'https://instagram.com/{username}',color:'#E4405F'},
+{name:'TikTok',icon:'fa-brands fa-tiktok',category:'social',urlTemplate:'https://tiktok.com/@{username}',color:'#000'},
+{name:'X',icon:'fa-brands fa-x-twitter',category:'social',urlTemplate:'https://x.com/{username}',color:'#000'},
+{name:'YouTube',icon:'fa-brands fa-youtube',category:'social',urlTemplate:'https://youtube.com/@{username}',color:'#FF0000'},
+{name:'LinkedIn',icon:'fa-brands fa-linkedin',category:'social',urlTemplate:'https://linkedin.com/in/{username}',color:'#0A66C2'},
+{name:'WhatsApp',icon:'fa-brands fa-whatsapp',category:'messaging',urlTemplate:'https://wa.me/{username}',color:'#25D366'},
+{name:'Telegram',icon:'fa-brands fa-telegram',category:'messaging',urlTemplate:'https://t.me/{username}',color:'#26A5E4'},
+{name:'Selar',icon:'fa-solid fa-bag-shopping',category:'social',urlTemplate:'https://selar.co/{username}',color:'#5a0fc8'},
+{name:'Spotify',icon:'fa-brands fa-spotify',category:'social',urlTemplate:'https://open.spotify.com/user/{username}',color:'#1DB954'},
+];
+const FREE_ICONS=['link','globe','star','heart','arrow-right'];
+const PRO_ICONS=[...FREE_ICONS,'calendar-check','users','download','circle-play','boxes-stacked','phone','envelope','location-dot','tag','gift'];
+const PREMIUM_ICONS=[...PRO_ICONS,'bag-shopping','cart-shopping','store','camera','video','music','book','graduation-cap','utensils','car','house','building','rocket','fire','crown','gem','bolt','heart-pulse','face-smile','handshake','lightbulb','wand-magic-sparkles','palette','paintbrush','laptop','mobile-screen','headset','truck','credit-card','dollar-sign','qrcode','share-nodes','paper-plane'];
+const PLAN_LIMITS={free:{platforms:5,custom_links:2,branding:false,fonts:false,gradients:false,emoji:false},pro:{platforms:10,custom_links:5,branding:true,fonts:true,gradients:false,emoji:false},premium:{platforms:999,custom_links:999,branding:true,fonts:true,gradients:true,emoji:true}};
+function $(id){return document.getElementById(id)}
+function escapeHtml(s){if(!s)return'';return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function fmt(n){n=Number(n)||0;if(n>=1000000)return (n/1000000).toFixed(1).replace(/\.0$/,'')+'M';if(n>=1000)return (n/1000).toFixed(1).replace(/\.0$/,'')+'K';return String(n)}
+function ago(d){if(!d)return'';const date=new Date(d);const diff=Math.floor((Date.now()-date)/1000);if(diff<60)return'Just now';if(diff<3600)return Math.floor(diff/60)+'m ago';if(diff<86400)return Math.floor(diff/3600)+'h ago';return date.toLocaleDateString()}
+function copyText(t){navigator.clipboard.writeText(t).then(()=>toast('Copied','success')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('Copied','success')})}
+function toast(msg,type='info'){const w=$('toastWrap');if(!w)return;const d=document.createElement('div');d.className='toast '+type;d.innerHTML=`<i class="fa-solid ${type==='success'?'fa-circle-check':type==='error'?'fa-circle-xmark':type==='warning'?'fa-triangle-exclamation':'fa-circle-info'}" style="margin-top:2px"></i><div style="flex:1"><div style="font-size:13px;line-height:1.3">${escapeHtml(msg)}</div></div>`;d.onclick=()=>d.remove();w.appendChild(d);setTimeout(()=>{d.style.opacity='0';d.style.transform='translateX(20px)';setTimeout(()=>d.remove(),300)},4500)}
+function togglePw(id, btn){
+  const inp=document.getElementById(id);
+  if(!inp)return;
+  const isPw=inp.type==='password';
+  inp.type=isPw?'text':'password';
+  if(btn){const ic=btn.querySelector('i');if(ic)ic.className=isPw?'fa-solid fa-eye-slash':'fa-solid fa-eye';}
+}
+async function safeJson(r){try{const t=await r.text();try{return JSON.parse(t)}catch{return{detail:t}}}catch{return{detail:'Network error'}}}
+async function apiPub(e,m='GET',b=null){const o={method:m,headers:{'Content-Type':'application/json'}};if(b)o.body=JSON.stringify(b);const r=await fetch(API+e,o);const d=await safeJson(r);if(!r.ok)throw new Error(d.detail||d.message||'Request failed');return d}
+async function api(e,m='GET',b=null,eh={}){const h={'Content-Type':'application/json','email':S.email||'','password':S.password||'',...eh};const o={method:m,headers:h};if(b&&!(b instanceof FormData))o.body=JSON.stringify(b);else if(b instanceof FormData){delete o.headers['Content-Type'];o.body=b}const r=await fetch(API+e,o);const d=await safeJson(r);if(!r.ok)throw new Error(d.detail||d.message||JSON.stringify(d));return d}
+async function apiUploadLogo(file){const fd=new FormData();fd.append('file',file);const r=await fetch(API+'/shop/upload-logo',{method:'POST',headers:{'email':S.email,'password':S.password},body:fd});const d=await safeJson(r);if(!r.ok)throw new Error(d.detail||'Upload failed');return d}
+function showAuth(t){document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));if(t==='landing')$('sec-landing').classList.add('active');else if(t==='login')$('sec-login').classList.add('active');else if(t==='register')$('sec-register').classList.add('active');else if(t==='recover')$('sec-recover').classList.add('active')}
+async function doLogin(){const email=$('loginEmail').value.trim(),pw=$('loginPassword').value,err=$('loginError');err.style.display='none';if(!email||!pw){err.textContent='Email and password required';err.style.display='block';return}const btn=$('loginBtn');btn.disabled=true;btn.textContent='Signing in...';try{const data=await apiPub('/auth/login','POST',{email,password:pw});S.email=email;S.password=pw;S.slug=data.slug||'';S.plan=data.plan||'free';localStorage.setItem('myshub_session',JSON.stringify({email,password:pw,slug:S.slug,plan:S.plan}));toast('Welcome back!','success');await enterApp()}catch(e){err.textContent=e.message;err.style.display='block'}finally{btn.disabled=false;btn.textContent='Sign In'}}
+async function doRegister(){const err=$('registerError');err.style.display='none';const body={email:$('regEmail').value.trim(),password:$('regPassword').value.trim(),business_name:$('regBusiness').value.trim(),phone:$('regPhone').value.trim(),country:'',preferred_slug:$('regSlug').value.trim().toLowerCase()||$('regBusiness').value.trim().toLowerCase().replace(/\s+/g,''),category:$('regCategory').value,security_questions:[{question:'What is your business name?',answer:$('regBusiness').value.trim()}]};if(!body.email||!body.password||!body.business_name){err.textContent='Fill all required fields';err.style.display='block';return}const btn=$('registerBtn');btn.disabled=true;btn.textContent='Creating...';try{await apiPub('/auth/register','POST',body);toast('Account created! Sign in now','success');showAuth('login');$('loginEmail').value=body.email}catch(e){err.textContent=e.message;err.style.display='block'}finally{btn.disabled=false;btn.textContent='Create Account'}}
+async function fetchRecoveryQuestions(){const email=$('recoverEmail').value.trim();if(!email)return;try{const data=await apiPub('/auth/security-questions?email='+encodeURIComponent(email));S.recoveryEmail=email;S.recoveryQuestions=data.questions||[];$('recoverQuestionsBox').innerHTML=S.recoveryQuestions.map((q,i)=>`<div class="form-group"><label>${escapeHtml(typeof q==='string'?q:q.question)}</label><input id="recAns${i}" class="form-input" placeholder="Your answer"></div>`).join('');$('recoverStep1').style.display='none';$('recoverStep2').style.display='block'}catch(e){$('recoverError').textContent=e.message;$('recoverError').style.display='block'}}
+async function submitRecovery(){const newPw=$('recoverNewPw').value;const ans=$('recAns0')?.value||'';try{await apiPub('/auth/reset-password','POST',{email:S.recoveryEmail,security_question:S.recoveryQuestions[0],security_answer:ans,new_password:newPw});toast('Password reset! Please login','success');showAuth('login')}catch(e){$('recoverError').textContent=e.message;$('recoverError').style.display='block'}}
+async function enterApp(){document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));$('sec-app').classList.add('active');await loadShop();await loadNotifications();go('overview')}
+function getShopJson(){return S.shopData?.shop_json||S.shopData||{}}
+async function loadShop(){if(!S.slug)return;try{const d=await api('/shop/preview/'+encodeURIComponent(S.slug),'GET');S.shopData=d;S.shopJson=d.shop_json||d;S.plan=d.plan||S.plan;S.editSocials={...(S.shopJson.socials||{})};S.editLinks=[...(S.shopJson.custom_links||[])].map(l=>({title:l.title||'',url:l.url||'',icon:l.icon||'link'}));await ensureQr();showTeaserToasts()}catch(e){try{const d=await apiPub('/shop/preview/'+encodeURIComponent(S.slug)+'?email='+encodeURIComponent(S.email)+'&password='+encodeURIComponent(S.password),'GET');S.shopData=d;S.shopJson=d.shop_json||d;S.editSocials={...(S.shopJson.socials||{})};S.editLinks=[...(S.shopJson.custom_links||[])].map(l=>({title:l.title||'',url:l.url||'',icon:l.icon||'link'}));await ensureQr();showTeaserToasts()}catch{}}}
+async function loadNotifications(){try{const d=await api('/notifications/','GET');S.notifications=d.notifications||[];S.unreadCount=d.unread||0;updateNotifBadge()}catch{}}
+function updateNotifBadge(){const b=$('notifBadge');if(!b)return;if(S.unreadCount>0){b.textContent=S.unreadCount>9?'9+':S.unreadCount;b.style.display='flex'}else b.style.display='none'}
+function openDrawer(){$('drawerOverlay').classList.add('on');$('drawer').classList.add('on')}
+function closeDrawer(){$('drawerOverlay').classList.remove('on');$('drawer').classList.remove('on')}
+function go(page){S.currentPage=page;document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));const t=$('page-'+page);if(t)t.classList.add('on');document.querySelectorAll('.bot-item').forEach(b=>b.classList.toggle('on',b.dataset.page===page));document.querySelectorAll('.drawer-item').forEach(b=>b.classList.toggle('active',b.dataset.page===page));const appHead=$('appHead'),appBody=$('appBody'),bottomNav=$('bottomNav');if(bottomNav)bottomNav.style.display=['overview','discover','preview','settings'].includes(page)?'flex':'none';if(appHead){if(page==='discover'||page==='preview'){appHead.style.display='none';if(appBody)appBody.style.padding='0 0 80px 0'}else{appHead.style.display='flex';if(appBody)appBody.style.padding='20px 16px 100px'}}if(appBody&&page!=='discover'&&page!=='preview')appBody.scrollTop=0;const map={overview:renderOverview,preview:renderPreview,edit:renderEdit,analytics:renderAnalytics,discover:renderDiscover,upgrade:renderUpgrade,referrals:renderReferrals,settings:renderSettings,notifications:renderNotifications,profile:renderProfile};if(map[page])map[page]()}
+async function generateQRDataURL(text,size=260){return new Promise(res=>{const div=document.createElement('div');div.style.position='fixed';div.style.left='-9999px';document.body.appendChild(div);try{new QRCode(div,{text,width:size,height:size,correctLevel:QRCode.CorrectLevel.H});setTimeout(()=>{const canvas=div.querySelector('canvas');let url='';if(canvas)url=canvas.toDataURL('image/png');else{const img=div.querySelector('img');if(img)url=img.src}document.body.removeChild(div);res(url||'')},300)}catch{div.remove();res('')}})}
+async function ensureQr(){const sj=getShopJson();const existing=sj.qr_code_url||'';const lsKey='myshub_qr_'+S.slug;const ls=localStorage.getItem(lsKey);if(existing){S.qrDataUrl=existing;return}if(ls){S.qrDataUrl=ls;S._pendingQrUrl=ls;return}const shopUrl=`${APP_URL}/${S.slug}`;const dataUrl=await generateQRDataURL(shopUrl,260);if(dataUrl){S.qrDataUrl=dataUrl;localStorage.setItem(lsKey,dataUrl);S._pendingQrUrl=dataUrl}}
+function generateVCardString(){const sj=getShopJson();const name=sj.business_name||S.slug;const phone=sj.phone||'';const email=S.email||'';const url=`${APP_URL}/${S.slug}`;const tagline=sj.tagline||'';return `BEGIN:VCARD
+VERSION:3.0
+FN:${name}
+ORG:${name}
+TEL:${phone}
+EMAIL:${email}
+URL:${url}
+NOTE:${tagline} - ${url}
+END:VCARD`}
+function downloadTextFile(content,filename,mime){const blob=new Blob([content],{type:mime});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url)}
+function downloadDataUrl(dataUrl,filename){const a=document.createElement('a');a.href=dataUrl;a.download=filename;a.click()}
+async function generateBusinessCardDataUrl(){
+  const sj=getShopJson();
+  const canvas=document.createElement('canvas');
+  canvas.width=1200;canvas.height=675;
+  const ctx=canvas.getContext('2d');
+  const grad=ctx.createLinearGradient(0,0,canvas.width,0);
+  grad.addColorStop(0,'#ffffff');
+  grad.addColorStop(1,'#f8fafc');
+  ctx.fillStyle=grad;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#2563eb';
+  ctx.fillRect(0,0,canvas.width,10);
+  ctx.fillStyle='rgba(37,99,235,0.06)';
+  ctx.beginPath();
+  ctx.arc(150,150,120,0,Math.PI*2);
+  ctx.fill();
+  ctx.fillStyle='#0f172a';
+  ctx.font='800 48px Inter';
+  ctx.fillText((sj.business_name||S.slug||'My Shop').substring(0,28),50,90);
+  ctx.fillStyle='#475569';
+  ctx.font='500 22px Inter';
+  ctx.fillText((sj.tagline||'Welcome to my business hub').substring(0,48),50,130);
+  ctx.fillStyle='#0f172a';
+  ctx.font='600 20px Inter';
+  ctx.fillText((sj.phone||'')+'  '+(S.email||''),50,180);
+  ctx.fillStyle='#2563eb';
+  ctx.font='600 22px Inter';
+  ctx.fillText(`${APP_URL}/${S.slug}`,50,220);
+  ctx.fillStyle='#e2e8f0';
+  ctx.fillRect(50,260,400,1);
+  ctx.fillStyle='#94a3b8';
+  ctx.font='500 16px Inter';
+  ctx.fillText('Scan QR to visit • Professional hub',50,290);
+  const qrImg=new Image();
+  qrImg.src=S.qrDataUrl||'';
+  await new Promise(r=>{qrImg.onload=r;qrImg.onerror=r;setTimeout(r,1200)});
+  try{
+    ctx.fillStyle='#ffffff';
+    ctx.shadowColor='rgba(0,0,0,0.08)';
+    ctx.shadowBlur=20;
+    ctx.fillRect(canvas.width-320,40,270,270);
+    ctx.shadowBlur=0;
+    ctx.drawImage(qrImg,canvas.width-305,55,240,240);
+  }catch{}
+  ctx.fillStyle='#64748b';
+  ctx.font='600 14px Inter';
+  ctx.textAlign='center';
+  ctx.fillText('SCAN ME',canvas.width-185,320);
+  ctx.textAlign='left';
+  return canvas.toDataURL('image/png');
+}
+function openQrModal(){const sj=getShopJson();const info=`<b>${escapeHtml(sj.business_name||S.slug)}</b><br>${escapeHtml(sj.tagline||'')}<br><span style="font-size:12px">${APP_URL}/${S.slug}</span>`;$('qrModalInfo').innerHTML=info;const holder=$('qrModalImg');holder.innerHTML='';if(S.qrDataUrl){const img=document.createElement('img');img.src=S.qrDataUrl;img.style.width='100%';img.style.height='100%';img.style.objectFit='contain';holder.appendChild(img)}else{holder.textContent='Generating...';ensureQr().then(()=>{holder.innerHTML='';const img=document.createElement('img');img.src=S.qrDataUrl;img.style.width='100%';img.style.objectFit='contain';holder.appendChild(img)})}$('qrModal').classList.add('on')}
+function closeQrModal(){$('qrModal').classList.remove('on')}
+function downloadQr(){if(!S.qrDataUrl){toast('QR not ready yet','warning');return}downloadDataUrl(S.qrDataUrl,`qr-${S.slug||'shop'}.png`);toast('QR downloaded','success')}
+async function downloadBusinessCard(){if(!S.qrDataUrl){await ensureQr()}toast('Generating beautiful business card...','info');try{const url=await generateBusinessCardDataUrl();downloadDataUrl(url,`business-card-${S.slug||'shop'}.png`);toast('Business card downloaded','success')}catch(e){toast('Failed: '+e.message,'error')}}
+function downloadVCard(){try{const vcf=generateVCardString();if(!vcf||!vcf.includes('BEGIN:VCARD')){toast('Generate QR first','warning');return}downloadTextFile(vcf,`${S.slug||'contact'}.vcf`,'text/vcard');toast('vCard downloaded','success')}catch(e){toast('vCard failed: '+e.message,'error')}}
+function showTeaserToasts(){const sj=getShopJson();const a=sj.analytics||{};const plan=S.plan||'free';if(!a||Object.keys(a).length===0)return;const countries=Object.keys(a.countries||{});const socials=a.clicks?.socials||{};const custom=a.clicks?.custom_links||{};const referrers=Object.keys(a.referrers||{});if(countries.length>1&&plan!=='premium'){setTimeout(()=>{toast(`You've got visitors from ${countries.length} countries — upgrade to see more`,'info');S.notifications.unshift({id:'teaser-c',title:'🌍 Global reach',message:`You've got visitors from ${countries.length} countries — upgrade to see more`,created_at:new Date().toISOString(),read:false}) ;updateNotifBadge()},900)}const topSocial=Object.entries(socials).sort((x,y)=>y[1]-x[1])[0];if(topSocial&&plan==='free'){setTimeout(()=>{toast(`${topSocial[0]} got more clicks — upgrade to see details`,'info')},1700)}const topLink=Object.entries(custom).sort((x,y)=>y[1]-x[1])[0];if(topLink){setTimeout(()=>{toast(`Visitors are clicking ${topLink[0]} — upgrade to see details`,'info')},2500)}if(referrers.length>0&&plan==='free'){setTimeout(()=>{toast(`Visitors coming from ${referrers[0]} — upgrade to see more sources`,'info')},3300)}}
+function renderOverview(){const el=$('page-overview');if(!el)return;const sj=getShopJson();const a=sj.analytics||{};const total=a.visit_count||S.shopData?.visit_count||0;const today=a.daily_visits?Object.values(a.daily_visits).slice(-1)[0]||0:0;const plan=S.plan||'free';const shopUrl=`${APP_URL}/${S.slug}`;const logo=sj.logo_url||'';el.innerHTML=`
+<div class="identity-card">
+<div class="identity-top">
+${logo?`<img src="${logo}" class="identity-logo">`:`<div class="identity-logo">${escapeHtml((sj.business_name||S.slug||'M').charAt(0).toUpperCase())}</div>`}
+<div class="identity-info">
+<div class="identity-name">${escapeHtml(sj.business_name||S.slug)} ${plan!=='free'?`<span style="background:linear-gradient(135deg,#2563eb,#8b5cf6);color:#fff;padding:2px 8px;border-radius:20px;font-size:10px;margin-left:6px;vertical-align:middle">${plan.toUpperCase()}</span>`:''}</div>
+<div class="identity-tagline">${escapeHtml(sj.tagline||'Welcome to my business hub')}</div>
+<div class="identity-link"><input value="${shopUrl}" readonly id="shopLinkInput"><button class="btn btn-ghost btn-sm" onclick="copyText('${shopUrl}')"><i class="fa-regular fa-copy"></i> Copy</button></div>
+</div>
+</div>
+<div class="identity-qr-section">
+<div class="qr-box" onclick="openQrModal()">${S.qrDataUrl?`<img src="${S.qrDataUrl}">`:'<i class="fa-solid fa-qrcode" style="font-size:28px;color:var(--text-tertiary)"></i>'}</div>
+<div class="qr-actions">
+<div class="qr-title">Your Shop QR — one-time generated</div>
+<div class="qr-desc">Contains your shop link, name and essential info. When scanned it opens your beautiful shop page. Share as business card or vCard.</div>
+<div class="qr-buttons">
+<button class="btn btn-primary btn-sm" onclick="openQrModal()"><i class="fa-solid fa-qrcode"></i> View QR</button>
+<button class="btn btn-ghost btn-sm" onclick="downloadBusinessCard()"><i class="fa-solid fa-id-card"></i> Business Card</button>
+<button class="btn btn-ghost btn-sm" onclick="downloadVCard()"><i class="fa-solid fa-address-card"></i> vCard</button>
+</div>
+</div>
+</div>
+</div>
+<div class="analytics-mini">
+<div class="mini-stat"><div style="width:36px;height:36px;border-radius:10px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;margin:0 auto 8px"><i class="fa-solid fa-eye"></i></div><div class="mini-stat-val">${fmt(total)}</div><div class="mini-stat-label">Total visits</div></div>
+<div class="mini-stat"><div style="width:36px;height:36px;border-radius:10px;background:var(--success-soft);color:var(--success);display:flex;align-items:center;justify-content:center;margin:0 auto 8px"><i class="fa-solid fa-calendar-day"></i></div><div class="mini-stat-val">${fmt(today||total)}</div><div class="mini-stat-label">Today</div></div>
+</div>
+${plan==='free'?`<div class="upsell-banner" onclick="go('upgrade')"><i class="fa-solid fa-rocket"></i><div style="flex:1"><div style="font-weight:700;font-size:13px">Unlock weekly charts, monthly, devices & click %</div><div style="font-size:11px;opacity:.9">Upgrade to Pro to see what drives your sales</div></div><i class="fa-solid fa-arrow-right"></i></div>`:plan==='pro'?`<div class="upsell-banner" style="background:linear-gradient(135deg,#7c3aed,#ec4899)" onclick="go('upgrade')"><i class="fa-solid fa-earth-africa"></i><div style="flex:1"><div style="font-weight:700;font-size:13px">Get more insights with countries</div><div style="font-size:11px;opacity:.9">See where visitors come from — Premium unlocks full map</div></div><i class="fa-solid fa-arrow-right"></i></div>`:''}
+<div class="cta-grid">
+<div class="cta-card" onclick="go('preview')"><div class="cta-card-icon" style="background:var(--brand-soft);color:var(--brand)"><i class="fa-solid fa-eye"></i></div><div class="cta-card-title">Shop Preview</div><div class="cta-card-desc">See how customers see your hub</div></div>
+<div class="cta-card" onclick="go('edit')"><div class="cta-card-icon" style="background:var(--purple-soft);color:var(--purple)"><i class="fa-solid fa-pen"></i></div><div class="cta-card-title">Edit Shop</div><div class="cta-card-desc">Update info, links, branding</div></div>
+<div class="cta-card" onclick="go('analytics')"><div class="cta-card-icon" style="background:var(--success-soft);color:var(--success)"><i class="fa-solid fa-chart-line"></i></div><div class="cta-card-title">Analytics</div><div class="cta-card-desc">Deep dive into your growth</div></div>
+<div class="cta-card" onclick="go('settings')"><div class="cta-card-icon" style="background:var(--warning-soft);color:var(--warning)"><i class="fa-solid fa-gear"></i></div><div class="cta-card-title">Settings</div><div class="cta-card-desc">Security & preferences</div></div>
+</div>
+<div class="install-banner" onclick="window.open('https://myshub.site/install.html','_blank')"><i class="fa-solid fa-download"></i><div style="flex:1"><div style="font-weight:700;font-size:13px">Install MyShub App</div><div style="font-size:11px;opacity:.8">Add to home screen for quick access</div></div><i class="fa-solid fa-arrow-right"></i></div>
+<div class="cta-list">
+<div class="cta-list-item" onclick="window.open('https://myshub.site/','_blank')"><div class="cta-list-icon" style="background:var(--brand-soft);color:var(--brand)"><i class="fa-solid fa-bolt"></i></div><div style="flex:1"><div style="font-weight:600;font-size:13px">What's New & Updates</div><div style="font-size:11px;color:var(--text-secondary)">Discover new features from home</div></div><i class="fa-solid fa-arrow-up-right-from-square" style="color:var(--text-tertiary)"></i></div>
+<div class="cta-list-item" onclick="go('upgrade')"><div class="cta-list-icon" style="background:var(--warning-soft);color:var(--warning)"><i class="fa-solid fa-crown"></i></div><div style="flex:1"><div style="font-weight:600;font-size:13px">Upgrade your hub</div><div style="font-size:11px;color:var(--text-secondary)">Unlock branding, analytics, featured listing</div></div><i class="fa-solid fa-chevron-right" style="color:var(--text-tertiary)"></i></div>
+<div class="cta-list-item" onclick="go('referrals')"><div class="cta-list-icon" style="background:#fef3c7;color:#d97706"><i class="fa-solid fa-gift"></i></div><div style="flex:1"><div style="font-weight:600;font-size:13px">Referrals — Coming Soon rewards</div><div style="font-size:11px;color:var(--text-secondary)">Share your link and grow together</div></div><i class="fa-solid fa-chevron-right" style="color:var(--text-tertiary)"></i></div>
+</div>
+<div class="card" style="padding:14px"><div style="display:flex;align-items:center;justify-content:space-between"><div style="font-size:13px;font-weight:700">Quick Menu — All Screens</div><button class="btn btn-ghost btn-sm" onclick="openDrawer()"><i class="fa-solid fa-bars"></i> Open Menu</button></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px"><button class="btn btn-ghost btn-sm" onclick="go('edit')">Edit</button><button class="btn btn-ghost btn-sm" onclick="go('preview')">Preview</button><button class="btn btn-ghost btn-sm" onclick="go('analytics')">Analytics</button><button class="btn btn-ghost btn-sm" onclick="go('discover')">Discover</button><button class="btn btn-ghost btn-sm" onclick="go('upgrade')">Upgrade</button><button class="btn btn-ghost btn-sm" onclick="go('settings')">Settings</button></div></div>
+`;
+const av=$('drawerAvatar');if(av)av.textContent=(sj.business_name||S.slug||'M').charAt(0).toUpperCase();
+const dn=$('drawerName');if(dn)dn.textContent=sj.business_name||S.slug;
+const dp=$('drawerPlan');if(dp)dp.textContent=plan+' plan';
+}
+function renderPreview(){const el=$('page-preview');if(!el)return;const shopUrl=`${APP_URL}/${S.slug}`;const previewSrc=`https://myshub.site/shop.html?slug=${encodeURIComponent(S.slug)}&preview=1&email=${encodeURIComponent(S.email)}&password=${encodeURIComponent(S.password)}`;el.innerHTML=`
+<div style="height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0"><div style="display:flex;align-items:center;gap:10px"><button class="icon-btn" onclick="go('overview')"><i class="fa-solid fa-arrow-left"></i></button><div style="font-weight:700;font-size:14px">Shop Preview</div><span style="background:var(--success-soft);color:var(--success);padding:2px 8px;border-radius:20px;font-size:10px">Live</span></div><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="copyText('${shopUrl}')"><i class="fa-regular fa-copy"></i></button><button class="btn btn-primary btn-sm" onclick="window.open('${shopUrl}','_blank')"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open</button></div></div>
+<div class="iframe-wrap"><iframe src="${previewSrc}" loading="lazy"></iframe></div>
+<div style="padding:12px;display:flex;gap:8px;background:var(--surface);border-top:1px solid var(--border)"><button class="btn btn-ghost btn-sm btn-block" onclick="downloadBusinessCard()"><i class="fa-solid fa-id-card"></i> Business Card</button><button class="btn btn-ghost btn-sm btn-block" onclick="downloadVCard()"><i class="fa-solid fa-address-card"></i> vCard</button><button class="btn btn-primary btn-sm btn-block" onclick="go('edit')"><i class="fa-solid fa-pen"></i> Edit</button></div>
+`}
+function renderDiscover(){const f=$('discoverFrame');if(f&&!f.dataset.loaded){f.dataset.loaded='1';f.src='https://myshub.site/discover.html'}}
+function renderEdit(){const el=$('page-edit');if(!el)return;const sj=getShopJson();const plan=S.plan||'free';const lim=PLAN_LIMITS[plan];const totalPlat=Object.keys(S.editSocials||{}).length;const totalLinks=(S.editLinks||[]).length;const isLockedBranding=!lim.branding;const isLockedFonts=!lim.fonts;const isLockedGrad=!lim.gradients;el.innerHTML=`
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px"><button class="icon-btn" onclick="go('overview')"><i class="fa-solid fa-arrow-left"></i></button><h2 style="font-size:18px;font-weight:800">Edit Shop — Easy Mode</h2></div>
+<div class="edit-tabs">
+<button class="edit-tab ${S.editTab==='info'?'active':''}" onclick="S.editTab='info';renderEdit()">Info</button>
+<button class="edit-tab ${S.editTab==='contact'?'active':''}" onclick="S.editTab='contact';renderEdit()">Contact</button>
+<button class="edit-tab ${S.editTab==='platforms'?'active':''}" onclick="S.editTab='platforms';renderEdit()">Platforms (${totalPlat}/${lim.platforms===999?'∞':lim.platforms})</button>
+<button class="edit-tab ${S.editTab==='links'?'active':''}" onclick="S.editTab='links';renderEdit()">Links (${totalLinks}/${lim.custom_links===999?'∞':lim.custom_links})</button>
+<button class="edit-tab ${S.editTab==='branding'?'active':''}" onclick="S.editTab='branding';renderEdit()">Branding</button>
+</div>
+<div class="edit-content ${S.editTab==='info'?'active':''}">
+<div class="card"><div class="card-title">Business Info</div>
+<div class="form-group"><label>Business Name</label><input id="editBusinessName" class="form-input" value="${escapeHtml(sj.business_name||'')}"></div>
+<div class="form-group"><label>Tagline</label><input id="editTagline" class="form-input" value="${escapeHtml(sj.tagline||'')}"></div>
+<div class="form-group"><label>Description</label><textarea id="editDescription" class="form-input" rows="3">${escapeHtml(sj.description||'')}</textarea></div>
+<div class="form-group"><label>Category</label><select id="editCategory" class="form-input"><option value="">Select</option>${['Fashion','Beauty','Food','Tech','Education','Services','Retail','Other'].map(c=>`<option ${sj.category===c?'selected':''}>${c}</option>`).join('')}</select></div>
+</div>
+</div>
+<div class="edit-content ${S.editTab==='contact'?'active':''}">
+<div class="card"><div class="card-title">Contact & Location</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="form-group"><label>Phone</label><input id="editPhone" class="form-input" value="${escapeHtml(sj.phone||'')}"></div><div class="form-group"><label>Email (change in settings)</label><input class="form-input" value="${escapeHtml(S.email||'')}" disabled></div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="form-group"><label>State</label><input id="editState" class="form-input" value="${escapeHtml(sj.state||'')}"></div><div class="form-group"><label>City</label><input id="editCity" class="form-input" value="${escapeHtml(sj.city||'')}"></div></div>
+<div class="form-group"><label>Catalog Link (Selar, Shopify, Sheets)</label><input id="editCatalog" class="form-input" value="${escapeHtml(sj.catalog_url||'')}"></div>
+</div>
+</div>
+<div class="edit-content ${S.editTab==='platforms'?'active':''}">
+<div class="card">
+<div class="card-title">Platforms <span style="font-size:11px;background:${totalPlat>=lim.platforms?'var(--danger-soft)':'var(--brand-soft)'};color:${totalPlat>=lim.platforms?'var(--danger)':'var(--brand)'};padding:3px 8px;border-radius:20px">${totalPlat}/${lim.platforms===999?'∞':lim.platforms} combined</span></div>
+<div style="font-size:11px;color:var(--text-secondary);margin-bottom:10px">Social + messaging combined. ${plan==='free'?'Upgrade for more.':''}</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">${Object.entries(S.editSocials||{}).map(([k,v])=>`<div style="display:inline-flex;align-items:center;gap:6px;background:var(--surface-hover);border:1px solid var(--border);border-radius:20px;padding:6px 10px;font-size:12px">${escapeHtml(k)} <span style="width:16px;height:16px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="removeSocial('${escapeHtml(k)}')"><i class="fa-solid fa-xmark" style="font-size:10px"></i></span></div>`).join('')||'<span style="font-size:12px;color:var(--text-tertiary)">No platforms yet</span>'}</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-ghost btn-sm" onclick="openPlatformModal('social')" ${totalPlat>=lim.platforms?'disabled':''}><i class="fa-solid fa-plus"></i> Add Social</button><button class="btn btn-ghost btn-sm" onclick="openPlatformModal('messaging')" ${totalPlat>=lim.platforms?'disabled':''}><i class="fa-solid fa-comment"></i> Add Messaging</button><button class="btn btn-ghost btn-sm" onclick="openPlatformModal('all')" ${totalPlat>=lim.platforms?'disabled':''}><i class="fa-solid fa-list"></i> All</button></div>
+${totalPlat>=lim.platforms?`<div class="upsell-banner" style="margin-top:12px" onclick="go('upgrade')"><i class="fa-solid fa-crown"></i><div style="flex:1"><div style="font-weight:700;font-size:12px">Platform limit reached</div><div style="font-size:11px;opacity:.9">Upgrade to Pro (10) or Premium (unlimited)</div></div></div>`:''}
+</div>
+</div>
+<div class="edit-content ${S.editTab==='links'?'active':''}">
+<div class="card">
+<div class="card-title">Custom Links <span style="font-size:11px;background:${totalLinks>=lim.custom_links?'var(--danger-soft)':'var(--brand-soft)'};color:${totalLinks>=lim.custom_links?'var(--danger)':'var(--brand)'};padding:3px 8px;border-radius:20px">${totalLinks}/${lim.custom_links===999?'∞':lim.custom_links}</span></div>
+<div style="font-size:11px;color:var(--text-secondary);margin-bottom:10px">Icons shown based on your plan. ${plan!=='premium'?'Only Premium can use emojis.':''} Visual icons, not text.</div>
+<div id="customLinksList">${(S.editLinks||[]).map((l,i)=>`
+<div style="display:flex;gap:8px;margin-bottom:10px;align-items:flex-start;background:var(--surface-hover);border:1px solid var(--border);border-radius:12px;padding:10px">
+<div style="flex:1;display:flex;flex-direction:column;gap:6px">
+<input class="form-input" placeholder="Title e.g. My Catalog" value="${escapeHtml(l.title)}" oninput="updateCustomLink(${i},'title',this.value)">
+<input class="form-input" placeholder="https://..." value="${escapeHtml(l.url)}" oninput="updateCustomLink(${i},'url',this.value)">
+<div style="display:flex;gap:6px;align-items:center">
+<button class="btn btn-ghost btn-sm" onclick="openIconPicker(${i})"><i class="fa-solid fa-${escapeHtml(l.icon||'link')}"></i> ${escapeHtml(l.icon||'link')} <i class="fa-solid fa-chevron-down" style="font-size:10px"></i></button>
+<span style="font-size:10px;color:var(--text-tertiary)">Tap to choose visual icon</span>
+</div>
+</div>
+<button class="icon-btn" style="width:32px;height:32px;color:var(--danger)" onclick="removeCustomLink(${i})"><i class="fa-solid fa-trash"></i></button>
+</div>
+`).join('')||'<div class="empty" style="padding:12px"><span>No custom links yet</span></div>'}</div>
+<button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="addCustomLink()" ${totalLinks>=lim.custom_links?'disabled':''}><i class="fa-solid fa-plus"></i> Add Link</button>
+</div>
+</div>
+<div class="edit-content ${S.editTab==='branding'?'active':''}">
+<div class="card ${isLockedBranding?'locked-overlay':''}">
+<div class="card-title">Brand Colors ${plan==='free'?'<span style="font-size:10px;background:var(--warning-soft);color:var(--warning);padding:2px 6px;border-radius:20px">PRO</span>':''}</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<div class="form-group"><label>Primary</label><div class="color-row"><input type="color" id="brandPrimary" class="color-input" value="${escapeHtml(sj.brand_colors?.primary||'#2563eb')}"><input class="form-input" value="${escapeHtml(sj.brand_colors?.primary||'#2563eb')}" oninput="document.getElementById('brandPrimary').value=this.value"></div></div>
+<div class="form-group"><label>Secondary</label><div class="color-row"><input type="color" id="brandSecondary" class="color-input" value="${escapeHtml(sj.brand_colors?.secondary||'#8b5cf6')}"><input class="form-input" value="${escapeHtml(sj.brand_colors?.secondary||'#8b5cf6')}" oninput="document.getElementById('brandSecondary').value=this.value"></div></div>
+</div>
+</div>
+<div class="card ${isLockedGrad?'locked-overlay':''}">
+<div class="card-title">Gradients <span style="font-size:10px;background:var(--purple-soft);color:var(--purple);padding:2px 6px;border-radius:20px">PREMIUM</span></div>
+<div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">Gradients make your shop pop — Premium only</div>
+<div style="display:flex;gap:8px"><input type="color" class="color-input" value="#2563eb"><input type="color" class="color-input" value="#8b5cf6"><span style="font-size:12px;color:var(--text-secondary);align-self:center">Preview gradient</span></div>
+</div>
+<div class="card ${isLockedFonts?'locked-overlay':''}">
+<div class="card-title">Fonts ${plan==='free'?'<span style="font-size:10px;background:var(--warning-soft);color:var(--warning);padding:2px 6px;border-radius:20px">PRO</span>':''}</div>
+<div class="font-grid">
+<div class="form-group"><label>Heading Font</label><select id="fontHeading" class="form-input"><option>Inter</option><option>Poppins</option><option>Playfair Display</option><option>Space Grotesk</option><option>Montserrat</option></select></div>
+<div class="form-group"><label>Body Font</label><select id="fontBody" class="form-input"><option>Inter</option><option>Open Sans</option><option>DM Sans</option><option>Nunito</option><option>Manrope</option></select></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title">Logo</div>
+<div style="border:2px dashed var(--border);border-radius:16px;padding:20px;text-align:center;cursor:pointer;background:var(--surface-hover)" onclick="document.getElementById('logoFileInput').click()">
+${S._tempLogoUrl||sj.logo_url?`<img src="${S._tempLogoUrl||sj.logo_url}" style="width:80px;height:80px;border-radius:16px;object-fit:cover;margin:0 auto 10px;display:block">`:`<div style="width:72px;height:72px;border-radius:16px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:24px">📷</div>`}
+<div style="font-size:13px;font-weight:600">Click to upload logo</div>
+<div style="font-size:11px;color:var(--text-secondary);margin-top:4px">PNG/JPG max 2MB</div>
+</div>
+<input id="logoFileInput" type="file" accept="image/*" style="display:none" onchange="handleLogoSelect(event)">
+</div>
+</div>
+<button class="btn btn-primary btn-block btn-lg" onclick="saveEdit()"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+<div style="height:20px"></div>
+`}
+function openIconPicker(idx){S.editingLinkIndex=idx;const plan=S.plan||'free';const allowed=plan==='premium'?PREMIUM_ICONS:plan==='pro'?PRO_ICONS:FREE_ICONS;const grid=$('iconGrid');grid.innerHTML=allowed.map(ic=>`<div class="icon-option ${S.editLinks[idx]?.icon===ic?'selected':''}" onclick="selectIcon('${ic}')"><i class="fa-solid fa-${ic}"></i><span>${ic}</span></div>`).join('');$('premiumEmojiBox').style.display=plan==='premium'?'block':'none';$('iconPickerModal').classList.add('on')}
+function closeIconPicker(){$('iconPickerModal').classList.remove('on');S.editingLinkIndex=-1}
+function selectIcon(ic){if(S.editingLinkIndex>=0&&S.editLinks[S.editingLinkIndex]){S.editLinks[S.editingLinkIndex].icon=ic;renderEdit();closeIconPicker();toast('Icon updated','success')}}
+function confirmEmoji(){const e=$('emojiInput').value.trim();if(!e){toast('Enter an emoji','warning');return}if(S.editingLinkIndex>=0){S.editLinks[S.editingLinkIndex].icon=e;renderEdit();closeIconPicker();toast('Emoji set — Premium','success')}}
+function removeSocial(k){delete S.editSocials[k];renderEdit()}
+function addCustomLink(){const plan=S.plan||'free';const lim=PLAN_LIMITS[plan].custom_links;if((S.editLinks||[]).length>=lim){toast('Limit reached — upgrade','warning');return}S.editLinks.push({title:'',url:'',icon:'link'});renderEdit()}
+function removeCustomLink(i){S.editLinks.splice(i,1);renderEdit()}
+function updateCustomLink(i,f,v){if(S.editLinks[i])S.editLinks[i][f]=v}
+async function handleLogoSelect(e){const file=e.target.files[0];if(!file)return;if(file.size>2*1024*1024){toast('Logo max 2MB','error');return}try{toast('Uploading logo...','info');const data=await apiUploadLogo(file);S._tempLogoUrl=data.logo_url||'';toast('Logo saved!','success');renderEdit()}catch{const r=new FileReader();r.onload=()=>{S._tempLogoUrl=r.result;renderEdit()};r.readAsDataURL(file)}}
+async function saveEdit(){const btn=document.querySelector('#page-edit .btn-primary');if(btn){btn.disabled=true;btn.textContent='Saving...'}try{const payload={email:S.email,password:S.password,business_name:document.getElementById('editBusinessName')?.value.trim()||getShopJson().business_name,tagline:document.getElementById('editTagline')?.value.trim()||'',description:document.getElementById('editDescription')?.value.trim()||'',phone:document.getElementById('editPhone')?.value.trim()||'',category:document.getElementById('editCategory')?.value||'',state:document.getElementById('editState')?.value.trim()||'',city:document.getElementById('editCity')?.value.trim()||'',socials:S.editSocials||{},custom_links:S.editLinks.filter(l=>l.title&&l.url)};if(S._tempLogoUrl&&S._tempLogoUrl.startsWith('data:'))payload.logo_url=S._tempLogoUrl;if(S._pendingQrUrl)payload.qr_code_url=S._pendingQrUrl;const data=await api('/shop/edit/'+encodeURIComponent(S.slug),'PUT',payload);S.shopData=data;S.shopJson=data.shop_json||S.shopJson;if(data.plan)S.plan=data.plan;S._pendingQrUrl=null;toast('Shop updated!','success');go('overview')}catch(e){toast(e.message||'Save failed','error')}finally{if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Save Changes'}}}
+function renderAnalytics(){const el=$('page-analytics');if(!el)return;const sj=getShopJson();const a=sj.analytics||{};const plan=S.plan||'free';const total=a.visit_count||0;const daily=a.daily_visits||{};const todayVals=Object.values(daily);const today=todayVals.length?todayVals[todayVals.length-1]:0;const referrers=a.referrers||{};const devices=a.devices||{};const countries=a.countries||{};const clicks=a.clicks||{};el.innerHTML=`
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px"><button class="icon-btn" onclick="go('overview')"><i class="fa-solid fa-arrow-left"></i></button><h2 style="font-size:18px;font-weight:800">Analytics</h2><span style="font-size:11px;background:var(--brand-soft);color:var(--brand);padding:3px 8px;border-radius:20px;text-transform:uppercase">${plan}</span></div>
+<div class="analytics-mini"><div class="mini-stat"><div class="mini-stat-val">${fmt(total)}</div><div class="mini-stat-label">Total visits</div></div><div class="mini-stat"><div class="mini-stat-val">${fmt(today||0)}</div><div class="mini-stat-label">Today</div></div></div>
+${plan==='free'?`<div class="upsell-banner" onclick="go('upgrade')"><i class="fa-solid fa-chart-simple"></i><div style="flex:1"><div style="font-weight:700;font-size:13px">Upgrade to Pro for weekly, monthly, devices & click %</div><div style="font-size:11px;opacity:.9">You have data — unlock it. 7-day charts, referrers, devices</div></div></div><div class="card" style="opacity:.7"><div class="card-title">Weekly charts <span style="font-size:10px;background:var(--warning-soft);color:var(--warning);padding:2px 6px;border-radius:20px">PRO</span></div><div style="height:60px;background:linear-gradient(90deg,var(--border-light),var(--surface-hover));border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--text-tertiary);font-size:12px">Locked — Upgrade to see</div></div>`:''}
+${plan==='pro'?`<div class="card"><div class="card-title">Last 7 days (Pro)</div><div style="display:flex;gap:4px;align-items:end;height:60px">${Object.values(daily).slice(-7).map(v=>`<div style="flex:1;background:var(--brand);border-radius:4px;height:${Math.min(100, (v/Math.max(1,...Object.values(daily)))*100)}%"></div>`).join('')||'<span style="font-size:12px;color:var(--text-tertiary)">No data yet</span>'}</div></div><div class="card"><div class="card-title">Devices</div><div style="font-size:13px">Mobile: ${devices.mobile||0} • Desktop: ${devices.desktop||0}</div></div><div class="upsell-banner" style="background:linear-gradient(135deg,#7c3aed,#ec4899)" onclick="go('upgrade')"><i class="fa-solid fa-earth-africa"></i><div style="flex:1"><div style="font-weight:700;font-size:13px">Get more insights with countries</div><div style="font-size:11px;opacity:.9">Premium unlocks full countries map</div></div></div>`:''}
+${plan==='premium'?`<div class="card"><div class="card-title">Full Analytics — Premium</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px"><div>Countries: ${Object.keys(countries).length}</div><div>Referrers: ${Object.keys(referrers).length}</div><div>Devices: ${Object.keys(devices).length}</div><div>Clicks: ${(clicks.catalog||0)+(clicks.whatsapp||0)}</div></div></div>`:''}
+<div class="card"><div class="card-title">Top Referrers ${plan==='free'?'<span style="font-size:10px;background:var(--border);padding:2px 6px;border-radius:20px">Upgrade to see</span>':''}</div>${Object.keys(referrers).length?Object.entries(referrers).sort((a,b)=>b[1]-a[1]).slice(0,plan==='free'?1:5).map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:13px"><span>${escapeHtml(k)}</span><span style="font-weight:600">${plan==='free'? '•••' : fmt(v)}</span></div>`).join(''):'<div style="font-size:12px;color:var(--text-tertiary)">No referrer data yet</div>'}</div>
+<div class="card"><div class="card-title">Deep Dive CTA</div><p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px">Total and today is free for everyone. Pro unlocks weekly, monthly, devices, click percentages. Premium unlocks countries and raw numbers.</p><button class="btn btn-primary btn-block" onclick="go('upgrade')"><i class="fa-solid fa-crown"></i> Unlock Full Analytics</button></div>
+`}
+function renderUpgrade(){const el=$('page-upgrade');if(!el)return;const plan=S.plan||'free';el.innerHTML=`
+<h2 style="font-size:22px;font-weight:800;margin-bottom:6px">Upgrade your hub</h2><p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px">More power, more visibility, more sales.</p>
+<div style="display:grid;gap:14px">
+<div class="card" style="${plan==='free'?'border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)':''}"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:18px;font-weight:800">Free</div>${plan==='free'?'<span style="background:var(--brand);color:#fff;padding:2px 8px;border-radius:20px;font-size:10px">CURRENT</span>':''}</div><div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">Perfect to start</div><ul style="list-style:none;font-size:13px;display:flex;flex-direction:column;gap:6px"><li><i class="fa-solid fa-check" style="color:var(--success)"></i> 5 platforms</li><li><i class="fa-solid fa-check" style="color:var(--success)"></i> 2 custom links</li><li><i class="fa-solid fa-check" style="color:var(--success)"></i> Basic visit count</li><li><i class="fa-solid fa-check" style="color:var(--success)"></i> Appears in search</li></ul></div>
+<div class="card" style="border-color:var(--brand)"><div style="position:absolute;top:-10px;left:20px;background:var(--brand);color:#fff;font-size:10px;padding:4px 10px;border-radius:20px">POPULAR</div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:18px;font-weight:800"><i class="fa-solid fa-bolt" style="color:var(--brand)"></i> Pro</div>${plan==='pro'?'<span style="background:var(--brand);color:#fff;padding:2px 8px;border-radius:20px;font-size:10px">CURRENT</span>':''}</div><ul style="list-style:none;font-size:13px;display:flex;flex-direction:column;gap:6px;margin-bottom:12px"><li><i class="fa-solid fa-check" style="color:var(--success)"></i> 10 platforms + 5 custom links</li><li><i class="fa-solid fa-check" style="color:var(--success)"></i> Brand colors + 2 fonts</li><li><i class="fa-solid fa-check" style="color:var(--success)"></i> No ads, clean footer</li><li><i class="fa-solid fa-check" style="color:var(--success)"></i> Daily analytics, referrers, devices</li><li><i class="fa-solid fa-check" style="color:var(--success)"></i> Click % (top 3) + higher search rank</li><li><i class="fa-solid fa-check" style="color:var(--success)"></i> Pro badge on shop</li></ul><button class="btn btn-primary btn-block" onclick="createPaymentIntent('pro')">See Pricing <i class="fa-solid fa-arrow-right"></i></button></div>
+<div class="card" style="border-color:var(--purple)"><div style="position:absolute;top:-10px;left:20px;background:var(--purple);color:#fff;font-size:10px;padding:4px 10px;border-radius:20px">BEST VALUE</div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:18px;font-weight:800"><i class="fa-solid fa-crown" style="color:var(--purple)"></i> Premium</div>${plan==='premium'?'<span style="background:var(--purple);color:#fff;padding:2px 8px;border-radius:20px;font-size:10px">CURRENT</span>':''}</div><ul style="list-style:none;font-size:13px;display:flex;flex-direction:column;gap:6px;margin-bottom:12px"><li><i class="fa-solid fa-check" style="color:var(--success)"></i> Unlimited platforms & links</li><li><i class="fa-solid fa-check" style="color:var(--success)"></i> Gradients + unlimited fonts</li><li><i class="fa-solid fa-check" style="color:var(--success)"></i> White-label — no branding</li><li><i class="fa-solid fa-check" style="color:var(--success)"></i> Full analytics: countries map, raw numbers, export</li><li><i class="fa-solid fa-check" style="color:var(--success)"></i> Featured at top of search</li><li><i class="fa-solid fa-check" style="color:var(--success)"></i> Premium badge + verified</li><li><i class="fa-solid fa-check" style="color:var(--success)"></i> Business card + QR + vCard sharing</li><li><i class="fa-solid fa-check" style="color:var(--success)"></i> Feedback form + priority support</li></ul><button class="btn btn-block" style="background:var(--purple);color:#fff" onclick="createPaymentIntent('premium')">See Pricing <i class="fa-solid fa-arrow-right"></i></button></div>
+</div>
+<div class="install-banner" style="margin-top:16px" onclick="window.open('https://myshub.site/install.html','_blank')"><i class="fa-solid fa-download"></i><div style="flex:1"><div style="font-weight:700;font-size:13px">Install MyShub App</div><div style="font-size:11px;opacity:.8">Get the app — faster, offline-ready</div></div><i class="fa-solid fa-arrow-right"></i></div>
+`}
+async function createPaymentIntent(p){try{await api('/payment/create-intent?plan='+encodeURIComponent(p),'POST');const plans=await apiPub('/payment/plans','GET');const link=plans.plans?.[p]?.payment_link||'';if(link){toast('Redirecting to secure checkout...','success');setTimeout(()=>window.location.href=link,800)}else toast('Checkout link not configured','error')}catch(e){toast(e.message,'error')}}
+function renderReferrals(){const el=$('page-referrals');if(!el)return;const d=S.shopData||{};const code=d.referral_code||S.slug||'';const shareUrl=`${APP_URL}/?ref=${code}`;el.innerHTML=`
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px"><button class="icon-btn" onclick="go('overview')"><i class="fa-solid fa-arrow-left"></i></button><h2 style="font-size:18px;font-weight:800">Referrals</h2></div>
+<div class="card" style="text-align:center"><div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">Your referral code — rewards coming soon</div><div style="border:1.5px dashed var(--border);border-radius:12px;padding:14px;text-align:center;background:var(--surface-hover);font-family:monospace;font-size:18px;font-weight:800;letter-spacing:.05em">${escapeHtml(code)}</div><div style="display:flex;gap:8px;justify-content:center;margin-top:12px"><button class="btn btn-primary btn-sm" onclick="copyText('${code}')"><i class="fa-regular fa-copy"></i> Copy Code</button><button class="btn btn-ghost btn-sm" onclick="copyText('${shareUrl}')"><i class="fa-solid fa-share"></i> Copy Link</button></div><div style="font-size:11px;color:var(--text-secondary);margin-top:10px;word-break:break-all">${shareUrl}</div></div>
+<div class="upsell-banner" style="background:linear-gradient(135deg,#f59e0b,#ec4899)"><i class="fa-solid fa-gift"></i><div style="flex:1"><div style="font-weight:700;font-size:13px">Rewards coming soon!</div><div style="font-size:11px;opacity:.9">Share now, earn later. No rewards yet.</div></div></div>
+`}
+function renderSettings(){const el=$('page-settings');if(!el)return;const sj=getShopJson();el.innerHTML=`
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px"><button class="icon-btn" onclick="go('overview')"><i class="fa-solid fa-arrow-left"></i></button><h2 style="font-size:18px;font-weight:800">Settings</h2></div>
+<div class="card" style="display:flex;align-items:center;gap:12px"><img src="${sj.logo_url||''}" style="width:48px;height:48px;border-radius:12px;object-fit:cover;background:var(--surface-hover);border:1px solid var(--border)" onerror="this.style.display='none'"><div style="flex:1"><div style="font-weight:700">${escapeHtml(sj.business_name||S.slug)}</div><div style="font-size:12px;color:var(--text-secondary)">${escapeHtml(S.email)}</div></div><span style="background:var(--brand-soft);color:var(--brand);padding:4px 8px;border-radius:20px;font-size:10px;text-transform:uppercase">${S.plan}</span></div>
+<div class="card">
+<div style="font-size:13px;font-weight:700;margin-bottom:12px">Security</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border-light)"><div><div style="font-size:13px;font-weight:600">Change Password</div><div style="font-size:11px;color:var(--text-secondary)">Update your password</div></div><button class="btn btn-ghost btn-sm" onclick="promptChangePassword()">Change</button></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0"><div><div style="font-size:13px;font-weight:600">Change Email</div><div style="font-size:11px;color:var(--text-secondary)">${escapeHtml(S.email)}</div></div><button class="btn btn-ghost btn-sm" onclick="promptChangeEmail()">Change</button></div>
+</div>
+<div class="card">
+<div style="font-size:13px;font-weight:700;margin-bottom:12px">Notifications</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0"><div><div style="font-size:13px;font-weight:600">Push Notifications</div><div style="font-size:11px;color:var(--text-secondary)">Real web push — teasers like countries & clicks</div></div><label style="position:relative;display:inline-block;width:44px;height:26px"><input type="checkbox" id="pushToggle" style="opacity:0;width:0;height:0" onchange="togglePush(this)"><span style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--border);border-radius:13px;transition:.2s"></span></label></div>
+</div>
+<div class="card">
+<div style="font-size:13px;font-weight:700;margin-bottom:12px">Shop</div>
+<button class="btn btn-ghost btn-block" style="justify-content:space-between" onclick="go('edit')">Edit Shop <i class="fa-solid fa-chevron-right"></i></button>
+<button class="btn btn-ghost btn-block" style="justify-content:space-between;margin-top:8px" onclick="go('preview')">Preview Shop <i class="fa-solid fa-chevron-right"></i></button>
+</div>
+<div class="card" style="border:1px solid #fecaca;background:#fff1f2">
+<div style="font-size:13px;font-weight:700;color:var(--danger);margin-bottom:10px"><i class="fa-solid fa-triangle-exclamation"></i> Danger Zone</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-ghost btn-sm" style="color:var(--danger);background:#fff;border-color:#fecaca" onclick="deactivateShop()"><i class="fa-solid fa-pause"></i> Deactivate</button><button class="btn btn-ghost btn-sm" style="color:var(--success);background:#fff;border-color:#bbf7d0" onclick="reactivateShop()"><i class="fa-solid fa-play"></i> Activate</button></div>
+</div>
+<button class="btn btn-ghost btn-block" style="color:var(--danger);border-color:#fecaca;background:var(--danger-soft);margin-top:8px" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+`}
+async function togglePush(el){if(el.checked){if(!('Notification' in window)){toast('Not supported','warning');el.checked=false;return}const perm=await Notification.requestPermission();if(perm!=='granted'){toast('Denied','error');el.checked=false;return}try{await api('/notifications/subscribe','POST',{endpoint:'web-push-'+Date.now(),keys:{}});toast('Push enabled — teasers will appear','success')}catch(e){toast(e.message,'error');el.checked=false}}else{try{await api('/notifications/unsubscribe','POST');toast('Disabled','info')}catch{}}}
+function promptChangePassword(){const np=prompt('New password (min 6):');if(!np||np.length<6){toast('Min 6','warning');return}api('/shop/edit/'+encodeURIComponent(S.slug),'PUT',{email:S.email,password:S.password,new_password:np}).then(()=>{S.password=np;localStorage.setItem('myshub_session',JSON.stringify({email:S.email,password:S.password,slug:S.slug,plan:S.plan}));toast('Password updated','success')}).catch(e=>toast(e.message,'error'))}
+function promptChangeEmail(){const ne=prompt('New email:',S.email);if(!ne||!ne.includes('@')){toast('Invalid','warning');return}api('/shop/edit/'+encodeURIComponent(S.slug),'PUT',{email:S.email,password:S.password,new_email:ne}).then(()=>{S.email=ne;localStorage.setItem('myshub_session',JSON.stringify({email:S.email,password:S.password,slug:S.slug,plan:S.plan}));toast('Email updated','success');renderSettings()}).catch(e=>toast(e.message,'error'))}
+async function deactivateShop(){if(!confirm('Deactivate shop?'))return;try{await api('/shop/'+encodeURIComponent(S.slug)+'/deactivate','POST');toast('Deactivated','success')}catch(e){toast(e.message,'error')}}
+async function reactivateShop(){try{await api('/shop/'+encodeURIComponent(S.slug)+'/reactivate','POST');toast('Activated','success')}catch(e){toast(e.message,'error')}}
+function renderNotifications(){const el=$('page-notifications');if(!el)return;const notifs=S.notifications||[];el.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><h2 style="font-size:20px;font-weight:800">Notifications</h2><button class="btn btn-ghost btn-sm" onclick="markAllRead()">Mark all read</button></div>${notifs.length?`<div style="display:flex;flex-direction:column;gap:10px">${notifs.map(n=>`<div class="card" style="margin-bottom:0;padding:14px;display:flex;gap:12px"><div style="width:36px;height:36px;border-radius:10px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fa-solid ${n.title?.includes('countries')?'fa-earth-africa':n.title?.includes('click')?'fa-arrow-pointer':'fa-bell'}"></i></div><div style="flex:1"><div style="font-size:13px;font-weight:600">${escapeHtml(n.title||'Update')}</div><div style="font-size:12px;color:var(--text-secondary);margin-top:2px">${escapeHtml(n.message||n.body||'')}</div><div style="font-size:11px;color:var(--text-tertiary);margin-top:6px">${ago(n.created_at||n.timestamp)}</div></div></div>`).join('')}</div>`:`<div class="empty"><i class="fa-regular fa-bell"></i><b>No notifications yet</b><span>Teasers like visitors from 3 countries will appear here</span></div>`}`}
+async function markAllRead(){try{await api('/notifications/read-all','POST');S.notifications=S.notifications.map(n=>({...n,read:true}));S.unreadCount=0;updateNotifBadge();renderNotifications()}catch{}}
+function renderProfile(){const el=$('page-profile');if(!el)return;const sj=getShopJson();el.innerHTML=`<div class="card" style="text-align:center"><div style="width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,var(--brand),var(--purple));color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;margin:0 auto 12px">${escapeHtml((sj.business_name||S.slug||'M').charAt(0).toUpperCase())}</div><div style="font-size:18px;font-weight:800">${escapeHtml(sj.business_name||S.slug)}</div><div style="font-size:13px;color:var(--text-secondary);margin-top:4px">${escapeHtml(sj.tagline||'')}</div></div>`}
+function openPlatformModal(mode){S.platformMode=mode;S.selectedPlatform=null;$('platformSearch').value='';$('platformInputGroup').style.display='none';$('platformModalTitle').textContent=mode==='social'?'Add Social':mode==='messaging'?'Add Messaging':'Add Platform';filterPlatforms();$('platformModal').classList.add('on')}
+function closePlatformModal(){$('platformModal').classList.remove('on')}
+function filterPlatforms(){const q=($('platformSearch').value||'').toLowerCase();const mode=S.platformMode;const filtered=ALL_PLATFORMS.filter(p=>{if(mode!=='all'&&p.category!==mode)return false;if(!q)return true;return p.name.toLowerCase().includes(q)});$('platformGrid').innerHTML=filtered.map(p=>`<div class="platform-item ${S.selectedPlatform?.name===p.name?'on':''}" onclick="selectPlatform('${p.name}')"><i class="${p.icon}" style="background:${p.color}"></i><span>${p.name}</span></div>`).join('')}
+function selectPlatform(name){const plat=ALL_PLATFORMS.find(p=>p.name===name);if(!plat)return;S.selectedPlatform=plat;filterPlatforms();$('platformInputGroup').style.display='block';$('platformInputLabel').textContent=`Enter your ${plat.name} username`;$('platformHint').textContent=`e.g. yourusername → ${plat.urlTemplate.replace('{username}','yourusername')}`;$('platformUsername').value='';$('platformUsername').focus()}
+function confirmPlatform(){const username=$('platformUsername').value.trim().replace(/^@/,'');if(!username||!S.selectedPlatform)return;const plan=S.plan||'free';const lim=PLAN_LIMITS[plan].platforms;if(Object.keys(S.editSocials||{}).length>=lim){toast('Limit reached — upgrade','warning');return}const url=S.selectedPlatform.urlTemplate.replace('{username}',username);S.editSocials[S.selectedPlatform.name.toLowerCase()]=url;closePlatformModal();renderEdit();toast(`${S.selectedPlatform.name} added`,'success')}
+function doLogout(){localStorage.removeItem('myshub_session');S={email:'',password:'',slug:'',plan:'free',shopData:null,shopJson:null,notifications:[],unreadCount:0,currentPage:'overview',editSocials:{},editLinks:[],logoBase64:null,recoveryEmail:'',recoveryQuestions:[],_tempLogoUrl:null,_pendingQrUrl:null,regStep:1,selectedPlatform:null,platformMode:'all',editTab:'info',editingLinkIndex:-1,qrDataUrl:''};document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));$('sec-landing').classList.add('active');toast('Logged out','info')}
+(function init(){const saved=localStorage.getItem('myshub_session');if(saved){try{const sess=JSON.parse(saved);if(sess.email&&sess.password&&sess.slug){S.email=sess.email;S.password=sess.password;S.slug=sess.slug;S.plan=sess.plan||'free';$('loginEmail').value=sess.email;enterApp();return}}catch{}}showAuth('landing');const params=new URLSearchParams(window.location.search);const ref=params.get('ref');if(ref){const el=document.getElementById('regSlug');if(el)el.value=ref}})();
 </script>
 </body>
 </html>
