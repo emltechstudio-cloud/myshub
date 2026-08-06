@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upgrade – MyShub</title>
+  <style>
+    /* ===== UPGRADE PAGE STYLES ===== */
+    .upgrade-page { padding: 0; }
+
+    .page-header { margin-bottom: 24px; }
+    .page-header h2 { font-size: 22px; font-weight: 800; }
+    .page-header .sub { color: var(--text-secondary); font-size: 14px; margin-top: 4px; }
+
+    .current-plan-banner {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .current-plan-banner .plan-label { font-size: 13px; color: var(--text-secondary); }
+    .current-plan-banner .plan-name { font-size: 20px; font-weight: 800; text-transform: uppercase; }
+    .current-plan-banner .plan-badge {
+      font-size: 11px;
+      background: var(--brand);
+      color: #fff;
+      padding: 4px 14px;
+      border-radius: 30px;
+      font-weight: 700;
+    }
+    .current-plan-banner .plan-badge.premium { background: linear-gradient(135deg, #f59e0b, #ec4899); }
+    .current-plan-banner .plan-badge.pro { background: var(--brand); }
+
+    /* Plan Cards Grid */
+    .plan-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 20px; }
+    .plan-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      transition: var(--transition);
+      position: relative;
+    }
+    .plan-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+    .plan-card.featured {
+      border: 2px solid var(--brand);
+      box-shadow: 0 0 0 1px var(--brand-soft);
+    }
+    .plan-card .card-badge {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--brand);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 16px;
+      border-radius: 30px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .plan-card .card-badge.premium-badge { background: linear-gradient(135deg, #f59e0b, #ec4899); }
+    .plan-card .plan-name { font-size: 18px; font-weight: 800; }
+    .plan-card .plan-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
+    .plan-card .plan-features { list-style: none; padding: 0; margin: 0 0 16px 0; flex: 1; }
+    .plan-card .plan-features li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 13px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .plan-card .plan-features li:last-child { border-bottom: none; }
+    .plan-card .plan-features li .fa-check { color: var(--success); width: 16px; }
+    .plan-card .plan-features li .fa-xmark { color: var(--danger); width: 16px; }
+    .plan-card .plan-features li .fa-star { color: var(--warning); width: 16px; }
+
+    .plan-card .btn-upgrade {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+      margin-top: auto;
+    }
+    .plan-card .btn-upgrade.primary {
+      background: var(--brand);
+      color: #fff;
+    }
+    .plan-card .btn-upgrade.primary:hover {
+      background: var(--brand-dark);
+      transform: translateY(-2px);
+    }
+    .plan-card .btn-upgrade.premium-btn {
+      background: linear-gradient(135deg, #f59e0b, #ec4899);
+      color: #fff;
+    }
+    .plan-card .btn-upgrade.premium-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);
+    }
+    .plan-card .btn-upgrade:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+    .plan-card .current-badge {
+      background: var(--success-soft);
+      color: var(--success);
+      padding: 6px 12px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    /* Loading state */
+    .loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; gap: 16px; color: var(--text-secondary); }
+    .loading-state .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--brand); border-radius: 50%; animation: spin 1s linear infinite; }
+    .error-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+    .error-state i { font-size: 48px; color: var(--text-tertiary); margin-bottom: 16px; display: block; }
+
+    .btn { border: none; cursor: pointer; font-family: inherit; font-weight: 600; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 12px; padding: 10px 18px; font-size: 13px; }
+    .btn-primary { background: var(--brand); color: #fff; }
+    .btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media(max-width: 640px) {
+      .plan-grid { grid-template-columns: 1fr; }
+      .current-plan-banner { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+<div class="upgrade-page" id="upgradeApp">
+  <!-- Dynamic content -->
+</div>
+
+<script>
+// ================================================================
+//  UPGRADE PAGE — FULL PAYMENT INTEGRATION
+//  All payment links open in a new tab (in-app experience)
+//  No prices displayed — handled by backend payment page
+// ================================================================
+
+(function() {
+  'use strict';
+
+  // ================================================================
+  //  CONFIG
+  // ================================================================
+  const API = window.API || 'https://emltechstudio-myshub-api.hf.space';
+  const APP_URL = window.APP_URL || 'https://myshub.site';
+
+  // ================================================================
+  //  STATE
+  // ================================================================
+  let currentPlan = 'free';
+  let isLoading = true;
+  let loadError = null;
+  let planData = null;
+
+  // ================================================================
+  //  GET SESSION
+  // ================================================================
+  function getSession() {
+    if (window.S && window.S.email && window.S.password) {
+      return {
+        email: window.S.email,
+        password: window.S.password,
+        slug: window.S.slug || '',
+        plan: window.S.plan || 'free'
+      };
+    }
+    try {
+      const raw = localStorage.getItem('myshub_session');
+      if (raw) {
+        const s = JSON.parse(raw);
+        if (s.email && s.password) {
+          return {
+            email: s.email,
+            password: s.password,
+            slug: s.slug || '',
+            plan: s.plan || 'free'
+          };
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  // ================================================================
+  //  FETCH PLANS FROM BACKEND
+  // ================================================================
+  async function fetchPlans() {
+    try {
+      const res = await fetch(API + '/payment/plans');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.plans) {
+          return data.plans;
+        }
+        if (data.plans) {
+          return data.plans;
+        }
+      }
+    } catch (e) {
+      console.warn('Could not fetch plans from backend, using fallback.');
+    }
+
+    // Fallback: hardcoded plan data (no prices, just features)
+    return {
+      free: {
+        name: 'Free',
+        period: 'Forever',
+        description: 'Get started with your professional hub',
+        features: ['5 social platforms', '3 custom links', 'Default layout & colors', 'Catalog link button', 'Basic visit count', 'Community support'],
+        not_included: ['Brand colors', 'Custom fonts', 'Gradients', 'No ads', 'Analytics dashboard'],
+        payment_link: null
+      },
+      pro: {
+        name: 'Pro',
+        period: 'per month',
+        description: 'Brand your hub and remove ads',
+        features: ['10 social platforms', '10 custom links', 'Brand colors — pick primary + secondary', '2 custom fonts', 'No ads — clean footer', 'Daily analytics + referrers', 'Email support'],
+        not_included: ['Gradient colors', 'Unlimited custom links', 'White-label', 'Priority support'],
+        payment_link: 'https://selar.co/your-pro-manual-link'
+      },
+      premium: {
+        name: 'Premium',
+        period: 'per month',
+        description: 'Full control, white-label, priority support',
+        features: ['Unlimited social platforms', 'Unlimited custom links', 'Gradient colors — blend 2+ colors', 'Unlimited custom fonts', 'White-label — no MyShub branding', 'Full analytics + export', 'Priority support + feedback form', 'No ads — completely clean'],
+        not_included: [],
+        payment_link: 'https://selar.co/your-premium-manual-link'
+      }
+    };
+  }
+
+  // ================================================================
+  //  FETCH SHOP DATA (to get current plan)
+  // ================================================================
+  async function fetchShopData(session) {
+    if (!session || !session.slug) return null;
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+        'email': session.email,
+        'password': session.password
+      };
+      const res = await fetch(API + '/shop/preview/' + session.slug, { headers });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // ================================================================
+  //  UPGRADE ACTION — Opens payment link in new tab
+  // ================================================================
+  async function initiateUpgrade(planKey) {
+    const session = getSession();
+    if (!session) {
+      toast('Please log in to upgrade.', 'error');
+      return;
+    }
+
+    // Disable all upgrade buttons
+    const btns = document.querySelectorAll('.btn-upgrade');
+    btns.forEach(b => b.disabled = true);
+
+    try {
+      // 1. Create payment intent on backend
+      const headers = {
+        'Content-Type': 'application/json',
+        'email': session.email,
+        'password': session.password
+      };
+      const intentRes = await fetch(API + '/payment/create-intent?plan=' + planKey, {
+        method: 'POST',
+        headers: headers
+      });
+
+      if (!intentRes.ok) {
+        const err = await intentRes.text();
+        throw new Error('Failed to create payment intent: ' + err);
+      }
+
+      const intentData = await intentRes.json();
+      if (!intentData.success) {
+        throw new Error(intentData.message || 'Failed to create payment intent.');
+      }
+
+      // 2. Get the payment link from the plan data or response
+      // The backend may return a link directly in the response
+      let paymentLink = intentData.payment_link || intentData.link || intentData.url;
+
+      // If not in response, use the plan's stored link
+      if (!paymentLink) {
+        const plans = await fetchPlans();
+        const plan = plans[planKey];
+        paymentLink = plan?.payment_link;
+      }
+
+      if (!paymentLink) {
+        throw new Error('Payment link not available for this plan.');
+      }
+
+      // 3. Open payment link in a new tab (stays "in-app" experience)
+      window.open(paymentLink, '_blank');
+
+      toast('Payment page opened in a new tab. Complete payment to activate your plan.', 'info');
+
+    } catch (error) {
+      console.error('Upgrade error:', error);
+      toast(error.message || 'Upgrade failed. Please try again.', 'error');
+    } finally {
+      btns.forEach(b => b.disabled = false);
+    }
+  }
+
+  // ================================================================
+  //  RENDER
+  // ================================================================
+  function render() {
+    const app = document.getElementById('upgradeApp');
+    if (!app) return;
+
+    if (isLoading) {
+      app.innerHTML = `
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <span>Loading plans...</span>
+        </div>
+      `;
+      return;
+    }
+
+    if (loadError) {
+      app.innerHTML = `
+        <div class="error-state">
+          <i class="fa-regular fa-circle-exclamation"></i>
+          <div style="font-weight:600;margin-bottom:8px;">Could not load plans</div>
+          <p style="font-size:13px;color:var(--text-secondary);">${loadError}</p>
+          <button class="btn btn-primary" style="margin-top:16px;" onclick="location.reload()">Try Again</button>
+        </div>
+      `;
+      return;
+    }
+
+    if (!planData) {
+      app.innerHTML = `
+        <div class="error-state">
+          <i class="fa-regular fa-store"></i>
+          <div style="font-weight:600;margin-bottom:8px;">No plan data available</div>
+        </div>
+      `;
+      return;
+    }
+
+    const currentPlanKey = currentPlan || 'free';
+    const plans = planData;
+    const planKeys = ['free', 'pro', 'premium'];
+
+    let html = '';
+
+    // ---- Header ----
+    html += `
+      <div class="page-header">
+        <h2>Upgrade Plan</h2>
+        <div class="sub">Choose the plan that fits your business</div>
+      </div>
+    `;
+
+    // ---- Current Plan Banner ----
+    const currentPlanDisplay = plans[currentPlanKey] || plans.free;
+    html += `
+      <div class="current-plan-banner">
+        <div>
+          <div class="plan-label">Current Plan</div>
+          <div class="plan-name">${currentPlanDisplay.name || 'Free'}</div>
+        </div>
+        <span class="plan-badge ${currentPlanKey === 'premium' ? 'premium' : currentPlanKey === 'pro' ? 'pro' : ''}">${(currentPlanKey || 'free').toUpperCase()}</span>
+      </div>
+    `;
+
+    // ---- Plan Cards ----
+    html += `<div class="plan-grid">`;
+
+    planKeys.forEach(key => {
+      const plan = plans[key];
+      if (!plan) return;
+      const isCurrent = key === currentPlanKey;
+      const isFeatured = key === 'pro' && !isCurrent;
+
+      // Build features list
+      let featuresHtml = '';
+      if (plan.features && plan.features.length) {
+        plan.features.forEach(f => {
+          featuresHtml += `<li><i class="fa-solid fa-check"></i> ${f}</li>`;
+        });
+      }
+      if (plan.not_included && plan.not_included.length) {
+        plan.not_included.forEach(f => {
+          featuresHtml += `<li><i class="fa-solid fa-xmark"></i> ${f}</li>`;
+        });
+      }
+
+      // Price display: show nothing or just "Free" for free plan
+      // Prices are handled by the payment page, not displayed here
+      const priceDisplay = key === 'free' ? 'Free' : '';
+
+      html += `
+        <div class="plan-card ${isFeatured ? 'featured' : ''}">
+          ${isFeatured ? '<div class="card-badge">Most Popular</div>' : ''}
+          ${key === 'premium' && !isCurrent ? '<div class="card-badge premium-badge">Best Value</div>' : ''}
+          <div class="plan-name">${plan.name || key.charAt(0).toUpperCase() + key.slice(1)}</div>
+          ${priceDisplay ? `<div class="plan-price">${priceDisplay}</div>` : ''}
+          <div class="plan-desc">${plan.description || ''}</div>
+          <ul class="plan-features">${featuresHtml}</ul>
+          ${isCurrent ? `<div class="current-badge"><i class="fa-solid fa-check-circle"></i> Current Plan</div>` : ''}
+          ${!isCurrent ? `<button class="btn-upgrade ${key === 'premium' ? 'premium-btn' : 'primary'}" onclick="initiateUpgrade('${key}')">Upgrade to ${plan.name}</button>` : ''}
+        </div>
+      `;
+    });
+
+    html += `</div>`;
+
+    // ---- Footer note ----
+    html += `
+      <div style="font-size:12px;color:var(--text-tertiary);text-align:center;padding:8px 0 20px;">
+        All plans include a 31-day subscription. You can cancel anytime.
+      </div>
+    `;
+
+    app.innerHTML = html;
+  }
+
+  // ================================================================
+  //  TOAST (fallback)
+  // ================================================================
+  function toast(msg, type) {
+    if (window.toast) { window.toast(msg, type); return; }
+    alert(msg);
+  }
+
+  // ================================================================
+  //  INIT
+  // ================================================================
+  async function init() {
+    const app = document.getElementById('upgradeApp');
+
+    try {
+      // 1. Get session
+      const session = getSession();
+      if (!session) {
+        loadError = 'No session found. Please log in again.';
+        isLoading = false;
+        render();
+        return;
+      }
+
+      // 2. Update window.S if needed
+      if (!window.S) window.S = {};
+      window.S.email = session.email;
+      window.S.password = session.password;
+      window.S.slug = session.slug;
+      window.S.plan = session.plan;
+
+      // 3. Fetch shop data to get current plan
+      const shop = await fetchShopData(session);
+      if (shop) {
+        currentPlan = shop.plan || session.plan || 'free';
+        window.S.plan = currentPlan;
+        // Update drawer if function exists
+        if (window.updateDrawerInfo) window.updateDrawerInfo();
+      } else {
+        currentPlan = session.plan || 'free';
+      }
+
+      // 4. Fetch plans (including payment links)
+      planData = await fetchPlans();
+
+      isLoading = false;
+      render();
+
+    } catch (error) {
+      console.error('Upgrade init error:', error);
+      loadError = error.message || 'Failed to load upgrade page.';
+      isLoading = false;
+      render();
+    }
+  }
+
+  // Expose upgrade function globally for inline onclick
+  window.initiateUpgrade = initiateUpgrade;
+
+  // Start
+  init();
+})();
+</script>
+</body>
+</html>

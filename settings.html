@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings – MyShub</title>
+  <style>
+    /* ===== SETTINGS PAGE STYLES ===== */
+    .settings-page { padding: 0; }
+
+    .page-header { margin-bottom: 24px; }
+    .page-header h2 { font-size: 22px; font-weight: 800; }
+    .page-header .sub { color: var(--text-secondary); font-size: 14px; margin-top: 4px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .card .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card .card-title i { color: var(--brand); }
+
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .setting-row:last-child { border-bottom: none; }
+    .setting-row .setting-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .setting-row .setting-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .setting-row .setting-control { flex-shrink: 0; }
+
+    /* Toggle Switch */
+    .toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .toggle-track {
+      width: 44px;
+      height: 24px;
+      background: var(--border);
+      border-radius: 12px;
+      position: relative;
+      transition: var(--transition);
+    }
+    .toggle-track.on { background: var(--brand); }
+    .toggle-thumb {
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border-radius: 50%;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      transition: var(--transition);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .toggle-track.on .toggle-thumb { left: 22px; }
+
+    .btn {
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 12px;
+      padding: 10px 18px;
+      font-size: 13px;
+    }
+    .btn-primary {
+      background: var(--brand);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--brand-dark);
+      transform: translateY(-1px);
+    }
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+    .btn-danger:hover {
+      background: #dc2626;
+      transform: translateY(-1px);
+    }
+    .btn-sm { padding: 6px 14px; font-size: 12px; }
+    .btn-block { width: 100%; }
+
+    .loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; gap: 16px; color: var(--text-secondary); }
+    .loading-state .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--brand); border-radius: 50%; animation: spin 1s linear infinite; }
+    .error-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+    .error-state i { font-size: 48px; color: var(--text-tertiary); margin-bottom: 16px; display: block; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media(max-width: 640px) {
+      .setting-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .setting-row .setting-control { align-self: flex-end; }
+    }
+  </style>
+</head>
+<body>
+<div class="settings-page" id="settingsApp">
+  <!-- Dynamic content -->
+</div>
+
+<script>
+// ================================================================
+//  SETTINGS PAGE — FULLY INTEGRATED WITH SHELL
+//  Includes: Account, Dark Mode, Push Notifications, Shop Status, Logout
+// ================================================================
+
+(function() {
+  'use strict';
+
+  // ================================================================
+  //  CONFIG
+  // ================================================================
+  const API = window.API || 'https://emltechstudio-myshub-api.hf.space';
+  const APP_URL = window.APP_URL || 'https://myshub.site';
+
+  // ================================================================
+  //  STATE
+  // ================================================================
+  let shopData = null;
+  let shopJson = null;
+  let isLoading = true;
+  let loadError = null;
+  let pushSubscribed = false;
+  let darkMode = false;
+
+  // ================================================================
+  //  GET SESSION
+  // ================================================================
+  function getSession() {
+    if (window.S && window.S.email) {
+      return {
+        email: window.S.email,
+        password: window.S.password || '',
+        slug: window.S.slug || '',
+        plan: window.S.plan || 'free'
+      };
+    }
+    try {
+      const raw = localStorage.getItem('myshub_session');
+      if (raw) {
+        const s = JSON.parse(raw);
+        if (s.email) {
+          return {
+            email: s.email,
+            password: s.password || '',
+            slug: s.slug || '',
+            plan: s.plan || 'free'
+          };
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  // ================================================================
+  //  FETCH SHOP DATA
+  // ================================================================
+  async function fetchShopData(session) {
+    if (!session || !session.slug) return null;
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+        'email': session.email,
+        'password': session.password
+      };
+      const res = await fetch(API + '/shop/preview/' + session.slug, { headers });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // ================================================================
+  //  TOGGLE SHOP STATUS
+  // ================================================================
+  async function toggleShopStatus() {
+    const session = getSession();
+    if (!session) { toast('Please log in.', 'error'); return; }
+
+    const currentStatus = shopData?.status || 'active';
+    const newStatus = currentStatus === 'active' ? 'expired' : 'active';
+    const endpoint = newStatus === 'active' ? '/reactivate' : '/deactivate';
+
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+        'email': session.email,
+        'password': session.password
+      };
+      const res = await fetch(API + '/shop/' + session.slug + endpoint, {
+        method: 'POST',
+        headers: headers
+      });
+      if (!res.ok) throw new Error('Failed to update shop status');
+      const data = await res.json();
+      toast(data.message || 'Shop status updated.', 'success');
+      // Update local state
+      if (shopData) shopData.status = newStatus;
+      renderSettings();
+    } catch (e) {
+      toast(e.message || 'Error updating shop status.', 'error');
+    }
+  }
+
+  // ================================================================
+  //  PUSH NOTIFICATIONS
+  // ================================================================
+  async function togglePushNotifications() {
+    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+      toast('Push notifications not supported in this browser.', 'warning');
+      return;
+    }
+
+    // If already subscribed, unsubscribe
+    if (pushSubscribed) {
+      // Remove from backend
+      const session = getSession();
+      if (session) {
+        try {
+          await fetch(API + '/notifications/unsubscribe', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'email': session.email,
+              'password': session.password
+            }
+          });
+        } catch (e) {}
+      }
+      // Remove from local storage and state
+      localStorage.removeItem('myshub_push_subscription');
+      pushSubscribed = false;
+      toast('Push notifications disabled.', 'info');
+      renderSettings();
+      return;
+    }
+
+    // Request permission
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        toast('Permission denied. Please allow notifications in your browser settings.', 'warning');
+        return;
+      }
+
+      // Get service worker registration
+      const registration = await navigator.serviceWorker.ready;
+      // Subscribe to push
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array('your-vapid-public-key') // Replace with actual key
+      });
+
+      // Save to backend
+      const session = getSession();
+      if (!session) {
+        toast('Please log in to enable push notifications.', 'error');
+        return;
+      }
+
+      const subData = {
+        endpoint: subscription.endpoint,
+        keys: {
+          p256dh: btoa(String.fromCharCode.apply(null, new Uint8Array(subscription.getKey('p256dh')))),
+          auth: btoa(String.fromCharCode.apply(null, new Uint8Array(subscription.getKey('auth'))))
+        }
+      };
+
+      const res = await fetch(API + '/notifications/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'email': session.email,
+          'password': session.password
+        },
+        body: JSON.stringify(subData)
+      });
+
+      if (!res.ok) throw new Error('Failed to subscribe on server');
+
+      // Store locally
+      localStorage.setItem('myshub_push_subscription', JSON.stringify(subData));
+      pushSubscribed = true;
+      toast('Push notifications enabled!', 'success');
+      renderSettings();
+    } catch (e) {
+      console.error('Push subscription error:', e);
+      toast('Failed to enable push notifications: ' + e.message, 'error');
+    }
+  }
+
+  // Helper to convert VAPID key
+  function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  }
+
+  // ================================================================
+  //  TOAST (fallback)
+  // ================================================================
+  function toast(msg, type) {
+    if (window.toast) { window.toast(msg, type); return; }
+    alert(msg);
+  }
+
+  // ================================================================
+  //  ESCAPE HTML
+  // ================================================================
+  function escapeHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+  }
+
+  // ================================================================
+  //  RENDER SETTINGS
+  // ================================================================
+  function renderSettings() {
+    const app = document.getElementById('settingsApp');
+    if (!app) return;
+
+    if (isLoading) {
+      app.innerHTML = `
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <span>Loading settings...</span>
+        </div>
+      `;
+      return;
+    }
+
+    if (loadError) {
+      app.innerHTML = `
+        <div class="error-state">
+          <i class="fa-regular fa-circle-exclamation"></i>
+          <div style="font-weight:600;margin-bottom:8px;">Could not load settings</div>
+          <p style="font-size:13px;color:var(--text-secondary);">${loadError}</p>
+          <button class="btn btn-primary btn-sm" style="margin-top:16px;" onclick="location.reload()">Try Again</button>
+        </div>
+      `;
+      return;
+    }
+
+    const session = getSession();
+    if (!session) {
+      app.innerHTML = `
+        <div class="error-state">
+          <i class="fa-regular fa-user"></i>
+          <div style="font-weight:600;margin-bottom:8px;">Please log in</div>
+          <p style="font-size:13px;color:var(--text-secondary);">You need to be logged in to view settings.</p>
+        </div>
+      `;
+      return;
+    }
+
+    const sj = shopJson || {};
+    const plan = session.plan || 'free';
+    const shopStatus = shopData?.status || 'active';
+    const isShopActive = shopStatus === 'active';
+
+    // Dark mode from shell or localStorage
+    darkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+
+    // Push subscription status
+    const sub = localStorage.getItem('myshub_push_subscription');
+    pushSubscribed = !!sub;
+
+    let html = '';
+
+    // ---- Header ----
+    html += `
+      <div class="page-header">
+        <h2>Settings</h2>
+        <div class="sub">Manage your account and preferences.</div>
+      </div>
+    `;
+
+    // ---- Account Card ----
+    html += `
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-user"></i> Account</div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Email</div>
+            <div class="setting-desc">${escapeHtml(session.email)}</div>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Business Name</div>
+            <div class="setting-desc">${escapeHtml(sj.business_name || 'Not set')}</div>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Plan</div>
+            <div class="setting-desc">${plan.charAt(0).toUpperCase() + plan.slice(1)}</div>
+          </div>
+          ${plan !== 'premium' ? `<button class="btn btn-primary btn-sm" onclick="window.loadPage && window.loadPage('upgrade')">Upgrade</button>` : ''}
+        </div>
+      </div>
+    `;
+
+    // ---- Preferences Card ----
+    html += `
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-sliders"></i> Preferences</div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Dark Mode</div>
+            <div class="setting-desc">Easier on the eyes at night</div>
+          </div>
+          <div class="setting-control">
+            <div class="toggle-wrap" onclick="toggleDarkMode()">
+              <div class="toggle-track ${darkMode ? 'on' : ''}">
+                <div class="toggle-thumb"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Push Notifications</div>
+            <div class="setting-desc">Get alerts for visits and milestones</div>
+          </div>
+          <div class="setting-control">
+            <div class="toggle-wrap" onclick="togglePushNotifications()">
+              <div class="toggle-track ${pushSubscribed ? 'on' : ''}">
+                <div class="toggle-thumb"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // ---- Shop Status Card ----
+    html += `
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-store"></i> Shop Status</div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">${isShopActive ? '🟢 Live' : '🔴 Hidden'}</div>
+            <div class="setting-desc">${isShopActive ? 'Your shop is visible to the public.' : 'Your shop is currently hidden.'}</div>
+          </div>
+          <div class="setting-control">
+            <div class="toggle-wrap" onclick="toggleShopStatus()">
+              <div class="toggle-track ${isShopActive ? 'on' : ''}">
+                <div class="toggle-thumb"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // ---- Logout Button ----
+    html += `
+      <button class="btn btn-danger btn-block" onclick="doLogout()">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </button>
+    `;
+
+    // ---- Footer ----
+    html += `
+      <div style="font-size:12px;color:var(--text-tertiary);text-align:center;padding:12px 0 20px;">
+        MyShub v3.0 • ${APP_URL}
+      </div>
+    `;
+
+    app.innerHTML = html;
+  }
+
+  // ================================================================
+  //  ACTIONS
+  // ================================================================
+  function toggleDarkMode() {
+    if (window.toggleDarkMode) {
+      window.toggleDarkMode();
+    } else {
+      // Fallback: toggle manually
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const newTheme = isDark ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('myshub_dark', newTheme === 'dark' ? '1' : '0');
+      if (window.S) window.S.darkMode = newTheme === 'dark';
+    }
+    // Re-render to reflect toggle state
+    renderSettings();
+  }
+
+  function doLogout() {
+    if (window.doLogout) {
+      window.doLogout();
+    } else {
+      // Fallback logout
+      localStorage.removeItem('myshub_session');
+      if (window.location) window.location.reload();
+    }
+  }
+
+  // ================================================================
+  //  INIT
+  // ================================================================
+  async function init() {
+    const app = document.getElementById('settingsApp');
+
+    try {
+      const session = getSession();
+      if (!session) {
+        isLoading = false;
+        renderSettings();
+        return;
+      }
+
+      // Fetch shop data
+      const data = await fetchShopData(session);
+      if (data) {
+        shopData = data;
+        shopJson = data.shop_json || {};
+        // Update session plan if changed
+        if (data.plan && data.plan !== session.plan) {
+          session.plan = data.plan;
+          if (window.S) window.S.plan = data.plan;
+          localStorage.setItem('myshub_session', JSON.stringify(session));
+        }
+      } else {
+        // Fallback: use session data
+        shopJson = {};
+        shopData = { status: 'active' };
+      }
+
+      isLoading = false;
+      renderSettings();
+    } catch (error) {
+      console.error('Settings init error:', error);
+      loadError = error.message || 'Failed to load settings.';
+      isLoading = false;
+      renderSettings();
+    }
+  }
+
+  // Expose functions for inline onclick
+  window.toggleDarkMode = toggleDarkMode;
+  window.togglePushNotifications = togglePushNotifications;
+  window.toggleShopStatus = toggleShopStatus;
+  window.doLogout = doLogout;
+  window.toast = toast;
+
+  // Start
+  init();
+})();
+</script>
+</body>
+</html>

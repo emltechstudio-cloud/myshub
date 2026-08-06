@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support – MyShub</title>
+  <style>
+    /* ===== SUPPORT PAGE STYLES ===== */
+    .support-page { padding: 0; }
+
+    .page-header { margin-bottom: 24px; }
+    .page-header h2 { font-size: 22px; font-weight: 800; }
+    .page-header .sub { color: var(--text-secondary); font-size: 14px; margin-top: 4px; }
+
+    .support-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .support-card .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .support-card .card-title i { color: var(--brand); }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-secondary);
+    }
+    .form-group .required { color: var(--danger); }
+    .form-input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: inherit;
+      background: var(--surface);
+      color: var(--text);
+      transition: var(--transition);
+      outline: none;
+    }
+    .form-input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+    .form-input::placeholder { color: var(--text-tertiary); }
+    textarea.form-input { resize: vertical; min-height: 120px; }
+
+    .form-hint {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 4px;
+    }
+
+    .btn {
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-size: 14px;
+      width: 100%;
+    }
+    .btn-primary {
+      background: var(--brand);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--brand-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.25);
+    }
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover {
+      background: var(--surface-hover);
+    }
+    .btn-sm {
+      padding: 6px 14px;
+      font-size: 12px;
+      width: auto;
+    }
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: none;
+      flex-shrink: 0;
+    }
+    .btn.loading .spinner { display: inline-block; }
+    .btn.loading .btn-text { opacity: 0.8; }
+
+    .success-message {
+      background: var(--success-soft);
+      color: var(--success);
+      border: 1px solid var(--success);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      display: none;
+    }
+    .success-message.show { display: block; }
+    .success-message i { font-size: 24px; display: block; margin-bottom: 8px; }
+
+    .error-message {
+      background: var(--danger-soft);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 13px;
+      display: none;
+      margin-bottom: 16px;
+    }
+    .error-message.show { display: block; }
+
+    /* Ticket List */
+    .ticket-list { margin-top: 16px; }
+    .ticket-item {
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .ticket-item .ticket-info { flex: 1; min-width: 0; }
+    .ticket-item .ticket-subject { font-weight: 600; font-size: 13px; }
+    .ticket-item .ticket-detail {
+      font-size: 12px;
+      color: var(--text-secondary);
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .ticket-item .ticket-detail .status {
+      font-weight: 600;
+      padding: 0 8px;
+      border-radius: 30px;
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+    .ticket-item .ticket-detail .status.open { background: var(--success-soft); color: var(--success); }
+    .ticket-item .ticket-detail .status.closed { background: var(--border); color: var(--text-tertiary); }
+    .ticket-item .ticket-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    .loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; gap: 16px; color: var(--text-secondary); }
+    .loading-state .spinner-lg { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--brand); border-radius: 50%; animation: spin 1s linear infinite; }
+
+    .empty-state { text-align: center; padding: 30px 20px; color: var(--text-secondary); }
+    .empty-state i { font-size: 32px; color: var(--text-tertiary); margin-bottom: 12px; display: block; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media(max-width: 640px) {
+      .support-card { padding: 16px; }
+      .ticket-item { flex-direction: column; align-items: stretch; }
+      .ticket-item .ticket-actions { justify-content: flex-end; }
+    }
+  </style>
+</head>
+<body>
+<div class="support-page" id="supportApp">
+  <!-- Dynamic content -->
+</div>
+
+<script>
+// ================================================================
+//  SUPPORT PAGE — TICKET SUBMISSION WITH LOCAL STORAGE
+//  Stores tickets in localStorage per user (slug)
+//  Allows view, delete, and send new tickets
+// ================================================================
+
+(function() {
+  'use strict';
+
+  // ================================================================
+  //  CONFIG
+  // ================================================================
+  const API = window.API || 'https://emltechstudio-myshub-api.hf.space';
+  const APP_URL = window.APP_URL || 'https://myshub.site';
+
+  // ================================================================
+  //  STATE
+  // ================================================================
+  let userSlug = '';
+  let tickets = [];
+  let isLoading = false;
+
+  // ================================================================
+  //  GET SESSION
+  // ================================================================
+  function getSession() {
+    if (window.S && window.S.email) {
+      return {
+        email: window.S.email,
+        password: window.S.password || '',
+        slug: window.S.slug || '',
+        plan: window.S.plan || 'free'
+      };
+    }
+    try {
+      const raw = localStorage.getItem('myshub_session');
+      if (raw) {
+        const s = JSON.parse(raw);
+        if (s.email) {
+          return {
+            email: s.email,
+            password: s.password || '',
+            slug: s.slug || '',
+            plan: s.plan || 'free'
+          };
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  // ================================================================
+  //  LOCAL STORAGE HELPERS
+  // ================================================================
+  function getStorageKey() {
+    const slug = userSlug || 'guest';
+    return 'myshub_tickets_' + slug;
+  }
+
+  function loadTicketsFromStorage() {
+    try {
+      const raw = localStorage.getItem(getStorageKey());
+      if (raw) {
+        tickets = JSON.parse(raw);
+        // Ensure each ticket has an id
+        tickets = tickets.filter(t => t.id);
+        return tickets;
+      }
+    } catch (e) {}
+    tickets = [];
+    return tickets;
+  }
+
+  function saveTicketsToStorage() {
+    try {
+      localStorage.setItem(getStorageKey(), JSON.stringify(tickets));
+    } catch (e) {}
+  }
+
+  function addTicketToStorage(ticket) {
+    tickets.push(ticket);
+    saveTicketsToStorage();
+  }
+
+  function deleteTicketFromStorage(ticketId) {
+    tickets = tickets.filter(t => t.id !== ticketId);
+    saveTicketsToStorage();
+  }
+
+  // ================================================================
+  //  SUBMIT TICKET (to backend + local storage)
+  // ================================================================
+  async function submitTicket(e) {
+    e.preventDefault();
+
+    const form = document.getElementById('supportForm');
+    const nameInput = document.getElementById('supportName');
+    const emailInput = document.getElementById('supportEmail');
+    const subjectInput = document.getElementById('supportSubject');
+    const messageInput = document.getElementById('supportMessage');
+    const errorEl = document.getElementById('formError');
+    const successEl = document.getElementById('formSuccess');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Clear previous states
+    errorEl.classList.remove('show');
+    successEl.classList.remove('show');
+
+    // Validate
+    const name = nameInput.value.trim();
+    const email = emailInput.value.trim();
+    const subject = subjectInput.value.trim();
+    const message = messageInput.value.trim();
+
+    if (!name) {
+      errorEl.textContent = 'Please enter your name.';
+      errorEl.classList.add('show');
+      nameInput.focus();
+      return;
+    }
+    if (!email || !email.includes('@')) {
+      errorEl.textContent = 'Please enter a valid email address.';
+      errorEl.classList.add('show');
+      emailInput.focus();
+      return;
+    }
+    if (!subject) {
+      errorEl.textContent = 'Please select a subject.';
+      errorEl.classList.add('show');
+      subjectInput.focus();
+      return;
+    }
+    if (!message || message.length < 10) {
+      errorEl.textContent = 'Please enter a detailed message (at least 10 characters).';
+      errorEl.classList.add('show');
+      messageInput.focus();
+      return;
+    }
+
+    // Disable button and show loading
+    submitBtn.disabled = true;
+    submitBtn.classList.add('loading');
+
+    try {
+      const payload = {
+        name: name,
+        email: email,
+        message: message,
+        type: subject
+      };
+
+      // Send to backend
+      const response = await fetch(API + '/feedback/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      // Regardless of backend response, we'll store locally
+      // But if backend fails, we still show success but with a note
+      let backendSuccess = response.ok;
+      let backendMessage = '';
+      if (!backendSuccess) {
+        try {
+          const errData = await response.json();
+          backendMessage = errData.detail || errData.message || 'Backend error, but ticket saved locally.';
+        } catch (e) {
+          backendMessage = 'Could not reach backend, but ticket saved locally.';
+        }
+      }
+
+      // Create ticket object
+      const ticket = {
+        id: 't_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        name: name,
+        email: email,
+        subject: subject,
+        message: message,
+        type: subject,
+        createdAt: new Date().toISOString(),
+        status: backendSuccess ? 'open' : 'pending',
+        synced: backendSuccess
+      };
+
+      // Store locally
+      addTicketToStorage(ticket);
+
+      // Show success
+      successEl.classList.add('show');
+      if (!backendSuccess) {
+        successEl.innerHTML = `
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <div style="font-weight:700;margin-bottom:4px;">Ticket Saved Locally!</div>
+          <div style="font-size:13px;">We couldn't reach our servers, but your ticket is saved. We'll sync it later.</div>
+        `;
+      } else {
+        successEl.innerHTML = `
+          <i class="fa-solid fa-circle-check"></i>
+          <div style="font-weight:700;margin-bottom:4px;">Ticket Sent!</div>
+          <div style="font-size:13px;">We'll respond to your email within 24 hours.</div>
+        `;
+      }
+      successEl.classList.add('show');
+
+      // Reset form (keep email and name)
+      form.reset();
+      emailInput.value = email;
+      nameInput.value = name;
+      // Set subject dropdown to empty
+      subjectInput.value = '';
+
+      // Re-render ticket list
+      renderTicketList();
+
+      // Scroll to success
+      successEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      toast(backendSuccess ? 'Ticket sent!' : 'Ticket saved locally.', backendSuccess ? 'success' : 'warning');
+
+    } catch (error) {
+      console.error('Submit ticket error:', error);
+      errorEl.textContent = error.message || 'Failed to send ticket. Please try again later.';
+      errorEl.classList.add('show');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('loading');
+    }
+  }
+
+  // ================================================================
+  //  DELETE TICKET
+  // ================================================================
+  function deleteTicket(ticketId) {
+    if (!confirm('Delete this ticket?')) return;
+    deleteTicketFromStorage(ticketId);
+    renderTicketList();
+    toast('Ticket deleted.', 'info');
+  }
+
+  // ================================================================
+  //  RENDER TICKET LIST
+  // ================================================================
+  function renderTicketList() {
+    const container = document.getElementById('ticketListContainer');
+    if (!container) return;
+
+    const tickets = loadTicketsFromStorage();
+
+    if (!tickets.length) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <i class="fa-regular fa-ticket"></i>
+          <div style="font-weight:600;margin-bottom:4px;">No tickets yet</div>
+          <div style="font-size:13px;color:var(--text-secondary);">Send a ticket above and it will appear here.</div>
+        </div>
+      `;
+      return;
+    }
+
+    // Sort by newest first
+    const sorted = [...tickets].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    let html = '';
+    sorted.forEach(t => {
+      const statusClass = t.status === 'open' ? 'open' : 'closed';
+      const statusLabel = t.status === 'open' ? 'Open' : (t.status === 'pending' ? 'Pending' : 'Closed');
+      const date = new Date(t.createdAt);
+      const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      html += `
+        <div class="ticket-item">
+          <div class="ticket-info">
+            <div class="ticket-subject">${escapeHtml(t.subject)}</div>
+            <div class="ticket-detail">
+              <span>${escapeHtml(t.name)}</span>
+              <span>•</span>
+              <span>${escapeHtml(t.email)}</span>
+              <span>•</span>
+              <span>${dateStr}</span>
+              <span class="status ${statusClass}">${statusLabel}</span>
+              ${!t.synced ? '<span style="color:var(--warning);font-weight:600;">⚠️ Not synced</span>' : ''}
+            </div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;max-height:40px;overflow:hidden;">
+              ${escapeHtml(t.message.substring(0, 100))}${t.message.length > 100 ? '...' : ''}
+            </div>
+          </div>
+          <div class="ticket-actions">
+            <button class="btn btn-ghost btn-sm" onclick="viewTicket('${t.id}')"><i class="fa-regular fa-eye"></i></button>
+            <button class="btn btn-danger btn-sm" onclick="deleteTicket('${t.id}')"><i class="fa-regular fa-trash-can"></i></button>
+          </div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+  }
+
+  // ================================================================
+  //  VIEW TICKET DETAIL (modal/expand)
+  // ================================================================
+  function viewTicket(ticketId) {
+    const ticket = tickets.find(t => t.id === ticketId);
+    if (!ticket) return;
+
+    // Create a simple modal to show full details
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;';
+    modal.innerHTML = `
+      <div style="background:var(--surface);border-radius:20px;max-width:500px;width:100%;padding:24px;max-height:80vh;overflow-y:auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3 style="font-weight:800;">Ticket Details</h3>
+          <button onclick="this.closest('div[style]').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;color:var(--text-secondary);">&times;</button>
+        </div>
+        <div style="margin-bottom:12px;">
+          <div style="font-size:12px;color:var(--text-tertiary);">Subject</div>
+          <div style="font-weight:700;">${escapeHtml(ticket.subject)}</div>
+        </div>
+        <div style="margin-bottom:12px;">
+          <div style="font-size:12px;color:var(--text-tertiary);">From</div>
+          <div>${escapeHtml(ticket.name)} &lt;${escapeHtml(ticket.email)}&gt;</div>
+        </div>
+        <div style="margin-bottom:12px;">
+          <div style="font-size:12px;color:var(--text-tertiary);">Sent</div>
+          <div>${new Date(ticket.createdAt).toLocaleString()}</div>
+        </div>
+        <div style="margin-bottom:12px;">
+          <div style="font-size:12px;color:var(--text-tertiary);">Status</div>
+          <span class="status ${ticket.status === 'open' ? 'open' : 'closed'}">${ticket.status.toUpperCase()}</span>
+          ${!ticket.synced ? ' <span style="color:var(--warning);font-weight:600;">⚠️ Not synced</span>' : ''}
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--text-tertiary);">Message</div>
+          <div style="background:var(--surface-hover);padding:12px;border-radius:12px;white-space:pre-wrap;font-size:14px;">${escapeHtml(ticket.message)}</div>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end;">
+          <button class="btn btn-ghost btn-sm" onclick="this.closest('div[style]').remove()">Close</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteTicket('${ticket.id}');this.closest('div[style]').remove();">Delete</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', function(e) { if (e.target === this) this.remove(); });
+  }
+
+  // ================================================================
+  //  TOAST (fallback)
+  // ================================================================
+  function toast(msg, type) {
+    if (window.toast) { window.toast(msg, type); return; }
+    alert(msg);
+  }
+
+  // ================================================================
+  //  ESCAPE HTML
+  // ================================================================
+  function escapeHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+  }
+
+  // ================================================================
+  //  RENDER PAGE
+  // ================================================================
+  function render() {
+    const app = document.getElementById('supportApp');
+    if (!app) return;
+
+    const session = getSession();
+    userSlug = session ? session.slug : '';
+    const userEmail = session ? session.email : '';
+
+    // Load tickets from storage
+    loadTicketsFromStorage();
+
+    let html = '';
+
+    // ---- Header ----
+    html += `
+      <div class="page-header">
+        <h2>Support</h2>
+        <div class="sub">Send a ticket or view your past tickets.</div>
+      </div>
+    `;
+
+    // ---- Ticket Form ----
+    html += `
+      <div class="support-card">
+        <div class="card-title"><i class="fa-solid fa-headset"></i> Submit a Ticket</div>
+
+        <div id="formError" class="error-message"></div>
+        <div id="formSuccess" class="success-message">
+          <i class="fa-solid fa-circle-check"></i>
+          <div style="font-weight:700;margin-bottom:4px;">Ticket Sent!</div>
+          <div style="font-size:13px;">We'll respond to your email within 24 hours.</div>
+        </div>
+
+        <form id="supportForm" onsubmit="submitTicket(event)">
+          <div class="form-group">
+            <label>Your Name <span class="required">*</span></label>
+            <input type="text" id="supportName" class="form-input" placeholder="John Doe" value="${session ? (window.S?.shopData?.business_name || '') : ''}" required>
+          </div>
+
+          <div class="form-group">
+            <label>Your Email <span class="required">*</span></label>
+            <input type="email" id="supportEmail" class="form-input" placeholder="you@example.com" value="${userEmail}" required>
+            <div class="form-hint">We'll reply to this email address.</div>
+          </div>
+
+          <div class="form-group">
+            <label>Subject / Issue Type <span class="required">*</span></label>
+            <select id="supportSubject" class="form-input" required>
+              <option value="">Select a topic</option>
+              <option value="general">General Inquiry</option>
+              <option value="technical">Technical Issue</option>
+              <option value="billing">Billing / Payment</option>
+              <option value="feature">Feature Request</option>
+              <option value="account">Account Help</option>
+              <option value="bug">Bug Report</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Message <span class="required">*</span></label>
+            <textarea id="supportMessage" class="form-input" placeholder="Describe your issue in detail..." required></textarea>
+            <div class="form-hint">Please include as much detail as possible to help us assist you quickly.</div>
+          </div>
+
+          <button type="submit" id="submitBtn" class="btn btn-primary">
+            <span class="spinner"></span>
+            <span class="btn-text"><i class="fa-solid fa-paper-plane"></i> Send Ticket</span>
+          </button>
+        </form>
+      </div>
+    `;
+
+    // ---- Ticket List ----
+    html += `
+      <div class="support-card">
+        <div class="card-title">
+          <span><i class="fa-regular fa-ticket"></i> Your Tickets</span>
+        </div>
+        <div id="ticketListContainer"></div>
+      </div>
+    `;
+
+    app.innerHTML = html;
+
+    // ---- Render ticket list ----
+    renderTicketList();
+
+    // Attach form submit handler
+    const form = document.getElementById('supportForm');
+    if (form) {
+      form.onsubmit = submitTicket;
+    }
+  }
+
+  // ================================================================
+  //  INIT
+  // ================================================================
+  function init() {
+    render();
+  }
+
+  // Expose functions globally for inline onclick
+  window.submitTicket = submitTicket;
+  window.deleteTicket = deleteTicket;
+  window.viewTicket = viewTicket;
+
+  // Start
+  init();
+})();
+</script>
+</body>
+</html>

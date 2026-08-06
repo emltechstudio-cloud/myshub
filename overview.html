@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overview – MyShub</title>
+  <style>
+    /* ===== OVERVIEW PAGE STYLES ===== */
+    .overview-page { padding: 0; }
+
+    .page-header { margin-bottom: 24px; }
+    .page-header h2 { font-size: 22px; font-weight: 800; }
+    .page-header .sub { color: var(--text-secondary); font-size: 14px; margin-top: 4px; }
+
+    .identity-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 28px;
+      padding: 22px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .identity-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+    .identity-card::before {
+      content: '';
+      position: absolute;
+      top: -50px; right: -50px;
+      width: 150px; height: 150px;
+      background: radial-gradient(circle, rgba(37,99,235,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .identity-top { display: flex; gap: 16px; align-items: flex-start; }
+    .identity-logo {
+      width: 72px; height: 72px;
+      border-radius: 20px;
+      object-fit: cover;
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--brand);
+    }
+    .identity-info { flex: 1; min-width: 0; }
+    .identity-name {
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 4px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+    .identity-name .plan-badge {
+      font-size: 10px;
+      background: var(--brand);
+      color: #fff;
+      padding: 2px 10px;
+      border-radius: 30px;
+      text-transform: uppercase;
+    }
+    .identity-name .plan-badge.premium { background: linear-gradient(135deg, #f59e0b, #ec4899); }
+    .identity-name .plan-badge.pro { background: var(--brand); }
+    .identity-tagline {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+    .identity-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+    .identity-link input {
+      flex: 1;
+      border: none;
+      background: none;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+    }
+    .identity-link .btn-ghost {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .identity-link .btn-ghost:hover { background: var(--surface-hover); }
+
+    /* QR Section */
+    .identity-qr-section {
+      margin-top: 16px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 14px;
+    }
+    .qr-box {
+      width: 100px;
+      height: 100px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .qr-box img, .qr-box canvas { width: 100%; height: 100%; object-fit: contain; }
+    .qr-actions { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .qr-actions .qr-title { font-size: 13px; font-weight: 700; }
+    .qr-actions .qr-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.3; }
+    .qr-buttons { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+
+    .btn {
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border-radius: 12px;
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+    .btn-primary {
+      background: var(--brand);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); }
+    .btn-ghost {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: var(--surface-hover); }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .stat-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      text-align: center;
+      transition: var(--transition);
+    }
+    .stat-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .stat-item .stat-number { font-size: 24px; font-weight: 800; color: var(--brand); line-height: 1.2; }
+    .stat-item .stat-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+
+    .cta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .cta-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 22px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: left;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+    }
+    .cta-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+      border-color: var(--brand);
+    }
+    .cta-card-icon { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .cta-card-title { font-size: 14px; font-weight: 700; }
+    .cta-card-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.3; }
+
+    .referral-banner {
+      background: linear-gradient(135deg, var(--brand), var(--purple));
+      color: #fff;
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .referral-banner::after {
+      content: '🎁';
+      position: absolute;
+      bottom: -10px;
+      right: -10px;
+      font-size: 60px;
+      opacity: 0.15;
+      transform: rotate(-10deg);
+    }
+    .referral-banner .banner-title { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+    .referral-banner .banner-desc { font-size: 13px; opacity: 0.9; margin-bottom: 12px; }
+    .referral-banner .progress-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .referral-banner .progress-bar-bg { flex: 1; height: 8px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden; }
+    .referral-banner .progress-bar-fill { height: 100%; background: #fff; border-radius: 4px; transition: width 0.6s ease; }
+    .referral-banner .progress-text { font-size: 13px; font-weight: 700; white-space: nowrap; }
+    .referral-banner .banner-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .referral-banner .btn-white {
+      background: #fff; color: var(--brand); border: none; padding: 8px 18px; border-radius: 30px;
+      font-weight: 700; font-size: 13px; cursor: pointer; transition: var(--transition);
+      display: inline-flex; align-items: center; gap: 6px; font-family: inherit;
+    }
+    .referral-banner .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+    .referral-banner .btn-outline-white {
+      background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,0.4);
+      padding: 8px 18px; border-radius: 30px; font-weight: 700; font-size: 13px;
+      cursor: pointer; transition: var(--transition);
+      display: inline-flex; align-items: center; gap: 6px; font-family: inherit;
+    }
+    .referral-banner .btn-outline-white:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+
+    .checklist-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .checklist-progress { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .checklist-progress .bar { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .checklist-progress .bar .fill { height: 100%; background: linear-gradient(90deg, var(--brand), var(--purple)); border-radius: 3px; transition: width .5s ease; }
+    .checklist-progress .label { font-size: 13px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+    .checklist-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border-light); font-size: 13px; }
+    .checklist-item:last-child { border-bottom: none; }
+    .checklist-item.done { color: var(--text-tertiary); text-decoration: line-through; }
+    .checklist-item i { width: 20px; text-align: center; }
+    .checklist-item.done i { color: var(--success); }
+
+    .error-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+    .error-state i { font-size: 48px; color: var(--text-tertiary); margin-bottom: 16px; display: block; }
+
+    @media(max-width: 640px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .cta-grid { grid-template-columns: 1fr; }
+      .identity-top { flex-direction: column; align-items: center; text-align: center; }
+      .identity-qr-section { flex-direction: column; align-items: center; }
+      .qr-box { width: 120px; height: 120px; }
+    }
+  </style>
+</head>
+<body>
+<div class="overview-page" id="overviewApp">
+  <!-- Dynamic content -->
+</div>
+
+<script>
+// ================================================================
+//  OVERVIEW PAGE — WITH QR, BUSINESS CARD, VCARD
+// ================================================================
+
+(function() {
+  'use strict';
+
+  // ================================================================
+  //  CONFIG
+  // ================================================================
+  const API = window.API || 'https://emltechstudio-myshub-api.hf.space';
+  const APP_URL = window.APP_URL || 'https://myshub.site';
+
+  // ================================================================
+  //  STATE
+  // ================================================================
+  let shopData = null;
+  let shopJson = null;
+  let referrals = [];
+  let currentPlan = 'free';
+  let totalVisits = 0;
+  let todayVisits = 0;
+  let qrDataUrl = '';
+
+  // ================================================================
+  //  GET SESSION
+  // ================================================================
+  function getSession() {
+    if (window.S && window.S.email) {
+      return {
+        email: window.S.email,
+        password: window.S.password || '',
+        slug: window.S.slug || '',
+        plan: window.S.plan || 'free'
+      };
+    }
+    try {
+      const raw = localStorage.getItem('myshub_session');
+      if (raw) {
+        const s = JSON.parse(raw);
+        if (s.email) {
+          return {
+            email: s.email,
+            password: s.password || '',
+            slug: s.slug || '',
+            plan: s.plan || 'free'
+          };
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  // ================================================================
+  //  FETCH SHOP DATA
+  // ================================================================
+  async function fetchShopData(session) {
+    if (!session || !session.slug) return null;
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+        'email': session.email,
+        'password': session.password
+      };
+      const res = await fetch(API + '/shop/preview/' + session.slug, { headers });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // ================================================================
+  //  FETCH REFERRALS
+  // ================================================================
+  async function fetchReferrals(session) {
+    if (!session || !session.slug) return [];
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+        'email': session.email,
+        'password': session.password
+      };
+      const res = await fetch(API + '/shop/referrals', { headers });
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data.referrals || [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  // ================================================================
+  //  QR GENERATION
+  // ================================================================
+  async function generateQR(slug) {
+    const lsKey = 'myshub_qr_' + slug;
+    const cached = localStorage.getItem(lsKey);
+    if (cached) { qrDataUrl = cached; return; }
+    const shopUrl = APP_URL + '/' + slug;
+    if (typeof QRCode === 'undefined') { qrDataUrl = shopUrl; return; }
+    try {
+      const dataUrl = await new Promise((resolve) => {
+        const div = document.createElement('div');
+        div.style.position = 'fixed';
+        div.style.left = '-9999px';
+        document.body.appendChild(div);
+        try {
+          new QRCode(div, { text: shopUrl, width: 260, height: 260, correctLevel: QRCode.CorrectLevel.H });
+          setTimeout(() => {
+            const canvas = div.querySelector('canvas');
+            let url = '';
+            if (canvas) url = canvas.toDataURL('image/png');
+            else { const img = div.querySelector('img'); if (img) url = img.src; }
+            document.body.removeChild(div);
+            resolve(url || shopUrl);
+          }, 300);
+        } catch (e) {
+          document.body.removeChild(div);
+          resolve(shopUrl);
+        }
+      });
+      qrDataUrl = dataUrl;
+      localStorage.setItem(lsKey, dataUrl);
+    } catch (e) {
+      qrDataUrl = shopUrl;
+    }
+  }
+
+  // ================================================================
+  //  BUSINESS CARD GENERATION
+  // ================================================================
+  async function generateBusinessCardDataUrl() {
+    const sj = shopJson || {};
+    const plan = currentPlan || 'free';
+    const canvas = document.createElement('canvas');
+    canvas.width = 1200; canvas.height = 700;
+    const ctx = canvas.getContext('2d');
+
+    // Background
+    if (plan === 'premium') {
+      const g = ctx.createLinearGradient(0,0,1200,700);
+      g.addColorStop(0,'#0f172a'); g.addColorStop(0.5,'#1e1b4b'); g.addColorStop(1,'#312e81');
+      ctx.fillStyle = g; ctx.fillRect(0,0,1200,700);
+      ctx.fillStyle = 'rgba(245,158,11,0.15)';
+      ctx.beginPath(); ctx.arc(1000,150,220,0,Math.PI*2); ctx.fill();
+    } else if (plan === 'pro') {
+      const g = ctx.createLinearGradient(0,0,1200,0);
+      g.addColorStop(0,'#eff6ff'); g.addColorStop(1,'#ffffff');
+      ctx.fillStyle = g; ctx.fillRect(0,0,1200,700);
+    } else {
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,1200,700);
+      ctx.fillStyle = '#f8fafc';
+      for (let i=0; i<1200; i+=28) for (let j=0; j<700; j+=28) ctx.fillRect(i,j,1,1);
+    }
+
+    // Top bar
+    if (plan === 'premium') {
+      const g = ctx.createLinearGradient(0,0,1200,0);
+      g.addColorStop(0,'#f59e0b'); g.addColorStop(0.5,'#8b5cf6'); g.addColorStop(1,'#2563eb');
+      ctx.fillStyle = g; ctx.fillRect(0,0,1200,14);
+    } else if (plan === 'pro') {
+      const g = ctx.createLinearGradient(0,0,1200,0);
+      g.addColorStop(0,'#2563eb'); g.addColorStop(1,'#8b5cf6');
+      ctx.fillStyle = g; ctx.fillRect(0,0,1200,10);
+    } else { ctx.fillStyle = '#2563eb'; ctx.fillRect(0,0,1200,8); }
+
+    // Title
+    ctx.fillStyle = plan === 'premium' ? '#ffffff' : '#0f172a';
+    ctx.font = '800 22px Inter'; ctx.fillText('MyShub', 40, 50);
+    ctx.fillStyle = plan === 'premium' ? 'rgba(255,255,255,0.7)' : '#64748b';
+    ctx.font = '500 14px Inter'; ctx.fillText(plan === 'premium' ? 'PREMIUM BUSINESS HUB' : plan === 'pro' ? 'PRO BUSINESS HUB' : 'BUSINESS HUB', 40, 72);
+
+    // Badge
+    if (plan !== 'free') {
+      const badgeX = 1050;
+      ctx.fillStyle = plan === 'premium' ? '#f59e0b' : '#2563eb';
+      ctx.beginPath(); ctx.roundRect(badgeX-90, 30, 90, 28, 14); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.font = '800 12px Inter'; ctx.textAlign = 'center'; ctx.fillText(plan.toUpperCase(), badgeX-45, 48); ctx.textAlign = 'left';
+    }
+
+    // Logo
+    try {
+      const logoUrl = sj.logo_url || '';
+      if (logoUrl) {
+        const img = new Image(); img.crossOrigin = 'anonymous'; img.src = logoUrl;
+        await new Promise(r => { img.onload = r; img.onerror = r; setTimeout(r, 800); });
+        ctx.save(); ctx.beginPath(); ctx.roundRect(50,100,88,88,20); ctx.clip(); ctx.drawImage(img,50,100,88,88); ctx.restore();
+      } else {
+        ctx.fillStyle = plan === 'premium' ? '#f59e0b' : '#2563eb';
+        ctx.beginPath(); ctx.roundRect(50,100,88,88,20); ctx.fill();
+        ctx.fillStyle = '#fff'; ctx.font = '800 38px Inter'; ctx.textAlign = 'center';
+        ctx.fillText((sj.business_name || 'M').charAt(0).toUpperCase(), 94, 155);
+        ctx.textAlign = 'left';
+      }
+    } catch {}
+
+    // Business name & tagline
+    const name = (sj.business_name || 'My Shop').substring(0,32);
+    const tagline = (sj.tagline || 'Welcome to my business hub').substring(0,50);
+    ctx.fillStyle = plan === 'premium' ? '#ffffff' : '#0f172a';
+    ctx.font = '800 44px Inter'; ctx.fillText(name, 160, 135);
+    ctx.fillStyle = plan === 'premium' ? 'rgba(255,255,255,0.75)' : '#475569';
+    ctx.font = '500 20px Inter'; ctx.fillText(tagline, 160, 168);
+
+    // Contact
+    const session = getSession();
+    ctx.fillStyle = plan === 'premium' ? '#e2e8f0' : '#0f172a';
+    ctx.font = '600 18px Inter';
+    const contactLine = ((sj.phone || '') + '  •  ' + (session?.email || '')).trim().substring(0,55);
+    if (contactLine) ctx.fillText(contactLine, 50, 235);
+    ctx.fillStyle = '#2563eb';
+    ctx.font = '700 20px Inter'; ctx.fillText(APP_URL + '/' + (session?.slug || ''), 50, 268);
+    if (sj.category) {
+      ctx.fillStyle = plan === 'premium' ? 'rgba(255,255,255,0.6)' : '#94a3b8';
+      ctx.font = '600 13px Inter'; ctx.fillText(sj.category.toUpperCase() + ' • ' + (sj.city || sj.state || ''), 50, 292);
+    }
+
+    // Separator
+    ctx.fillStyle = plan === 'premium' ? 'rgba(255,255,255,0.12)' : '#e2e8f0';
+    ctx.fillRect(50, 315, 420, 1);
+
+    // Socials
+    const socials = Object.keys(sj.socials || {}).slice(0,5);
+    if (socials.length) {
+      ctx.fillStyle = plan === 'premium' ? 'rgba(255,255,255,0.6)' : '#64748b';
+      ctx.font = '600 12px Inter'; ctx.fillText(socials.join(' • ').toUpperCase(), 50, 340);
+    }
+
+    // Footer
+    if (plan === 'free') {
+      ctx.fillStyle = '#94a3b8'; ctx.font = '500 13px Inter'; ctx.fillText('Powered by MyShub • myshub.site', 50, 670);
+    } else if (plan === 'pro') {
+      ctx.fillStyle = '#64748b'; ctx.font = '500 13px Inter'; ctx.fillText('myshub.site/' + (session?.slug || '') + ' • MyShub Pro', 50, 670);
+    } else {
+      ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '500 13px Inter'; ctx.fillText('Verified Premium • myshub.site/' + (session?.slug || ''), 50, 670);
+    }
+
+    // QR
+    if (qrDataUrl && qrDataUrl.startsWith('data:')) {
+      const qrX = 1200-340, qrY = 90, qrSize = 300;
+      ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.18)'; ctx.shadowBlur = 30; ctx.shadowOffsetY = 8;
+      ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.roundRect(qrX, qrY, qrSize, qrSize, 24); ctx.fill();
+      ctx.restore();
+      ctx.strokeStyle = plan === 'premium' ? '#f59e0b' : plan === 'pro' ? '#2563eb' : '#e2e8f0';
+      ctx.lineWidth = plan === 'free' ? 1 : 2.5;
+      ctx.beginPath(); ctx.roundRect(qrX, qrY, qrSize, qrSize, 24); ctx.stroke();
+      const qrImg = new Image(); qrImg.src = qrDataUrl;
+      await new Promise(r => { qrImg.onload = r; qrImg.onerror = r; setTimeout(r, 1200); });
+      try { ctx.drawImage(qrImg, qrX+18, qrY+18, qrSize-36, qrSize-36); } catch {}
+      ctx.fillStyle = plan === 'premium' ? '#ffffff' : '#0f172a';
+      ctx.font = '800 14px Inter'; ctx.textAlign = 'center';
+      ctx.fillText('SCAN TO VISIT', qrX+qrSize/2, qrY+qrSize+28);
+      ctx.fillStyle = plan === 'premium' ? 'rgba(255,255,255,0.6)' : '#64748b';
+      ctx.font = '500 12px Inter'; ctx.fillText(APP_URL + '/' + (session?.slug || ''), qrX+qrSize/2, qrY+qrSize+48);
+      ctx.textAlign = 'left';
+    }
+
+    return canvas.toDataURL('image/png');
+  }
+
+  // ================================================================
+  //  VCARD GENERATION
+  // ================================================================
+  function generateVCard() {
+    const sj = shopJson || {};
+    const session = getSession();
+    const name = sj.business_name || session?.slug || 'My Shop';
+    const phone = sj.phone || '';
+    const email = session?.email || '';
+    const slug = session?.slug || '';
+    const url = APP_URL + '/' + slug;
+    const tagline = sj.tagline || '';
+    return 'BEGIN:VCARD\nVERSION:3.0\nFN:' + name + '\nORG:' + name + '\nTEL:' + phone + '\nEMAIL:' + email + '\nURL:' + url + '\nNOTE:' + tagline + ' - ' + url + '\nEND:VCARD';
+  }
+
+  // ================================================================
+  //  HELPERS
+  // ================================================================
+  function escapeHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+  }
+
+  function fmt(n) {
+    n = Number(n) || 0;
+    if (n >= 1000000) return (n/1000000).toFixed(1).replace(/\.0$/,'') + 'M';
+    if (n >= 1000) return (n/1000).toFixed(1).replace(/\.0$/,'') + 'K';
+    return String(n);
+  }
+
+  function toast(msg, type) {
+    if (window.toast) { window.toast(msg, type); return; }
+    alert(msg);
+  }
+
+  function loadPage(page) {
+    if (window.loadPage) { window.loadPage(page); return; }
+    alert('Navigate to: ' + page);
+  }
+
+  function copyText(text) {
+    if (window.copyText) { window.copyText(text); return; }
+    navigator.clipboard.writeText(text).catch(() => {});
+  }
+
+  // ================================================================
+  //  DOWNLOAD FUNCTIONS
+  // ================================================================
+  function downloadQr() {
+    if (!qrDataUrl) return toast('QR not ready', 'warning');
+    const a = document.createElement('a');
+    a.href = qrDataUrl;
+    a.download = 'qr-' + (getSession()?.slug || 'shop') + '.png';
+    a.click();
+    toast('QR downloaded', 'success');
+  }
+
+  async function downloadBusinessCard() {
+    toast('Generating business card...', 'info');
+    try {
+      const url = await generateBusinessCardDataUrl();
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'business-card-' + (getSession()?.slug || 'shop') + '.png';
+      a.click();
+      toast('Business card downloaded', 'success');
+    } catch (e) {
+      toast('Failed to generate business card', 'error');
+    }
+  }
+
+  function downloadVCard() {
+    try {
+      const vcf = generateVCard();
+      const blob = new Blob([vcf], { type: 'text/vcard' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = (getSession()?.slug || 'shop') + '.vcf';
+      a.click();
+      URL.revokeObjectURL(blob);
+      toast('vCard downloaded', 'success');
+    } catch (e) {
+      toast('vCard failed: ' + e.message, 'error');
+    }
+  }
+
+  // ================================================================
+  //  QR VIEW MODAL
+  // ================================================================
+  function openQrModal() {
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;';
+    modal.innerHTML = `
+      <div style="background:var(--surface);border-radius:20px;max-width:400px;width:100%;padding:24px;text-align:center;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3 style="font-weight:800;">Your Shop QR</h3>
+          <button onclick="this.closest('div[style]').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;color:var(--text-secondary);">&times;</button>
+        </div>
+        <div style="background:#fff;border-radius:16px;padding:16px;margin-bottom:16px;display:inline-block;">
+          <img src="${qrDataUrl}" style="width:220px;height:220px;object-fit:contain;">
+        </div>
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" onclick="downloadQr()"><i class="fa-solid fa-download"></i> Download QR</button>
+          <button class="btn btn-ghost btn-sm" onclick="downloadBusinessCard()"><i class="fa-solid fa-id-card"></i> Business Card</button>
+          <button class="btn btn-ghost btn-sm" onclick="downloadVCard()"><i class="fa-solid fa-address-card"></i> vCard</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', function(e) { if (e.target === this) this.remove(); });
+  }
+
+  // ================================================================
+  //  RENDER OVERVIEW
+  // ================================================================
+  function renderOverview() {
+    const app = document.getElementById('overviewApp');
+    if (!app) return;
+
+    const session = getSession();
+    if (!session) {
+      app.innerHTML = `<div class="error-state"><i class="fa-regular fa-user"></i><div style="font-weight:600;margin-bottom:8px;">Please log in</div></div>`;
+      return;
+    }
+
+    const sj = shopJson || {};
+    const plan = currentPlan || 'free';
+    const total = totalVisits || 0;
+    const today = todayVisits || 0;
+    const shopUrl = APP_URL + '/' + session.slug;
+    const logo = sj.logo_url || '';
+
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    const monthRefs = referrals.filter(r => {
+      const d = new Date(r.created_at || r.joined);
+      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    });
+    const referralCount = monthRefs.length;
+    const target = 5;
+    const progress = Math.min(referralCount / target, 1);
+    const progressPercent = (progress * 100).toFixed(0);
+    const canClaim = referralCount >= target && plan === 'free';
+
+    const items = [
+      { label: 'Add business name', done: !!sj.business_name },
+      { label: 'Add tagline', done: !!sj.tagline },
+      { label: 'Upload logo', done: !!(sj.logo_url) },
+      { label: 'Add at least 1 platform', done: Object.keys(sj.socials || {}).length > 0 },
+      { label: 'Add a custom link', done: (sj.custom_links || []).length > 0 },
+      { label: 'Add phone number', done: !!sj.phone }
+    ];
+    const doneCount = items.filter(i => i.done).length;
+    const totalItems = items.length;
+    const completionPct = Math.round((doneCount / totalItems) * 100);
+
+    let html = '';
+
+    // ---- Header ----
+    html += `
+      <div class="page-header">
+        <h2>Welcome back${sj.business_name ? ', ' + escapeHtml(sj.business_name) : ''}</h2>
+        <div class="sub">Here's how your shop is performing.</div>
+      </div>
+    `;
+
+    // ---- Identity Card ----
+    html += `<div class="identity-card" onclick="loadPage('preview')">`;
+    html += `<div class="identity-top">`;
+    if (logo) {
+      html += `<img src="${logo}" class="identity-logo" onerror="this.style.display='none'">`;
+    } else {
+      html += `<div class="identity-logo">${escapeHtml((sj.business_name || session.slug || 'M').charAt(0).toUpperCase())}</div>`;
+    }
+    html += `<div class="identity-info">`;
+    html += `<div class="identity-name">${escapeHtml(sj.business_name || session.slug)}`;
+    if (plan !== 'free') {
+      const cls = plan === 'premium' ? 'premium' : 'pro';
+      html += `<span class="plan-badge ${cls}">${plan.toUpperCase()}</span>`;
+    }
+    html += `</div>`;
+    html += `<div class="identity-tagline">${escapeHtml(sj.tagline || 'Welcome to my business hub')}</div>`;
+    html += `<div class="identity-link"><input value="${shopUrl}" readonly id="shopLinkInput"><button class="btn-ghost" onclick="event.stopPropagation();copyText('${shopUrl}')"><i class="fa-regular fa-copy"></i> Copy</button></div>`;
+    html += `</div></div>`;
+
+    // ---- QR Section ----
+    html += `
+      <div class="identity-qr-section">
+        <div class="qr-box" onclick="openQrModal()">
+          ${qrDataUrl ? `<img src="${qrDataUrl}">` : '<i class="fa-solid fa-qrcode" style="font-size:28px;color:var(--text-tertiary)"></i>'}
+        </div>
+        <div class="qr-actions">
+          <div class="qr-title">Your Shop QR</div>
+          <div class="qr-desc">Share as business card or vCard. Scans open your shop.</div>
+          <div class="qr-buttons">
+            <button class="btn btn-primary btn-sm" onclick="openQrModal()"><i class="fa-solid fa-qrcode"></i> View QR</button>
+            <button class="btn btn-ghost btn-sm" onclick="downloadBusinessCard()"><i class="fa-solid fa-id-card"></i> Business Card</button>
+            <button class="btn btn-ghost btn-sm" onclick="downloadVCard()"><i class="fa-solid fa-address-card"></i> vCard</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // ---- Stats ----
+    html += `
+      <div class="stats-grid">
+        <div class="stat-item"><div class="stat-number">${fmt(total)}</div><div class="stat-label">Total visits</div></div>
+        <div class="stat-item"><div class="stat-number">${fmt(today)}</div><div class="stat-label">Today</div></div>
+        <div class="stat-item"><div class="stat-number">${referralCount}</div><div class="stat-label">Referrals this month</div></div>
+      </div>
+    `;
+
+    // ---- Referral Banner ----
+    html += `
+      <div class="referral-banner">
+        <div class="banner-title">🎯 Refer 5, Get Pro Free for a Month!</div>
+        <div class="banner-desc">
+          ${plan === 'free' ? `You have ${referralCount} referral${referralCount !== 1 ? 's' : ''} this month.` : 'You’re already on Pro! Keep referring to help others grow.'}
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${progressPercent}%;"></div></div>
+          <span class="progress-text">${referralCount}/${target}</span>
+        </div>
+        <div class="banner-actions">
+          <button class="btn-white" onclick="openShareModal()"><i class="fa-solid fa-share-nodes"></i> Share your link</button>
+          ${canClaim ? `<button class="btn-outline-white" onclick="claimReward()"><i class="fa-solid fa-gift"></i> Claim Reward</button>` : ''}
+          ${plan === 'free' ? `<button class="btn-outline-white" onclick="loadPage('upgrade')">Upgrade now</button>` : ''}
+        </div>
+      </div>
+    `;
+
+    // ---- Quick Actions ----
+    html += `
+      <div class="cta-grid">
+        <div class="cta-card" onclick="loadPage('preview')">
+          <div class="cta-card-icon" style="background:var(--brand-soft);color:var(--brand)"><i class="fa-solid fa-eye"></i></div>
+          <div class="cta-card-title">Preview</div>
+          <div class="cta-card-desc">See how your shop looks to customers</div>
+        </div>
+        <div class="cta-card" onclick="loadPage('edit')">
+          <div class="cta-card-icon" style="background:var(--purple-soft);color:var(--purple)"><i class="fa-solid fa-pen"></i></div>
+          <div class="cta-card-title">Edit Shop</div>
+          <div class="cta-card-desc">Update your business information</div>
+        </div>
+        <div class="cta-card" onclick="loadPage('analytics')">
+          <div class="cta-card-icon" style="background:var(--success-soft);color:var(--success)"><i class="fa-solid fa-chart-line"></i></div>
+          <div class="cta-card-title">Analytics</div>
+          <div class="cta-card-desc">Track your growth and engagement</div>
+        </div>
+        <div class="cta-card" onclick="openShareModal()">
+          <div class="cta-card-icon" style="background:var(--warning-soft);color:var(--warning)"><i class="fa-solid fa-share-nodes"></i></div>
+          <div class="cta-card-title">Share</div>
+          <div class="cta-card-desc">Spread the word about your hub</div>
+        </div>
+      </div>
+    `;
+
+    // ---- Checklist ----
+    html += `
+      <div class="checklist-card">
+        <div class="card-title" style="font-size:14px;font-weight:700;margin-bottom:12px;">Complete your shop</div>
+        <div class="checklist-progress">
+          <div class="bar"><div class="fill" style="width:${completionPct}%;"></div></div>
+          <span class="label">${doneCount}/${totalItems} done</span>
+        </div>
+        ${items.map(item => `
+          <div class="checklist-item ${item.done ? 'done' : ''}">
+            <i class="fa-solid ${item.done ? 'fa-circle-check' : 'fa-circle'}"></i> ${item.label}
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    app.innerHTML = html;
+  }
+
+  // ================================================================
+  //  SHARE & CLAIM
+  // ================================================================
+  function openShareModal() {
+    if (window.openPreviewShare) {
+      window.openPreviewShare();
+    } else {
+      const link = APP_URL + '/' + (getSession()?.slug || '');
+      const text = 'Check out my business hub on MyShub! 🔗 ' + link;
+      if (navigator.share) {
+        navigator.share({ title: 'My Shop', text: text, url: link }).catch(() => {});
+      } else {
+        copyText(text);
+      }
+    }
+  }
+
+  function claimReward() {
+    const session = getSession();
+    if (!session) { toast('Please log in.', 'error'); return; }
+    const subject = 'Referral Reward Claim – Pro for 1 month';
+    const body = `Hello MyShub Team,\n\nI have successfully referred 5 people to MyShub this month and would like to claim my reward: Pro plan free for 1 month.\n\nMy email: ${session.email}\nMy shop: ${APP_URL}/${session.slug}\n\nThank you!`;
+    window.location.href = `mailto:emltechstudio@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    toast('Email opened. Please send to claim your reward.', 'info');
+  }
+
+  // ================================================================
+  //  INIT
+  // ================================================================
+  async function init() {
+    const session = getSession();
+    if (!session) {
+      document.getElementById('overviewApp').innerHTML = `<div class="error-state"><i class="fa-regular fa-user"></i><div style="font-weight:600;margin-bottom:8px;">Please log in</div></div>`;
+      return;
+    }
+
+    try {
+      const data = await fetchShopData(session);
+      if (data) {
+        shopData = data;
+        shopJson = data.shop_json || {};
+        currentPlan = data.plan || session.plan || 'free';
+        totalVisits = shopJson.analytics?.visit_count || 0;
+        const daily = shopJson.analytics?.daily_visits || {};
+        const todayKey = new Date().toISOString().split('T')[0];
+        todayVisits = daily[todayKey] || 0;
+        if (window.S) {
+          window.S.shopData = shopData;
+          window.S.shopJson = shopJson;
+          window.S.plan = currentPlan;
+        }
+      }
+
+      const refs = await fetchReferrals(session);
+      referrals = refs;
+
+      await generateQR(session.slug);
+
+      renderOverview();
+
+      if (window.updateDrawerInfo) window.updateDrawerInfo();
+
+    } catch (e) {
+      console.error('Overview init error:', e);
+      document.getElementById('overviewApp').innerHTML = `<div class="error-state"><i class="fa-regular fa-circle-exclamation"></i><div>Could not load dashboard</div></div>`;
+    }
+  }
+
+  // Expose globally
+  window.openShareModal = openShareModal;
+  window.claimReward = claimReward;
+  window.copyText = copyText;
+  window.loadPage = loadPage;
+  window.toast = toast;
+  window.downloadQr = downloadQr;
+  window.downloadBusinessCard = downloadBusinessCard;
+  window.downloadVCard = downloadVCard;
+  window.openQrModal = openQrModal;
+
+  // Start
+  init();
+})();
+</script>
+</body>
+</html>

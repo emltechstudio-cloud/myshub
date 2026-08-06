@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edit Shop – MyShub</title>
+  <style>
+    /* ===== EDIT PAGE STYLES ===== */
+    .edit-page { padding: 0; }
+
+    .page-header { margin-bottom: 24px; }
+    .page-header h2 { font-size: 22px; font-weight: 800; }
+    .page-header .sub { color: var(--text-secondary); font-size: 14px; margin-top: 4px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .card .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card .card-title .badge {
+      font-size: 10px;
+      background: var(--brand-soft);
+      color: var(--brand);
+      padding: 2px 10px;
+      border-radius: 30px;
+      font-weight: 600;
+    }
+    .card .card-title .badge.pro { background: var(--brand-soft); color: var(--brand); }
+    .card .card-title .badge.premium { background: var(--purple-soft); color: var(--purple); }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text-secondary);
+    }
+    .form-group .required { color: var(--danger); }
+    .form-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: inherit;
+      background: var(--surface);
+      color: var(--text);
+      transition: var(--transition);
+      outline: none;
+    }
+    .form-input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+    .form-input::placeholder { color: var(--text-tertiary); }
+    textarea.form-input { resize: vertical; min-height: 80px; }
+    select.form-input { appearance: auto; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .color-input {
+      width: 44px;
+      height: 40px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      padding: 2px;
+      cursor: pointer;
+      background: var(--surface);
+    }
+
+    .item-list { margin-top: 8px; }
+    .item-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 6px;
+    }
+    .item-row .item-info { flex: 1; min-width: 0; }
+    .item-row .item-info .label { font-weight: 600; font-size: 13px; }
+    .item-row .item-info .sub { font-size: 12px; color: var(--text-tertiary); word-break: break-all; }
+    .item-row .item-actions { display: flex; gap: 4px; flex-shrink: 0; }
+    .item-row .item-actions button {
+      background: none;
+      border: none;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 6px;
+      transition: var(--transition);
+    }
+    .item-row .item-actions button:hover { background: var(--border); color: var(--text); }
+    .item-row .item-actions button.danger:hover { color: var(--danger); }
+
+    /* Inline edit for custom links */
+    .item-row.editing {
+      flex-wrap: wrap;
+      background: var(--brand-soft);
+      border-color: var(--brand);
+    }
+    .item-row.editing .edit-fields {
+      flex: 1 1 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .item-row.editing .edit-fields .edit-field-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .item-row.editing .edit-fields .edit-field-row input {
+      flex: 1;
+      min-width: 120px;
+    }
+    .item-row.editing .edit-fields .edit-actions {
+      display: flex;
+      gap: 6px;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border-radius: 12px;
+      padding: 10px 18px;
+      font-size: 13px;
+    }
+    .btn-primary {
+      background: var(--brand);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+    .btn-ghost {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: var(--surface-hover); }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .btn-block { width: 100%; }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-success:hover { background: #059669; }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: none;
+      flex-shrink: 0;
+    }
+    .btn.loading .spinner { display: inline-block; }
+    .btn.loading .btn-text { opacity: 0.8; }
+
+    .locked-overlay {
+      position: relative;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .locked-overlay::after {
+      content: "Upgrade to unlock";
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(2px);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      z-index: 2;
+    }
+    [data-theme="dark"] .locked-overlay::after { background: rgba(15,23,42,0.7); }
+
+    .add-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 30px;
+      background: var(--border);
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 13px;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+      margin-top: 6px;
+    }
+    .add-btn:hover { background: var(--brand-soft); color: var(--brand); }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .modal-overlay.on { display: flex; }
+    .modal-box {
+      background: var(--surface);
+      border-radius: 24px;
+      max-width: 560px;
+      width: 100%;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-lg);
+      animation: scaleIn 0.25s;
+    }
+    .modal-head {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .modal-head h3 { font-size: 18px; font-weight: 800; }
+    .modal-head .close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--text-secondary);
+    }
+    .modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    .modal-search {
+      position: relative;
+      margin-bottom: 12px;
+    }
+    .modal-search input {
+      width: 100%;
+      padding: 10px 14px 10px 38px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: inherit;
+      background: var(--surface);
+      color: var(--text);
+      outline: none;
+    }
+    .modal-search input:focus { border-color: var(--brand); }
+    .modal-search i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-tertiary);
+    }
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .grid-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 4px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      cursor: pointer;
+      transition: var(--transition);
+      gap: 4px;
+      aspect-ratio: 1 / 1;
+      min-height: 70px;
+      position: relative;
+    }
+    .grid-item:hover { border-color: var(--brand); background: var(--brand-soft); }
+    .grid-item.selected { border-color: var(--brand); background: var(--brand-soft); box-shadow: 0 0 0 2px var(--brand-soft); }
+    .grid-item.locked {
+      opacity: 0.5;
+      pointer-events: none;
+      filter: grayscale(0.6);
+    }
+    .grid-item.locked .lock-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: var(--warning);
+      color: #fff;
+      font-size: 8px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 30px;
+    }
+    .grid-item i { font-size: 24px; color: var(--text); }
+    .grid-item span { font-size: 10px; font-weight: 600; color: var(--text-secondary); text-align: center; line-height: 1.2; }
+
+    .platform-username-input {
+      margin-top: 12px;
+      display: none;
+    }
+    .platform-username-input.active { display: block; }
+
+    /* Loading */
+    .loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; gap: 16px; color: var(--text-secondary); }
+    .loading-state .spinner-lg { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--brand); border-radius: 50%; animation: spin 1s linear infinite; }
+    .error-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+    .error-state i { font-size: 48px; color: var(--text-tertiary); margin-bottom: 16px; display: block; }
+
+    /* QR Preview */
+    .qr-preview {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px;
+      background: var(--surface-hover);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    .qr-preview img { width: 80px; height: 80px; border-radius: 8px; background: #fff; padding: 4px; border: 1px solid var(--border); }
+    .qr-preview .qr-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    /* Dirty state indicator */
+    .dirty-indicator {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--warning);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: var(--shadow-lg);
+      display: none;
+      z-index: 50;
+      pointer-events: none;
+    }
+    .dirty-indicator.show { display: block; }
+
+    @keyframes scaleIn { from { opacity:0; transform:scale(.96); } to { opacity:1; transform:scale(1); } }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    @media(max-width: 640px) {
+      .form-row { grid-template-columns: 1fr; }
+      .grid-container { grid-template-columns: repeat(3, 1fr); }
+      .item-row { flex-wrap: wrap; }
+      .item-row.editing .edit-fields .edit-field-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+<div class="edit-page" id="editApp">
+  <!-- Dynamic content -->
+</div>
+
+<!-- Dirty indicator -->
+<div class="dirty-indicator" id="dirtyIndicator">⚠️ Unsaved changes</div>
+
+<!-- ===== Platform Picker Modal ===== -->
+<div id="platformModal" class="modal-overlay" onclick="if(event.target===this) closePlatformModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="platformModalTitle">Choose Platform</h3>
+      <button class="close-btn" onclick="closePlatformModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-search"><i class="fa-solid fa-magnifying-glass"></i><input id="platformSearch" placeholder="Search platforms..." oninput="filterPlatforms()" /></div>
+      <div id="platformGrid" class="grid-container"></div>
+      <div id="platformUsernameInput" class="platform-username-input">
+        <div class="form-group">
+          <label id="platformLabel">Username / Handle</label>
+          <input id="platformUsername" class="form-input" placeholder="yourusername" />
+          <div id="platformHint" style="font-size:11px;color:var(--text-tertiary);margin-top:4px;"></div>
+        </div>
+        <button class="btn btn-primary btn-block" onclick="confirmPlatform()">Add Platform</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Icon Picker Modal ===== -->
+<div id="iconPickerModal" class="modal-overlay" onclick="if(event.target===this) closeIconPicker()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>Choose Icon</h3>
+      <button class="close-btn" onclick="closeIconPicker()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-search"><i class="fa-solid fa-magnifying-glass"></i><input id="iconSearch" placeholder="Search icons..." oninput="filterIcons()" /></div>
+      <div id="iconGrid" class="grid-container"></div>
+      <div style="margin-top:12px;font-size:11px;color:var(--text-tertiary);text-align:center;">
+        <span class="locked" style="background:var(--warning);color:#fff;padding:2px 6px;border-radius:30px;font-weight:700;">🔒</span> Locked icons require upgrade
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================================================================
+//  EDIT PAGE — FULLY INTEGRATED WITH BACKEND (shop.py)
+//  Uses PUT /shop/edit/{slug} with EditShopRequest schema
+//  Features: inline custom link editing, locked icons, unsaved changes warning
+// ================================================================
+
+(function() {
+  'use strict';
+
+  // ================================================================
+  //  CONFIG
+  // ================================================================
+  const API = window.API || 'https://emltechstudio-myshub-api.hf.space';
+  const APP_URL = window.APP_URL || 'https://myshub.site';
+
+  // ================================================================
+  //  PLATFORMS (same as shop.html)
+  // ================================================================
+  const ALL_PLATFORMS = [
+    { name:'Facebook', icon:'fa-brands fa-facebook-f', urlTemplate:'https://facebook.com/{username}', color:'#1877F2' },
+    { name:'Instagram', icon:'fa-brands fa-instagram', urlTemplate:'https://instagram.com/{username}', color:'#E4405F' },
+    { name:'TikTok', icon:'fa-brands fa-tiktok', urlTemplate:'https://tiktok.com/@{username}', color:'#000000' },
+    { name:'X', icon:'fa-brands fa-x-twitter', urlTemplate:'https://x.com/{username}', color:'#000000' },
+    { name:'YouTube', icon:'fa-brands fa-youtube', urlTemplate:'https://youtube.com/@{username}', color:'#FF0000' },
+    { name:'LinkedIn', icon:'fa-brands fa-linkedin-in', urlTemplate:'https://linkedin.com/in/{username}', color:'#0A66C2' },
+    { name:'Pinterest', icon:'fa-brands fa-pinterest-p', urlTemplate:'https://pinterest.com/{username}', color:'#BD081C' },
+    { name:'Snapchat', icon:'fa-brands fa-snapchat', urlTemplate:'https://snapchat.com/add/{username}', color:'#FFFC00' },
+    { name:'Reddit', icon:'fa-brands fa-reddit-alien', urlTemplate:'https://reddit.com/u/{username}', color:'#FF4500' },
+    { name:'Twitch', icon:'fa-brands fa-twitch', urlTemplate:'https://twitch.tv/{username}', color:'#9146FF' },
+    { name:'Tumblr', icon:'fa-brands fa-tumblr', urlTemplate:'https://{username}.tumblr.com', color:'#001935' },
+    { name:'Medium', icon:'fa-brands fa-medium', urlTemplate:'https://medium.com/@{username}', color:'#000000' },
+    { name:'Substack', icon:'fa-solid fa-square-rss', urlTemplate:'https://{username}.substack.com', color:'#FF6719' },
+    { name:'WordPress', icon:'fa-brands fa-wordpress', urlTemplate:'https://{username}.wordpress.com', color:'#21759b' },
+    { name:'Blogger', icon:'fa-brands fa-blogger-b', urlTemplate:'https://{username}.blogspot.com', color:'#FF5722' },
+    { name:'Flickr', icon:'fa-brands fa-flickr', urlTemplate:'https://flickr.com/photos/{username}', color:'#0063DC' },
+    { name:'Behance', icon:'fa-brands fa-behance', urlTemplate:'https://behance.net/{username}', color:'#1769FF' },
+    { name:'Dribbble', icon:'fa-brands fa-dribbble', urlTemplate:'https://dribbble.com/{username}', color:'#EA4C89' },
+    { name:'Spotify', icon:'fa-brands fa-spotify', urlTemplate:'https://open.spotify.com/user/{username}', color:'#1DB954' },
+    { name:'SoundCloud', icon:'fa-brands fa-soundcloud', urlTemplate:'https://soundcloud.com/{username}', color:'#FF5500' },
+    { name:'Apple Music', icon:'fa-brands fa-apple', urlTemplate:'https://music.apple.com/profile/{username}', color:'#FA57C1' },
+    { name:'Quora', icon:'fa-brands fa-quora', urlTemplate:'https://quora.com/profile/{username}', color:'#B92B27' },
+    { name:'VK', icon:'fa-brands fa-vk', urlTemplate:'https://vk.com/{username}', color:'#4C75A3' },
+    { name:'OK', icon:'fa-brands fa-odnoklassniki', urlTemplate:'https://ok.ru/profile/{username}', color:'#EE8208' },
+    { name:'Weibo', icon:'fa-brands fa-weibo', urlTemplate:'https://weibo.com/{username}', color:'#E6162D' },
+    { name:'Mastodon', icon:'fa-brands fa-mastodon', urlTemplate:'https://mastodon.social/@{username}', color:'#6364FF' },
+    { name:'Bluesky', icon:'fa-solid fa-cloud-sun', urlTemplate:'https://bsky.app/profile/{username}', color:'#0285FF' },
+    { name:'Threads', icon:'fa-brands fa-threads', urlTemplate:'https://threads.net/@{username}', color:'#000000' },
+    { name:'Shopify', icon:'fa-brands fa-shopify', urlTemplate:'https://{username}.myshopify.com', color:'#96BF48' },
+    { name:'Selar', icon:'fa-solid fa-bolt', urlTemplate:'https://selar.co/{username}', color:'#5a0fc8' },
+    { name:'Paystack', icon:'fa-solid fa-credit-card', urlTemplate:'https://paystack.shop/{username}', color:'#00C3F7' },
+    { name:'Flutterwave', icon:'fa-solid fa-wave-square', urlTemplate:'https://flutterwave.com/store/{username}', color:'#F5A623' },
+    { name:'Etsy', icon:'fa-brands fa-etsy', urlTemplate:'https://etsy.com/shop/{username}', color:'#F56400' },
+    { name:'eBay', icon:'fa-brands fa-ebay', urlTemplate:'https://ebay.com/usr/{username}', color:'#E53238' },
+    { name:'Amazon', icon:'fa-brands fa-amazon', urlTemplate:'https://amazon.com/shop/{username}', color:'#FF9900' },
+    { name:'AliExpress', icon:'fa-solid fa-bag-shopping', urlTemplate:'https://aliexpress.com/store/{username}', color:'#E42E04' },
+    { name:'Patreon', icon:'fa-brands fa-patreon', urlTemplate:'https://patreon.com/{username}', color:'#FF424D' },
+    { name:'Kickstarter', icon:'fa-brands fa-kickstarter-k', urlTemplate:'https://kickstarter.com/profile/{username}', color:'#05CE78' },
+    { name:'WhatsApp', icon:'fa-brands fa-whatsapp', urlTemplate:'https://wa.me/{username}', color:'#25D366' },
+    { name:'Telegram', icon:'fa-brands fa-telegram', urlTemplate:'https://t.me/{username}', color:'#26A5E4' },
+    { name:'Discord', icon:'fa-brands fa-discord', urlTemplate:'https://discord.gg/{username}', color:'#5865F2' },
+    { name:'Signal', icon:'fa-solid fa-message', urlTemplate:'https://signal.me/#p/{username}', color:'#3A76F0' },
+    { name:'Line', icon:'fa-brands fa-line', urlTemplate:'https://line.me/ti/p/~{username}', color:'#00C300' },
+    { name:'WeChat', icon:'fa-brands fa-weixin', urlTemplate:'https://weixin.qq.com/{username}', color:'#07C160' },
+    { name:'Viber', icon:'fa-brands fa-viber', urlTemplate:'https://viber.me/{username}', color:'#7360F2' },
+    { name:'Messenger', icon:'fa-brands fa-facebook-messenger', urlTemplate:'https://m.me/{username}', color:'#0084FF' }
+  ];
+
+  // ICONS BY TIER
+  const FREE_ICONS = ['link','globe','star','heart','arrow-right'];
+  const PRO_ICONS = [...FREE_ICONS,'calendar-check','users','download','circle-play','boxes-stacked','phone','envelope','location-dot','tag','gift'];
+  const PREMIUM_ICONS = [...PRO_ICONS,'bag-shopping','cart-shopping','store','camera','video','music','book','graduation-cap','utensils','car','house','building','rocket','fire','crown','gem','bolt','heart-pulse','face-smile','handshake','lightbulb','wand-magic-sparkles','palette','paintbrush','laptop','mobile-screen','headset','truck','credit-card','dollar-sign','qrcode','share-nodes','paper-plane'];
+
+  // CATEGORIES LIST
+  const CATEGORIES = ['Beauty','Fashion','Food','Tech','Services','Health','Education','Fitness','Photography','Real Estate','Automotive','Entertainment','Travel','Hospitality','Finance','Legal','Consulting','Construction','Agriculture','Manufacturing','Retail','Wholesale','Logistics','Media','Marketing','Design','Development','Writing','Translation','Tutoring','Coaching','Therapy','Wellness','Spa','Salon','Barber','Nails','Makeup','Skincare','Haircare','Jewelry','Watches','Shoes','Bags','Accessories','Electronics','Appliances','Furniture','Home Decor','Other'];
+
+  // ================================================================
+  //  STATE
+  // ================================================================
+  let shopData = null;
+  let shopJson = null;
+  let isLoading = true;
+  let loadError = null;
+  let currentPlan = 'free';
+  let socials = {};
+  let customLinks = [];
+  let tempLogoUrl = '';
+  let selectedPlatform = null;
+  let editingLinkIndex = -1;
+  let dirty = false; // track unsaved changes
+
+  // ================================================================
+  //  GET SESSION
+  // ================================================================
+  function getSession() {
+    if (window.S && window.S.email) {
+      return {
+        email: window.S.email,
+        password: window.S.password || '',
+        slug: window.S.slug || '',
+        plan: window.S.plan || 'free'
+      };
+    }
+    try {
+      const raw = localStorage.getItem('myshub_session');
+      if (raw) {
+        const s = JSON.parse(raw);
+        if (s.email) {
+          return {
+            email: s.email,
+            password: s.password || '',
+            slug: s.slug || '',
+            plan: s.plan || 'free'
+          };
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  // ================================================================
+  //  FETCH SHOP DATA
+  // ================================================================
+  async function fetchShopData(session) {
+    if (!session || !session.slug) return null;
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+        'email': session.email,
+        'password': session.password
+      };
+      const res = await fetch(API + '/shop/preview/' + session.slug, { headers });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // ================================================================
+  //  SAVE SHOP (PUT /shop/edit/{slug})
+  // ================================================================
+  async function saveShop(formData) {
+    const session = getSession();
+    if (!session) throw new Error('Not logged in');
+
+    // Build payload matching EditShopRequest
+    const payload = {
+      email: session.email,
+      password: session.password,
+      business_name: formData.business_name || null,
+      tagline: formData.tagline || null,
+      description: formData.description || null,
+      phone: formData.phone || null,
+      location: formData.location || null,
+      state: formData.state || null,
+      city: formData.city || null,
+      category: formData.category || null,
+      logo_url: formData.logo_url || null,
+      catalog_url: formData.catalog_url || null,
+      socials: formData.socials || null,
+      custom_links: formData.custom_links || null,
+      brand_primary: formData.brand_primary || null,
+      brand_secondary: formData.brand_secondary || null,
+      gradient: formData.gradient || null,
+      gradient_colors: formData.gradient_colors || null,
+      heading_font: formData.heading_font || null,
+      body_font: formData.body_font || null,
+      latitude: formData.latitude !== undefined ? formData.latitude : null,
+      longitude: formData.longitude !== undefined ? formData.longitude : null,
+      qr_code_url: formData.qr_code_url || null
+    };
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'email': session.email,
+      'password': session.password
+    };
+
+    const res = await fetch(API + '/shop/edit/' + session.slug, {
+      method: 'PUT',
+      headers: headers,
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(err || 'Failed to save shop');
+    }
+    return await res.json();
+  }
+
+  // ================================================================
+  //  UPLOAD LOGO
+  // ================================================================
+  async function uploadLogo(file) {
+    const session = getSession();
+    if (!session) throw new Error('Not logged in');
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const headers = {
+      'email': session.email,
+      'password': session.password
+    };
+
+    const res = await fetch(API + '/shop/upload-logo', {
+      method: 'POST',
+      headers: headers,
+      body: formData
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(err || 'Failed to upload logo');
+    }
+    return await res.json();
+  }
+
+  // ================================================================
+  //  UNSAVED CHANGES TRACKING
+  // ================================================================
+  function setDirty() {
+    if (!dirty) {
+      dirty = true;
+      document.getElementById('dirtyIndicator').classList.add('show');
+    }
+  }
+
+  function resetDirty() {
+    dirty = false;
+    document.getElementById('dirtyIndicator').classList.remove('show');
+  }
+
+  function confirmLeave(message) {
+    if (dirty) {
+      return confirm(message || 'You have unsaved changes. Are you sure you want to leave?');
+    }
+    return true;
+  }
+
+  // Intercept navigation attempts
+  if (window.loadPage) {
+    const originalLoadPage = window.loadPage;
+    window.loadPage = function(page) {
+      if (confirmLeave()) {
+        resetDirty();
+        originalLoadPage(page);
+      }
+    };
+  }
+
+  // Before unload
+  window.addEventListener('beforeunload', function(e) {
+    if (dirty) {
+      e.preventDefault();
+      e.returnValue = 'You have unsaved changes.';
+    }
+  });
+
+  // ================================================================
+  //  TOAST
+  // ================================================================
+  function toast(msg, type) {
+    if (window.toast) { window.toast(msg, type); return; }
+    alert(msg);
+  }
+
+  // ================================================================
+  //  ESCAPE HTML
+  // ================================================================
+  function escapeHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+  }
+
+  // ================================================================
+  //  RENDER HELPERS
+  // ================================================================
+  function getCategoryOptions(selected) {
+    // If selected is not in the list, we'll treat it as "Other"
+    const isCustom = selected && !CATEGORIES.includes(selected);
+    const selectedCat = isCustom ? 'Other' : (selected || '');
+    return CATEGORIES.map(c => `<option value="${c}" ${c === selectedCat ? 'selected' : ''}>${c}</option>`).join('');
+  }
+
+  function getFontOptions(selected) {
+    const fonts = ['Inter','Poppins','Playfair Display','Open Sans','DM Sans','Space Grotesk','Montserrat','Lato','Oswald','Raleway','Roboto','Nunito','Outfit','Sora','Manrope'];
+    return fonts.map(f => `<option value="${f}" ${f === selected ? 'selected' : ''}>${f}</option>`).join('');
+  }
+
+  function getIconHtml(icon) {
+    if (icon && icon.startsWith('http')) {
+      return `<img src="${escapeHtml(icon)}" style="width:24px;height:24px;object-fit:contain;" />`;
+    }
+    return `<i class="fa-solid fa-${escapeHtml(icon || 'link')}"></i>`;
+  }
+
+  function renderSocialsList() {
+    const entries = Object.entries(socials);
+    if (entries.length === 0) {
+      return '<div style="padding:8px 0;color:var(--text-tertiary);font-size:13px;">No socials added yet.</div>';
+    }
+    return entries.map(([platform, url]) => {
+      const p = ALL_PLATFORMS.find(x => x.name.toLowerCase() === platform.toLowerCase());
+      const iconHtml = p ? `<i class="${p.icon}"></i>` : '<i class="fa-solid fa-link"></i>';
+      return `
+        <div class="item-row">
+          <div style="width:32px;text-align:center;flex-shrink:0;">${iconHtml}</div>
+          <div class="item-info">
+            <div class="label">${escapeHtml(platform)}</div>
+            <div class="sub">${escapeHtml(url)}</div>
+          </div>
+          <div class="item-actions">
+            <button onclick="editSocial('${escapeHtml(platform)}')"><i class="fa-regular fa-pen-to-square"></i></button>
+            <button class="danger" onclick="removeSocial('${escapeHtml(platform)}')"><i class="fa-regular fa-trash-can"></i></button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderCustomLinksList() {
+    if (customLinks.length === 0) {
+      return '<div style="padding:8px 0;color:var(--text-tertiary);font-size:13px;">No custom links added yet.</div>';
+    }
+    return customLinks.map((link, idx) => {
+      const isEditing = editingLinkIndex === idx;
+      return `
+        <div class="item-row ${isEditing ? 'editing' : ''}">
+          <div style="width:32px;text-align:center;flex-shrink:0;">${getIconHtml(link.icon)}</div>
+          <div class="item-info">
+            <div class="label">${escapeHtml(link.title || link.label || 'Untitled')}</div>
+            <div class="sub">${escapeHtml(link.url)}</div>
+          </div>
+          <div class="item-actions">
+            ${!isEditing ? `<button onclick="startEditCustomLink(${idx})"><i class="fa-regular fa-pen-to-square"></i></button>` : ''}
+            <button class="danger" onclick="removeCustomLink(${idx})"><i class="fa-regular fa-trash-can"></i></button>
+          </div>
+          ${isEditing ? `
+            <div class="edit-fields">
+              <div class="edit-field-row">
+                <input class="form-input" id="editLinkTitle${idx}" value="${escapeHtml(link.title || link.label || '')}" placeholder="Title" />
+                <input class="form-input" id="editLinkUrl${idx}" value="${escapeHtml(link.url)}" placeholder="URL" />
+                <button class="btn btn-ghost btn-sm" onclick="openIconPickerForLink(${idx})"><i class="fa-solid fa-${escapeHtml(link.icon || 'link')}"></i> Icon</button>
+              </div>
+              <div class="edit-actions">
+                <button class="btn btn-success btn-sm" onclick="saveCustomLink(${idx})"><i class="fa-solid fa-check"></i> Save</button>
+                <button class="btn btn-ghost btn-sm" onclick="cancelEditCustomLink(${idx})">Cancel</button>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ================================================================
+  //  PLATFORM MODAL
+  // ================================================================
+  let platformCallback = null;
+
+  function openPlatformModal(callback) {
+    platformCallback = callback;
+    document.getElementById('platformModalTitle').textContent = 'Choose Platform';
+    document.getElementById('platformSearch').value = '';
+    document.getElementById('platformUsernameInput').classList.remove('active');
+    filterPlatforms();
+    document.getElementById('platformModal').classList.add('on');
+  }
+
+  function closePlatformModal() {
+    document.getElementById('platformModal').classList.remove('on');
+    selectedPlatform = null;
+  }
+
+  function filterPlatforms() {
+    const q = document.getElementById('platformSearch').value.trim().toLowerCase();
+    let list = ALL_PLATFORMS;
+    if (q) list = list.filter(p => p.name.toLowerCase().includes(q));
+    const grid = document.getElementById('platformGrid');
+    grid.innerHTML = list.map(p => `
+      <div class="grid-item" data-name="${p.name}" onclick="selectPlatform('${p.name}')">
+        <i class="${p.icon}" style="color:${p.color}"></i>
+        <span>${p.name}</span>
+      </div>
+    `).join('');
+  }
+
+  function selectPlatform(name) {
+    const p = ALL_PLATFORMS.find(x => x.name === name);
+    if (!p) return;
+    selectedPlatform = p;
+    document.getElementById('platformLabel').textContent = p.name + ' Username / Handle';
+    document.getElementById('platformHint').textContent = p.urlTemplate.replace('{username}', 'yourname');
+    document.getElementById('platformUsername').value = '';
+    document.getElementById('platformUsernameInput').classList.add('active');
+    document.querySelectorAll('#platformGrid .grid-item').forEach(el => {
+      el.classList.toggle('selected', el.dataset.name === name);
+    });
+  }
+
+  function confirmPlatform() {
+    if (!selectedPlatform) return toast('Select a platform first.', 'warning');
+    const username = document.getElementById('platformUsername').value.trim();
+    if (!username) return toast('Enter your username or handle.', 'warning');
+    const url = selectedPlatform.urlTemplate.replace('{username}', encodeURIComponent(username));
+    if (platformCallback) platformCallback(selectedPlatform.name, url);
+    closePlatformModal();
+  }
+
+  // ================================================================
+  //  ICON PICKER MODAL (with locked icons)
+  // ================================================================
+  let iconCallback = null;
+  let iconList = [];
+
+  function openIconPicker(callback, plan) {
+    iconCallback = callback;
+    const allowed = plan === 'premium' ? PREMIUM_ICONS : plan === 'pro' ? PRO_ICONS : FREE_ICONS;
+    const allIcons = plan === 'premium' ? PREMIUM_ICONS : plan === 'pro' ? PRO_ICONS : FREE_ICONS;
+    // We'll show all icons, but mark locked ones
+    iconList = allIcons.map(ic => ({
+      name: ic,
+      icon: ic,
+      locked: !allowed.includes(ic)
+    }));
+    document.getElementById('iconSearch').value = '';
+    filterIcons();
+    document.getElementById('iconPickerModal').classList.add('on');
+  }
+
+  function closeIconPicker() {
+    document.getElementById('iconPickerModal').classList.remove('on');
+  }
+
+  function filterIcons() {
+    const q = document.getElementById('iconSearch').value.trim().toLowerCase();
+    let list = iconList;
+    if (q) list = list.filter(item => item.name.includes(q));
+    const grid = document.getElementById('iconGrid');
+    grid.innerHTML = list.map(item => `
+      <div class="grid-item ${item.locked ? 'locked' : ''}" onclick="${item.locked ? '' : `selectIcon('${item.name}')`}">
+        <i class="fa-solid fa-${item.icon}"></i>
+        <span>${item.icon}</span>
+        ${item.locked ? '<span class="lock-badge">🔒</span>' : ''}
+      </div>
+    `).join('');
+  }
+
+  function selectIcon(icon) {
+    if (iconCallback) iconCallback(icon);
+    closeIconPicker();
+  }
+
+  // ================================================================
+  //  SOCIALS ACTIONS (using modal)
+  // ================================================================
+  function addSocial() {
+    const limit = currentPlan === 'premium' ? 999 : (currentPlan === 'pro' ? 10 : 5);
+    if (Object.keys(socials).length >= limit) {
+      toast(`Limit reached (${limit}). Upgrade to add more.`, 'warning');
+      return;
+    }
+    setDirty();
+    openPlatformModal((platform, url) => {
+      socials[platform] = url;
+      renderEdit();
+    });
+  }
+
+  function editSocial(platform) {
+    setDirty();
+    // For simplicity, we just update the URL via modal (we keep same platform)
+    const currentUrl = socials[platform] || '';
+    openPlatformModal((p, url) => {
+      // If user picked a different platform, we replace
+      const newPlatform = p;
+      if (newPlatform !== platform) {
+        delete socials[platform];
+      }
+      socials[newPlatform] = url;
+      renderEdit();
+    });
+  }
+
+  function removeSocial(platform) {
+    if (!confirm(`Remove ${platform}?`)) return;
+    setDirty();
+    delete socials[platform];
+    renderEdit();
+  }
+
+  // ================================================================
+  //  CUSTOM LINKS ACTIONS (inline editing)
+  // ================================================================
+  function addCustomLink() {
+    const limit = currentPlan === 'premium' ? 999 : (currentPlan === 'pro' ? 5 : 2);
+    if (customLinks.length >= limit) {
+      toast(`Limit reached (${limit}). Upgrade to add more.`, 'warning');
+      return;
+    }
+    setDirty();
+    const title = prompt('Enter link title:');
+    if (!title) return;
+    const url = prompt('Enter URL:');
+    if (!url) return;
+    // Default icon
+    customLinks.push({ title: title.trim(), url: url.trim(), icon: 'link' });
+    renderEdit();
+  }
+
+  function startEditCustomLink(idx) {
+    editingLinkIndex = idx;
+    renderEdit();
+    // Focus the title input
+    setTimeout(() => {
+      const inp = document.getElementById('editLinkTitle' + idx);
+      if (inp) inp.focus();
+    }, 100);
+  }
+
+  function cancelEditCustomLink(idx) {
+    if (editingLinkIndex === idx) {
+      editingLinkIndex = -1;
+      renderEdit();
+    }
+  }
+
+  function saveCustomLink(idx) {
+    const title = document.getElementById('editLinkTitle' + idx).value.trim();
+    const url = document.getElementById('editLinkUrl' + idx).value.trim();
+    if (!title || !url) {
+      toast('Title and URL are required.', 'warning');
+      return;
+    }
+    // Update the link
+    if (customLinks[idx]) {
+      customLinks[idx].title = title;
+      customLinks[idx].url = url;
+      // icon already set from picker
+    }
+    setDirty();
+    editingLinkIndex = -1;
+    renderEdit();
+  }
+
+  function openIconPickerForLink(idx) {
+    // Open icon picker and on selection, update the link's icon and re-render
+    openIconPicker((icon) => {
+      if (customLinks[idx]) {
+        customLinks[idx].icon = icon;
+        setDirty();
+        renderEdit();
+        // Re-enter edit mode for that link
+        editingLinkIndex = idx;
+        renderEdit();
+      }
+    }, currentPlan);
+  }
+
+  function removeCustomLink(idx) {
+    if (!confirm('Remove this custom link?')) return;
+    setDirty();
+    customLinks.splice(idx, 1);
+    if (editingLinkIndex === idx) editingLinkIndex = -1;
+    renderEdit();
+  }
+
+  // ================================================================
+  //  LOGO UPLOAD
+  // ================================================================
+  async function handleLogoSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      toast('Logo must be under 2MB.', 'error');
+      return;
+    }
+    setDirty();
+    try {
+      toast('Uploading logo...', 'info');
+      const result = await uploadLogo(file);
+      if (result.logo_url) {
+        tempLogoUrl = result.logo_url;
+        toast('Logo uploaded!', 'success');
+        renderEdit();
+      } else {
+        toast('Upload failed.', 'error');
+      }
+    } catch (e) {
+      toast(e.message || 'Upload error.', 'error');
+    }
+    event.target.value = '';
+  }
+
+  // ================================================================
+  //  USE MY LOCATION
+  // ================================================================
+  function useMyLocation() {
+    if (!navigator.geolocation) {
+      toast('Geolocation not supported.', 'warning');
+      return;
+    }
+    setDirty();
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        document.getElementById('editLat').value = pos.coords.latitude;
+        document.getElementById('editLng').value = pos.coords.longitude;
+        toast('Location set!', 'success');
+      },
+      () => {
+        toast('Could not get location. Please enter manually.', 'warning');
+      }
+    );
+  }
+
+  // ================================================================
+  //  SAVE
+  // ================================================================
+  async function saveEdit() {
+    const btn = document.getElementById('saveBtn');
+    btn.disabled = true;
+    btn.classList.add('loading');
+
+    try {
+      // Get category: if "Other" is selected, use the custom input value
+      const catSelect = document.getElementById('editCategory');
+      const catValue = catSelect.value;
+      let category = catValue;
+      if (catValue === 'Other') {
+        const customCat = document.getElementById('editCategoryOther').value.trim();
+        if (customCat) {
+          category = customCat;
+        } else {
+          toast('Please specify your category.', 'warning');
+          btn.disabled = false;
+          btn.classList.remove('loading');
+          return;
+        }
+      }
+
+      const formData = {
+        business_name: document.getElementById('editBusinessName').value.trim(),
+        tagline: document.getElementById('editTagline').value.trim(),
+        description: document.getElementById('editDescription').value.trim(),
+        phone: document.getElementById('editPhone').value.trim(),
+        location: document.getElementById('editLocation').value.trim(),
+        state: document.getElementById('editState').value.trim(),
+        city: document.getElementById('editCity').value.trim(),
+        category: category,
+        catalog_url: document.getElementById('editCatalog').value.trim(),
+        socials: socials,
+        custom_links: customLinks,
+        brand_primary: document.getElementById('editPrimary').value,
+        brand_secondary: document.getElementById('editSecondary').value,
+        gradient: document.getElementById('editGradient').checked,
+        gradient_colors: [
+          document.getElementById('editGrad1').value,
+          document.getElementById('editGrad2').value
+        ],
+        heading_font: document.getElementById('editHeadingFont').value,
+        body_font: document.getElementById('editBodyFont').value,
+        latitude: parseFloat(document.getElementById('editLat').value) || undefined,
+        longitude: parseFloat(document.getElementById('editLng').value) || undefined,
+        qr_code_url: null, // We don't let user edit QR URL manually; it's auto-generated
+        logo_url: tempLogoUrl || null
+      };
+
+      const result = await saveShop(formData);
+      toast(result.message || 'Shop updated successfully!', 'success');
+      resetDirty();
+      if (window.S) window.S.plan = result.plan;
+      if (window.updateDrawerInfo) window.updateDrawerInfo();
+
+      // Refresh data
+      const session = getSession();
+      if (session) {
+        const data = await fetchShopData(session);
+        if (data) {
+          shopData = data;
+          shopJson = data.shop_json || {};
+          currentPlan = data.plan || session.plan || 'free';
+          socials = { ...(shopJson.socials || {}) };
+          customLinks = [...(shopJson.custom_links || [])];
+          tempLogoUrl = shopJson.logo_url || '';
+        }
+      }
+      renderEdit();
+    } catch (e) {
+      toast(e.message || 'Failed to save. Please try again.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    }
+  }
+
+  // ================================================================
+  //  RENDER
+  // ================================================================
+  function renderEdit() {
+    const app = document.getElementById('editApp');
+    if (!app) return;
+
+    if (isLoading) {
+      app.innerHTML = `
+        <div class="loading-state">
+          <div class="spinner-lg"></div>
+          <span>Loading shop data...</span>
+        </div>
+      `;
+      return;
+    }
+
+    if (loadError) {
+      app.innerHTML = `
+        <div class="error-state">
+          <i class="fa-regular fa-circle-exclamation"></i>
+          <div style="font-weight:600;margin-bottom:8px;">Could not load shop</div>
+          <p style="font-size:13px;color:var(--text-secondary);">${loadError}</p>
+          <button class="btn btn-primary btn-sm" style="margin-top:16px;" onclick="location.reload()">Try Again</button>
+        </div>
+      `;
+      return;
+    }
+
+    if (!shopJson) {
+      app.innerHTML = `
+        <div class="error-state">
+          <i class="fa-regular fa-store"></i>
+          <div style="font-weight:600;margin-bottom:8px;">No shop data found</div>
+          <p style="font-size:13px;color:var(--text-secondary);">Please create your shop first.</p>
+        </div>
+      `;
+      return;
+    }
+
+    const sj = shopJson;
+    const plan = currentPlan || 'free';
+    const isPro = plan === 'pro' || plan === 'premium';
+    const isPremium = plan === 'premium';
+
+    const socialCount = Object.keys(socials).length;
+    const linkCount = customLinks.length;
+    const socialsLimit = isPremium ? 999 : (isPro ? 10 : 5);
+    const linksLimit = isPremium ? 999 : (isPro ? 5 : 2);
+    const socialsExceeded = socialCount >= socialsLimit;
+    const linksExceeded = linkCount >= linksLimit;
+
+    const isCategoryOther = sj.category && !CATEGORIES.includes(sj.category);
+    const categoryValue = isCategoryOther ? 'Other' : (sj.category || '');
+    const customCategoryValue = isCategoryOther ? sj.category : '';
+
+    let html = '';
+
+    // ---- Header ----
+    html += `
+      <div class="page-header">
+        <h2>Edit Shop</h2>
+        <div class="sub">Update your business information.</div>
+      </div>
+    `;
+
+    // ---- Basic Info Card with "Other" category handling ----
+    html += `
+      <div class="card">
+        <div class="card-title">Basic Information</div>
+        <div class="form-group">
+          <label>Business Name <span class="required">*</span></label>
+          <input type="text" id="editBusinessName" class="form-input" value="${escapeHtml(sj.business_name || '')}" placeholder="My Business" onchange="setDirty()" />
+        </div>
+        <div class="form-group">
+          <label>Tagline</label>
+          <input type="text" id="editTagline" class="form-input" value="${escapeHtml(sj.tagline || '')}" placeholder="A short catchy phrase" onchange="setDirty()" />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="editDescription" class="form-input" rows="3" placeholder="Tell customers about your business" onchange="setDirty()">${escapeHtml(sj.description || '')}</textarea>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="editCategory" class="form-input" onchange="toggleCategoryOther(); setDirty();">
+            ${getCategoryOptions(categoryValue)}
+          </select>
+        </div>
+        <div class="form-group" id="categoryOtherGroup" style="${isCategoryOther || categoryValue === 'Other' ? 'display:block;' : 'display:none;'}">
+          <label>Specify Category</label>
+          <input type="text" id="editCategoryOther" class="form-input" value="${escapeHtml(customCategoryValue)}" placeholder="e.g. Handmade Crafts" onchange="setDirty()" />
+        </div>
+      </div>
+    `;
+
+    // ---- Contact & Location Card ----
+    html += `
+      <div class="card">
+        <div class="card-title">Contact & Location</div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="text" id="editPhone" class="form-input" value="${escapeHtml(sj.phone || '')}" placeholder="+234..." onchange="setDirty()" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>State / Region</label>
+            <input type="text" id="editState" class="form-input" value="${escapeHtml(sj.state || '')}" placeholder="e.g. Lagos" onchange="setDirty()" />
+          </div>
+          <div class="form-group">
+            <label>City</label>
+            <input type="text" id="editCity" class="form-input" value="${escapeHtml(sj.city || '')}" placeholder="e.g. Ikeja" onchange="setDirty()" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Location (Address)</label>
+          <input type="text" id="editLocation" class="form-input" value="${escapeHtml(sj.location || '')}" placeholder="Full address or area" onchange="setDirty()" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Latitude</label>
+            <input type="number" step="any" id="editLat" class="form-input" value="${sj.lat !== undefined && sj.lat !== null ? sj.lat : ''}" placeholder="6.4281" onchange="setDirty()" />
+          </div>
+          <div class="form-group">
+            <label>Longitude</label>
+            <input type="number" step="any" id="editLng" class="form-input" value="${sj.lng !== undefined && sj.lng !== null ? sj.lng : ''}" placeholder="3.4447" onchange="setDirty()" />
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="useMyLocation()"><i class="fa-solid fa-location-crosshairs"></i> Use my location</button>
+      </div>
+    `;
+
+    // ---- Catalog Card ----
+    html += `
+      <div class="card">
+        <div class="card-title">Catalog</div>
+        <div class="form-group">
+          <label>Catalog URL</label>
+          <input type="url" id="editCatalog" class="form-input" value="${escapeHtml(sj.catalog_url || '')}" placeholder="https://selar.co/your-store" onchange="setDirty()" />
+          <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">Your online store, WhatsApp catalog, or any product link.</div>
+        </div>
+      </div>
+    `;
+
+    // ---- Socials Card ----
+    html += `
+      <div class="card">
+        <div class="card-title">
+          Socials
+          <span class="badge">${socialCount} / ${socialsLimit === 999 ? '∞' : socialsLimit}</span>
+        </div>
+        <div id="socialsList" class="item-list">
+          ${renderSocialsList()}
+        </div>
+        <button class="add-btn" onclick="addSocial()" ${socialsExceeded ? 'disabled' : ''}>
+          <i class="fa-solid fa-plus"></i> Add Social
+        </button>
+        ${socialsExceeded && !isPremium ? `<div style="font-size:11px;color:var(--warning);margin-top:6px;">Upgrade to add more socials.</div>` : ''}
+      </div>
+    `;
+
+    // ---- Custom Links Card ----
+    html += `
+      <div class="card">
+        <div class="card-title">
+          Custom Links
+          <span class="badge">${linkCount} / ${linksLimit === 999 ? '∞' : linksLimit}</span>
+        </div>
+        <div id="customLinksList" class="item-list">
+          ${renderCustomLinksList()}
+        </div>
+        <button class="add-btn" onclick="addCustomLink()" ${linksExceeded ? 'disabled' : ''}>
+          <i class="fa-solid fa-plus"></i> Add Custom Link
+        </button>
+        ${linksExceeded && !isPremium ? `<div style="font-size:11px;color:var(--warning);margin-top:6px;">Upgrade to add more custom links.</div>` : ''}
+      </div>
+    `;
+
+    // ---- Branding Card ----
+    const primaryColor = sj.brand_colors?.primary || '#1e40af';
+    const secondaryColor = sj.brand_colors?.secondary || '#ffffff';
+    const grad1 = sj.brand_colors?.gradient_colors?.[0] || '#1e40af';
+    const grad2 = sj.brand_colors?.gradient_colors?.[1] || '#3b82f6';
+
+    html += `
+      <div class="card">
+        <div class="card-title">
+          Branding
+          <span class="badge ${isPro ? 'pro' : ''}">${isPremium ? 'Premium' : isPro ? 'Pro' : 'Free'}</span>
+        </div>
+        <div class="form-group ${!isPro ? 'locked-overlay' : ''}">
+          <label>Primary Color</label>
+          <div class="color-row">
+            <input type="color" id="editPrimary" class="color-input" value="${primaryColor}" ${!isPro ? 'disabled' : ''} onchange="setDirty()" />
+            <input type="text" class="form-input" value="${primaryColor}" oninput="document.getElementById('editPrimary').value=this.value;setDirty();" ${!isPro ? 'disabled' : ''} />
+          </div>
+        </div>
+        <div class="form-group ${!isPro ? 'locked-overlay' : ''}">
+          <label>Secondary Color</label>
+          <div class="color-row">
+            <input type="color" id="editSecondary" class="color-input" value="${secondaryColor}" ${!isPro ? 'disabled' : ''} onchange="setDirty()" />
+            <input type="text" class="form-input" value="${secondaryColor}" oninput="document.getElementById('editSecondary').value=this.value;setDirty();" ${!isPro ? 'disabled' : ''} />
+          </div>
+        </div>
+        <div class="form-group ${!isPremium ? 'locked-overlay' : ''}">
+          <label>Enable Gradient</label>
+          <input type="checkbox" id="editGradient" ${sj.brand_colors?.gradient ? 'checked' : ''} ${!isPremium ? 'disabled' : ''} onchange="setDirty()" />
+          <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">Gradients overlay the secondary color.</div>
+        </div>
+        <div class="form-row ${!isPremium ? 'locked-overlay' : ''}">
+          <div class="form-group">
+            <label>Gradient Color 1</label>
+            <input type="color" id="editGrad1" class="color-input" value="${grad1}" ${!isPremium ? 'disabled' : ''} onchange="setDirty()" />
+          </div>
+          <div class="form-group">
+            <label>Gradient Color 2</label>
+            <input type="color" id="editGrad2" class="color-input" value="${grad2}" ${!isPremium ? 'disabled' : ''} onchange="setDirty()" />
+          </div>
+        </div>
+        <div class="form-group ${!isPro ? 'locked-overlay' : ''}">
+          <label>Heading Font</label>
+          <select id="editHeadingFont" class="form-input" ${!isPro ? 'disabled' : ''} onchange="setDirty()">
+            ${getFontOptions(sj.typography?.heading_font || 'Inter')}
+          </select>
+        </div>
+        <div class="form-group ${!isPro ? 'locked-overlay' : ''}">
+          <label>Body Font</label>
+          <select id="editBodyFont" class="form-input" ${!isPro ? 'disabled' : ''} onchange="setDirty()">
+            ${getFontOptions(sj.typography?.body_font || 'Inter')}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Logo</label>
+          <div style="border:2px dashed var(--border);border-radius:16px;padding:20px;text-align:center;cursor:pointer;background:var(--surface-hover);" onclick="document.getElementById('logoFileInput').click()">
+            ${sj.logo_url || tempLogoUrl ? `<img src="${sj.logo_url || tempLogoUrl}" style="width:80px;height:80px;border-radius:16px;object-fit:cover;margin:0 auto 10px;display:block;" />` : `<div style="width:72px;height:72px;border-radius:16px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:24px;">📷</div>`}
+            <div style="font-size:13px;font-weight:600;">Click to upload logo</div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">PNG/JPG max 2MB</div>
+          </div>
+          <input id="logoFileInput" type="file" accept="image/*" style="display:none" onchange="handleLogoSelect(event)" />
+        </div>
+      </div>
+    `;
+
+    // ---- QR Code (Preview) Card ----
+    const qrUrl = sj.qr_code_url || '';
+    html += `
+      <div class="card">
+        <div class="card-title">QR Code</div>
+        <div class="qr-preview">
+          ${qrUrl ? `<img src="${escapeHtml(qrUrl)}" alt="QR Code" />` : `<div style="width:80px;height:80px;border-radius:8px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-tertiary);font-size:12px;">No QR</div>`}
+          <div class="qr-actions">
+            <button class="btn btn-ghost btn-sm" onclick="generateQR()"><i class="fa-solid fa-rotate"></i> Regenerate</button>
+            <button class="btn btn-ghost btn-sm" onclick="downloadQr()"><i class="fa-solid fa-download"></i> Download</button>
+            <span style="font-size:11px;color:var(--text-tertiary);align-self:center;">QR auto‑generated from your shop link</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // ---- Save Button ----
+    html += `
+      <button id="saveBtn" class="btn btn-primary btn-block" onclick="saveEdit()">
+        <span class="spinner"></span>
+        <span class="btn-text"><i class="fa-solid fa-floppy-disk"></i> Save Changes</span>
+      </button>
+    `;
+
+    app.innerHTML = html;
+
+    // Initialise category other toggle
+    toggleCategoryOther();
+
+    // Sync socials & links
+    if (Object.keys(socials).length === 0 && sj.socials) {
+      socials = { ...sj.socials };
+    }
+    if (customLinks.length === 0 && sj.custom_links) {
+      customLinks = sj.custom_links.map(l => ({ ...l }));
+    }
+
+    // If dirty indicator was shown, re-apply
+    if (dirty) {
+      document.getElementById('dirtyIndicator').classList.add('show');
+    } else {
+      document.getElementById('dirtyIndicator').classList.remove('show');
+    }
+  }
+
+  // ================================================================
+  //  CATEGORY "OTHER" TOGGLE
+  // ================================================================
+  function toggleCategoryOther() {
+    const sel = document.getElementById('editCategory');
+    const group = document.getElementById('categoryOtherGroup');
+    if (sel && group) {
+      group.style.display = sel.value === 'Other' ? 'block' : 'none';
+    }
+  }
+
+  // ================================================================
+  //  QR ACTIONS
+  // ================================================================
+  async function generateQR() {
+    toast('Generating QR...', 'info');
+    const session = getSession();
+    if (!session) return;
+    try {
+      const shopUrl = APP_URL + '/' + session.slug;
+      if (typeof QRCode === 'undefined') {
+        toast('QR library not loaded.', 'error');
+        return;
+      }
+      const dataUrl = await new Promise((resolve) => {
+        const div = document.createElement('div');
+        div.style.position = 'fixed';
+        div.style.left = '-9999px';
+        document.body.appendChild(div);
+        try {
+          new QRCode(div, { text: shopUrl, width: 260, height: 260, correctLevel: QRCode.CorrectLevel.H });
+          setTimeout(() => {
+            const canvas = div.querySelector('canvas');
+            let url = '';
+            if (canvas) url = canvas.toDataURL('image/png');
+            else { const img = div.querySelector('img'); if (img) url = img.src; }
+            document.body.removeChild(div);
+            resolve(url || '');
+          }, 300);
+        } catch (e) {
+          document.body.removeChild(div);
+          resolve('');
+        }
+      });
+      if (dataUrl) {
+        // Update the shop_json with the new QR
+        shopJson.qr_code_url = dataUrl;
+        // Save to backend
+        const formData = {
+          business_name: shopJson.business_name,
+          tagline: shopJson.tagline,
+          description: shopJson.description,
+          phone: shopJson.phone,
+          location: shopJson.location,
+          state: shopJson.state,
+          city: shopJson.city,
+          category: shopJson.category,
+          catalog_url: shopJson.catalog_url,
+          socials: socials,
+          custom_links: customLinks,
+          brand_primary: document.getElementById('editPrimary').value,
+          brand_secondary: document.getElementById('editSecondary').value,
+          gradient: document.getElementById('editGradient').checked,
+          gradient_colors: [document.getElementById('editGrad1').value, document.getElementById('editGrad2').value],
+          heading_font: document.getElementById('editHeadingFont').value,
+          body_font: document.getElementById('editBodyFont').value,
+          latitude: parseFloat(document.getElementById('editLat').value) || undefined,
+          longitude: parseFloat(document.getElementById('editLng').value) || undefined,
+          qr_code_url: dataUrl,
+          logo_url: tempLogoUrl || null
+        };
+        await saveShop(formData);
+        resetDirty();
+        toast('QR regenerated!', 'success');
+        renderEdit();
+      } else {
+        toast('QR generation failed.', 'error');
+      }
+    } catch (e) {
+      toast(e.message || 'QR generation error.', 'error');
+    }
+  }
+
+  function downloadQr() {
+    const qrUrl = shopJson?.qr_code_url || '';
+    if (!qrUrl) return toast('No QR to download. Generate one first.', 'warning');
+    const a = document.createElement('a');
+    a.href = qrUrl;
+    a.download = 'qr-' + (getSession()?.slug || 'shop') + '.png';
+    a.click();
+    toast('QR downloaded.', 'success');
+  }
+
+  // ================================================================
+  //  INIT
+  // ================================================================
+  async function init() {
+    const app = document.getElementById('editApp');
+
+    try {
+      const session = getSession();
+      if (!session) {
+        isLoading = false;
+        renderEdit();
+        return;
+      }
+
+      if (!window.S) window.S = {};
+      window.S.email = session.email;
+      window.S.password = session.password;
+      window.S.slug = session.slug;
+      window.S.plan = session.plan;
+
+      const data = await fetchShopData(session);
+      if (data) {
+        shopData = data;
+        shopJson = data.shop_json || {};
+        currentPlan = data.plan || session.plan || 'free';
+        window.S.plan = currentPlan;
+        window.S.shopJson = shopJson;
+        window.S.shopData = data;
+        socials = { ...(shopJson.socials || {}) };
+        customLinks = [...(shopJson.custom_links || [])];
+        tempLogoUrl = shopJson.logo_url || '';
+      } else {
+        shopJson = {};
+        socials = {};
+        customLinks = [];
+        currentPlan = session.plan || 'free';
+      }
+
+      isLoading = false;
+      renderEdit();
+    } catch (error) {
+      console.error('Edit init error:', error);
+      loadError = error.message || 'Failed to load edit page.';
+      isLoading = false;
+      renderEdit();
+    }
+  }
+
+  // Expose functions globally
+  window.addSocial = addSocial;
+  window.editSocial = editSocial;
+  window.removeSocial = removeSocial;
+  window.addCustomLink = addCustomLink;
+  window.startEditCustomLink = startEditCustomLink;
+  window.cancelEditCustomLink = cancelEditCustomLink;
+  window.saveCustomLink = saveCustomLink;
+  window.openIconPickerForLink = openIconPickerForLink;
+  window.removeCustomLink = removeCustomLink;
+  window.handleLogoSelect = handleLogoSelect;
+  window.useMyLocation = useMyLocation;
+  window.saveEdit = saveEdit;
+  window.generateQR = generateQR;
+  window.downloadQr = downloadQr;
+  window.toggleCategoryOther = toggleCategoryOther;
+  window.setDirty = setDirty;
+  window.resetDirty = resetDirty;
+  window.confirmLeave = confirmLeave;
+  window.toast = toast;
+
+  // Modal functions
+  window.closePlatformModal = closePlatformModal;
+  window.filterPlatforms = filterPlatforms;
+  window.selectPlatform = selectPlatform;
+  window.confirmPlatform = confirmPlatform;
+  window.closeIconPicker = closeIconPicker;
+  window.filterIcons = filterIcons;
+  window.selectIcon = selectIcon;
+
+  // Start
+  init();
+})();
+</script>
+</body>
+</html>

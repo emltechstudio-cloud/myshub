@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics – MyShub</title>
+  <style>
+    /* ===== ANALYTICS PAGE STYLES ===== */
+    .analytics-page { padding: 0; }
+
+    .page-header { margin-bottom: 24px; }
+    .page-header h2 { font-size: 22px; font-weight: 800; }
+    .page-header .sub { color: var(--text-secondary); font-size: 14px; margin-top: 4px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .card .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card .card-title .badge {
+      font-size: 10px;
+      background: var(--brand-soft);
+      color: var(--brand);
+      padding: 2px 10px;
+      border-radius: 30px;
+      font-weight: 600;
+    }
+    .card .card-title .badge.pro { background: var(--brand-soft); color: var(--brand); }
+    .card .card-title .badge.premium { background: var(--purple-soft); color: var(--purple); }
+
+    /* Mini Stats */
+    .analytics-mini {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .mini-stat {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+    .mini-stat .stat-number { font-size: 24px; font-weight: 800; color: var(--brand); line-height: 1.2; }
+    .mini-stat .stat-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+
+    /* Charts */
+    .chart-container {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 120px;
+      padding-top: 12px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 4px;
+    }
+    .chart-bar-wrap {
+      flex: 1;
+      min-width: 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      height: 100%;
+      justify-content: flex-end;
+    }
+    .chart-bar-bg {
+      width: 100%;
+      max-width: 32px;
+      height: 100%;
+      background: var(--border-light);
+      border-radius: 4px 4px 0 0;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+    }
+    .chart-bar-fill {
+      width: 100%;
+      background: linear-gradient(180deg, var(--brand), var(--purple));
+      border-radius: 4px 4px 0 0;
+      transition: height 0.6s ease;
+      min-height: 4px;
+    }
+    .chart-bar-label {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+      max-width: 60px;
+    }
+    .chart-bar-value {
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    .chart-container .chart-bar-wrap:first-child .chart-bar-label,
+    .chart-container .chart-bar-wrap:last-child .chart-bar-label {
+      max-width: none;
+    }
+
+    /* Horizontal Rankings */
+    .rank-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 13px;
+    }
+    .rank-item:last-child { border-bottom: none; }
+    .rank-item .rank-name {
+      width: 100px;
+      flex-shrink: 0;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .rank-item .rank-bar-bg {
+      flex: 1;
+      height: 6px;
+      background: var(--border-light);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .rank-item .rank-bar-fill {
+      height: 100%;
+      background: var(--brand);
+      border-radius: 3px;
+      transition: width 0.6s ease;
+    }
+    .rank-item .rank-value {
+      width: 50px;
+      text-align: right;
+      font-weight: 600;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    /* Locked Overlay */
+    .locked-container {
+      position: relative;
+      min-height: 100px;
+    }
+    .locked-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(2px);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 2;
+    }
+    .locked-overlay i { font-size: 24px; color: var(--text-tertiary); }
+    .locked-overlay .btn-upgrade {
+      margin-top: 6px;
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .locked-overlay .btn-upgrade:hover { background: var(--brand-dark); transform: scale(1.02); }
+    [data-theme="dark"] .locked-overlay { background: rgba(15,23,42,0.8); }
+
+    /* Device Breakdown */
+    .device-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .device-item {
+      text-align: center;
+      padding: 12px;
+      background: var(--surface-hover);
+      border-radius: 12px;
+      border: 1px solid var(--border-light);
+    }
+    .device-item i { font-size: 24px; display: block; margin-bottom: 4px; color: var(--brand); }
+    .device-item .device-value { font-size: 22px; font-weight: 800; color: var(--text); }
+    .device-item .device-label { font-size: 11px; color: var(--text-tertiary); }
+
+    /* Export */
+    .export-section { margin-top: 8px; display: flex; gap: 8px; justify-content: flex-end; }
+    .btn {
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border-radius: 12px;
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+    .btn-primary {
+      background: var(--brand);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); }
+    .btn-ghost {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: var(--surface-hover); }
+
+    .loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; gap: 16px; color: var(--text-secondary); }
+    .loading-state .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--brand); border-radius: 50%; animation: spin 1s linear infinite; }
+    .error-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+    .error-state i { font-size: 48px; color: var(--text-tertiary); margin-bottom: 16px; display: block; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media(max-width: 640px) {
+      .analytics-mini { grid-template-columns: 1fr 1fr; }
+      .device-grid { grid-template-columns: 1fr; }
+      .rank-item .rank-name { width: 70px; font-size: 12px; }
+      .chart-bar-wrap { min-width: 24px; }
+      .chart-bar-label { font-size: 8px; max-width: 40px; }
+    }
+  </style>
+</head>
+<body>
+<div class="analytics-page" id="analyticsApp">
+  <!-- Dynamic content -->
+</div>
+
+<script>
+// ================================================================
+//  ANALYTICS PAGE — FULLY FUNCTIONAL & BEAUTIFUL
+//  Based on actual backend structure from shop.py
+//  Tiered access: Free (basics), Pro (top 3), Premium (everything)
+//  Charts: 7-day shows weekdays, 30-day+ shows actual dates
+// ================================================================
+
+(function() {
+  'use strict';
+
+  // ================================================================
+  //  CONFIG
+  // ================================================================
+  const API = window.API || 'https://emltechstudio-myshub-api.hf.space';
+  const APP_URL = window.APP_URL || 'https://myshub.site';
+
+  // ================================================================
+  //  STATE
+  // ================================================================
+  let analytics = {};
+  let shopJson = {};
+  let isLoading = true;
+  let loadError = null;
+  let currentPlan = 'free';
+  let totalVisits = 0;
+
+  // ================================================================
+  //  GET SESSION
+  // ================================================================
+  function getSession() {
+    if (window.S && window.S.email) {
+      return {
+        email: window.S.email,
+        password: window.S.password || '',
+        slug: window.S.slug || '',
+        plan: window.S.plan || 'free'
+      };
+    }
+    try {
+      const raw = localStorage.getItem('myshub_session');
+      if (raw) {
+        const s = JSON.parse(raw);
+        if (s.email) {
+          return {
+            email: s.email,
+            password: s.password || '',
+            slug: s.slug || '',
+            plan: s.plan || 'free'
+          };
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  // ================================================================
+  //  FETCH SHOP DATA
+  // ================================================================
+  async function fetchShopData(session) {
+    if (!session || !session.slug) return null;
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+        'email': session.email,
+        'password': session.password
+      };
+      const res = await fetch(API + '/shop/preview/' + session.slug, { headers });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // ================================================================
+  //  RENDER HELPERS
+  // ================================================================
+  function escapeHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+  }
+
+  function fmt(n) {
+    n = Number(n) || 0;
+    if (n >= 1000000) return (n/1000000).toFixed(1).replace(/\.0$/,'') + 'M';
+    if (n >= 1000) return (n/1000).toFixed(1).replace(/\.0$/,'') + 'K';
+    return String(n);
+  }
+
+  function toast(msg, type) {
+    if (window.toast) { window.toast(msg, type); return; }
+    alert(msg);
+  }
+
+  function loadPage(page) {
+    if (window.loadPage) { window.loadPage(page); return; }
+    alert('Navigate to: ' + page);
+  }
+
+  // ================================================================
+  //  BUILD DAILY VISITS WITH ZERO FILL FOR MISSING DAYS
+  // ================================================================
+  function buildDailyVisitsWithZeros(rawData, days) {
+    const result = {};
+    const now = new Date();
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().split('T')[0];
+      result[key] = rawData[key] || 0;
+    }
+    return result;
+  }
+
+  // ================================================================
+  //  RENDER CHARTS — with date labels for 30+ days
+  // ================================================================
+  function renderChart(container, rawData, days, label) {
+    if (!container) return;
+    const data = buildDailyVisitsWithZeros(rawData, days);
+    const entries = Object.entries(data);
+    const maxVal = Math.max(...entries.map(d => d[1]), 1);
+
+    if (entries.length === 0) {
+      container.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-tertiary);font-size:13px;">No data for ${label}</div>`;
+      return;
+    }
+
+    // Determine label format based on days
+    const useFullDate = days >= 14; // 14+ days -> show dates, otherwise weekdays
+    let html = `<div class="chart-container">`;
+    entries.forEach(([date, count]) => {
+      const height = Math.max((count / maxVal) * 100, 4);
+      let labelText;
+      if (useFullDate) {
+        const d = new Date(date);
+        labelText = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      } else {
+        labelText = new Date(date).toLocaleDateString(undefined, { weekday: 'short' });
+      }
+      html += `
+        <div class="chart-bar-wrap">
+          <div class="chart-bar-value">${count}</div>
+          <div class="chart-bar-bg">
+            <div class="chart-bar-fill" style="height:${height}%;"></div>
+          </div>
+          <div class="chart-bar-label" title="${labelText}">${labelText}</div>
+        </div>
+      `;
+    });
+    html += `</div>`;
+    container.innerHTML = html;
+  }
+
+  // ================================================================
+  //  RENDER YEARLY CHART
+  // ================================================================
+  function renderYearlyChart(container, rawData) {
+    if (!container) return;
+    const data = buildDailyVisitsWithZeros(rawData, 365);
+    const entries = Object.entries(data);
+
+    if (entries.length === 0) {
+      container.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-tertiary);font-size:13px;">No yearly data available</div>`;
+      return;
+    }
+
+    // Group by month
+    const monthlyData = {};
+    entries.forEach(([date, count]) => {
+      const d = new Date(date);
+      const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+      monthlyData[key] = (monthlyData[key] || 0) + count;
+    });
+
+    const sortedMonths = Object.keys(monthlyData).sort();
+    const maxVal = Math.max(...Object.values(monthlyData), 1);
+
+    let html = `<div class="chart-container">`;
+    sortedMonths.slice(-12).forEach(key => {
+      const count = monthlyData[key];
+      const height = Math.max((count / maxVal) * 100, 4);
+      const d = new Date(key + '-01');
+      const labelText = d.toLocaleDateString(undefined, { month: 'short', year: '2-digit' });
+      html += `
+        <div class="chart-bar-wrap">
+          <div class="chart-bar-value">${count}</div>
+          <div class="chart-bar-bg">
+            <div class="chart-bar-fill" style="height:${height}%;"></div>
+          </div>
+          <div class="chart-bar-label" title="${labelText}">${labelText}</div>
+        </div>
+      `;
+    });
+    html += `</div>`;
+    container.innerHTML = html;
+  }
+
+  // ================================================================
+  //  RENDER RANKINGS (Countries, Socials, Referrers)
+  // ================================================================
+  function renderRankings(container, data, limit, label, showPercentage = true) {
+    if (!container) return;
+    const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
+    const sliced = entries.slice(0, limit);
+    const total = entries.reduce((sum, [, count]) => sum + count, 0);
+
+    if (sliced.length === 0) {
+      container.innerHTML = `<div style="padding:10px 0;color:var(--text-tertiary);font-size:13px;">No ${label} data yet</div>`;
+      return;
+    }
+
+    let html = '';
+    sliced.forEach(([name, count]) => {
+      const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+      html += `
+        <div class="rank-item">
+          <div class="rank-name" title="${escapeHtml(name)}">${escapeHtml(name)}</div>
+          <div class="rank-bar-bg">
+            <div class="rank-bar-fill" style="width:${Math.min(pct * 2, 100)}%;"></div>
+          </div>
+          <div class="rank-value">${showPercentage ? pct + '%' : fmt(count)}</div>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+  }
+
+  // ================================================================
+  //  RENDER DEVICES
+  // ================================================================
+  function renderDevices(container, devices) {
+    if (!container) return;
+    const total = (devices.mobile || 0) + (devices.desktop || 0) + (devices.tablet || 0);
+    if (total === 0) {
+      container.innerHTML = `<div style="padding:10px 0;color:var(--text-tertiary);font-size:13px;">No device data yet</div>`;
+      return;
+    }
+
+    const mobilePct = Math.round(((devices.mobile || 0) / total) * 100);
+    const desktopPct = Math.round(((devices.desktop || 0) / total) * 100);
+    const tabletPct = Math.round(((devices.tablet || 0) / total) * 100);
+
+    container.innerHTML = `
+      <div class="device-grid">
+        <div class="device-item">
+          <i class="fa-solid fa-mobile-screen"></i>
+          <div class="device-value">${mobilePct}%</div>
+          <div class="device-label">Mobile</div>
+        </div>
+        <div class="device-item">
+          <i class="fa-solid fa-desktop"></i>
+          <div class="device-value">${desktopPct}%</div>
+          <div class="device-label">Desktop</div>
+        </div>
+        <div class="device-item">
+          <i class="fa-solid fa-tablet-screen"></i>
+          <div class="device-value">${tabletPct}%</div>
+          <div class="device-label">Tablet</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // ================================================================
+  //  RENDER CLICKS
+  // ================================================================
+  function renderClicks(container, clicks, type, plan) {
+    if (!container) return;
+
+    if (type === 'catalog') {
+      const total = clicks.catalog || 0;
+      if (plan === 'pro') {
+        container.innerHTML = `<div style="font-size:26px;font-weight:800;margin:8px 0;color:var(--brand);">${fmt(total)}</div>`;
+        return;
+      }
+      // Premium breakdown
+      let html = `<div style="font-size:26px;font-weight:800;margin:8px 0;color:var(--brand);">${fmt(total)}</div>`;
+      const socials = clicks.socials || {};
+      const socialEntries = Object.entries(socials).sort((a, b) => b[1] - a[1]);
+      const totalSocial = socialEntries.reduce((sum, [, count]) => sum + count, 0);
+      if (socialEntries.length > 0) {
+        html += `<div style="margin-top:12px;font-weight:600;font-size:13px;">Social platforms</div>`;
+        socialEntries.forEach(([name, count]) => {
+          const pct = totalSocial > 0 ? Math.round((count / totalSocial) * 100) : 0;
+          html += `
+            <div class="rank-item">
+              <div class="rank-name">${escapeHtml(name)}</div>
+              <div class="rank-bar-bg">
+                <div class="rank-bar-fill" style="width:${Math.min(pct * 2, 100)}%;"></div>
+              </div>
+              <div class="rank-value">${count} (${pct}%)</div>
+            </div>
+          `;
+        });
+      } else {
+        html += `<div style="margin-top:8px;color:var(--text-tertiary);font-size:13px;">No social clicks yet</div>`;
+      }
+      container.innerHTML = html;
+      return;
+    }
+
+    if (type === 'custom_links') {
+      const customLinks = clicks.custom_links || {};
+      const entries = Object.entries(customLinks).sort((a, b) => b[1] - a[1]);
+      const total = entries.reduce((sum, [, count]) => sum + count, 0);
+      if (entries.length === 0) {
+        container.innerHTML = `<div style="padding:10px 0;color:var(--text-tertiary);font-size:13px;">No custom link clicks yet</div>`;
+        return;
+      }
+      let html = `<div style="font-size:26px;font-weight:800;margin:8px 0;color:var(--brand);">${fmt(total)}</div>`;
+      entries.forEach(([name, count]) => {
+        const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+        html += `
+          <div class="rank-item">
+            <div class="rank-name">${escapeHtml(name)}</div>
+            <div class="rank-bar-bg">
+              <div class="rank-bar-fill" style="width:${Math.min(pct * 2, 100)}%;"></div>
+            </div>
+            <div class="rank-value">${count} (${pct}%)</div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+      return;
+    }
+  }
+
+  // ================================================================
+  //  EXPORT CSV (Premium)
+  // ================================================================
+  function exportCSV() {
+    const a = analytics;
+    let csv = 'Metric,Value\n';
+    csv += `Total Visits,${a.visit_count || 0}\n`;
+    const today = Object.keys(a.daily_visits || {}).slice(-1)[0];
+    csv += `Today,${today ? a.daily_visits[today] : 0}\n`;
+    csv += 'Top Countries,';
+    if (a.countries) {
+      const entries = Object.entries(a.countries).sort((x, y) => y[1] - x[1]);
+      csv += entries.map(([k, v]) => `${k} (${v})`).join('; ');
+    }
+    csv += '\nTop Referrers,';
+    if (a.referrers) {
+      const entries = Object.entries(a.referrers).sort((x, y) => y[1] - x[1]);
+      csv += entries.map(([k, v]) => `${k} (${v})`).join('; ');
+    }
+    csv += '\nDevices,';
+    if (a.devices) {
+      csv += `Mobile ${a.devices.mobile || 0}, Desktop ${a.devices.desktop || 0}, Tablet ${a.devices.tablet || 0}`;
+    }
+    if (a.clicks) {
+      csv += `\nCatalog Clicks,${a.clicks.catalog || 0}`;
+      if (a.clicks.custom_links) {
+        Object.entries(a.clicks.custom_links).forEach(([k, v]) => {
+          csv += `\nCustom Link (${k}),${v}`;
+        });
+      }
+    }
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const aEl = document.createElement('a');
+    aEl.href = url;
+    aEl.download = 'analytics-' + new Date().toISOString().split('T')[0] + '.csv';
+    aEl.click();
+    URL.revokeObjectURL(url);
+    toast('Analytics exported!', 'success');
+  }
+
+  // ================================================================
+  //  MAIN RENDER
+  // ================================================================
+  function renderAnalytics() {
+    const app = document.getElementById('analyticsApp');
+    if (!app) return;
+
+    if (isLoading) {
+      app.innerHTML = `
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <span>Loading analytics...</span>
+        </div>
+      `;
+      return;
+    }
+
+    if (loadError) {
+      app.innerHTML = `
+        <div class="error-state">
+          <i class="fa-regular fa-circle-exclamation"></i>
+          <div style="font-weight:600;margin-bottom:8px;">Could not load analytics</div>
+          <p style="font-size:13px;color:var(--text-secondary);">${loadError}</p>
+          <button class="btn btn-primary btn-sm" style="margin-top:16px;" onclick="location.reload()">Try Again</button>
+        </div>
+      `;
+      return;
+    }
+
+    if (!shopJson || !analytics) {
+      app.innerHTML = `
+        <div class="error-state">
+          <i class="fa-regular fa-chart-line"></i>
+          <div style="font-weight:600;margin-bottom:8px;">No analytics data yet</div>
+          <p style="font-size:13px;color:var(--text-secondary);">Start sharing your shop to see insights here.</p>
+        </div>
+      `;
+      return;
+    }
+
+    const plan = currentPlan || 'free';
+    const dailyVisits = analytics.daily_visits || {};
+    const countries = analytics.countries || {};
+    const referrers = analytics.referrers || {};
+    const devices = analytics.devices || {};
+    const clicks = analytics.clicks || {};
+    const totalVisits = analytics.visit_count || 0;
+    const todayVisits = Object.values(dailyVisits).slice(-1)[0] || 0;
+    const weekKeys = Object.keys(dailyVisits).sort().slice(-7);
+    const weekTotal = weekKeys.reduce((sum, k) => sum + dailyVisits[k], 0);
+    const monthKeys = Object.keys(dailyVisits).sort().slice(-30);
+    const monthTotal = monthKeys.reduce((sum, k) => sum + dailyVisits[k], 0);
+
+    const isPro = plan === 'pro' || plan === 'premium';
+    const isPremium = plan === 'premium';
+
+    let html = '';
+
+    // ---- Header ----
+    html += `
+      <div class="page-header">
+        <h2>Analytics</h2>
+        <div class="sub">Track your growth and engagement.</div>
+      </div>
+    `;
+
+    // ---- Mini Stats ----
+    html += `
+      <div class="analytics-mini">
+        <div class="mini-stat"><div class="stat-number">${fmt(totalVisits)}</div><div class="stat-label">Total visits</div></div>
+        <div class="mini-stat"><div class="stat-number">${fmt(todayVisits)}</div><div class="stat-label">Today</div></div>
+        <div class="mini-stat"><div class="stat-number">${fmt(weekTotal)}</div><div class="stat-label">This week</div></div>
+        <div class="mini-stat"><div class="stat-number">${fmt(monthTotal)}</div><div class="stat-label">This month</div></div>
+      </div>
+    `;
+
+    // ---- 7-Day Chart (weekday labels) ----
+    html += `<div class="card"><div class="card-title">Last 7 days</div><div id="chart7d"></div></div>`;
+
+    // ---- 30-Day Chart (date labels) ----
+    html += `<div class="card"><div class="card-title">Last 30 days</div><div id="chart30d"></div></div>`;
+
+    // ---- Yearly Chart (Premium) ----
+    if (isPremium) {
+      html += `<div class="card"><div class="card-title">Yearly overview <span class="badge premium">Premium</span></div><div id="chartYearly"></div></div>`;
+    } else {
+      html += `
+        <div class="card locked-container">
+          <div class="card-title">Yearly overview <span class="badge premium">Premium</span></div>
+          <div style="height:100px;filter:blur(4px);background:var(--surface-hover);border-radius:12px;"></div>
+          <div class="locked-overlay">
+            <i class="fa-solid fa-lock"></i>
+            <span>Upgrade to Premium for yearly insights</span>
+            <button class="btn-upgrade" onclick="loadPage('upgrade')">Upgrade</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // ---- Top Countries ----
+    const countryLimit = plan === 'free' ? 1 : 3;
+    html += `<div class="card"><div class="card-title">Top countries</div><div id="rankCountries"></div></div>`;
+
+    // ---- Top Socials (Pro & Premium) ----
+    if (isPro) {
+      html += `<div class="card"><div class="card-title">Top social platforms</div><div id="rankSocials"></div></div>`;
+    } else {
+      html += `
+        <div class="card locked-container">
+          <div class="card-title">Top social platforms <span class="badge pro">Pro</span></div>
+          <div style="height:80px;filter:blur(4px);background:var(--surface-hover);border-radius:12px;"></div>
+          <div class="locked-overlay">
+            <i class="fa-solid fa-lock"></i>
+            <span>Upgrade to Pro for social insights</span>
+            <button class="btn-upgrade" onclick="loadPage('upgrade')">Upgrade</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // ---- Top Referrers (Pro & Premium) ----
+    if (isPro) {
+      html += `<div class="card"><div class="card-title">Top referrers</div><div id="rankReferrers"></div></div>`;
+    } else {
+      html += `
+        <div class="card locked-container">
+          <div class="card-title">Top referrers <span class="badge pro">Pro</span></div>
+          <div style="height:80px;filter:blur(4px);background:var(--surface-hover);border-radius:12px;"></div>
+          <div class="locked-overlay">
+            <i class="fa-solid fa-lock"></i>
+            <span>Upgrade to Pro for referrer insights</span>
+            <button class="btn-upgrade" onclick="loadPage('upgrade')">Upgrade</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // ---- Catalog Clicks (Pro & Premium) ----
+    if (isPro) {
+      html += `<div class="card"><div class="card-title">Catalog clicks</div><div id="catalogClicks"></div></div>`;
+    } else {
+      html += `
+        <div class="card locked-container">
+          <div class="card-title">Catalog clicks <span class="badge pro">Pro</span></div>
+          <div style="height:60px;filter:blur(4px);background:var(--surface-hover);border-radius:12px;"></div>
+          <div class="locked-overlay">
+            <i class="fa-solid fa-lock"></i>
+            <span>Upgrade to Pro to see catalog clicks</span>
+            <button class="btn-upgrade" onclick="loadPage('upgrade')">Upgrade</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // ---- Custom Link Clicks (Premium) ----
+    if (isPremium) {
+      html += `<div class="card"><div class="card-title">Custom link clicks <span class="badge premium">Premium</span></div><div id="customLinkClicks"></div></div>`;
+    } else {
+      html += `
+        <div class="card locked-container">
+          <div class="card-title">Custom link clicks <span class="badge premium">Premium</span></div>
+          <div style="height:60px;filter:blur(4px);background:var(--surface-hover);border-radius:12px;"></div>
+          <div class="locked-overlay">
+            <i class="fa-solid fa-lock"></i>
+            <span>Upgrade to Premium for custom link insights</span>
+            <button class="btn-upgrade" onclick="loadPage('upgrade')">Upgrade</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // ---- Device Breakdown (Premium) ----
+    if (isPremium) {
+      html += `<div class="card"><div class="card-title">Device breakdown <span class="badge premium">Premium</span></div><div id="deviceBreakdown"></div></div>`;
+    } else {
+      html += `
+        <div class="card locked-container">
+          <div class="card-title">Device breakdown <span class="badge premium">Premium</span></div>
+          <div style="height:60px;filter:blur(4px);background:var(--surface-hover);border-radius:12px;"></div>
+          <div class="locked-overlay">
+            <i class="fa-solid fa-lock"></i>
+            <span>Upgrade to Premium for device insights</span>
+            <button class="btn-upgrade" onclick="loadPage('upgrade')">Upgrade</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // ---- Export (Premium) ----
+    if (isPremium) {
+      html += `
+        <div class="card">
+          <div class="card-title">Export data <span class="badge premium">Premium</span></div>
+          <div class="export-section">
+            <button class="btn btn-primary" onclick="exportCSV()"><i class="fa-solid fa-download"></i> Export CSV</button>
+          </div>
+        </div>
+      `;
+    }
+
+    app.innerHTML = html;
+
+    // ---- Populate charts and rankings after rendering ----
+    renderChart(document.getElementById('chart7d'), dailyVisits, 7, 'last 7 days');
+    renderChart(document.getElementById('chart30d'), dailyVisits, 30, 'last 30 days');
+    if (isPremium) {
+      renderYearlyChart(document.getElementById('chartYearly'), dailyVisits);
+    }
+
+    renderRankings(document.getElementById('rankCountries'), countries, countryLimit, 'countries');
+
+    if (isPro) {
+      const socialClicks = clicks.socials || {};
+      renderRankings(document.getElementById('rankSocials'), socialClicks, 3, 'social platforms');
+      renderRankings(document.getElementById('rankReferrers'), referrers, 3, 'referrers');
+      renderClicks(document.getElementById('catalogClicks'), clicks, 'catalog', plan);
+    }
+
+    if (isPremium) {
+      renderClicks(document.getElementById('customLinkClicks'), clicks, 'custom_links', plan);
+      renderDevices(document.getElementById('deviceBreakdown'), devices);
+    }
+  }
+
+  // ================================================================
+  //  INIT
+  // ================================================================
+  async function init() {
+    const app = document.getElementById('analyticsApp');
+
+    try {
+      const session = getSession();
+      if (!session) {
+        isLoading = false;
+        renderAnalytics();
+        return;
+      }
+
+      if (!window.S) window.S = {};
+      window.S.email = session.email;
+      window.S.password = session.password;
+      window.S.slug = session.slug;
+      window.S.plan = session.plan;
+
+      const data = await fetchShopData(session);
+      if (data) {
+        shopJson = data.shop_json || {};
+        analytics = shopJson.analytics || {};
+        currentPlan = data.plan || session.plan || 'free';
+        window.S.plan = currentPlan;
+        window.S.shopJson = shopJson;
+        window.S.shopData = data;
+      } else {
+        analytics = {};
+        shopJson = {};
+        currentPlan = session.plan || 'free';
+      }
+
+      isLoading = false;
+      renderAnalytics();
+    } catch (error) {
+      console.error('Analytics init error:', error);
+      loadError = error.message || 'Failed to load analytics.';
+      isLoading = false;
+      renderAnalytics();
+    }
+  }
+
+  // Expose functions globally
+  window.exportCSV = exportCSV;
+  window.loadPage = loadPage;
+  window.toast = toast;
+
+  // Start
+  init();
+})();
+</script>
+</body>
+</html>

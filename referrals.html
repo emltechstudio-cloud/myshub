@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Referrals – MyShub</title>
+  <style>
+    /* ===== REFERRALS PAGE STYLES ===== */
+    .referrals-page { padding: 0; }
+
+    .page-header { margin-bottom: 24px; }
+    .page-header h2 { font-size: 22px; font-weight: 800; }
+    .page-header .sub { color: var(--text-secondary); font-size: 14px; margin-top: 4px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .card .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card .card-title i { color: var(--brand); }
+
+    .referral-link-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 14px;
+    }
+    .referral-link-box input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      min-width: 0;
+    }
+    .referral-link-box .btn-copy {
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+    .referral-link-box .btn-copy:hover { background: var(--brand-dark); transform: translateY(-1px); }
+
+    .share-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .share-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-decoration: none;
+    }
+    .share-btn:hover {
+      transform: translateY(-2px);
+      border-color: var(--brand);
+      background: var(--brand-soft);
+    }
+    .share-btn i { font-size: 20px; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .stat-item {
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      text-align: center;
+    }
+    .stat-item .stat-number { font-size: 28px; font-weight: 800; color: var(--brand); }
+    .stat-item .stat-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+
+    .progress-container { margin: 12px 0; }
+    .progress-bar-bg {
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--brand), var(--purple));
+      border-radius: 4px;
+      transition: width 0.6s ease;
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .btn {
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-size: 14px;
+      width: 100%;
+    }
+    .btn-primary {
+      background: var(--brand);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--brand-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.25);
+    }
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+    .btn-success {
+      background: var(--success);
+      color: #fff;
+    }
+    .btn-success:hover {
+      background: #059669;
+      transform: translateY(-2px);
+    }
+    .btn-sm { padding: 8px 16px; font-size: 13px; width: auto; }
+
+    .claim-section {
+      background: linear-gradient(135deg, var(--success-soft), #d1fae5);
+      border: 1px solid var(--success);
+      border-radius: 16px;
+      padding: 16px;
+      text-align: center;
+      margin-top: 12px;
+    }
+    .claim-section .claim-title { font-weight: 700; font-size: 16px; color: var(--success); }
+    .claim-section .claim-desc { font-size: 13px; color: var(--text-secondary); margin: 4px 0 12px; }
+
+    .loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; gap: 16px; color: var(--text-secondary); }
+    .loading-state .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--brand); border-radius: 50%; animation: spin 1s linear infinite; }
+    .error-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+    .error-state i { font-size: 48px; color: var(--text-tertiary); margin-bottom: 16px; display: block; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media(max-width: 640px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .share-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<div class="referrals-page" id="referralsApp">
+  <!-- Dynamic content -->
+</div>
+
+<script>
+// ================================================================
+//  REFERRALS PAGE — BASED ON ACTUAL BACKEND API (shop.py)
+//  Endpoint: /shop/referrals (or /referrals if mounted at root)
+//  Returns: { referral_code, total_referred, active_referred, referrals: [...] }
+// ================================================================
+
+(function() {
+  'use strict';
+
+  // ================================================================
+  //  CONFIG
+  // ================================================================
+  const API = window.API || 'https://emltechstudio-myshub-api.hf.space';
+  const APP_URL = window.APP_URL || 'https://myshub.site';
+  const SUPPORT_EMAIL = 'emltechstudio@gmail.com';
+
+  // ================================================================
+  //  STATE
+  // ================================================================
+  let referralData = null; // { referral_code, total_referred, active_referred, referrals: [] }
+  let isLoading = true;
+  let loadError = null;
+  let currentPlan = 'free';
+  let userEmail = '';
+  let userSlug = '';
+  let referralCode = '';
+
+  // ================================================================
+  //  GET SESSION
+  // ================================================================
+  function getSession() {
+    if (window.S && window.S.email) {
+      return {
+        email: window.S.email,
+        password: window.S.password || '',
+        slug: window.S.slug || '',
+        plan: window.S.plan || 'free'
+      };
+    }
+    try {
+      const raw = localStorage.getItem('myshub_session');
+      if (raw) {
+        const s = JSON.parse(raw);
+        if (s.email) {
+          return {
+            email: s.email,
+            password: s.password || '',
+            slug: s.slug || '',
+            plan: s.plan || 'free'
+          };
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  // ================================================================
+  //  FETCH REFERRALS — from /shop/referrals (see shop.py)
+  //  Headers: email + password required
+  // ================================================================
+  async function fetchReferrals(session) {
+    if (!session || !session.email) {
+      throw new Error('No session');
+    }
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+        'email': session.email,
+        'password': session.password
+      };
+      // Try /shop/referrals first (most common mount)
+      let res = await fetch(API + '/shop/referrals', { headers });
+      // If that fails, try /referrals (if mounted at root)
+      if (!res.ok) {
+        res = await fetch(API + '/referrals', { headers });
+      }
+      if (!res.ok) {
+        const err = await res.text();
+        throw new Error('Failed to fetch referrals: ' + err);
+      }
+      const data = await res.json();
+      return data; // { referral_code, total_referred, active_referred, referrals: [...] }
+    } catch (e) {
+      console.warn('Could not fetch referrals:', e);
+      // Try cached
+      const cached = localStorage.getItem('myshub_referrals_' + session.slug);
+      if (cached) {
+        try { return JSON.parse(cached); } catch {}
+      }
+      throw e;
+    }
+  }
+
+  // ================================================================
+  //  FETCH SHOP DATA — from /shop/preview/{slug}
+  // ================================================================
+  async function fetchShopData(session) {
+    if (!session || !session.slug) return null;
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+        'email': session.email,
+        'password': session.password
+      };
+      const res = await fetch(API + '/shop/preview/' + session.slug, { headers });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // ================================================================
+  //  REFERRAL HELPERS
+  // ================================================================
+  function getCurrentMonthKey() {
+    const now = new Date();
+    return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  }
+
+  function getLastMonthKey() {
+    const now = new Date();
+    if (now.getMonth() === 0) {
+      return (now.getFullYear() - 1) + '-12';
+    }
+    return now.getFullYear() + '-' + String(now.getMonth()).padStart(2, '0');
+  }
+
+  // Filter referrals by month using the 'joined' field or 'created_at'
+  function filterReferralsByMonth(referrals, monthKey) {
+    return referrals.filter(r => {
+      const dateStr = r.joined || r.created_at;
+      if (!dateStr) return false;
+      const d = new Date(dateStr);
+      const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+      return key === monthKey;
+    });
+  }
+
+  function getReferralLink(code) {
+    return APP_URL + '/?ref=' + encodeURIComponent(code);
+  }
+
+  // ================================================================
+  //  CLAIM REWARD (mailto)
+  // ================================================================
+  function claimReward() {
+    const session = getSession();
+    if (!session) {
+      toast('Please log in to claim your reward.', 'error');
+      return;
+    }
+    const subject = 'Referral Reward Claim – Pro for 1 month';
+    const body = `Hello MyShub Team,
+
+I have successfully referred 5 people to MyShub this month and would like to claim my reward: Pro plan free for 1 month.
+
+My email: ${session.email}
+My shop: ${APP_URL}/${session.slug}
+Referral code: ${referralCode}
+
+Thank you!`;
+
+    window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    toast('Email opened. Please send to claim your reward.', 'info');
+  }
+
+  // ================================================================
+  //  TOAST (fallback)
+  // ================================================================
+  function toast(msg, type) {
+    if (window.toast) { window.toast(msg, type); return; }
+    alert(msg);
+  }
+
+  // ================================================================
+  //  ESCAPE HTML
+  // ================================================================
+  function escapeHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+  }
+
+  // ================================================================
+  //  RENDER
+  // ================================================================
+  function render() {
+    const app = document.getElementById('referralsApp');
+    if (!app) return;
+
+    if (isLoading) {
+      app.innerHTML = `
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <span>Loading referrals...</span>
+        </div>
+      `;
+      return;
+    }
+
+    if (loadError) {
+      app.innerHTML = `
+        <div class="error-state">
+          <i class="fa-regular fa-circle-exclamation"></i>
+          <div style="font-weight:600;margin-bottom:8px;">Could not load referrals</div>
+          <p style="font-size:13px;color:var(--text-secondary);">${loadError}</p>
+          <button class="btn btn-primary btn-sm" style="margin-top:16px;" onclick="location.reload()">Try Again</button>
+        </div>
+      `;
+      return;
+    }
+
+    const session = getSession();
+    if (!session) {
+      app.innerHTML = `
+        <div class="error-state">
+          <i class="fa-regular fa-user"></i>
+          <div style="font-weight:600;margin-bottom:8px;">Please log in</div>
+          <p style="font-size:13px;color:var(--text-secondary);">You need to be logged in to view your referrals.</p>
+        </div>
+      `;
+      return;
+    }
+
+    // Use data from referralData
+    const data = referralData || { referral_code: '', total_referred: 0, active_referred: 0, referrals: [] };
+    const code = data.referral_code || referralCode || session.slug;
+    const refLink = getReferralLink(code);
+    const totalRefs = data.total_referred || 0;
+    const activeRefs = data.active_referred || 0;
+    const allReferrals = data.referrals || [];
+
+    // Month filtering (using joined date)
+    const currentMonthKey = getCurrentMonthKey();
+    const lastMonthKey = getLastMonthKey();
+    const currentMonthRefs = filterReferralsByMonth(allReferrals, currentMonthKey);
+    const lastMonthRefs = filterReferralsByMonth(allReferrals, lastMonthKey);
+    const currentCount = currentMonthRefs.length;
+    const lastCount = lastMonthRefs.length;
+
+    const target = 5;
+    const progress = Math.min(currentCount / target, 1);
+    const progressPercent = (progress * 100).toFixed(0);
+
+    const isPro = currentPlan === 'pro' || currentPlan === 'premium';
+    const canClaim = currentCount >= target && !isPro;
+
+    // Compelling share caption
+    const shareCaption = `🔥 Join me on MyShub — the business network where sellers get discovered! 🚀 Sign up with my referral link and start building your professional hub today. 🌟 ${refLink}`;
+
+    let html = '';
+
+    // ---- Header ----
+    html += `
+      <div class="page-header">
+        <h2>Referrals</h2>
+        <div class="sub">Share your link and earn rewards.</div>
+      </div>
+    `;
+
+    // ---- Stats ----
+    html += `
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-number">${totalRefs}</div>
+          <div class="stat-label">Total Referrals</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">${activeRefs}</div>
+          <div class="stat-label">Active</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">${currentCount}</div>
+          <div class="stat-label">This Month</div>
+        </div>
+      </div>
+    `;
+
+    // ---- Referral Link ----
+    html += `
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-link"></i> Your Referral Link</div>
+        <div class="referral-link-box">
+          <input type="text" value="${escapeHtml(refLink)}" readonly id="referralLinkInput" />
+          <button class="btn-copy" onclick="copyReferralLink()"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+        <div style="font-size:12px;color:var(--text-tertiary);margin-top:6px;">
+          Your referral code: <strong>${escapeHtml(code)}</strong>
+        </div>
+        <div class="share-grid">
+          <button class="share-btn" onclick="shareToWhatsApp()"><i class="fa-brands fa-whatsapp" style="color:#25D366;"></i> WhatsApp</button>
+          <button class="share-btn" onclick="shareToTwitter()"><i class="fa-brands fa-x-twitter"></i> X</button>
+          <button class="share-btn" onclick="shareToFacebook()"><i class="fa-brands fa-facebook" style="color:#1877F2;"></i> Facebook</button>
+          <button class="share-btn" onclick="shareNative()"><i class="fa-solid fa-share-nodes" style="color:var(--brand);"></i> Share</button>
+        </div>
+      </div>
+    `;
+
+    // ---- Campaign Progress ----
+    html += `
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-gift"></i> 🎯 Refer 5 Active, Get Pro Free for a Month!</div>
+        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">
+          ${isPro ? '🎉 You are already on Pro! Keep referring to help others grow.' : 'Refer 5 active friends this month and unlock Pro features for 30 days — free!'}
+        </div>
+        <div class="progress-container">
+          <div class="progress-label">
+            <span>Progress (this month)</span>
+            <span>${currentCount} / ${target}</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width:${progressPercent}%;"></div>
+          </div>
+        </div>
+        ${canClaim ? `
+          <div class="claim-section">
+            <div class="claim-title">🎉 You've reached 5 referrals this month!</div>
+            <div class="claim-desc">Click below to claim your free Pro plan for 1 month.</div>
+            <button class="btn btn-success" onclick="claimReward()"><i class="fa-solid fa-envelope"></i> Claim Reward</button>
+          </div>
+        ` : ''}
+        ${isPro && currentCount >= target ? `
+          <div style="text-align:center;margin-top:8px;font-size:12px;color:var(--text-secondary);">
+            You already have Pro! Keep referring to help others grow.
+          </div>
+        ` : ''}
+        ${!canClaim && !isPro && currentCount < target ? `
+          <div style="text-align:center;margin-top:8px;font-size:12px;color:var(--text-secondary);">
+            ${target - currentCount} more referral${target - currentCount > 1 ? 's' : ''} needed to claim.
+          </div>
+        ` : ''}
+      </div>
+    `;
+
+    // ---- Referral List ----
+    if (allReferrals.length > 0) {
+      html += `
+        <div class="card">
+          <div class="card-title"><i class="fa-regular fa-list"></i> Recent Referrals</div>
+          <div style="max-height:200px;overflow-y:auto;">
+      `;
+      const recent = [...allReferrals].sort((a, b) => new Date(b.joined || b.created_at) - new Date(a.joined || a.created_at)).slice(0, 10);
+      recent.forEach(r => {
+        const dateStr = r.joined || r.created_at;
+        const date = new Date(dateStr);
+        const displayDate = date.toLocaleDateString();
+        const status = r.status || 'active';
+        const statusLabel = status === 'active' ? 'Active' : 'Inactive';
+        html += `
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border-light);font-size:13px;">
+            <span>${escapeHtml(r.business_name || r.slug || 'Anonymous')}</span>
+            <span style="color:var(--text-tertiary);font-size:12px;">
+              ${statusLabel} • ${displayDate}
+            </span>
+          </div>
+        `;
+      });
+      html += `</div></div>`;
+    } else {
+      html += `
+        <div class="card">
+          <div class="card-title"><i class="fa-regular fa-list"></i> Recent Referrals</div>
+          <div style="text-align:center;padding:16px;color:var(--text-secondary);font-size:13px;">
+            No referrals yet. Share your link to get started!
+          </div>
+        </div>
+      `;
+    }
+
+    // ---- Footer ----
+    html += `
+      <div style="font-size:12px;color:var(--text-tertiary);text-align:center;padding:12px 0 20px;">
+        Referrals reset monthly. Campaign ends when we announce.
+      </div>
+    `;
+
+    app.innerHTML = html;
+  }
+
+  // ================================================================
+  //  SHARE HELPERS
+  // ================================================================
+  function getShareLink() {
+    const input = document.getElementById('referralLinkInput');
+    return input ? input.value : '';
+  }
+
+  function getShareCaption() {
+    const link = getShareLink();
+    return `🔥 Join me on MyShub — the business network where sellers get discovered! 🚀 Sign up with my referral link and start building your professional hub today. 🌟 ${link}`;
+  }
+
+  function copyReferralLink() {
+    const input = document.getElementById('referralLinkInput');
+    if (!input) return;
+    navigator.clipboard.writeText(input.value).then(() => {
+      toast('Link copied!', 'success');
+    }).catch(() => {
+      input.select();
+      document.execCommand('copy');
+      toast('Link copied!', 'success');
+    });
+  }
+
+  function shareToWhatsApp() {
+    const text = encodeURIComponent(getShareCaption());
+    window.open('https://wa.me/?text=' + text, '_blank');
+  }
+  function shareToTwitter() {
+    const text = encodeURIComponent(getShareCaption());
+    window.open('https://twitter.com/intent/tweet?text=' + text, '_blank');
+  }
+  function shareToFacebook() {
+    const url = encodeURIComponent(getShareLink());
+    const text = encodeURIComponent('Join me on MyShub! 🚀');
+    window.open('https://www.facebook.com/sharer/sharer.php?u=' + url + '&quote=' + text, '_blank');
+  }
+  function shareNative() {
+    const link = getShareLink();
+    const text = getShareCaption();
+    if (navigator.share) {
+      navigator.share({
+        title: 'MyShub Business Hub',
+        text: text,
+        url: link
+      }).catch(() => {});
+    } else {
+      copyReferralLink();
+    }
+  }
+
+  // ================================================================
+  //  INIT
+  // ================================================================
+  async function init() {
+    const app = document.getElementById('referralsApp');
+
+    try {
+      const session = getSession();
+      if (!session) {
+        isLoading = false;
+        render();
+        return;
+      }
+
+      userSlug = session.slug;
+      userEmail = session.email;
+      currentPlan = session.plan || 'free';
+
+      if (!window.S) window.S = {};
+      window.S.email = session.email;
+      window.S.password = session.password;
+      window.S.slug = session.slug;
+      window.S.plan = currentPlan;
+
+      // 1. Fetch shop data (for plan and maybe referral code fallback)
+      const shop = await fetchShopData(session);
+      if (shop) {
+        currentPlan = shop.plan || session.plan || 'free';
+        window.S.plan = currentPlan;
+        if (window.updateDrawerInfo) window.updateDrawerInfo();
+      }
+
+      // 2. Fetch referrals from /shop/referrals (or /referrals)
+      const data = await fetchReferrals(session);
+      referralData = data;
+      referralCode = data.referral_code || session.slug;
+
+      if (data.referrals) {
+        localStorage.setItem('myshub_referrals_' + session.slug, JSON.stringify(data));
+      }
+
+      isLoading = false;
+      render();
+
+    } catch (error) {
+      console.error('Referrals init error:', error);
+      loadError = error.message || 'Failed to load referrals.';
+      isLoading = false;
+      render();
+    }
+  }
+
+  // Expose functions globally
+  window.copyReferralLink = copyReferralLink;
+  window.shareToWhatsApp = shareToWhatsApp;
+  window.shareToTwitter = shareToTwitter;
+  window.shareToFacebook = shareToFacebook;
+  window.shareNative = shareNative;
+  window.claimReward = claimReward;
+  window.toast = toast;
+
+  // Start
+  init();
+})();
+</script>
+</body>
+</html>

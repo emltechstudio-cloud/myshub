@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notifications – MyShub</title>
+  <style>
+    /* ===== NOTIFICATIONS PAGE STYLES ===== */
+    .notif-page { padding: 0; }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .page-header h2 {
+      font-size: 20px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .page-header .actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+    .btn-primary {
+      background: var(--brand);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); }
+    .btn-ghost {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: var(--surface-hover); }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .filter-bar .btn {
+      padding: 6px 14px;
+      font-size: 12px;
+    }
+    .filter-bar .btn.active {
+      background: var(--brand);
+      color: #fff;
+      border-color: var(--brand);
+    }
+
+    .notif-item {
+      display: flex;
+      gap: 12px;
+      padding: 14px;
+      border-bottom: 1px solid var(--border-light);
+      cursor: pointer;
+      transition: background 0.2s;
+      align-items: flex-start;
+    }
+    .notif-item:hover { background: var(--surface-hover); }
+    .notif-item.unread { border-left: 3px solid var(--brand); }
+    .notif-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 16px;
+    }
+    .notif-body { flex: 1; min-width: 0; }
+    .notif-title { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+    .notif-msg { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
+    .notif-time { font-size: 11px; color: var(--text-tertiary); margin-top: 4px; }
+
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+    .empty i { font-size: 48px; color: var(--text-tertiary); margin-bottom: 16px; display: block; }
+
+    .loading-spinner {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 200px;
+      gap: 12px;
+      color: var(--text-secondary);
+    }
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 4px solid var(--border);
+      border-top-color: var(--brand);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .toast {
+      border-radius: 12px;
+      padding: 10px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+
+    /* Analytics notification badges */
+    .notif-analytics-badge {
+      background: var(--brand-soft);
+      color: var(--brand);
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 8px;
+      border-radius: 30px;
+      margin-left: 6px;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+<div class="notif-page" id="notifApp">
+  <!-- Dynamic content -->
+</div>
+
+<script>
+// ================================================================
+//  NOTIFICATIONS — LOCAL-FIRST, ANALYTICS-DRIVEN, TIERED
+//  Built on the specification we designed earlier
+// ================================================================
+
+(function() {
+  'use strict';
+
+  // ================================================================
+  //  CONFIG
+  // ================================================================
+  const API = window.API || 'https://emltechstudio-myshub-api.hf.space';
+  const APP_URL = window.APP_URL || 'https://myshub.site';
+  const SUPPORT_EMAIL = 'emltechstudio@gmail.com';
+  const STORAGE_KEY = 'myshub_notifs_' + (localStorage.getItem('myshub_session') ? JSON.parse(localStorage.getItem('myshub_session')).slug : 'guest');
+
+  // ================================================================
+  //  STATE
+  // ================================================================
+  let notifications = [];
+  let unreadCount = 0;
+  let currentFilter = 'all';
+  let shopData = null;
+  let shopJson = null;
+  let currentPlan = 'free';
+  let isLoading = true;
+
+  // ================================================================
+  //  GET SESSION
+  // ================================================================
+  function getSession() {
+    if (window.S && window.S.email) {
+      return {
+        email: window.S.email,
+        password: window.S.password || '',
+        slug: window.S.slug || '',
+        plan: window.S.plan || 'free'
+      };
+    }
+    try {
+      const raw = localStorage.getItem('myshub_session');
+      if (raw) {
+        const s = JSON.parse(raw);
+        if (s.email) {
+          return {
+            email: s.email,
+            password: s.password || '',
+            slug: s.slug || '',
+            plan: s.plan || 'free'
+          };
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  // ================================================================
+  //  FETCH SHOP DATA (for analytics-driven notifications)
+  // ================================================================
+  async function fetchShopData(session) {
+    if (!session || !session.slug) return null;
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+        'email': session.email,
+        'password': session.password
+      };
+      const res = await fetch(API + '/shop/preview/' + session.slug, { headers });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // ================================================================
+  //  ANALYTICS-DRIVEN NOTIFICATION GENERATION
+  // ================================================================
+  function generateAnalyticsNotifications(shopJson, plan) {
+    const analytics = shopJson?.analytics || {};
+    const newNotifs = [];
+    const now = new Date();
+    const todayKey = now.toISOString().split('T')[0];
+
+    // Total visits
+    const total = analytics.visit_count || 0;
+    const daily = analytics.daily_visits || {};
+    const todayVal = daily[todayKey] || 0;
+    const yesterdayKey = new Date(now);
+    yesterdayKey.setDate(yesterdayKey.getDate() - 1);
+    const yesterdayVal = daily[yesterdayKey.toISOString().split('T')[0]] || 0;
+
+    // 1. Today's visits (all plans)
+    if (todayVal > 0) {
+      const spike = todayVal > yesterdayVal && yesterdayVal > 0 ? ` 🔥 ${Math.round((todayVal / yesterdayVal) * 100)}% more than yesterday` : '';
+      newNotifs.push({
+        id: 'visits-today',
+        title: `📊 ${todayVal} visits today`,
+        message: `You got ${todayVal} visit${todayVal !== 1 ? 's' : ''} today${spike}`,
+        type: 'info',
+        created_at: new Date().toISOString(),
+        read: false
+      });
+    } else if (total === 0) {
+      // New user: encourage sharing
+      newNotifs.push({
+        id: 'visits-empty',
+        title: '📢 Share your shop',
+        message: 'You have no visits yet. Share your link to get discovered!',
+        type: 'action',
+        created_at: new Date().toISOString(),
+        read: false
+      });
+    }
+
+    // 2. Countries (tiered: free -> top 1, pro -> top 3, premium -> top 3 with raw counts)
+    const countries = analytics.countries || {};
+    const countryEntries = Object.entries(countries).sort((a, b) => b[1] - a[1]);
+    if (countryEntries.length > 0) {
+      const limit = plan === 'free' ? 1 : 3;
+      const top = countryEntries.slice(0, limit);
+      const totalVisits = countryEntries.reduce((sum, [, count]) => sum + count, 0);
+      const countryMsg = top.map(([name, count]) => {
+        const pct = totalVisits > 0 ? Math.round((count / totalVisits) * 100) : 0;
+        return `${name} (${pct}%)`;
+      }).join(', ');
+      const title = plan === 'free' ? `🌍 Top country` : `🌍 Top ${limit} countries`;
+      newNotifs.push({
+        id: 'countries-' + (plan === 'free' ? 'free' : 'pro'),
+        title: title,
+        message: `${countryMsg}` + (plan !== 'premium' ? ' — upgrade for more' : ''),
+        type: plan === 'free' ? 'upgrade' : 'info',
+        created_at: new Date().toISOString(),
+        read: false
+      });
+    }
+
+    // 3. Referrers (Pro & Premium only)
+    if (plan !== 'free') {
+      const referrers = analytics.referrers || {};
+      const refEntries = Object.entries(referrers).sort((a, b) => b[1] - a[1]).slice(0, 3);
+      if (refEntries.length > 0) {
+        const totalRefs = refEntries.reduce((sum, [, count]) => sum + count, 0);
+        const refMsg = refEntries.map(([name, count]) => {
+          const pct = totalRefs > 0 ? Math.round((count / totalRefs) * 100) : 0;
+          return `${name || 'Direct'} (${pct}%)`;
+        }).join(', ');
+        newNotifs.push({
+          id: 'referrers-top',
+          title: '🔗 Top referrers',
+          message: refMsg,
+          type: 'info',
+          created_at: new Date().toISOString(),
+          read: false
+        });
+      }
+    }
+
+    // 4. Social clicks (Pro & Premium)
+    if (plan !== 'free') {
+      const socialClicks = (analytics.clicks || {}).socials || {};
+      const socialEntries = Object.entries(socialClicks).sort((a, b) => b[1] - a[1]).slice(0, 3);
+      if (socialEntries.length > 0) {
+        const totalSocial = socialEntries.reduce((sum, [, count]) => sum + count, 0);
+        const socialMsg = socialEntries.map(([name, count]) => {
+          const pct = totalSocial > 0 ? Math.round((count / totalSocial) * 100) : 0;
+          return `${name} (${pct}%)`;
+        }).join(', ');
+        newNotifs.push({
+          id: 'socials-top',
+          title: '📱 Top platforms',
+          message: socialMsg,
+          type: 'info',
+          created_at: new Date().toISOString(),
+          read: false
+        });
+      }
+    }
+
+    // 5. Catalog clicks (Pro & Premium)
+    if (plan !== 'free') {
+      const catalogClicks = (analytics.clicks || {}).catalog || 0;
+      if (catalogClicks > 0) {
+        newNotifs.push({
+          id: 'catalog-clicks',
+          title: '🛒 Catalog clicks',
+          message: `Your catalog got ${catalogClicks} click${catalogClicks !== 1 ? 's' : ''}`,
+          type: 'info',
+          created_at: new Date().toISOString(),
+          read: false
+        });
+      }
+    }
+
+    // 6. Custom link clicks (Premium only)
+    if (plan === 'premium') {
+      const customClicks = (analytics.clicks || {}).custom_links || {};
+      const customEntries = Object.entries(customClicks).sort((a, b) => b[1] - a[1]).slice(0, 3);
+      if (customEntries.length > 0) {
+        const totalCustom = customEntries.reduce((sum, [, count]) => sum + count, 0);
+        const customMsg = customEntries.map(([name, count]) => {
+          const pct = totalCustom > 0 ? Math.round((count / totalCustom) * 100) : 0;
+          return `${name} (${pct}%)`;
+        }).join(', ');
+        newNotifs.push({
+          id: 'custom-links-premium',
+          title: '🔗 Custom link performance',
+          message: customMsg,
+          type: 'info',
+          created_at: new Date().toISOString(),
+          read: false
+        });
+      }
+    }
+
+    // 7. Milestone: 100, 500, 1000 visits
+    const milestones = [100, 500, 1000, 5000, 10000];
+    const lastMilestone = parseInt(localStorage.getItem('myshub_last_milestone_' + (getSession()?.slug || '')) || '0');
+    for (const m of milestones) {
+      if (total >= m && total > lastMilestone) {
+        newNotifs.push({
+          id: 'milestone-' + m,
+          title: `🎉 ${m} visits!`,
+          message: `Your shop has reached ${m} total visits. Keep going!`,
+          type: 'action',
+          created_at: new Date().toISOString(),
+          read: false
+        });
+        localStorage.setItem('myshub_last_milestone_' + (getSession()?.slug || ''), String(total));
+        break;
+      }
+    }
+
+    // 8. Referral campaign: Refer 5 people get Pro free
+    const referralsCount = (analytics.referrals || {}).total || 0;
+    if (referralsCount >= 5 && plan === 'free') {
+      const claimed = localStorage.getItem('myshub_referral_claimed_' + (getSession()?.slug || ''));
+      if (!claimed) {
+        newNotifs.push({
+          id: 'referral-campaign-claim',
+          title: '🎁 You referred 5 people!',
+          message: 'Claim your free Pro plan for 1 month. Tap to claim now!',
+          type: 'upgrade',
+          created_at: new Date().toISOString(),
+          read: false
+        });
+      }
+    }
+
+    // 9. Tutorial prompts
+    const tutorialPrompts = [
+      { id: 'tutorial-profile', title: '📚 Complete your profile', message: 'Add a logo and tagline to make your shop stand out.', type: 'tutorial' },
+      { id: 'tutorial-socials', title: '📚 Add socials', message: 'Connect Instagram, WhatsApp and more to your hub.', type: 'tutorial' },
+      { id: 'tutorial-custom-links', title: '📚 Use custom links', message: 'Add any special link you want with a custom icon.', type: 'tutorial' }
+    ];
+    // Only add tutorial prompts if not completed
+    const completedTutorials = JSON.parse(localStorage.getItem('myshub_tutorial_completed_' + (getSession()?.slug || '')) || '[]');
+    tutorialPrompts.forEach(t => {
+      if (!completedTutorials.includes(t.id) && !notifications.some(n => n.id === t.id)) {
+        newNotifs.push(t);
+      }
+    });
+
+    return newNotifs;
+  }
+
+  // ================================================================
+  //  NOTIFICATION HELPERS
+  // ================================================================
+  function getStorageKey() {
+    const session = getSession();
+    return 'myshub_notifs_' + (session?.slug || 'guest');
+  }
+
+  function loadFromCache() {
+    try {
+      const raw = localStorage.getItem(getStorageKey());
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        notifications = parsed;
+        unreadCount = parsed.filter(n => !n.read).length;
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  function saveToCache() {
+    try {
+      localStorage.setItem(getStorageKey(), JSON.stringify(notifications));
+    } catch (e) {}
+  }
+
+  function updateBadge() {
+    if (window.parent && window.parent.document) {
+      const badge = window.parent.document.getElementById('notifBadge');
+      if (badge) {
+        if (unreadCount > 0) {
+          badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+          badge.style.display = 'flex';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+    }
+  }
+
+  // ================================================================
+  //  FETCH FROM BACKEND
+  // ================================================================
+  async function fetchFromBackend() {
+    const session = getSession();
+    if (!session) return;
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+        'email': session.email,
+        'password': session.password
+      };
+      const res = await fetch(API + '/notifications/', { headers });
+      if (!res.ok) return;
+      const data = await res.json();
+      const remote = data.notifications || [];
+      // Merge with local: keep local read status, add new ones
+      const localMap = {};
+      notifications.forEach(n => localMap[n.id] = n);
+      let changed = false;
+      remote.forEach(r => {
+        if (!localMap[r.id]) {
+          notifications.push({ ...r, read: false });
+          changed = true;
+        } else {
+          // If remote says read, update local
+          if (r.read && !localMap[r.id].read) {
+            localMap[r.id].read = true;
+            changed = true;
+          }
+        }
+      });
+      if (changed) {
+        unreadCount = notifications.filter(n => !n.read).length;
+        saveToCache();
+        updateBadge();
+        renderNotifications();
+      }
+    } catch (e) {
+      console.warn('Could not fetch notifications from backend:', e);
+    }
+  }
+
+  // ================================================================
+  //  MARK READ
+  // ================================================================
+  function markAsRead(id) {
+    const n = notifications.find(x => x.id === id);
+    if (!n || n.read) return;
+    n.read = true;
+    unreadCount = Math.max(0, unreadCount - 1);
+    saveToCache();
+    updateBadge();
+    renderNotifications();
+
+    // Sync to backend
+    const session = getSession();
+    if (session) {
+      fetch(API + '/notifications/' + id + '/read', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'email': session.email,
+          'password': session.password
+        }
+      }).catch(() => {});
+    }
+  }
+
+  function markAllRead() {
+    if (unreadCount === 0) return;
+    notifications.forEach(n => n.read = true);
+    unreadCount = 0;
+    saveToCache();
+    updateBadge();
+    renderNotifications();
+
+    const session = getSession();
+    if (session) {
+      fetch(API + '/notifications/read-all', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'email': session.email,
+          'password': session.password
+        }
+      }).catch(() => {});
+    }
+    toast('All marked read', 'success');
+  }
+
+  // ================================================================
+  //  HANDLE CLICK
+  // ================================================================
+  function handleNotifClick(id) {
+    const n = notifications.find(x => x.id === id);
+    if (!n) return;
+    markAsRead(id);
+
+    // Take action based on type
+    if (n.type === 'upgrade' && n.id.includes('referral-campaign')) {
+      // Claim referral reward
+      claimReward();
+    } else if (n.type === 'upgrade' || n.id === 'countries-free' || n.id === 'visits-empty') {
+      if (window.loadPage) window.loadPage('upgrade');
+    } else if (n.type === 'action' && n.message.includes('share')) {
+      if (window.openPreviewShare) window.openPreviewShare();
+    } else if (n.type === 'tutorial') {
+      if (window.loadPage) window.loadPage('tutorials');
+    } else if (n.type === 'action' && n.id === 'milestone') {
+      if (window.loadPage) window.loadPage('analytics');
+    } else {
+      // Default: go to overview
+      if (window.loadPage) window.loadPage('overview');
+    }
+  }
+
+  function claimReward() {
+    const session = getSession();
+    if (!session) { toast('Please log in.', 'error'); return; }
+    const subject = 'Referral Reward Claim – Pro for 1 month';
+    const body = `Hello MyShub Team,\n\nI have successfully referred 5 people to MyShub this month and would like to claim my reward: Pro plan free for 1 month.\n\nMy email: ${session.email}\nMy shop: ${APP_URL}/${session.slug}\n\nThank you!`;
+    window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    toast('Email opened. Please send to claim your reward.', 'info');
+  }
+
+  // ================================================================
+  //  TOAST
+  // ================================================================
+  function toast(msg, type) {
+    if (window.toast) { window.toast(msg, type); return; }
+    alert(msg);
+  }
+
+  // ================================================================
+  //  TIME AGO
+  // ================================================================
+  function timeAgo(date) {
+    if (!date) return '';
+    const diff = Math.floor((Date.now() - new Date(date)) / 1000);
+    if (diff < 60) return 'Just now';
+    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    return new Date(date).toLocaleDateString();
+  }
+
+  // ================================================================
+  //  ESCAPE HTML
+  // ================================================================
+  function escapeHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+  }
+
+  // ================================================================
+  //  RENDER
+  // ================================================================
+  function renderNotifications() {
+    const app = document.getElementById('notifApp');
+    if (!app) return;
+
+    if (isLoading) {
+      app.innerHTML = `
+        <div class="loading-spinner">
+          <div class="spinner"></div>
+          <span>Loading notifications...</span>
+        </div>
+      `;
+      return;
+    }
+
+    let filtered = notifications;
+    if (currentFilter === 'unread') filtered = filtered.filter(n => !n.read);
+    else if (currentFilter === 'action') filtered = filtered.filter(n => n.type === 'action' || n.type === 'upgrade');
+
+    // Sort by date descending
+    filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    let html = '';
+
+    // ---- Header ----
+    html += `
+      <div class="page-header">
+        <h2><i class="fa-regular fa-bell" style="margin-right:8px;"></i> Notifications</h2>
+        <div class="actions">
+          <button class="btn btn-ghost btn-sm" onclick="markAllRead()">Mark all read</button>
+        </div>
+      </div>
+    `;
+
+    // ---- Filter Bar ----
+    html += `
+      <div class="filter-bar">
+        <button class="btn ${currentFilter === 'all' ? 'active' : ''}" data-filter="all" onclick="setFilter('all')">All</button>
+        <button class="btn ${currentFilter === 'unread' ? 'active' : ''}" data-filter="unread" onclick="setFilter('unread')">Unread</button>
+        <button class="btn ${currentFilter === 'action' ? 'active' : ''}" data-filter="action" onclick="setFilter('action')">Actions</button>
+      </div>
+    `;
+
+    // ---- Notification List ----
+    if (filtered.length === 0) {
+      html += `
+        <div class="empty">
+          <i class="fa-regular fa-bell-slash"></i>
+          <div style="font-weight:600;margin-bottom:4px;">No notifications</div>
+          <div style="font-size:13px;color:var(--text-secondary);">You're all caught up!</div>
+        </div>
+      `;
+    } else {
+      html += `<div id="notifList">`;
+      filtered.forEach(n => {
+        const iconMap = {
+          action: 'fa-bolt',
+          upgrade: 'fa-crown',
+          tutorial: 'fa-graduation-cap',
+          info: 'fa-bell',
+          system: 'fa-bell'
+        };
+        const colorMap = {
+          action: 'var(--warning)',
+          upgrade: 'var(--purple)',
+          tutorial: 'var(--success)',
+          info: 'var(--brand)',
+          system: 'var(--brand)'
+        };
+        const icon = iconMap[n.type] || 'fa-bell';
+        const color = colorMap[n.type] || 'var(--brand)';
+        const isUnread = !n.read;
+
+        html += `
+          <div class="notif-item ${isUnread ? 'unread' : ''}" data-id="${n.id}" onclick="handleNotifClick('${n.id}')">
+            <div class="notif-icon" style="background:${color}20;color:${color}"><i class="fa-solid ${icon}"></i></div>
+            <div class="notif-body">
+              <div class="notif-title">
+                ${escapeHtml(n.title)}
+                ${n.type === 'info' || n.type === 'action' ? `<span class="notif-analytics-badge">Analytics</span>` : ''}
+              </div>
+              <div class="notif-msg">${escapeHtml(n.message)}</div>
+              <div class="notif-time">${timeAgo(n.created_at)}</div>
+            </div>
+            ${isUnread ? `<div style="width:8px;height:8px;border-radius:50%;background:var(--brand);flex-shrink:0;margin-top:16px;"></div>` : ''}
+          </div>
+        `;
+      });
+      html += `</div>`;
+    }
+
+    app.innerHTML = html;
+  }
+
+  // ================================================================
+  //  SET FILTER
+  // ================================================================
+  function setFilter(filter) {
+    currentFilter = filter;
+    renderNotifications();
+  }
+
+  // ================================================================
+  //  INIT
+  // ================================================================
+  async function init() {
+    try {
+      // 1. Load from cache first (instant)
+      const hasCache = loadFromCache();
+      if (hasCache) {
+        updateBadge();
+        isLoading = false;
+        renderNotifications();
+      }
+
+      // 2. Get session and fetch shop data for analytics
+      const session = getSession();
+      if (session) {
+        // Fetch shop data for analytics-driven notifications
+        const data = await fetchShopData(session);
+        if (data) {
+          shopData = data;
+          shopJson = data.shop_json || {};
+          currentPlan = data.plan || session.plan || 'free';
+
+          // 3. Generate analytics notifications (client-side)
+          const analyticsNotifs = generateAnalyticsNotifications(shopJson, currentPlan);
+          // Merge with existing (avoid duplicates)
+          const existingIds = new Set(notifications.map(n => n.id));
+          let added = 0;
+          analyticsNotifs.forEach(n => {
+            if (!existingIds.has(n.id)) {
+              notifications.push(n);
+              existingIds.add(n.id);
+              added++;
+            }
+          });
+          if (added > 0) {
+            unreadCount = notifications.filter(n => !n.read).length;
+            saveToCache();
+            updateBadge();
+            // Re-render if not already
+            if (!isLoading) renderNotifications();
+          }
+        }
+
+        // 4. Fetch from backend (merge)
+        await fetchFromBackend();
+      }
+
+      isLoading = false;
+      renderNotifications();
+
+    } catch (e) {
+      console.error('Notification init error:', e);
+      isLoading = false;
+      renderNotifications();
+    }
+  }
+
+  // Expose globally
+  window.setFilter = setFilter;
+  window.markAllRead = markAllRead;
+  window.handleNotifClick = handleNotifClick;
+  window.claimReward = claimReward;
+  window.toast = toast;
+
+  // Start
+  init();
+})();
+</script>
+</body>
+</html>
