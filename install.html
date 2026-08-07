@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Install MyShub</title>
+    <meta name="description" content="Add MyShub to your home screen. Works offline, no app store needed.">
+    <meta name="theme-color" content="#1e40af">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --primary:#1e40af; --accent:#0f172a;
+            --bg:#ffffff; --surface:#f8f9fa; --border:#dadce0;
+            --text:#202124; --muted:#5f6368;
+            --shadow:0 1px 6px rgba(32,33,36,.1); --shadow-lg:0 4px 20px rgba(32,33,36,.12);
+            --radius:14px;
+        }
+        [data-theme="dark"] {
+            --bg:#0e0e10; --surface:#18181b; --border:#2a2a30;
+            --text:#f1f1f2; --muted:#8e8e9a;
+            --shadow:0 1px 6px rgba(0,0,0,.3); --shadow-lg:0 4px 20px rgba(0,0,0,.4);
+        }
+        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+        html{scroll-behavior:smooth}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;transition:background .3s,color .3s}
+        a{color:inherit;text-decoration:none}
+
+        /* ── NAV ── */
+        nav{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;transition:background .3s,border-color .3s}
+        .nav-logo{font-size:20px;font-weight:600;letter-spacing:-.4px;color:var(--primary);display:flex;user-select:none}
+        .nav-right{display:flex;align-items:center;gap:8px}
+        .back-link{display:flex;align-items:center;gap:7px;font-size:14px;color:var(--muted);padding:7px 12px;border-radius:8px;transition:color .2s,background .2s}
+        .back-link:hover{color:var(--text);background:var(--surface)}
+        .theme-toggle{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .2s}
+        .theme-toggle:hover{color:var(--text);border-color:var(--primary)}
+
+        /* ── HERO ── */
+        .install-hero{text-align:center;padding:56px 24px 36px;position:relative;overflow:hidden}
+        .install-hero::before{content:'';position:absolute;width:500px;height:360px;background:radial-gradient(circle,rgba(30,64,175,.07) 0%,transparent 70%);top:-60px;left:50%;transform:translateX(-50%);pointer-events:none}
+        .app-icon{width:92px;height:92px;border-radius:22px;background:var(--primary);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 32px rgba(30,64,175,.28);overflow:hidden}
+        .app-icon img{width:100%;height:100%;object-fit:cover;border-radius:22px}
+        .install-hero h1{font-size:clamp(24px,5vw,34px);font-weight:700;margin-bottom:10px}
+        .install-hero p{color:var(--muted);font-size:15px;max-width:380px;margin:0 auto 0;line-height:1.65}
+
+        /* ── CONTENT ── */
+        .install-body{max-width:500px;margin:0 auto;padding:28px 20px 60px;flex:1}
+
+        /* ── CARD ── */
+        .install-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:26px;margin-bottom:18px;transition:background .3s,border-color .3s;display:none}
+        .install-card.show{display:block}
+        .install-card h2{font-size:15px;font-weight:600;margin-bottom:18px;display:flex;align-items:center;gap:9px}
+        .install-card h2 i{font-size:16px}
+        .android-col{color:#3ddc84}
+        .apple-col{color:#555}
+        [data-theme="dark"] .apple-col{color:#d0d0d0}
+
+        /* Install button */
+        .install-btn{width:100%;padding:14px;background:var(--primary);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:opacity .2s,transform .2s;font-family:inherit;margin-bottom:10px}
+        .install-btn:hover{opacity:.88;transform:translateY(-1px)}
+        .install-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+        .already-msg{display:none;align-items:center;justify-content:center;gap:8px;padding:13px;background:rgba(52,168,83,.08);border:1px solid rgba(52,168,83,.22);border-radius:12px;color:var(--primary);font-size:14px;font-weight:500;margin-bottom:10px}
+
+        /* iOS steps */
+        .ios-steps{display:flex;flex-direction:column;gap:16px}
+        .ios-step{display:flex;align-items:flex-start;gap:13px}
+        .step-num{width:30px;height:30px;border-radius:50%;background:var(--primary);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+        .ios-step-text h4{font-size:14px;font-weight:600;margin-bottom:3px}
+        .ios-step-text p{font-size:13px;color:var(--muted);line-height:1.5}
+        .ios-step-text strong{color:var(--text)}
+        .ios-note{margin-top:16px;padding:11px 14px;background:rgba(30,64,175,.07);border:1px solid rgba(30,64,175,.22);border-radius:10px;font-size:12px;color:#1e40af;display:flex;align-items:center;gap:7px}
+        [data-theme="dark"] .ios-note{color:#60a5fa}
+
+        /* Open in browser */
+        .open-btn{display:block;text-align:center;padding:13px;background:transparent;border:1px solid var(--border);border-radius:12px;font-size:14px;font-weight:500;color:var(--text);transition:border-color .2s,background .2s;margin-top:10px}
+        .open-btn:hover{border-color:var(--primary);background:var(--bg)}
+
+        /* Mini features */
+        .mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+        .mini-feat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px 15px;display:flex;align-items:center;gap:10px;transition:background .3s,border-color .3s}
+        .mini-feat i{font-size:15px;color:var(--primary)}
+        .mini-feat span{font-size:13px;font-weight:500}
+
+        /* ── FOOTER ── */
+        footer{border-top:1px solid var(--border);padding:20px 24px;text-align:center;font-size:12px;color:var(--muted);transition:border-color .3s}
+        footer a{color:var(--primary);text-decoration:underline;text-underline-offset:2px}
+
+        @media(max-width:480px){.install-hero{padding:40px 20px 28px}.install-card{padding:20px 16px}}
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+    <div class="nav-logo">MyShub</div>
+    <div class="nav-right">
+        <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+            <i class="fas fa-moon" id="themeIcon"></i>
+        </button>
+        <a href="index.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Home
+        </a>
+    </div>
+</nav>
+
+<!-- HERO -->
+<div class="install-hero">
+    <div class="app-icon">
+        <img src="icon.svg" alt="MyShub icon"
+             onerror="this.parentElement.innerHTML='<i class=\'fas fa-shopping-bag\' style=\'color:white;font-size:38px\'></i>'">
+    </div>
+    <h1>Install MyShub</h1>
+    <p>Add to your home screen for the full app experience.</p>
+</div>
+
+<!-- INSTALL CARDS -->
+<div class="install-body">
+
+    <!-- ANDROID -->
+    <div class="install-card" id="androidCard">
+        <h2><i class="fab fa-android android-col"></i> Install on Android</h2>
+        <button class="install-btn" id="installBtn">
+            <i class="fas fa-download"></i> Add to Home Screen
+        </button>
+        <div class="already-msg" id="alreadyAndroid">
+            <i class="fas fa-check-circle"></i> MyShub is already installed
+        </div>
+        <a href="app.html" class="open-btn">
+            <i class="fas fa-external-link-alt"></i>&nbsp; Open App in Browser
+        </a>
+    </div>
+
+    <!-- iOS -->
+    <div class="install-card" id="iosCard">
+        <h2><i class="fab fa-apple apple-col"></i> Install on iPhone / iPad</h2>
+        <div class="ios-steps">
+            <div class="ios-step">
+                <div class="step-num">1</div>
+                <div class="ios-step-text">
+                    <h4>Tap the Share button</h4>
+                    <p>Find the <strong>Share</strong> icon <i class="fas fa-share-from-square" style="color:var(--primary)"></i> at the bottom of Safari.</p>
+                </div>
+            </div>
+            <div class="ios-step">
+                <div class="step-num">2</div>
+                <div class="ios-step-text">
+                    <h4>Tap "Add to Home Screen"</h4>
+                    <p>Scroll down the share sheet and tap <strong>"Add to Home Screen"</strong>.</p>
+                </div>
+            </div>
+            <div class="ios-step">
+                <div class="step-num">3</div>
+                <div class="ios-step-text">
+                    <h4>Tap Add</h4>
+                    <p>Confirm by tapping <strong>Add</strong> in the top-right corner. Done.</p>
+                </div>
+            </div>
+        </div>
+        <div class="ios-note">
+            <i class="fas fa-exclamation-triangle"></i>
+            Must be opened in <strong>&nbsp;Safari&nbsp;</strong> for this to work on iOS.
+        </div>
+        <a href="app.html" class="open-btn" style="margin-top:18px">
+            <i class="fas fa-external-link-alt"></i>&nbsp; Open App in Browser
+        </a>
+    </div>
+
+    <!-- DESKTOP -->
+    <div class="install-card" id="desktopCard">
+        <h2><i class="fas fa-desktop" style="color:var(--primary)"></i> Install on Desktop</h2>
+        <button class="install-btn" id="installBtnDesktop">
+            <i class="fas fa-download"></i> Install App
+        </button>
+        <div class="already-msg" id="alreadyDesktop">
+            <i class="fas fa-check-circle"></i> MyShub is already installed
+        </div>
+        <a href="app.html" class="open-btn">
+            <i class="fas fa-external-link-alt"></i>&nbsp; Open App in Browser
+        </a>
+    </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+    MyShub by <a href="index.html">EML Tech Studio</a> &middot; emltechstudio@gmail.com
+</footer>
+
+<script>
+// ── Theme ──────────────────────────────────────────────────────────────
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon   = document.getElementById('themeIcon');
+
+function applyTheme(dark) {
+    if (dark) {
+        document.body.setAttribute('data-theme','dark');
+        themeIcon.className = 'fas fa-sun';
+    } else {
+        document.body.removeAttribute('data-theme');
+        themeIcon.className = 'fas fa-moon';
+    }
+    localStorage.setItem('myshub-theme', dark ? 'dark' : 'light');
+}
+
+const saved = localStorage.getItem('myshub-theme');
+const prefersDark = window.matchMedia('(prefers-color-scheme:dark)').matches;
+applyTheme(saved ? saved === 'dark' : prefersDark);
+
+themeToggle.addEventListener('click', () =>
+    applyTheme(document.body.getAttribute('data-theme') !== 'dark')
+);
+
+// ── Platform detection ─────────────────────────────────────────────────
+const ua = navigator.userAgent.toLowerCase();
+const isIOS      = /iphone|ipad|ipod/.test(ua) && !window.MSStream;
+const isAndroid  = /android/.test(ua);
+const isInstalled = window.matchMedia('(display-mode:standalone)').matches || navigator.standalone;
+
+if (isIOS) {
+    document.getElementById('iosCard').classList.add('show');
+} else if (isAndroid) {
+    document.getElementById('androidCard').classList.add('show');
+} else {
+    document.getElementById('desktopCard').classList.add('show');
+}
+
+// ── Install prompt ─────────────────────────────────────────────────────
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (isInstalled) markInstalled();
+});
+
+window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    markInstalled();
+});
+
+if (isInstalled) markInstalled();
+
+function markInstalled() {
+    ['installBtn','installBtnDesktop'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+    ['alreadyAndroid','alreadyDesktop'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'flex';
+    });
+}
+
+async function triggerInstall(btnId, msgId) {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    if (outcome === 'accepted') markInstalled();
+}
+
+document.getElementById('installBtn')?.addEventListener('click', () =>
+    triggerInstall('installBtn','alreadyAndroid'));
+document.getElementById('installBtnDesktop')?.addEventListener('click', () =>
+    triggerInstall('installBtnDesktop','alreadyDesktop'));
+
+// ── Service Worker ─────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>

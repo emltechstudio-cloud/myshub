@@ -68,40 +68,56 @@
 
     /* ===== CONTENT AREA ===== */
     .content-area { flex:1; overflow-y:auto; padding:20px 16px 100px; -webkit-overflow-scrolling:touch; position:relative; }
-    .content-area.iframe-page { padding:0; overflow:hidden; position:relative; }
+    .content-area.iframe-page { padding:0; overflow:hidden; }
     .content-area .iframe-wrap { width:100%; height:100%; position:absolute; top:0; left:0; }
     .content-area .iframe-wrap iframe { width:100%; height:100%; border:none; background:var(--bg); }
     .iframe-back-btn { position:fixed; top:16px; left:16px; z-index:30; width:40px; height:40px; border-radius:50%; background:rgba(15,23,42,.6); backdrop-filter:blur(8px); color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; border:none; font-size:16px; transition:var(--transition); }
     .iframe-back-btn:hover { background:rgba(15,23,42,.8); }
 
-    /* ===== LOADING OVERLAY (appears instantly) ===== */
+    /* ===== LOADING OVERLAY ===== */
     .loading-overlay {
-      position: absolute;
-      inset: 0;
-      background: var(--bg);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 16px;
-      z-index: 10;
-      transition: opacity 0.2s ease;
+      position:fixed;
+      inset:0;
+      background:var(--bg);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      gap:20px;
+      z-index:9999;
+      transition:opacity 0.3s ease;
+      opacity:0;
+      pointer-events:none;
     }
     .loading-overlay.on {
-      display: flex;
-      opacity: 1;
+      display:flex;
+      opacity:1;
+      pointer-events:auto;
     }
-    .loading-overlay .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid var(--border);
-      border-top-color: var(--brand);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
+    .loading-overlay .loader-logo {
+      width:64px;
+      height:64px;
+      border-radius:18px;
+      animation: pulse-logo 1.8s ease-in-out infinite;
+      will-change: transform, opacity;
     }
-    .loading-overlay p {
-      color: var(--text-secondary);
-      font-size: 14px;
+    .loading-overlay .loader-fallback {
+      font-size:48px;
+      font-weight:800;
+      color:var(--brand);
+      animation: pulse-logo 1.8s ease-in-out infinite;
+    }
+    .loading-overlay .loader-text {
+      font-size:14px;
+      color:var(--text-secondary);
+      animation: pulse-logo 1.8s ease-in-out infinite;
+      animation-delay: 0.2s;
+      font-weight:500;
+    }
+
+    @keyframes pulse-logo {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.06); opacity: 1; }
     }
 
     /* ===== AUTH PAGES ===== */
@@ -148,52 +164,10 @@
     .toast.warning { border-left:4px solid var(--warning); }
     .toast.error { border-left:4px solid var(--danger); }
 
-    /* ===== SHARE MODAL ===== */
-    .modal-bg { position:fixed; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(6px); display:none; align-items:center; justify-content:center; z-index:70; padding:16px; }
-    .modal-bg.on { display:flex; }
-    .modal-box { background:var(--surface); border-radius:20px; box-shadow:var(--shadow-lg); width:100%; max-width:480px; max-height:85vh; display:flex; flex-direction:column; overflow:hidden; animation:scaleIn .25s; }
-    .modal-head { padding:16px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
-    .modal-body { flex:1; overflow-y:auto; padding:16px; }
-    .close-btn { background:none; border:none; font-size:24px; cursor:pointer; color:var(--text-secondary); }
-    .share-sheet { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:12px; }
-    .share-item { display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; padding:10px; border-radius:12px; transition:var(--transition); }
-    .share-item:hover { background:var(--surface-hover); }
-    .share-item i { width:44px; height:44px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:18px; color:#fff; }
-    .share-item span { font-size:11px; font-weight:600; color:var(--text-secondary); }
-
-    /* ===== PREVIEW SHARE BUTTON (floating) ===== */
-    .iframe-share-btn {
-      position: fixed;
-      bottom: 80px;
-      right: 20px;
-      z-index: 40;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: var(--brand);
-      color: #fff;
-      border: none;
-      box-shadow: 0 4px 20px rgba(37,99,235,0.3);
-      font-size: 22px;
-      cursor: pointer;
-      transition: var(--transition);
-      display: none;
-      align-items: center;
-      justify-content: center;
-    }
-    .iframe-share-btn:hover {
-      transform: scale(1.08);
-      box-shadow: 0 8px 32px rgba(37,99,235,0.4);
-    }
-
-    .empty { text-align:center; padding:40px 20px; color:var(--text-secondary); }
-    .empty i { font-size:48px; color:var(--text-tertiary); margin-bottom:16px; display:block; }
-
     @keyframes fadeIn { from{opacity:0} to{opacity:1} }
     @keyframes scaleIn { from{opacity:0;transform:scale(.96)} to{opacity:1;transform:scale(1)} }
     @keyframes spin { to{transform:rotate(360deg)} }
     @keyframes slideInRight { from{opacity:0;transform:translateX(24px)} to{opacity:1;transform:translateX(0)} }
-
     @media(max-width:640px){ .auth-card { padding:24px 20px; } }
   </style>
 </head>
@@ -236,7 +210,6 @@
         <button class="icon-btn" onclick="loadPage('upgrade')" style="color:var(--warning)"><i class="fa-solid fa-crown"></i></button>
       </div>
     </header>
-
     <div id="drawerOverlay" class="drawer-overlay" onclick="closeDrawer()"></div>
     <div id="drawer" class="drawer">
       <div class="drawer-head">
@@ -264,21 +237,10 @@
       </div>
     </div>
 
-    <!-- Content Area -->
     <div class="content-area" id="contentArea">
-      <div class="loading-overlay" id="loadingOverlay">
-        <div class="spinner"></div>
-        <p>Loading...</p>
-      </div>
       <div id="pageContent"></div>
     </div>
 
-    <!-- Floating share button (preview only) -->
-    <button class="iframe-share-btn" id="previewShareBtn" onclick="openPreviewShare()">
-      <i class="fa-solid fa-share-nodes"></i>
-    </button>
-
-    <!-- Bottom Navigation -->
     <nav id="bottomNav" class="bot-nav">
       <button class="bot-item on" data-page="overview" onclick="loadPage('overview')"><i class="fa-solid fa-house"></i><span>Home</span></button>
       <button class="bot-item" data-page="discover" onclick="loadPage('discover')"><i class="fa-solid fa-compass"></i><span>Discover</span></button>
@@ -287,571 +249,752 @@
     </nav>
   </section>
 
-  <!-- ===== SHARE MODAL ===== -->
-  <div id="shareModal" class="modal-bg" onclick="if(event.target===this) closeShareModal()">
-    <div class="modal-box" style="max-width:400px">
-      <div class="modal-head">
-        <h3>Share Your Shop</h3>
-        <button class="close-btn" onclick="closeShareModal()"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group"><label>Caption</label><textarea id="shareCaption" class="form-input" rows="3" style="font-size:13px"></textarea></div>
-        <div class="share-sheet">
-          <div class="share-item" onclick="nativeShare()"><i class="fa-solid fa-share-nodes" style="background:var(--brand)"></i><span>Share</span></div>
-          <div class="share-item" onclick="copyShareCaption()"><i class="fa-regular fa-copy" style="background:var(--success)"></i><span>Copy</span></div>
-          <div class="share-item" onclick="shareToWhatsApp()"><i class="fa-brands fa-whatsapp" style="background:#25D366"></i><span>WhatsApp</span></div>
-          <div class="share-item" onclick="shareToTwitter()"><i class="fa-brands fa-x-twitter" style="background:#000"></i><span>X</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <div id="toastWrap" class="toast-wrap"></div>
+</div>
+
+<!-- Global Loading Overlay (outside #app to cover everything) -->
+<div class="loading-overlay" id="globalLoadingOverlay">
+  <img src="/icon.svg" alt="MyShub" class="loader-logo" onerror="this.style.display='none'; document.getElementById('loaderFallbackGlobal').style.display='block';" />
+  <div id="loaderFallbackGlobal" class="loader-fallback" style="display:none;">M</div>
+  <div class="loader-text">Loading...</div>
 </div>
 
 <script>
 // ================================================================
-//  APP SHELL — COMPLETE WITH IMMEDIATE LOADING SPINNER
+//  CONFIG & STATE
 // ================================================================
+const API = 'https://emltechstudio-myshub-api.hf.space';
+const APP_URL = 'https://myshub.site';
+const FETCH_TIMEOUT = 8000;
 
-(function() {
-  'use strict';
+let S = {
+  email: '', password: '', slug: '', plan: 'free',
+  shopData: null, shopJson: null,
+  notifications: [],
+  unreadCount: 0,
+  darkMode: false,
+  currentPage: 'overview'
+};
 
-  // ================================================================
-  //  CONFIG & STATE
-  // ================================================================
-  const API = 'https://emltechstudio-myshub-api.hf.space';
-  const APP_URL = 'https://myshub.site';
-  const FETCH_TIMEOUT = 8000;
-  // Set threshold to 0 so spinner shows immediately
-  const LOADING_THRESHOLD = 0;
+// ================================================================
+//  GLOBAL LOADING OVERLAY CONTROLS
+// ================================================================
+const loadingOverlay = document.getElementById('globalLoadingOverlay');
 
-  let S = {
-    email: '', password: '', slug: '', plan: 'free',
-    shopData: null, shopJson: null,
-    notifications: [], unreadCount: 0,
-    darkMode: false,
-    currentPage: 'overview'
-  };
+function showLoading() {
+  if (loadingOverlay) loadingOverlay.classList.add('on');
+}
 
-  // ================================================================
-  //  UTILITIES
-  // ================================================================
-  function $(id) { return document.getElementById(id); }
-  function escapeHtml(s) { if (!s) return ''; return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
-  function toast(msg, type='info') {
-    const w = $('toastWrap'); if (!w) return;
-    const d = document.createElement('div'); d.className = 'toast ' + type;
-    const iconClass = type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-circle-xmark' : type === 'warning' ? 'fa-triangle-exclamation' : 'fa-circle-info';
-    d.innerHTML = '<i class="fa-solid ' + iconClass + '" style="margin-top:2px"></i><div style="flex:1"><div style="font-size:13px;line-height:1.3">' + escapeHtml(msg) + '</div></div>';
-    d.onclick = () => d.remove();
-    w.appendChild(d);
-    setTimeout(() => { d.style.opacity = '0'; d.style.transform = 'translateX(20px)'; setTimeout(() => d.remove(), 300); }, 4500);
+function hideLoading() {
+  if (loadingOverlay) loadingOverlay.classList.remove('on');
+}
+
+// ================================================================
+//  GLOBAL NOTIFICATION FUNCTIONS
+// ================================================================
+window.updateNotifBadge = function() {
+  const badge = document.getElementById('notifBadge');
+  if (!badge) return;
+  const count = S.notifications.filter(n => !n.read).length;
+  S.unreadCount = count;
+  if (count > 0) {
+    badge.textContent = count > 9 ? '9+' : count;
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
   }
-  function togglePw(id, btn) {
-    const inp = document.getElementById(id); if (!inp) return;
-    const isPw = inp.type === 'password'; inp.type = isPw ? 'text' : 'password';
-    const ic = btn.querySelector('i'); if (ic) ic.className = isPw ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
-  }
-  function setLoading(btn, loading, text) { if (!btn) return; btn.disabled = loading; if (loading) btn.classList.add('loading'); else btn.classList.remove('loading'); const txt = btn.querySelector('.btn-text'); if (txt) txt.textContent = loading ? (text || 'Please wait...') : text; }
-  function copyText(text) {
-    navigator.clipboard.writeText(text).then(() => toast('Copied', 'success')).catch(() => {
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      ta.remove();
-      toast('Copied', 'success');
+  try {
+    localStorage.setItem('myshub_notifs_' + S.slug, JSON.stringify(S.notifications));
+  } catch (e) {}
+};
+
+// ================================================================
+//  NOTIFICATION ENGINE (local analytics + backend messages)
+// ================================================================
+function generateLocalNotifications(shopJson, plan) {
+  const analytics = shopJson?.analytics || {};
+  const newNotifs = [];
+  const now = new Date();
+  const todayKey = now.toISOString().split('T')[0];
+  const total = analytics.visit_count || 0;
+  const daily = analytics.daily_visits || {};
+  const todayVal = daily[todayKey] || 0;
+  const yesterdayKey = new Date(now);
+  yesterdayKey.setDate(yesterdayKey.getDate() - 1);
+  const yesterdayVal = daily[yesterdayKey.toISOString().split('T')[0]] || 0;
+
+  if (todayVal > 0) {
+    const spike = todayVal > yesterdayVal && yesterdayVal > 0 ? ` 🔥 ${Math.round((todayVal / yesterdayVal) * 100)}% more than yesterday` : '';
+    newNotifs.push({
+      id: 'visits-today',
+      title: `📊 ${todayVal} visits today`,
+      message: `You got ${todayVal} visit${todayVal !== 1 ? 's' : ''} today${spike}`,
+      type: 'info',
+      created_at: new Date().toISOString(),
+      read: false
+    });
+  } else if (total === 0) {
+    newNotifs.push({
+      id: 'visits-empty',
+      title: '📢 Share your shop',
+      message: 'You have no visits yet. Share your link to get discovered!',
+      type: 'action',
+      created_at: new Date().toISOString(),
+      read: false
     });
   }
 
-  // ================================================================
-  //  API HELPERS
-  // ================================================================
-  async function fetchWithTimeout(url, options={}, timeout=FETCH_TIMEOUT) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeout);
-    try { const response = await fetch(url, { ...options, signal: controller.signal }); clearTimeout(timer); return response; }
-    catch (err) { clearTimeout(timer); if (err.name === 'AbortError') throw new Error('Request timed out.'); throw new Error('Network error.'); }
-  }
-  async function safeJson(r) { try { const t = await r.text(); try { return JSON.parse(t); } catch { return { detail: t }; } } catch { return { detail: 'Network error' }; } }
-  async function apiPub(endpoint, method='GET', body=null) {
-    const opts = { method, headers: { 'Content-Type':'application/json' } };
-    if (body) opts.body = JSON.stringify(body);
-    const response = await fetchWithTimeout(API + endpoint, opts);
-    const data = await safeJson(response);
-    if (!response.ok) throw new Error(data.detail || data.message || 'Server error (' + response.status + ')');
-    return data;
-  }
-  async function api(endpoint, method='GET', body=null, extraHeaders={}) {
-    const headers = { 'Content-Type':'application/json', 'email': S.email || '', 'password': S.password || '', ...extraHeaders };
-    const opts = { method, headers };
-    if (body && !(body instanceof FormData)) opts.body = JSON.stringify(body);
-    else if (body instanceof FormData) { delete opts.headers['Content-Type']; opts.body = body; }
-    const response = await fetchWithTimeout(API + endpoint, opts);
-    const data = await safeJson(response);
-    if (!response.ok) throw new Error(data.detail || data.message || 'Server error (' + response.status + ')');
-    return data;
+  const countries = analytics.countries || {};
+  const countryEntries = Object.entries(countries).sort((a, b) => b[1] - a[1]);
+  if (countryEntries.length > 0) {
+    const limit = plan === 'free' ? 1 : 3;
+    const top = countryEntries.slice(0, limit);
+    const totalVisits = countryEntries.reduce((sum, [, count]) => sum + count, 0);
+    const countryMsg = top.map(([name, count]) => {
+      const pct = totalVisits > 0 ? Math.round((count / totalVisits) * 100) : 0;
+      return `${name} (${pct}%)`;
+    }).join(', ');
+    const title = plan === 'free' ? `🌍 Top country` : `🌍 Top ${limit} countries`;
+    newNotifs.push({
+      id: 'countries-' + (plan === 'free' ? 'free' : 'pro'),
+      title: title,
+      message: `${countryMsg}` + (plan !== 'premium' ? ' — upgrade for more' : ''),
+      type: plan === 'free' ? 'upgrade' : 'info',
+      created_at: new Date().toISOString(),
+      read: false
+    });
   }
 
-  // ================================================================
-  //  AUTH FUNCTIONS
-  // ================================================================
-  function showAuth(t) {
-    document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
-    const el = t === 'landing' ? $('sec-landing') : t === 'login' ? $('sec-login') : t === 'register' ? $('sec-register') : t === 'recover' ? $('sec-recover') : null;
-    if (el) el.classList.add('active');
-  }
-
-  const COUNTRIES = ['Afghanistan','Albania','Algeria','Andorra','Angola','Antigua and Barbuda','Argentina','Armenia','Australia','Austria','Azerbaijan','Bahamas','Bahrain','Bangladesh','Barbados','Belarus','Belgium','Belize','Benin','Bhutan','Bolivia','Bosnia and Herzegovina','Botswana','Brazil','Brunei','Bulgaria','Burkina Faso','Burundi','Cambodia','Cameroon','Canada','Cape Verde','Central African Republic','Chad','Chile','China','Colombia','Comoros','Congo','Costa Rica','Croatia','Cuba','Cyprus','Czech Republic','Denmark','Djibouti','Dominica','Dominican Republic','Ecuador','Egypt','El Salvador','Equatorial Guinea','Eritrea','Estonia','Eswatini','Ethiopia','Fiji','Finland','France','Gabon','Gambia','Georgia','Germany','Ghana','Greece','Grenada','Guatemala','Guinea','Guinea-Bissau','Guyana','Haiti','Honduras','Hungary','Iceland','India','Indonesia','Iran','Iraq','Ireland','Israel','Italy','Jamaica','Japan','Jordan','Kazakhstan','Kenya','Kiribati','Kuwait','Kyrgyzstan','Laos','Latvia','Lebanon','Lesotho','Liberia','Libya','Liechtenstein','Lithuania','Luxembourg','Madagascar','Malawi','Malaysia','Maldives','Mali','Malta','Marshall Islands','Mauritania','Mauritius','Mexico','Micronesia','Moldova','Monaco','Mongolia','Montenegro','Morocco','Mozambique','Myanmar','Namibia','Nauru','Nepal','Netherlands','New Zealand','Nicaragua','Niger','Nigeria','North Macedonia','Norway','Oman','Pakistan','Palau','Panama','Papua New Guinea','Paraguay','Peru','Philippines','Poland','Portugal','Qatar','Romania','Russia','Rwanda','Saint Kitts and Nevis','Saint Lucia','Saint Vincent','Samoa','San Marino','Sao Tome and Principe','Saudi Arabia','Senegal','Serbia','Seychelles','Sierra Leone','Singapore','Slovakia','Slovenia','Solomon Islands','Somalia','South Africa','South Sudan','Spain','Sri Lanka','Sudan','Suriname','Sweden','Switzerland','Syria','Taiwan','Tajikistan','Tanzania','Thailand','Timor-Leste','Togo','Tonga','Trinidad and Tobago','Tunisia','Turkey','Turkmenistan','Tuvalu','Uganda','Ukraine','United Arab Emirates','United Kingdom','United States','Uruguay','Uzbekistan','Vanuatu','Vatican City','Venezuela','Vietnam','Yemen','Zambia','Zimbabwe'];
-
-  function populateCategories() {
-    const sel = $('regCategory');
-    const cats = ['Beauty','Fashion','Food','Tech','Services','Health','Education','Fitness','Photography','Real Estate','Automotive','Entertainment','Travel','Hospitality','Finance','Legal','Consulting','Construction','Agriculture','Manufacturing','Retail','Wholesale','Logistics','Media','Marketing','Design','Development','Writing','Translation','Tutoring','Coaching','Therapy','Wellness','Spa','Salon','Barber','Nails','Makeup','Skincare','Haircare','Jewelry','Watches','Shoes','Bags','Accessories','Electronics','Appliances','Furniture','Home Decor','Other'];
-    cats.forEach(c => { const o = document.createElement('option'); o.textContent = c; o.value = c; sel.appendChild(o); });
-  }
-  function populateCountries() {
-    const sel = $('regCountry');
-    COUNTRIES.forEach(c => { const o = document.createElement('option'); o.textContent = c; o.value = c; sel.appendChild(o); });
-  }
-  function toggleOtherCategory() {
-    const wrap = $('otherCategoryWrap');
-    wrap.style.display = $('regCategory').value === 'Other' ? 'block' : 'none';
-  }
-  function autoSlug() {
-    const name = $('regBusiness').value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '').substring(0,20);
-    if (!$('regSlug').value) $('regSlug').value = name;
-  }
-  let slugCheckTimer = null;
-  function checkSlugDebounced() { clearTimeout(slugCheckTimer); slugCheckTimer = setTimeout(checkSlugAvail, 600); }
-  async function checkSlugAvail() {
-    const slug = $('regSlug').value.trim(); if (!slug) { $('slugStatus').textContent = ''; return; }
-    $('slugStatus').textContent = 'Checking...'; $('slugStatus').className = 'slug-check';
-    try {
-      const d = await apiPub('/auth/check-slug?slug=' + encodeURIComponent(slug));
-      if (d.available) { $('slugStatus').textContent = 'Available'; $('slugStatus').className = 'slug-check ok'; }
-      else { $('slugStatus').textContent = 'Taken. Try: ' + (d.suggestions || []).join(', '); $('slugStatus').className = 'slug-check bad'; }
-    } catch { $('slugStatus').textContent = ''; }
-  }
-  let regStep = 0;
-  function nextRegStep() {
-    const err = $('registerError'); err.style.display = 'none';
-    if (regStep === 0) {
-      const em = $('regEmail').value.trim(), pw = $('regPassword').value, cpw = $('regConfirmPw').value,
-        q1 = $('regQ1').value.trim(), a1 = $('regA1').value.trim(), q2 = $('regQ2').value.trim(), a2 = $('regA2').value.trim();
-      if (!em || !pw || pw.length < 6 || pw !== cpw || !q1 || !a1 || !q2 || !a2) {
-        err.textContent = 'Fill all required fields correctly. Password min 6 chars.'; err.style.display = 'block'; return;
-      }
-      localStorage.setItem('myshub_temp_reg', JSON.stringify({ email:em, password:pw, q1, a1, q2, a2 }));
-    }
-    if (regStep === 1) {
-      const bus = $('regBusiness').value.trim(), slug = $('regSlug').value.trim(), cat = $('regCategory').value;
-      if (!bus || !slug || !cat) { err.textContent = 'Business name, link and category are required'; err.style.display = 'block'; return; }
-      $('confirmBusiness').textContent = bus;
-      $('confirmLink').textContent = APP_URL + '/' + slug;
-      $('confirmEmail').textContent = $('regEmail').value;
-    }
-    document.getElementById('regStep' + regStep).style.display = 'none';
-    regStep++;
-    document.getElementById('regStep' + regStep).style.display = 'block';
-    $('regStepNum').textContent = regStep + 1;
-    document.querySelectorAll('.wizard-dot').forEach((d,i) => d.className = i <= regStep ? 'wizard-dot active' : 'wizard-dot');
-  }
-  function prevRegStep() {
-    $('registerError').style.display = 'none';
-    document.getElementById('regStep' + regStep).style.display = 'none';
-    regStep--;
-    document.getElementById('regStep' + regStep).style.display = 'block';
-    $('regStepNum').textContent = regStep + 1;
-    document.querySelectorAll('.wizard-dot').forEach((d,i) => d.className = i <= regStep ? 'wizard-dot active' : 'wizard-dot');
-  }
-  async function doRegister() {
-    const err = $('registerError'); err.style.display = 'none';
-    const temp = JSON.parse(localStorage.getItem('myshub_temp_reg') || '{}');
-    const referralFromUrl = new URLSearchParams(window.location.search).get('ref') || localStorage.getItem('myshub_referral') || '';
-    const cat = $('regCategory').value === 'Other' ? $('regCategoryOther').value.trim() : $('regCategory').value;
-    const body = {
-      email: temp.email, password: temp.password,
-      business_name: $('regBusiness').value.trim(),
-      phone: $('regPhone').value.trim(),
-      preferred_slug: $('regSlug').value.trim().toLowerCase(),
-      category: cat || 'Other',
-      country: $('regCountry').value || '',
-      security_questions: [{ question: temp.q1, answer: temp.a1 }, { question: temp.q2, answer: temp.a2 }],
-      socials: {}, custom_links: [],
-      referred_by: referralFromUrl
-    };
-    if (referralFromUrl) localStorage.setItem('myshub_referral', referralFromUrl);
-    const btn = $('registerBtn'); setLoading(btn, true, 'Creating...');
-    try {
-      await apiPub('/auth/register', 'POST', body);
-      localStorage.removeItem('myshub_temp_reg');
-      toast('Account created! Sign in now', 'success');
-      showAuth('login');
-      $('loginEmail').value = body.email;
-    } catch (e) { err.textContent = e.message || 'Registration failed. Please try again.'; err.style.display = 'block'; }
-    finally { setLoading(btn, false, 'Create My Hub'); }
-  }
-  async function doLogin() {
-    const email = $('loginEmail').value.trim(), pw = $('loginPassword').value, err = $('loginError');
-    err.style.display = 'none';
-    if (!email || !pw) { err.textContent = 'Email and password required'; err.style.display = 'block'; return; }
-    const btn = $('loginBtn'); setLoading(btn, true, 'Signing in...');
-    try {
-      const data = await apiPub('/auth/login', 'POST', { email, password: pw });
-      S.email = email; S.password = pw; S.slug = data.slug || ''; S.plan = data.plan || 'free';
-      localStorage.setItem('myshub_session', JSON.stringify({ email, password: pw, slug: S.slug, plan: S.plan }));
-      toast('Welcome back!', 'success');
-      enterApp();
-    } catch (e) { err.textContent = e.message || 'Login failed. Please check your credentials.'; err.style.display = 'block'; }
-    finally { setLoading(btn, false, 'Sign In'); }
-  }
-  async function fetchRecoveryQuestions() {
-    const email = $('recoverEmail').value.trim(); if (!email) return;
-    const btn = $('recoverBtn1'); setLoading(btn, true, 'Fetching...');
-    try {
-      const data = await apiPub('/auth/security-questions?email=' + encodeURIComponent(email));
-      S.recoveryEmail = email; S.recoveryQuestions = data.questions || [];
-      let html = ''; S.recoveryQuestions.forEach((q,i) => {
-        const qText = typeof q === 'string' ? q : q.question;
-        html += '<div class="form-group"><label>' + escapeHtml(qText) + '</label><input id="recAns' + i + '" class="form-input" placeholder="Your answer"></div>';
+  if (plan !== 'free') {
+    const referrers = analytics.referrers || {};
+    const refEntries = Object.entries(referrers).sort((a, b) => b[1] - a[1]).slice(0, 3);
+    if (refEntries.length > 0) {
+      const totalRefs = refEntries.reduce((sum, [, count]) => sum + count, 0);
+      const refMsg = refEntries.map(([name, count]) => {
+        const pct = totalRefs > 0 ? Math.round((count / totalRefs) * 100) : 0;
+        return `${name || 'Direct'} (${pct}%)`;
+      }).join(', ');
+      newNotifs.push({
+        id: 'referrers-top',
+        title: '🔗 Top referrers',
+        message: refMsg,
+        type: 'info',
+        created_at: new Date().toISOString(),
+        read: false
       });
-      $('recoverQuestionsBox').innerHTML = html;
-      $('recoverStep1').style.display = 'none'; $('recoverStep2').style.display = 'block';
-    } catch (e) { $('recoverError').textContent = e.message || 'Could not fetch questions.'; $('recoverError').style.display = 'block'; }
-    finally { setLoading(btn, false, 'Get Security Questions'); }
+    }
   }
-  async function submitRecovery() {
-    const newPw = $('recoverNewPw').value;
-    const ans0 = $('recAns0')?.value || '';
-    const question0 = S.recoveryQuestions[0];
-    const qText = typeof question0 === 'string' ? question0 : ((question0 || {}).question || '');
-    const btn = $('recoverBtn2'); setLoading(btn, true, 'Resetting...');
+
+  if (plan !== 'free') {
+    const socialClicks = (analytics.clicks || {}).socials || {};
+    const socialEntries = Object.entries(socialClicks).sort((a, b) => b[1] - a[1]).slice(0, 3);
+    if (socialEntries.length > 0) {
+      const totalSocial = socialEntries.reduce((sum, [, count]) => sum + count, 0);
+      const socialMsg = socialEntries.map(([name, count]) => {
+        const pct = totalSocial > 0 ? Math.round((count / totalSocial) * 100) : 0;
+        return `${name} (${pct}%)`;
+      }).join(', ');
+      newNotifs.push({
+        id: 'socials-top',
+        title: '📱 Top platforms',
+        message: socialMsg,
+        type: 'info',
+        created_at: new Date().toISOString(),
+        read: false
+      });
+    }
+  }
+
+  if (plan !== 'free') {
+    const catalogClicks = (analytics.clicks || {}).catalog || 0;
+    if (catalogClicks > 0) {
+      newNotifs.push({
+        id: 'catalog-clicks',
+        title: '🛒 Catalog clicks',
+        message: `Your catalog got ${catalogClicks} click${catalogClicks !== 1 ? 's' : ''}`,
+        type: 'info',
+        created_at: new Date().toISOString(),
+        read: false
+      });
+    }
+  }
+
+  if (plan === 'premium') {
+    const customClicks = (analytics.clicks || {}).custom_links || {};
+    const customEntries = Object.entries(customClicks).sort((a, b) => b[1] - a[1]).slice(0, 3);
+    if (customEntries.length > 0) {
+      const totalCustom = customEntries.reduce((sum, [, count]) => sum + count, 0);
+      const customMsg = customEntries.map(([name, count]) => {
+        const pct = totalCustom > 0 ? Math.round((count / totalCustom) * 100) : 0;
+        return `${name} (${pct}%)`;
+      }).join(', ');
+      newNotifs.push({
+        id: 'custom-links-premium',
+        title: '🔗 Custom link performance',
+        message: customMsg,
+        type: 'info',
+        created_at: new Date().toISOString(),
+        read: false
+      });
+    }
+  }
+
+  const milestones = [100, 500, 1000, 5000, 10000];
+  const lastMilestone = parseInt(localStorage.getItem('myshub_last_milestone_' + S.slug) || '0');
+  for (const m of milestones) {
+    if (total >= m && total > lastMilestone) {
+      newNotifs.push({
+        id: 'milestone-' + m,
+        title: `🎉 ${m} visits!`,
+        message: `Your shop has reached ${m} total visits. Keep going!`,
+        type: 'action',
+        created_at: new Date().toISOString(),
+        read: false
+      });
+      localStorage.setItem('myshub_last_milestone_' + S.slug, String(total));
+      break;
+    }
+  }
+
+  const referralsCount = (analytics.referrals || {}).total || 0;
+  if (referralsCount >= 5 && plan === 'free') {
+    const claimed = localStorage.getItem('myshub_referral_claimed_' + S.slug);
+    if (!claimed) {
+      newNotifs.push({
+        id: 'referral-campaign-claim',
+        title: '🎁 You referred 5 people!',
+        message: 'Claim your free Pro plan for 1 month. Tap to claim now!',
+        type: 'upgrade',
+        created_at: new Date().toISOString(),
+        read: false
+      });
+    }
+  }
+
+  const tutorialPrompts = [
+    { id: 'tutorial-profile', title: '📚 Complete your profile', message: 'Add a logo and tagline to make your shop stand out.', type: 'tutorial' },
+    { id: 'tutorial-socials', title: '📚 Add socials', message: 'Connect Instagram, WhatsApp and more to your hub.', type: 'tutorial' },
+    { id: 'tutorial-custom-links', title: '📚 Use custom links', message: 'Add any special link you want with a custom icon.', type: 'tutorial' }
+  ];
+  const completedTutorials = JSON.parse(localStorage.getItem('myshub_tutorial_completed_' + S.slug) || '[]');
+  tutorialPrompts.forEach(t => {
+    if (!completedTutorials.includes(t.id) && !S.notifications.some(n => n.id === t.id)) {
+      newNotifs.push(t);
+    }
+  });
+
+  return newNotifs;
+}
+
+function mergeNotifications(local, remote) {
+  const map = {};
+  local.forEach(n => map[n.id] = n);
+  remote.forEach(r => {
+    if (!map[r.id]) {
+      map[r.id] = { ...r, read: r.read || false };
+    } else {
+      if (r.read && !map[r.id].read) {
+        map[r.id].read = true;
+      }
+    }
+  });
+  return Object.values(map);
+}
+
+async function refreshNotifications() {
+  if (!S.email || !S.password) return;
+  const shop = await fetchShopData({ email: S.email, password: S.password, slug: S.slug });
+  if (shop) {
+    S.shopData = shop;
+    S.shopJson = shop.shop_json || {};
+    S.plan = shop.plan || S.plan;
+    const localNotifs = generateLocalNotifications(S.shopJson, S.plan);
+    let remoteNotifs = [];
     try {
-      await apiPub('/auth/reset-password', 'POST', { email: S.recoveryEmail, security_question: qText, security_answer: ans0, new_password: newPw });
-      toast('Password reset! Please login', 'success'); showAuth('login');
-    } catch (e) { $('recoverError').textContent = e.message || 'Reset failed. Check your answers.'; $('recoverError').style.display = 'block'; }
-    finally { setLoading(btn, false, 'Reset Password'); }
+      const data = await api('/notifications/', 'GET');
+      remoteNotifs = data.notifications || [];
+    } catch (e) {}
+    S.notifications = mergeNotifications(localNotifs, remoteNotifs);
+    window.updateNotifBadge();
+    try {
+      localStorage.setItem('myshub_notifs_' + S.slug, JSON.stringify(S.notifications));
+    } catch (e) {}
+  }
+}
+
+// ================================================================
+//  UTILITY FUNCTIONS
+// ================================================================
+function $(id) { return document.getElementById(id); }
+function escapeHtml(s) { if (!s) return ''; return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
+function toast(msg, type='info') {
+  const w = $('toastWrap'); if (!w) return;
+  const d = document.createElement('div'); d.className = 'toast ' + type;
+  const iconClass = type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-circle-xmark' : type === 'warning' ? 'fa-triangle-exclamation' : 'fa-circle-info';
+  d.innerHTML = '<i class="fa-solid ' + iconClass + '" style="margin-top:2px"></i><div style="flex:1"><div style="font-size:13px;line-height:1.3">' + escapeHtml(msg) + '</div></div>';
+  d.onclick = () => d.remove();
+  w.appendChild(d);
+  setTimeout(() => { d.style.opacity = '0'; d.style.transform = 'translateX(20px)'; setTimeout(() => d.remove(), 300); }, 4500);
+}
+function togglePw(id, btn) {
+  const inp = document.getElementById(id); if (!inp) return;
+  const isPw = inp.type === 'password'; inp.type = isPw ? 'text' : 'password';
+  const ic = btn.querySelector('i'); if (ic) ic.className = isPw ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+}
+function setLoading(btn, loading, text) { if (!btn) return; btn.disabled = loading; if (loading) btn.classList.add('loading'); else btn.classList.remove('loading'); const txt = btn.querySelector('.btn-text'); if (txt) txt.textContent = loading ? (text || 'Please wait...') : text; }
+
+// ================================================================
+//  API HELPERS
+// ================================================================
+async function fetchWithTimeout(url, options={}, timeout=FETCH_TIMEOUT) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try { const response = await fetch(url, { ...options, signal: controller.signal }); clearTimeout(timer); return response; }
+  catch (err) { clearTimeout(timer); if (err.name === 'AbortError') throw new Error('Request timed out. Please check your connection.'); throw new Error('Network error. Please check your internet connection.'); }
+}
+async function safeJson(r) { try { const t = await r.text(); try { return JSON.parse(t); } catch { return { detail: t }; } } catch { return { detail: 'Network error' }; } }
+async function apiPub(endpoint, method='GET', body=null) {
+  const opts = { method, headers: { 'Content-Type':'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const response = await fetchWithTimeout(API + endpoint, opts);
+  const data = await safeJson(response);
+  if (!response.ok) throw new Error(data.detail || data.message || 'Server error (' + response.status + ')');
+  return data;
+}
+async function api(endpoint, method='GET', body=null, extraHeaders={}) {
+  const headers = { 'Content-Type':'application/json', 'email': S.email || '', 'password': S.password || '', ...extraHeaders };
+  const opts = { method, headers };
+  if (body && !(body instanceof FormData)) opts.body = JSON.stringify(body);
+  else if (body instanceof FormData) { delete opts.headers['Content-Type']; opts.body = body; }
+  const response = await fetchWithTimeout(API + endpoint, opts);
+  const data = await safeJson(response);
+  if (!response.ok) throw new Error(data.detail || data.message || 'Server error (' + response.status + ')');
+  return data;
+}
+
+// ================================================================
+//  FETCH SHOP DATA
+// ================================================================
+async function fetchShopData(session) {
+  if (!session || !session.slug) return null;
+  try {
+    const headers = {
+      'Content-Type': 'application/json',
+      'email': session.email,
+      'password': session.password
+    };
+    const res = await fetch(API + '/shop/preview/' + session.slug, { headers });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data;
+  } catch (e) {
+    return null;
+  }
+}
+
+// ================================================================
+//  AUTH FUNCTIONS
+// ================================================================
+function showAuth(t) {
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+  const el = t === 'landing' ? $('sec-landing') : t === 'login' ? $('sec-login') : t === 'register' ? $('sec-register') : t === 'recover' ? $('sec-recover') : null;
+  if (el) el.classList.add('active');
+}
+function populateCategories() {
+  const sel = $('regCategory');
+  const cats = ['Beauty','Fashion','Food','Tech','Services','Health','Education','Fitness','Photography','Real Estate','Automotive','Entertainment','Travel','Hospitality','Finance','Legal','Consulting','Construction','Agriculture','Manufacturing','Retail','Wholesale','Logistics','Media','Marketing','Design','Development','Writing','Translation','Tutoring','Coaching','Therapy','Wellness','Spa','Salon','Barber','Nails','Makeup','Skincare','Haircare','Jewelry','Watches','Shoes','Bags','Accessories','Electronics','Appliances','Furniture','Home Decor','Other'];
+  cats.forEach(c => { const o = document.createElement('option'); o.textContent = c; o.value = c; sel.appendChild(o); });
+}
+function populateCountries() {
+  const sel = $('regCountry');
+  const countries = [
+    'Afghanistan','Albania','Algeria','Andorra','Angola','Antigua and Barbuda',
+    'Argentina','Armenia','Australia','Austria','Azerbaijan','Bahamas','Bahrain',
+    'Bangladesh','Barbados','Belarus','Belgium','Belize','Benin','Bhutan',
+    'Bolivia','Bosnia and Herzegovina','Botswana','Brazil','Brunei','Bulgaria',
+    'Burkina Faso','Burundi','Cambodia','Cameroon','Canada','Cape Verde',
+    'Central African Republic','Chad','Chile','China','Colombia','Comoros',
+    'Congo','Costa Rica','Croatia','Cuba','Cyprus','Czech Republic','Denmark',
+    'Djibouti','Dominica','Dominican Republic','Ecuador','Egypt','El Salvador',
+    'Equatorial Guinea','Eritrea','Estonia','Eswatini','Ethiopia','Fiji',
+    'Finland','France','Gabon','Gambia','Georgia','Germany','Ghana','Greece',
+    'Grenada','Guatemala','Guinea','Guinea-Bissau','Guyana','Haiti','Honduras',
+    'Hungary','Iceland','India','Indonesia','Iran','Iraq','Ireland','Israel',
+    'Italy','Jamaica','Japan','Jordan','Kazakhstan','Kenya','Kiribati',
+    'Kuwait','Kyrgyzstan','Laos','Latvia','Lebanon','Lesotho','Liberia',
+    'Libya','Liechtenstein','Lithuania','Luxembourg','Madagascar','Malawi',
+    'Malaysia','Maldives','Mali','Malta','Marshall Islands','Mauritania',
+    'Mauritius','Mexico','Micronesia','Moldova','Monaco','Mongolia',
+    'Montenegro','Morocco','Mozambique','Myanmar','Namibia','Nauru','Nepal',
+    'Netherlands','New Zealand','Nicaragua','Niger','Nigeria','North Macedonia',
+    'Norway','Oman','Pakistan','Palau','Panama','Papua New Guinea','Paraguay',
+    'Peru','Philippines','Poland','Portugal','Qatar','Romania','Russia',
+    'Rwanda','Saint Kitts and Nevis','Saint Lucia','Saint Vincent','Samoa',
+    'San Marino','Sao Tome and Principe','Saudi Arabia','Senegal','Serbia',
+    'Seychelles','Sierra Leone','Singapore','Slovakia','Slovenia','Solomon Islands',
+    'Somalia','South Africa','South Sudan','Spain','Sri Lanka','Sudan',
+    'Suriname','Sweden','Switzerland','Syria','Taiwan','Tajikistan','Tanzania',
+    'Thailand','Timor-Leste','Togo','Tonga','Trinidad and Tobago','Tunisia',
+    'Turkey','Turkmenistan','Tuvalu','Uganda','Ukraine','United Arab Emirates',
+    'United Kingdom','United States','Uruguay','Uzbekistan','Vanuatu',
+    'Vatican City','Venezuela','Vietnam','Yemen','Zambia','Zimbabwe'
+  ];
+  countries.forEach(c => { const o = document.createElement('option'); o.textContent = c; o.value = c; sel.appendChild(o); });
+}
+function toggleOtherCategory() {
+  const wrap = $('otherCategoryWrap');
+  wrap.style.display = $('regCategory').value === 'Other' ? 'block' : 'none';
+}
+function autoSlug() {
+  const name = $('regBusiness').value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '').substring(0,20);
+  if (!$('regSlug').value) $('regSlug').value = name;
+}
+let slugCheckTimer = null;
+function checkSlugDebounced() { clearTimeout(slugCheckTimer); slugCheckTimer = setTimeout(checkSlugAvail, 600); }
+async function checkSlugAvail() {
+  const slug = $('regSlug').value.trim(); if (!slug) { $('slugStatus').textContent = ''; return; }
+  $('slugStatus').textContent = 'Checking...'; $('slugStatus').className = 'slug-check';
+  try {
+    const d = await apiPub('/auth/check-slug?slug=' + encodeURIComponent(slug));
+    if (d.available) { $('slugStatus').textContent = 'Available'; $('slugStatus').className = 'slug-check ok'; }
+    else { $('slugStatus').textContent = 'Taken. Try: ' + (d.suggestions || []).join(', '); $('slugStatus').className = 'slug-check bad'; }
+  } catch { $('slugStatus').textContent = ''; }
+}
+let regStep = 0;
+function nextRegStep() {
+  const err = $('registerError'); err.style.display = 'none';
+  if (regStep === 0) {
+    const em = $('regEmail').value.trim(), pw = $('regPassword').value, cpw = $('regConfirmPw').value,
+      q1 = $('regQ1').value.trim(), a1 = $('regA1').value.trim(), q2 = $('regQ2').value.trim(), a2 = $('regA2').value.trim();
+    if (!em || !pw || pw.length < 6 || pw !== cpw || !q1 || !a1 || !q2 || !a2) {
+      err.textContent = 'Fill all required fields correctly. Password min 6 chars.'; err.style.display = 'block'; return;
+    }
+    localStorage.setItem('myshub_temp_reg', JSON.stringify({ email:em, password:pw, q1, a1, q2, a2 }));
+  }
+  if (regStep === 1) {
+    const bus = $('regBusiness').value.trim(), slug = $('regSlug').value.trim(), cat = $('regCategory').value;
+    if (!bus || !slug || !cat) { err.textContent = 'Business name, link and category are required'; err.style.display = 'block'; return; }
+    $('confirmBusiness').textContent = bus;
+    $('confirmLink').textContent = APP_URL + '/' + slug;
+    $('confirmEmail').textContent = $('regEmail').value;
+  }
+  document.getElementById('regStep' + regStep).style.display = 'none';
+  regStep++;
+  document.getElementById('regStep' + regStep).style.display = 'block';
+  $('regStepNum').textContent = regStep + 1;
+  document.querySelectorAll('.wizard-dot').forEach((d,i) => d.className = i <= regStep ? 'wizard-dot active' : 'wizard-dot');
+}
+function prevRegStep() {
+  $('registerError').style.display = 'none';
+  document.getElementById('regStep' + regStep).style.display = 'none';
+  regStep--;
+  document.getElementById('regStep' + regStep).style.display = 'block';
+  $('regStepNum').textContent = regStep + 1;
+  document.querySelectorAll('.wizard-dot').forEach((d,i) => d.className = i <= regStep ? 'wizard-dot active' : 'wizard-dot');
+}
+async function doRegister() {
+  const err = $('registerError'); err.style.display = 'none';
+  const temp = JSON.parse(localStorage.getItem('myshub_temp_reg') || '{}');
+  const referralFromUrl = new URLSearchParams(window.location.search).get('ref') || localStorage.getItem('myshub_referral') || '';
+  const cat = $('regCategory').value === 'Other' ? $('regCategoryOther').value.trim() : $('regCategory').value;
+  const body = {
+    email: temp.email, password: temp.password,
+    business_name: $('regBusiness').value.trim(),
+    phone: $('regPhone').value.trim(),
+    preferred_slug: $('regSlug').value.trim().toLowerCase(),
+    category: cat || 'Other',
+    country: $('regCountry').value || '',
+    security_questions: [{ question: temp.q1, answer: temp.a1 }, { question: temp.q2, answer: temp.a2 }],
+    socials: {}, custom_links: [],
+    referred_by: referralFromUrl
+  };
+  if (referralFromUrl) localStorage.setItem('myshub_referral', referralFromUrl);
+
+  showLoading();
+  const btn = $('registerBtn'); setLoading(btn, true, 'Creating...');
+  try {
+    await apiPub('/auth/register', 'POST', body);
+    localStorage.removeItem('myshub_temp_reg');
+    toast('Account created! Sign in now', 'success');
+    hideLoading();
+    showAuth('login');
+    $('loginEmail').value = body.email;
+  } catch (e) {
+    hideLoading();
+    err.textContent = e.message || 'Registration failed. Please try again.';
+    err.style.display = 'block';
+  }
+  finally { setLoading(btn, false, 'Create My Hub'); }
+}
+async function doLogin() {
+  const email = $('loginEmail').value.trim(), pw = $('loginPassword').value, err = $('loginError');
+  err.style.display = 'none';
+  if (!email || !pw) { err.textContent = 'Email and password required'; err.style.display = 'block'; return; }
+
+  showLoading();
+  const btn = $('loginBtn'); setLoading(btn, true, 'Signing in...');
+  try {
+    const data = await apiPub('/auth/login', 'POST', { email, password: pw });
+    S.email = email; S.password = pw; S.slug = data.slug || ''; S.plan = data.plan || 'free';
+    localStorage.setItem('myshub_session', JSON.stringify({ email, password: pw, slug: S.slug, plan: S.plan }));
+    toast('Welcome back!', 'success');
+    enterApp();
+  } catch (e) {
+    hideLoading();
+    err.textContent = e.message || 'Login failed. Please check your credentials.';
+    err.style.display = 'block';
+  }
+  finally { setLoading(btn, false, 'Sign In'); }
+}
+async function fetchRecoveryQuestions() {
+  const email = $('recoverEmail').value.trim(); if (!email) return;
+  const btn = $('recoverBtn1'); setLoading(btn, true, 'Fetching...');
+  try {
+    const data = await apiPub('/auth/security-questions?email=' + encodeURIComponent(email));
+    S.recoveryEmail = email; S.recoveryQuestions = data.questions || [];
+    let html = ''; S.recoveryQuestions.forEach((q,i) => {
+      const qText = typeof q === 'string' ? q : q.question;
+      html += '<div class="form-group"><label>' + escapeHtml(qText) + '</label><input id="recAns' + i + '" class="form-input" placeholder="Your answer"></div>';
+    });
+    $('recoverQuestionsBox').innerHTML = html;
+    $('recoverStep1').style.display = 'none'; $('recoverStep2').style.display = 'block';
+  } catch (e) { $('recoverError').textContent = e.message || 'Could not fetch questions.'; $('recoverError').style.display = 'block'; }
+  finally { setLoading(btn, false, 'Get Security Questions'); }
+}
+async function submitRecovery() {
+  const newPw = $('recoverNewPw').value;
+  const ans0 = $('recAns0')?.value || '';
+  const question0 = S.recoveryQuestions[0];
+  const qText = typeof question0 === 'string' ? question0 : ((question0 || {}).question || '');
+  const btn = $('recoverBtn2'); setLoading(btn, true, 'Resetting...');
+  try {
+    await apiPub('/auth/reset-password', 'POST', { email: S.recoveryEmail, security_question: qText, security_answer: ans0, new_password: newPw });
+    toast('Password reset! Please login', 'success'); showAuth('login');
+  } catch (e) { $('recoverError').textContent = e.message || 'Reset failed. Check your answers.'; $('recoverError').style.display = 'block'; }
+  finally { setLoading(btn, false, 'Reset Password'); }
+}
+
+// ================================================================
+//  DARK MODE
+// ================================================================
+function toggleDarkMode() {
+  S.darkMode = !S.darkMode;
+  document.documentElement.setAttribute('data-theme', S.darkMode ? 'dark' : 'light');
+  localStorage.setItem('myshub_dark', S.darkMode ? '1' : '0');
+}
+function initDarkMode() {
+  const saved = localStorage.getItem('myshub_dark');
+  if (saved === '1') { S.darkMode = true; document.documentElement.setAttribute('data-theme', 'dark'); }
+  else if (saved === '0') { S.darkMode = false; document.documentElement.setAttribute('data-theme', 'light'); }
+  else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { S.darkMode = true; document.documentElement.setAttribute('data-theme', 'dark'); }
+}
+
+// ================================================================
+//  DRAWER
+// ================================================================
+function openDrawer() { $('drawerOverlay').classList.add('on'); $('drawer').classList.add('on'); }
+function closeDrawer() { $('drawerOverlay').classList.remove('on'); $('drawer').classList.remove('on'); }
+
+// ================================================================
+//  PAGE LOADER with header/nav visibility toggles
+// ================================================================
+const pageMap = {
+  overview: { file: 'overview.html', title: 'Dashboard' },
+  edit: { file: 'edit.html', title: 'Edit Shop' },
+  analytics: { file: 'analytics.html', title: 'Analytics' },
+  upgrade: { file: 'upgrade.html', title: 'Upgrade' },
+  referrals: { file: 'referrals.html', title: 'Referrals' },
+  settings: { file: 'settings.html', title: 'Settings' },
+  support: { file: 'support.html', title: 'Support' },
+  notifications: { file: 'notifications.html', title: 'Notifications' },
+  preview: { file: 'shop.html', title: 'Preview', iframe: true },
+  discover: { file: 'discover.html', title: 'Discover', iframe: true },
+  tutorials: { file: 'tutorial.html', title: 'Tutorials', iframe: true }
+};
+
+let currentPage = null;
+
+function loadPage(page) {
+  if (page === currentPage && page !== 'notifications') return;
+  currentPage = page;
+
+window.loadPage = loadPage;
+ document.querySelectorAll('.drawer-item').forEach(el => el.classList.toggle('active', el.dataset.page === page));
+  document.querySelectorAll('.bot-item').forEach(el => el.classList.toggle('on', el.dataset.page === page));
+
+  if (pageMap[page] && pageMap[page].iframe) {
+    renderIframePage(page);
+    return;
   }
 
-  // ================================================================
-  //  DARK MODE
-  // ================================================================
-  function toggleDarkMode() {
-    S.darkMode = !S.darkMode;
-    document.documentElement.setAttribute('data-theme', S.darkMode ? 'dark' : 'light');
-    localStorage.setItem('myshub_dark', S.darkMode ? '1' : '0');
-  }
-  function initDarkMode() {
-    const saved = localStorage.getItem('myshub_dark');
-    if (saved === '1') { S.darkMode = true; document.documentElement.setAttribute('data-theme', 'dark'); }
-    else if (saved === '0') { S.darkMode = false; document.documentElement.setAttribute('data-theme', 'light'); }
-    else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { S.darkMode = true; document.documentElement.setAttribute('data-theme', 'dark'); }
+  if (page === 'whatsnew') {
+    window.open('https://myshub.site/', '_blank');
+    return;
   }
 
-  // ================================================================
-  //  DRAWER
-  // ================================================================
-  function openDrawer() { $('drawerOverlay').classList.add('on'); $('drawer').classList.add('on'); }
-  function closeDrawer() { $('drawerOverlay').classList.remove('on'); $('drawer').classList.remove('on'); }
+  fetchPage(page);
+}
 
-  // ================================================================
-  //  PAGE LOADER — WITH IMMEDIATE LOADING SPINNER
-  // ================================================================
-  const pageMap = {
-    overview: { file: 'overview.html', title: 'Dashboard' },
-    edit: { file: 'edit.html', title: 'Edit Shop' },
-    analytics: { file: 'analytics.html', title: 'Analytics' },
-    upgrade: { file: 'upgrade.html', title: 'Upgrade' },
-    referrals: { file: 'referrals.html', title: 'Referrals' },
-    settings: { file: 'settings.html', title: 'Settings' },
-    support: { file: 'support.html', title: 'Support' },
-    notifications: { file: 'notifications.html', title: 'Notifications' },
-    preview: { file: 'shop.html', title: 'Preview', iframe: true },
-    discover: { file: 'discover.html', title: 'Discover', iframe: true },
-    tutorials: { file: 'tutorial.html', title: 'Tutorials', iframe: true }
+function fetchPage(page) {
+  const content = $('pageContent');
+  const area = $('contentArea');
+
+  showLoading();
+  area.classList.remove('iframe-page');
+
+  // Show header and nav for normal pages
+  document.querySelector('.app-head').style.display = '';
+  document.querySelector('.bot-nav').style.display = '';
+
+  const file = pageMap[page]?.file || page + '.html';
+  fetch(file)
+    .then(res => {
+      if (!res.ok) throw new Error('Page not found');
+      return res.text();
+    })
+    .then(html => {
+      hideLoading();
+      content.innerHTML = html;
+      const scripts = content.querySelectorAll('script');
+      scripts.forEach(oldScript => {
+        const newScript = document.createElement('script');
+        newScript.textContent = oldScript.textContent;
+        oldScript.parentNode.replaceChild(newScript, oldScript);
+      });
+      if (pageMap[page]) document.title = pageMap[page].title + ' – MyShub';
+      if (page === 'overview') updateDrawerInfo();
+      window.updateNotifBadge();
+    })
+    .catch(err => {
+      hideLoading();
+      content.innerHTML = `<div class="empty"><i class="fa-regular fa-circle-exclamation"></i><div>Could not load ${page}</div><p style="font-size:12px;color:var(--text-tertiary)">${err.message}</p></div>`;
+    });
+}
+
+function renderIframePage(page) {
+  const content = $('pageContent');
+  const area = $('contentArea');
+
+  showLoading();
+  area.classList.add('iframe-page');
+
+  // Hide header and nav for iframe pages
+  document.querySelector('.app-head').style.display = 'none';
+  document.querySelector('.bot-nav').style.display = 'none';
+
+  let src = '', title = '';
+  if (page === 'preview') {
+    src = '/shop.html?slug=' + S.slug + '&preview=1&email=' + encodeURIComponent(S.email) + '&password=' + encodeURIComponent(S.password);
+    title = 'Preview';
+  } else if (page === 'discover') {
+    src = '/discover.html';
+    title = 'Discover';
+  } else if (page === 'tutorials') {
+    src = '/tutorial.html';
+    title = 'Tutorials';
+  }
+
+  content.innerHTML = `
+    <button class="iframe-back-btn" onclick="loadPage('overview')"><i class="fa-solid fa-arrow-left"></i></button>
+    <div class="iframe-wrap"><iframe src="${src}" loading="lazy"></iframe></div>
+  `;
+  document.title = title + ' – MyShub';
+  // Wait for iframe to load before hiding overlay
+  const iframe = content.querySelector('iframe');
+  if (iframe) {
+    iframe.onload = () => { hideLoading(); };
+    setTimeout(hideLoading, 5000); // fallback
+  } else {
+    hideLoading();
+  }
+}
+
+function updateDrawerInfo() {
+  const name = S.shopJson?.business_name || S.slug || 'My Shop';
+  const plan = S.plan || 'free';
+  $('drawerName').textContent = name;
+  $('drawerPlan').textContent = plan.charAt(0).toUpperCase() + plan.slice(1) + ' plan';
+}
+
+// ================================================================
+//  ENTER APP
+// ================================================================
+function enterApp() {
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+  $('sec-app').classList.add('active');
+  loadShopData();
+  loadPage('overview');
+}
+
+async function loadShopData() {
+  if (!S.slug) return;
+  try {
+    const d = await api('/shop/preview/' + S.slug, 'GET');
+    S.shopData = d;
+    S.shopJson = d.shop_json || d;
+    S.plan = d.plan || S.plan;
+    updateDrawerInfo();
+    await refreshNotifications();
+  } catch(e) {}
+}
+
+// ================================================================
+//  LOGOUT — fixed to avoid errors and properly reset state
+// ================================================================
+function doLogout() {
+  showLoading();
+
+  // Clear session and state
+  localStorage.removeItem('myshub_session');
+  S = {
+    email: '', password: '', slug: '', plan: 'free',
+    shopData: null, shopJson: null,
+    notifications: [],
+    unreadCount: 0,
+    darkMode: S.darkMode,
+    currentPage: 'overview'
   };
 
-  let loadingTimer = null;
-  let currentPage = null;
+  // Switch to landing page
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+  $('sec-landing').classList.add('active');
 
-  function loadPage(page) {
-    if (page === currentPage && page !== 'notifications') return;
-    currentPage = page;
+  // Hide loading after a short delay
+  setTimeout(hideLoading, 400);
+  window.updateNotifBadge();
+  toast('Logged out successfully', 'info');
+}
 
-    // Update active states
-    document.querySelectorAll('.drawer-item').forEach(el => el.classList.toggle('active', el.dataset.page === page));
-    document.querySelectorAll('.bot-item').forEach(el => el.classList.toggle('on', el.dataset.page === page));
+// Make loadPage accessible to all child pages
+window.loadPage = loadPage;
 
-    // Show/hide header for iframe pages
-    const appHead = $('appHead');
-    const isIframe = pageMap[page] && pageMap[page].iframe;
-    if (appHead) {
-      appHead.style.display = isIframe ? 'none' : 'flex';
-    }
-
-    // Show/hide share button (preview only)
-    const shareBtn = $('previewShareBtn');
-    if (shareBtn) {
-      shareBtn.style.display = (page === 'preview') ? 'flex' : 'none';
-    }
-
-    // Bottom nav is always visible
-
-    if (isIframe) {
-      renderIframePage(page);
-      return;
-    }
-
-    if (page === 'whatsnew') {
-      window.open('https://myshub.site/', '_blank');
-      return;
-    }
-
-    fetchPage(page);
-  }
-
-  function fetchPage(page) {
-    const content = $('pageContent');
-    const loading = $('loadingOverlay');
-    const area = $('contentArea');
-
-    // Show loading spinner immediately
-    loading.classList.add('on');
-
-    area.classList.remove('iframe-page');
-
-    const file = pageMap[page]?.file || page + '.html';
-    fetch(file)
-      .then(res => {
-        if (!res.ok) throw new Error('Page not found');
-        return res.text();
-      })
-      .then(html => {
-        loading.classList.remove('on');
-        content.innerHTML = html;
-        const scripts = content.querySelectorAll('script');
-        scripts.forEach(oldScript => {
-          const newScript = document.createElement('script');
-          newScript.textContent = oldScript.textContent;
-          oldScript.parentNode.replaceChild(newScript, oldScript);
-        });
-        if (pageMap[page]) document.title = pageMap[page].title + ' – MyShub';
-        if (page === 'overview') updateDrawerInfo();
-        loadNotifBadge();
-      })
-      .catch(err => {
-        loading.classList.remove('on');
-        content.innerHTML = `<div class="empty"><i class="fa-regular fa-circle-exclamation"></i><div>Could not load ${page}</div><p style="font-size:12px;color:var(--text-tertiary)">${err.message}</p></div>`;
-      });
-  }
-
-  function renderIframePage(page) {
-    const content = $('pageContent');
-    const area = $('contentArea');
-    const loading = $('loadingOverlay');
-
-    // Show loading spinner immediately for iframe too
-    loading.classList.add('on');
-
-    area.classList.add('iframe-page');
-
-    let src = '', title = '';
-    if (page === 'preview') {
-      src = '/shop.html?slug=' + S.slug + '&preview=1&email=' + encodeURIComponent(S.email) + '&password=' + encodeURIComponent(S.password);
-      title = 'Preview';
-    } else if (page === 'discover') {
-      src = '/discover.html';
-      title = 'Discover';
-    } else if (page === 'tutorials') {
-      src = '/tutorial.html';
-      title = 'Tutorials';
-    }
-
-    content.innerHTML = `
-      <button class="iframe-back-btn" onclick="loadPage('overview')"><i class="fa-solid fa-arrow-left"></i></button>
-      <div class="iframe-wrap"><iframe src="${src}" loading="lazy" onload="document.getElementById('loadingOverlay').classList.remove('on')"></iframe></div>
-    `;
-    document.title = title + ' – MyShub';
-
-    // Hide after a timeout (if iframe fails to load)
-    setTimeout(() => {
-      loading.classList.remove('on');
-    }, 5000);
-  }
-
-  function updateDrawerInfo() {
-    if (S.shopData) {
-      const sj = S.shopData.shop_json || S.shopData;
-      const av = $('drawerAvatar');
-      if (av) av.textContent = (sj.business_name || S.slug || 'M').charAt(0).toUpperCase();
-      const dn = $('drawerName');
-      if (dn) dn.textContent = sj.business_name || S.slug;
-      const dp = $('drawerPlan');
-      if (dp) dp.textContent = (S.plan || 'free') + ' plan';
-    }
-  }
-
-  function loadNotifBadge() {
-    if (S.email && S.password) {
-      api('/notifications/', 'GET').then(data => {
-        const unread = data.unread || 0;
-        S.unreadCount = unread;
-        const badge = $('notifBadge');
-        if (unread > 0) {
-          badge.textContent = unread > 9 ? '9+' : unread;
-          badge.style.display = 'flex';
-        } else {
-          badge.style.display = 'none';
-        }
-      }).catch(() => {});
-    }
-  }
-
-  // ================================================================
-  //  LOAD SHOP DATA
-  // ================================================================
-  async function loadShopData() {
-    if (!S.slug) return;
+// ================================================================
+//  INIT
+// ================================================================
+function init() {
+  populateCategories();
+  populateCountries();
+  initDarkMode();
+  const session = localStorage.getItem('myshub_session');
+  if (session) {
     try {
-      const headers = { 'Content-Type': 'application/json', 'email': S.email, 'password': S.password };
-      const res = await fetch(API + '/shop/preview/' + S.slug, { headers });
-      if (!res.ok) throw new Error('Failed to load shop');
-      const data = await res.json();
-      S.shopData = data;
-      S.shopJson = data.shop_json || data;
-      S.plan = data.plan || S.plan;
-      updateDrawerInfo();
-    } catch (e) {
-      console.error('loadShopData error', e);
-    }
+      const s = JSON.parse(session);
+      S.email = s.email || ''; S.password = s.password || ''; S.slug = s.slug || ''; S.plan = s.plan || 'free';
+      if (S.email && S.password && S.slug) { enterApp(); return; }
+    } catch {}
   }
+  showAuth('landing');
 
-  // ================================================================
-  //  SHARE FROM PREVIEW
-  // ================================================================
-  function openPreviewShare() {
-    const modal = $('shareModal');
-    if (!modal) return;
-    const caption = 'Check out my business hub 🔗 ' + APP_URL + '/' + S.slug + ' — ' + (S.shopJson?.tagline || 'Everything in one place!');
-    $('shareCaption').value = caption;
-    modal.classList.add('on');
-  }
+  const startBtn = $('landingGetStarted');
+  const signInBtn = $('landingSignIn');
+  if (startBtn) startBtn.addEventListener('click', () => showAuth('register'));
+  if (signInBtn) signInBtn.addEventListener('click', () => showAuth('login'));
 
-  function closeShareModal() {
-    const modal = $('shareModal');
-    if (modal) modal.classList.remove('on');
-  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+  if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(() => {}); }
+}
 
-  function copyShareCaption() {
-    const caption = $('shareCaption').value;
-    copyText(caption);
-  }
-
-  function nativeShare() {
-    const caption = $('shareCaption').value;
-    if (navigator.share) {
-      navigator.share({ title: 'My Shop', text: caption, url: APP_URL + '/' + S.slug }).catch(() => {});
-    } else {
-      copyShareCaption();
-    }
-  }
-
-  function shareToWhatsApp() {
-    const text = encodeURIComponent($('shareCaption').value);
-    window.open('https://wa.me/?text=' + text, '_blank');
-  }
-
-  function shareToTwitter() {
-    const text = encodeURIComponent($('shareCaption').value);
-    window.open('https://twitter.com/intent/tweet?text=' + text, '_blank');
-  }
-
-  // ================================================================
-  //  ENTER APP
-  // ================================================================
-  async function enterApp() {
-    document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
-    $('sec-app').classList.add('active');
-    await loadShopData();
-    loadNotifBadge();
-    loadPage('overview');
-  }
-
-  // ================================================================
-  //  LOGOUT
-  // ================================================================
-  function doLogout() {
-    localStorage.removeItem('myshub_session');
-    S = { email: '', password: '', slug: '', plan: 'free', shopData: null, shopJson: null, notifications: [], unreadCount: 0, darkMode: S.darkMode, currentPage: 'overview' };
-    document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
-    $('sec-landing').classList.add('active');
-    toast('Logged out', 'info');
-  }
-
-  // ================================================================
-  //  INIT
-  // ================================================================
-  function init() {
-    populateCategories();
-    populateCountries();
-    initDarkMode();
-    const session = localStorage.getItem('myshub_session');
-    if (session) {
-      try {
-        const s = JSON.parse(session);
-        S.email = s.email || ''; S.password = s.password || ''; S.slug = s.slug || ''; S.plan = s.plan || 'free';
-        if (S.email && S.password && S.slug) { enterApp(); return; }
-      } catch {}
-    }
-    showAuth('landing');
-
-    const startBtn = $('landingGetStarted');
-    const signInBtn = $('landingSignIn');
-    if (startBtn) startBtn.addEventListener('click', () => showAuth('register'));
-    if (signInBtn) signInBtn.addEventListener('click', () => showAuth('login'));
-
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
-    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(() => {}); }
-  }
-
-  // ================================================================
-  //  EXPOSE GLOBALLY
-  // ================================================================
-  window.loadPage = loadPage;
-  window.openDrawer = openDrawer;
-  window.closeDrawer = closeDrawer;
-  window.doLogout = doLogout;
-  window.openPreviewShare = openPreviewShare;
-  window.closeShareModal = closeShareModal;
-  window.copyShareCaption = copyShareCaption;
-  window.nativeShare = nativeShare;
-  window.shareToWhatsApp = shareToWhatsApp;
-  window.shareToTwitter = shareToTwitter;
-  window.copyText = copyText;
-  window.toast = toast;
-  window.toggleDarkMode = toggleDarkMode;
-  window.showAuth = showAuth;
-  window.API = API;
-  window.APP_URL = APP_URL;
-  window.S = S;
-
-  // Auth functions that are called from HTML
-  window.doLogin = doLogin;
-  window.doRegister = doRegister;
-  window.fetchRecoveryQuestions = fetchRecoveryQuestions;
-  window.submitRecovery = submitRecovery;
-  window.nextRegStep = nextRegStep;
-  window.prevRegStep = prevRegStep;
-  window.autoSlug = autoSlug;
-  window.checkSlugDebounced = checkSlugDebounced;
-  window.toggleOtherCategory = toggleOtherCategory;
-  window.togglePw = togglePw;
-
-  // Start
-  init();
-})();
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>

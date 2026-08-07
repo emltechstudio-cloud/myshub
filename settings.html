@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Settings – MyShub</title>
   <style>
-    /* ===== SETTINGS PAGE STYLES ===== */
     .settings-page { padding: 0; }
-
     .page-header { margin-bottom: 24px; }
     .page-header h2 { font-size: 22px; font-weight: 800; }
     .page-header .sub { color: var(--text-secondary); font-size: 14px; margin-top: 4px; }
@@ -49,7 +47,6 @@
     }
     .setting-row .setting-control { flex-shrink: 0; }
 
-    /* Toggle Switch */
     .toggle-wrap {
       display: flex;
       align-items: center;
@@ -97,18 +94,12 @@
       background: var(--brand);
       color: #fff;
     }
-    .btn-primary:hover {
-      background: var(--brand-dark);
-      transform: translateY(-1px);
-    }
+    .btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); }
     .btn-danger {
       background: var(--danger);
       color: #fff;
     }
-    .btn-danger:hover {
-      background: #dc2626;
-      transform: translateY(-1px);
-    }
+    .btn-danger:hover { background: #dc2626; transform: translateY(-1px); }
     .btn-sm { padding: 6px 14px; font-size: 12px; }
     .btn-block { width: 100%; }
 
@@ -132,8 +123,7 @@
 
 <script>
 // ================================================================
-//  SETTINGS PAGE — FULLY INTEGRATED WITH SHELL
-//  Includes: Account, Dark Mode, Push Notifications, Shop Status, Logout
+//  SETTINGS PAGE — NO RECURSION, USES ALERT FOR DEBUGGING
 // ================================================================
 
 (function() {
@@ -154,6 +144,12 @@
   let loadError = null;
   let pushSubscribed = false;
   let darkMode = false;
+
+  // ================================================================
+  //  CAPTURE ORIGINAL SHELL FUNCTIONS (to avoid recursion)
+  // ================================================================
+  const originalToggleDarkMode = window.toggleDarkMode;
+  const originalDoLogout = window.doLogout;
 
   // ================================================================
   //  GET SESSION
@@ -185,6 +181,25 @@
   }
 
   // ================================================================
+  //  SAFE NAVIGATION
+  // ================================================================
+  function navigate(page) {
+    if (typeof window.loadPage === 'function') {
+      window.loadPage(page);
+    } else {
+      alert('Navigate to: ' + page);
+    }
+  }
+
+  // ================================================================
+  //  TOAST (temporarily disabled – using alert for debugging)
+  // ================================================================
+  function showMessage(msg, type) {
+    // Use alert to avoid any potential recursion
+    alert(msg + (type ? ' (' + type + ')' : ''));
+  }
+
+  // ================================================================
   //  FETCH SHOP DATA
   // ================================================================
   async function fetchShopData(session) {
@@ -205,11 +220,11 @@
   }
 
   // ================================================================
-  //  TOGGLE SHOP STATUS
+  //  TOGGLE SHOP STATUS (uses alert instead of toast)
   // ================================================================
   async function toggleShopStatus() {
     const session = getSession();
-    if (!session) { toast('Please log in.', 'error'); return; }
+    if (!session) { alert('Please log in.'); return; }
 
     const currentStatus = shopData?.status || 'active';
     const newStatus = currentStatus === 'active' ? 'expired' : 'active';
@@ -227,27 +242,39 @@
       });
       if (!res.ok) throw new Error('Failed to update shop status');
       const data = await res.json();
-      toast(data.message || 'Shop status updated.', 'success');
+      alert(data.message || 'Shop status updated.');
+
       // Update local state
       if (shopData) shopData.status = newStatus;
-      renderSettings();
+
+      // Update UI directly
+      const track = document.querySelector('.toggle-track.shop-toggle');
+      if (track) {
+        track.classList.toggle('on', newStatus === 'active');
+      }
+      const label = document.querySelector('.shop-status-label');
+      if (label) {
+        label.textContent = newStatus === 'active' ? '🟢 Live' : '🔴 Hidden';
+      }
+      const desc = document.querySelector('.shop-status-desc');
+      if (desc) {
+        desc.textContent = newStatus === 'active' ? 'Your shop is visible to the public.' : 'Your shop is currently hidden.';
+      }
     } catch (e) {
-      toast(e.message || 'Error updating shop status.', 'error');
+      alert('Error: ' + e.message);
     }
   }
 
   // ================================================================
-  //  PUSH NOTIFICATIONS
+  //  TOGGLE PUSH NOTIFICATIONS (uses alert instead of toast)
   // ================================================================
   async function togglePushNotifications() {
     if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-      toast('Push notifications not supported in this browser.', 'warning');
+      alert('Push notifications not supported in this browser.');
       return;
     }
 
-    // If already subscribed, unsubscribe
     if (pushSubscribed) {
-      // Remove from backend
       const session = getSession();
       if (session) {
         try {
@@ -261,34 +288,30 @@
           });
         } catch (e) {}
       }
-      // Remove from local storage and state
       localStorage.removeItem('myshub_push_subscription');
       pushSubscribed = false;
-      toast('Push notifications disabled.', 'info');
-      renderSettings();
+      alert('Push notifications disabled.');
+      const track = document.querySelector('.toggle-track.push-toggle');
+      if (track) track.classList.remove('on');
       return;
     }
 
-    // Request permission
     try {
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') {
-        toast('Permission denied. Please allow notifications in your browser settings.', 'warning');
+        alert('Permission denied. Please allow notifications in your browser settings.');
         return;
       }
 
-      // Get service worker registration
       const registration = await navigator.serviceWorker.ready;
-      // Subscribe to push
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array('your-vapid-public-key') // Replace with actual key
+        applicationServerKey: urlBase64ToUint8Array('your-vapid-public-key')
       });
 
-      // Save to backend
       const session = getSession();
       if (!session) {
-        toast('Please log in to enable push notifications.', 'error');
+        alert('Please log in to enable push notifications.');
         return;
       }
 
@@ -312,18 +335,17 @@
 
       if (!res.ok) throw new Error('Failed to subscribe on server');
 
-      // Store locally
       localStorage.setItem('myshub_push_subscription', JSON.stringify(subData));
       pushSubscribed = true;
-      toast('Push notifications enabled!', 'success');
-      renderSettings();
+      alert('Push notifications enabled!');
+      const track = document.querySelector('.toggle-track.push-toggle');
+      if (track) track.classList.add('on');
     } catch (e) {
       console.error('Push subscription error:', e);
-      toast('Failed to enable push notifications: ' + e.message, 'error');
+      alert('Failed to enable push notifications: ' + e.message);
     }
   }
 
-  // Helper to convert VAPID key
   function urlBase64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
     const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
@@ -336,19 +358,37 @@
   }
 
   // ================================================================
-  //  TOAST (fallback)
+  //  DARK MODE TOGGLE (calls captured original, then updates UI)
   // ================================================================
-  function toast(msg, type) {
-    if (window.toast) { window.toast(msg, type); return; }
-    alert(msg);
+  function toggleDarkMode() {
+    if (typeof originalToggleDarkMode === 'function') {
+      originalToggleDarkMode();
+    } else {
+      // Fallback: toggle manually
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const newTheme = isDark ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('myshub_dark', newTheme === 'dark' ? '1' : '0');
+      if (window.S) window.S.darkMode = newTheme === 'dark';
+    }
+    // Update UI
+    const track = document.querySelector('.toggle-track.dark-mode-toggle');
+    if (track) {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      track.classList.toggle('on', isDark);
+    }
   }
 
   // ================================================================
-  //  ESCAPE HTML
+  //  LOGOUT (calls captured original)
   // ================================================================
-  function escapeHtml(s) {
-    if (!s) return '';
-    return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+  function doLogout() {
+    if (typeof originalDoLogout === 'function') {
+      originalDoLogout();
+    } else {
+      localStorage.removeItem('myshub_session');
+      if (window.location) window.location.reload();
+    }
   }
 
   // ================================================================
@@ -397,10 +437,7 @@
     const shopStatus = shopData?.status || 'active';
     const isShopActive = shopStatus === 'active';
 
-    // Dark mode from shell or localStorage
     darkMode = document.documentElement.getAttribute('data-theme') === 'dark';
-
-    // Push subscription status
     const sub = localStorage.getItem('myshub_push_subscription');
     pushSubscribed = !!sub;
 
@@ -435,7 +472,7 @@
             <div class="setting-label">Plan</div>
             <div class="setting-desc">${plan.charAt(0).toUpperCase() + plan.slice(1)}</div>
           </div>
-          ${plan !== 'premium' ? `<button class="btn btn-primary btn-sm" onclick="window.loadPage && window.loadPage('upgrade')">Upgrade</button>` : ''}
+          ${plan !== 'premium' ? `<button class="btn btn-primary btn-sm" onclick="navigate('upgrade')">Upgrade</button>` : ''}
         </div>
       </div>
     `;
@@ -451,7 +488,7 @@
           </div>
           <div class="setting-control">
             <div class="toggle-wrap" onclick="toggleDarkMode()">
-              <div class="toggle-track ${darkMode ? 'on' : ''}">
+              <div class="toggle-track dark-mode-toggle ${darkMode ? 'on' : ''}">
                 <div class="toggle-thumb"></div>
               </div>
             </div>
@@ -464,7 +501,7 @@
           </div>
           <div class="setting-control">
             <div class="toggle-wrap" onclick="togglePushNotifications()">
-              <div class="toggle-track ${pushSubscribed ? 'on' : ''}">
+              <div class="toggle-track push-toggle ${pushSubscribed ? 'on' : ''}">
                 <div class="toggle-thumb"></div>
               </div>
             </div>
@@ -479,12 +516,12 @@
         <div class="card-title"><i class="fa-solid fa-store"></i> Shop Status</div>
         <div class="setting-row">
           <div>
-            <div class="setting-label">${isShopActive ? '🟢 Live' : '🔴 Hidden'}</div>
-            <div class="setting-desc">${isShopActive ? 'Your shop is visible to the public.' : 'Your shop is currently hidden.'}</div>
+            <div class="setting-label shop-status-label">${isShopActive ? '🟢 Live' : '🔴 Hidden'}</div>
+            <div class="setting-desc shop-status-desc">${isShopActive ? 'Your shop is visible to the public.' : 'Your shop is currently hidden.'}</div>
           </div>
           <div class="setting-control">
             <div class="toggle-wrap" onclick="toggleShopStatus()">
-              <div class="toggle-track ${isShopActive ? 'on' : ''}">
+              <div class="toggle-track shop-toggle ${isShopActive ? 'on' : ''}">
                 <div class="toggle-thumb"></div>
               </div>
             </div>
@@ -498,10 +535,6 @@
       <button class="btn btn-danger btn-block" onclick="doLogout()">
         <i class="fa-solid fa-right-from-bracket"></i> Logout
       </button>
-    `;
-
-    // ---- Footer ----
-    html += `
       <div style="font-size:12px;color:var(--text-tertiary);text-align:center;padding:12px 0 20px;">
         MyShub v3.0 • ${APP_URL}
       </div>
@@ -511,31 +544,11 @@
   }
 
   // ================================================================
-  //  ACTIONS
+  //  HELPERS
   // ================================================================
-  function toggleDarkMode() {
-    if (window.toggleDarkMode) {
-      window.toggleDarkMode();
-    } else {
-      // Fallback: toggle manually
-      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      const newTheme = isDark ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', newTheme);
-      localStorage.setItem('myshub_dark', newTheme === 'dark' ? '1' : '0');
-      if (window.S) window.S.darkMode = newTheme === 'dark';
-    }
-    // Re-render to reflect toggle state
-    renderSettings();
-  }
-
-  function doLogout() {
-    if (window.doLogout) {
-      window.doLogout();
-    } else {
-      // Fallback logout
-      localStorage.removeItem('myshub_session');
-      if (window.location) window.location.reload();
-    }
+  function escapeHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
   }
 
   // ================================================================
@@ -552,19 +565,16 @@
         return;
       }
 
-      // Fetch shop data
       const data = await fetchShopData(session);
       if (data) {
         shopData = data;
         shopJson = data.shop_json || {};
-        // Update session plan if changed
         if (data.plan && data.plan !== session.plan) {
           session.plan = data.plan;
           if (window.S) window.S.plan = data.plan;
           localStorage.setItem('myshub_session', JSON.stringify(session));
         }
       } else {
-        // Fallback: use session data
         shopJson = {};
         shopData = { status: 'active' };
       }
@@ -579,12 +589,14 @@
     }
   }
 
-  // Expose functions for inline onclick
+  // ================================================================
+  //  EXPOSE FUNCTIONS GLOBALLY (safe, no recursion)
+  // ================================================================
   window.toggleDarkMode = toggleDarkMode;
   window.togglePushNotifications = togglePushNotifications;
   window.toggleShopStatus = toggleShopStatus;
   window.doLogout = doLogout;
-  window.toast = toast;
+  window.navigate = navigate;
 
   // Start
   init();

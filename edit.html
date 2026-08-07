@@ -84,6 +84,115 @@
       background: var(--surface);
     }
 
+    /* ===== CUSTOM LINKS CARD ===== */
+    .custom-links-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .custom-link-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: all 0.2s;
+      position: relative;
+      cursor: default;
+    }
+    .custom-link-card:hover {
+      border-color: var(--brand-light);
+      box-shadow: var(--shadow-md);
+    }
+    .custom-link-card .link-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--brand-soft);
+      color: var(--brand);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+      transition: var(--transition);
+    }
+    .custom-link-card .link-icon .emoji-icon {
+      font-size: 22px;
+      line-height: 1;
+    }
+    .custom-link-card .link-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .custom-link-card .link-info .link-title {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .custom-link-card .link-info .link-url {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .custom-link-card .link-actions {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .custom-link-card .link-actions button {
+      background: none;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .custom-link-card .link-actions button:hover {
+      background: var(--surface-hover);
+      color: var(--text);
+    }
+    .custom-link-card .link-actions button.danger:hover {
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+
+    .add-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 30px;
+      background: var(--border);
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 13px;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+      width: 100%;
+      justify-content: center;
+    }
+    .add-link-btn:hover { background: var(--brand-soft); color: var(--brand); }
+    .add-link-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     .item-list { margin-top: 8px; }
     .item-row {
       display: flex;
@@ -110,34 +219,6 @@
     }
     .item-row .item-actions button:hover { background: var(--border); color: var(--text); }
     .item-row .item-actions button.danger:hover { color: var(--danger); }
-
-    /* Inline edit for custom links */
-    .item-row.editing {
-      flex-wrap: wrap;
-      background: var(--brand-soft);
-      border-color: var(--brand);
-    }
-    .item-row.editing .edit-fields {
-      flex: 1 1 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 6px;
-    }
-    .item-row.editing .edit-fields .edit-field-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .item-row.editing .edit-fields .edit-field-row input {
-      flex: 1;
-      min-width: 120px;
-    }
-    .item-row.editing .edit-fields .edit-actions {
-      display: flex;
-      gap: 6px;
-      justify-content: flex-end;
-    }
 
     .btn {
       border: none;
@@ -204,24 +285,6 @@
       z-index: 2;
     }
     [data-theme="dark"] .locked-overlay::after { background: rgba(15,23,42,0.7); }
-
-    .add-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      border-radius: 30px;
-      background: var(--border);
-      color: var(--text-secondary);
-      font-weight: 600;
-      font-size: 13px;
-      border: none;
-      cursor: pointer;
-      transition: var(--transition);
-      font-family: inherit;
-      margin-top: 6px;
-    }
-    .add-btn:hover { background: var(--brand-soft); color: var(--brand); }
 
     /* ===== MODAL ===== */
     .modal-overlay {
@@ -339,6 +402,80 @@
     }
     .platform-username-input.active { display: block; }
 
+    /* Link preview in modal */
+    .link-preview-box {
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .link-preview-box .preview-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--brand-soft);
+      color: var(--brand);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .link-preview-box .preview-icon .emoji-preview {
+      font-size: 20px;
+    }
+    .link-preview-box .preview-text {
+      flex: 1;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text);
+    }
+    .link-preview-box .preview-url {
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+
+    /* Emoji picker */
+    .emoji-picker-section {
+      margin-top: 12px;
+      padding: 12px;
+      background: var(--surface-hover);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    .emoji-picker-section .emoji-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 6px;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+    .emoji-picker-section .emoji-item {
+      font-size: 24px;
+      padding: 6px;
+      text-align: center;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+      background: var(--surface);
+      border: 1px solid transparent;
+    }
+    .emoji-picker-section .emoji-item:hover {
+      background: var(--brand-soft);
+      border-color: var(--brand);
+      transform: scale(1.1);
+    }
+    .emoji-picker-section .emoji-label {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
     /* Loading */
     .loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; gap: 16px; color: var(--text-secondary); }
     .loading-state .spinner-lg { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--brand); border-radius: 50%; animation: spin 1s linear infinite; }
@@ -383,8 +520,8 @@
     @media(max-width: 640px) {
       .form-row { grid-template-columns: 1fr; }
       .grid-container { grid-template-columns: repeat(3, 1fr); }
-      .item-row { flex-wrap: wrap; }
-      .item-row.editing .edit-fields .edit-field-row { flex-direction: column; }
+      .custom-links-grid { grid-template-columns: 1fr; }
+      .emoji-picker-section .emoji-grid { grid-template-columns: repeat(6, 1fr); }
     }
   </style>
 </head>
@@ -418,7 +555,55 @@
   </div>
 </div>
 
-<!-- ===== Icon Picker Modal ===== -->
+<!-- ===== Custom Link Modal ===== -->
+<div id="customLinkModal" class="modal-overlay" onclick="if(event.target===this) closeCustomLinkModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="customLinkModalTitle">Add Custom Link</h3>
+      <button class="close-btn" onclick="closeCustomLinkModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Title <span class="required">*</span></label>
+        <input id="linkModalTitle" class="form-input" placeholder="e.g. My Portfolio" />
+      </div>
+      <div class="form-group">
+        <label>URL <span class="required">*</span></label>
+        <input id="linkModalUrl" class="form-input" placeholder="https://example.com" />
+      </div>
+      <div class="form-group">
+        <label>Icon</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <button class="btn btn-ghost btn-sm" onclick="openIconPickerForModal()"><i class="fa-solid fa-icons"></i> Pick Icon</button>
+          <span id="selectedIconDisplay" style="font-size:20px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:8px;">🔗</span>
+          <input type="hidden" id="linkModalIcon" value="link" />
+          <span style="font-size:11px;color:var(--text-tertiary);">Selected icon</span>
+        </div>
+        <div id="emojiPickerPremium" style="display:none;margin-top:8px;">
+          <div class="emoji-picker-section">
+            <div class="emoji-label">🎨 Pick an emoji (Premium)</div>
+            <div class="emoji-grid" id="emojiGrid">
+              <!-- Emojis rendered by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="link-preview-box" id="linkPreviewBox">
+        <div class="preview-icon" id="linkPreviewIcon"><i class="fa-solid fa-link"></i></div>
+        <div>
+          <div class="preview-text" id="linkPreviewTitle">Link Title</div>
+          <div class="preview-url" id="linkPreviewUrl">https://example.com</div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-block" id="saveLinkBtn" onclick="saveLinkFromModal()">
+        <span class="spinner"></span>
+        <span class="btn-text"><i class="fa-solid fa-plus"></i> Add Link</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Icon Picker Modal (for custom link icon) ===== -->
 <div id="iconPickerModal" class="modal-overlay" onclick="if(event.target===this) closeIconPicker()">
   <div class="modal-box">
     <div class="modal-head">
@@ -437,9 +622,7 @@
 
 <script>
 // ================================================================
-//  EDIT PAGE — FULLY INTEGRATED WITH BACKEND (shop.py)
-//  Uses PUT /shop/edit/{slug} with EditShopRequest schema
-//  Features: inline custom link editing, locked icons, unsaved changes warning
+//  EDIT PAGE — WITH CUSTOM LINKS REDESIGN
 // ================================================================
 
 (function() {
@@ -452,7 +635,29 @@
   const APP_URL = window.APP_URL || 'https://myshub.site';
 
   // ================================================================
-  //  PLATFORMS (same as shop.html)
+  //  EMOJIS (for Premium users)
+  // ================================================================
+  const COMMON_EMOJIS = [
+    '🔥','⭐','❤️','💎','🚀','🌟','💡','🎯','📌','🔗','📱','💻','🖥️','📷','🎨',
+    '🛒','📦','📊','📈','📉','📋','📎','📏','🔍','🔎','💬','💭','🗣️','👤','👥',
+    '🏆','🥇','🥈','🥉','🎖️','🏅','🎯','🎪','🎨','🎭','🎬','🎤','🎧','🎼','🎹',
+    '🚗','🚕','🚙','🚌','🚎','🏎️','🚓','🚑','🚒','🚐','🛻','🚛','🚜','🏍️','🛵'
+  ];
+
+  // ================================================================
+  //  ICONS BY TIER
+  // ================================================================
+  const FREE_ICONS = ['link','globe','star','heart','arrow-right','check','circle','square','plus','minus','xmark'];
+  const PRO_ICONS = [...FREE_ICONS,'calendar-check','users','download','circle-play','boxes-stacked','phone','envelope','location-dot','tag','gift','book','graduation-cap','utensils','car','house','building','rocket','fire','crown','gem','bolt'];
+  const PREMIUM_ICONS = [...PRO_ICONS,'bag-shopping','cart-shopping','store','camera','video','music','heart-pulse','face-smile','handshake','lightbulb','wand-magic-sparkles','palette','paintbrush','laptop','mobile-screen','headset','truck','credit-card','dollar-sign','qrcode','share-nodes','paper-plane','puzzle-piece','sun','moon','cloud','umbrella','leaf','tree','flower'];
+
+  // ================================================================
+  //  CATEGORIES LIST
+  // ================================================================
+  const CATEGORIES = ['Beauty','Fashion','Food','Tech','Services','Health','Education','Fitness','Photography','Real Estate','Automotive','Entertainment','Travel','Hospitality','Finance','Legal','Consulting','Construction','Agriculture','Manufacturing','Retail','Wholesale','Logistics','Media','Marketing','Design','Development','Writing','Translation','Tutoring','Coaching','Therapy','Wellness','Spa','Salon','Barber','Nails','Makeup','Skincare','Haircare','Jewelry','Watches','Shoes','Bags','Accessories','Electronics','Appliances','Furniture','Home Decor','Other'];
+
+  // ================================================================
+  //  PLATFORMS
   // ================================================================
   const ALL_PLATFORMS = [
     { name:'Facebook', icon:'fa-brands fa-facebook-f', urlTemplate:'https://facebook.com/{username}', color:'#1877F2' },
@@ -503,14 +708,6 @@
     { name:'Messenger', icon:'fa-brands fa-facebook-messenger', urlTemplate:'https://m.me/{username}', color:'#0084FF' }
   ];
 
-  // ICONS BY TIER
-  const FREE_ICONS = ['link','globe','star','heart','arrow-right'];
-  const PRO_ICONS = [...FREE_ICONS,'calendar-check','users','download','circle-play','boxes-stacked','phone','envelope','location-dot','tag','gift'];
-  const PREMIUM_ICONS = [...PRO_ICONS,'bag-shopping','cart-shopping','store','camera','video','music','book','graduation-cap','utensils','car','house','building','rocket','fire','crown','gem','bolt','heart-pulse','face-smile','handshake','lightbulb','wand-magic-sparkles','palette','paintbrush','laptop','mobile-screen','headset','truck','credit-card','dollar-sign','qrcode','share-nodes','paper-plane'];
-
-  // CATEGORIES LIST
-  const CATEGORIES = ['Beauty','Fashion','Food','Tech','Services','Health','Education','Fitness','Photography','Real Estate','Automotive','Entertainment','Travel','Hospitality','Finance','Legal','Consulting','Construction','Agriculture','Manufacturing','Retail','Wholesale','Logistics','Media','Marketing','Design','Development','Writing','Translation','Tutoring','Coaching','Therapy','Wellness','Spa','Salon','Barber','Nails','Makeup','Skincare','Haircare','Jewelry','Watches','Shoes','Bags','Accessories','Electronics','Appliances','Furniture','Home Decor','Other'];
-
   // ================================================================
   //  STATE
   // ================================================================
@@ -524,7 +721,16 @@
   let tempLogoUrl = '';
   let selectedPlatform = null;
   let editingLinkIndex = -1;
-  let dirty = false; // track unsaved changes
+  let dirty = false;
+
+  // Custom link modal state
+  let linkModalCallback = null;
+  let linkModalIcon = 'link';
+  let linkModalIsEmoji = false;
+
+  // Icon picker state
+  let iconPickerCallback = null;
+  let iconList = [];
 
   // ================================================================
   //  GET SESSION
@@ -556,6 +762,21 @@
   }
 
   // ================================================================
+  //  SAFE NAVIGATION
+  // ================================================================
+  function navigate(page) {
+    if (dirty) {
+      if (!confirm('You have unsaved changes. Are you sure you want to leave?')) return;
+      resetDirty();
+    }
+    if (typeof window.loadPage === 'function') {
+      window.loadPage(page);
+    } else {
+      window.location.href = '/' + page + '.html';
+    }
+  }
+
+  // ================================================================
   //  FETCH SHOP DATA
   // ================================================================
   async function fetchShopData(session) {
@@ -576,13 +797,12 @@
   }
 
   // ================================================================
-  //  SAVE SHOP (PUT /shop/edit/{slug})
+  //  SAVE SHOP
   // ================================================================
   async function saveShop(formData) {
     const session = getSession();
     if (!session) throw new Error('Not logged in');
 
-    // Build payload matching EditShopRequest
     const payload = {
       email: session.email,
       password: session.password,
@@ -657,7 +877,7 @@
   }
 
   // ================================================================
-  //  UNSAVED CHANGES TRACKING
+  //  UNSAVED CHANGES
   // ================================================================
   function setDirty() {
     if (!dirty) {
@@ -671,25 +891,6 @@
     document.getElementById('dirtyIndicator').classList.remove('show');
   }
 
-  function confirmLeave(message) {
-    if (dirty) {
-      return confirm(message || 'You have unsaved changes. Are you sure you want to leave?');
-    }
-    return true;
-  }
-
-  // Intercept navigation attempts
-  if (window.loadPage) {
-    const originalLoadPage = window.loadPage;
-    window.loadPage = function(page) {
-      if (confirmLeave()) {
-        resetDirty();
-        originalLoadPage(page);
-      }
-    };
-  }
-
-  // Before unload
   window.addEventListener('beforeunload', function(e) {
     if (dirty) {
       e.preventDefault();
@@ -717,7 +918,6 @@
   //  RENDER HELPERS
   // ================================================================
   function getCategoryOptions(selected) {
-    // If selected is not in the list, we'll treat it as "Other"
     const isCustom = selected && !CATEGORIES.includes(selected);
     const selectedCat = isCustom ? 'Other' : (selected || '');
     return CATEGORIES.map(c => `<option value="${c}" ${c === selectedCat ? 'selected' : ''}>${c}</option>`).join('');
@@ -735,6 +935,42 @@
     return `<i class="fa-solid fa-${escapeHtml(icon || 'link')}"></i>`;
   }
 
+  function getIconDisplay(icon, isEmoji) {
+    if (isEmoji) {
+      return `<span class="emoji-icon">${icon}</span>`;
+    }
+    return `<i class="fa-solid fa-${icon}"></i>`;
+  }
+
+  // ================================================================
+  //  RENDER CUSTOM LINKS (card-based)
+  // ================================================================
+  function renderCustomLinksCards() {
+    if (customLinks.length === 0) {
+      return '<div style="padding:12px 0;color:var(--text-tertiary);font-size:13px;text-align:center;">No custom links added yet. Add your first link below!</div>';
+    }
+    return customLinks.map((link, idx) => {
+      const isEmoji = link.isEmoji || false;
+      const iconContent = isEmoji ? `<span class="emoji-icon">${link.icon}</span>` : `<i class="fa-solid fa-${link.icon}"></i>`;
+      return `
+        <div class="custom-link-card">
+          <div class="link-icon">${iconContent}</div>
+          <div class="link-info">
+            <div class="link-title">${escapeHtml(link.title || link.label || 'Untitled')}</div>
+            <div class="link-url">${escapeHtml(link.url)}</div>
+          </div>
+          <div class="link-actions">
+            <button onclick="editCustomLink(${idx})" title="Edit"><i class="fa-regular fa-pen-to-square"></i></button>
+            <button class="danger" onclick="removeCustomLink(${idx})" title="Delete"><i class="fa-regular fa-trash-can"></i></button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ================================================================
+  //  SOCIALS
+  // ================================================================
   function renderSocialsList() {
     const entries = Object.entries(socials);
     if (entries.length === 0) {
@@ -754,41 +990,6 @@
             <button onclick="editSocial('${escapeHtml(platform)}')"><i class="fa-regular fa-pen-to-square"></i></button>
             <button class="danger" onclick="removeSocial('${escapeHtml(platform)}')"><i class="fa-regular fa-trash-can"></i></button>
           </div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  function renderCustomLinksList() {
-    if (customLinks.length === 0) {
-      return '<div style="padding:8px 0;color:var(--text-tertiary);font-size:13px;">No custom links added yet.</div>';
-    }
-    return customLinks.map((link, idx) => {
-      const isEditing = editingLinkIndex === idx;
-      return `
-        <div class="item-row ${isEditing ? 'editing' : ''}">
-          <div style="width:32px;text-align:center;flex-shrink:0;">${getIconHtml(link.icon)}</div>
-          <div class="item-info">
-            <div class="label">${escapeHtml(link.title || link.label || 'Untitled')}</div>
-            <div class="sub">${escapeHtml(link.url)}</div>
-          </div>
-          <div class="item-actions">
-            ${!isEditing ? `<button onclick="startEditCustomLink(${idx})"><i class="fa-regular fa-pen-to-square"></i></button>` : ''}
-            <button class="danger" onclick="removeCustomLink(${idx})"><i class="fa-regular fa-trash-can"></i></button>
-          </div>
-          ${isEditing ? `
-            <div class="edit-fields">
-              <div class="edit-field-row">
-                <input class="form-input" id="editLinkTitle${idx}" value="${escapeHtml(link.title || link.label || '')}" placeholder="Title" />
-                <input class="form-input" id="editLinkUrl${idx}" value="${escapeHtml(link.url)}" placeholder="URL" />
-                <button class="btn btn-ghost btn-sm" onclick="openIconPickerForLink(${idx})"><i class="fa-solid fa-${escapeHtml(link.icon || 'link')}"></i> Icon</button>
-              </div>
-              <div class="edit-actions">
-                <button class="btn btn-success btn-sm" onclick="saveCustomLink(${idx})"><i class="fa-solid fa-check"></i> Save</button>
-                <button class="btn btn-ghost btn-sm" onclick="cancelEditCustomLink(${idx})">Cancel</button>
-              </div>
-            </div>
-          ` : ''}
         </div>
       `;
     }).join('');
@@ -849,51 +1050,7 @@
   }
 
   // ================================================================
-  //  ICON PICKER MODAL (with locked icons)
-  // ================================================================
-  let iconCallback = null;
-  let iconList = [];
-
-  function openIconPicker(callback, plan) {
-    iconCallback = callback;
-    const allowed = plan === 'premium' ? PREMIUM_ICONS : plan === 'pro' ? PRO_ICONS : FREE_ICONS;
-    const allIcons = plan === 'premium' ? PREMIUM_ICONS : plan === 'pro' ? PRO_ICONS : FREE_ICONS;
-    // We'll show all icons, but mark locked ones
-    iconList = allIcons.map(ic => ({
-      name: ic,
-      icon: ic,
-      locked: !allowed.includes(ic)
-    }));
-    document.getElementById('iconSearch').value = '';
-    filterIcons();
-    document.getElementById('iconPickerModal').classList.add('on');
-  }
-
-  function closeIconPicker() {
-    document.getElementById('iconPickerModal').classList.remove('on');
-  }
-
-  function filterIcons() {
-    const q = document.getElementById('iconSearch').value.trim().toLowerCase();
-    let list = iconList;
-    if (q) list = list.filter(item => item.name.includes(q));
-    const grid = document.getElementById('iconGrid');
-    grid.innerHTML = list.map(item => `
-      <div class="grid-item ${item.locked ? 'locked' : ''}" onclick="${item.locked ? '' : `selectIcon('${item.name}')`}">
-        <i class="fa-solid fa-${item.icon}"></i>
-        <span>${item.icon}</span>
-        ${item.locked ? '<span class="lock-badge">🔒</span>' : ''}
-      </div>
-    `).join('');
-  }
-
-  function selectIcon(icon) {
-    if (iconCallback) iconCallback(icon);
-    closeIconPicker();
-  }
-
-  // ================================================================
-  //  SOCIALS ACTIONS (using modal)
+  //  SOCIALS ACTIONS
   // ================================================================
   function addSocial() {
     const limit = currentPlan === 'premium' ? 999 : (currentPlan === 'pro' ? 10 : 5);
@@ -910,10 +1067,7 @@
 
   function editSocial(platform) {
     setDirty();
-    // For simplicity, we just update the URL via modal (we keep same platform)
-    const currentUrl = socials[platform] || '';
     openPlatformModal((p, url) => {
-      // If user picked a different platform, we replace
       const newPlatform = p;
       if (newPlatform !== platform) {
         delete socials[platform];
@@ -931,79 +1085,176 @@
   }
 
   // ================================================================
-  //  CUSTOM LINKS ACTIONS (inline editing)
+  //  CUSTOM LINKS MODAL
   // ================================================================
-  function addCustomLink() {
-    const limit = currentPlan === 'premium' ? 999 : (currentPlan === 'pro' ? 5 : 2);
-    if (customLinks.length >= limit) {
-      toast(`Limit reached (${limit}). Upgrade to add more.`, 'warning');
+  let linkModalEditingIndex = -1;
+
+  function openCustomLinkModal(linkData, index) {
+    linkModalEditingIndex = index || -1;
+    const isEditing = index >= 0;
+    document.getElementById('customLinkModalTitle').textContent = isEditing ? 'Edit Custom Link' : 'Add Custom Link';
+    document.getElementById('linkModalTitle').value = linkData?.title || linkData?.label || '';
+    document.getElementById('linkModalUrl').value = linkData?.url || '';
+    linkModalIcon = linkData?.icon || 'link';
+    linkModalIsEmoji = linkData?.isEmoji || false;
+
+    // Update selected icon display
+    updateLinkPreview();
+
+    // Show/hide emoji picker for Premium
+    const emojiSection = document.getElementById('emojiPickerPremium');
+    if (currentPlan === 'premium') {
+      emojiSection.style.display = 'block';
+      renderEmojis();
+    } else {
+      emojiSection.style.display = 'none';
+    }
+
+    // Update button text
+    const btn = document.getElementById('saveLinkBtn');
+    btn.innerHTML = isEditing
+      ? '<span class="spinner"></span><span class="btn-text"><i class="fa-solid fa-check"></i> Update Link</span>'
+      : '<span class="spinner"></span><span class="btn-text"><i class="fa-solid fa-plus"></i> Add Link</span>';
+
+    document.getElementById('customLinkModal').classList.add('on');
+  }
+
+  function closeCustomLinkModal() {
+    document.getElementById('customLinkModal').classList.remove('on');
+    linkModalEditingIndex = -1;
+  }
+
+  function updateLinkPreview() {
+    const title = document.getElementById('linkModalTitle').value.trim() || 'Link Title';
+    const url = document.getElementById('linkModalUrl').value.trim() || 'https://example.com';
+
+    // Update icon display
+    const iconDisplay = document.getElementById('selectedIconDisplay');
+    if (linkModalIsEmoji) {
+      iconDisplay.innerHTML = `<span style="font-size:24px;">${linkModalIcon}</span>`;
+    } else {
+      iconDisplay.innerHTML = `<i class="fa-solid fa-${linkModalIcon}"></i>`;
+    }
+
+    // Update preview
+    const previewIcon = document.getElementById('linkPreviewIcon');
+    if (linkModalIsEmoji) {
+      previewIcon.innerHTML = `<span class="emoji-preview">${linkModalIcon}</span>`;
+    } else {
+      previewIcon.innerHTML = `<i class="fa-solid fa-${linkModalIcon}"></i>`;
+    }
+    document.getElementById('linkPreviewTitle').textContent = title;
+    document.getElementById('linkPreviewUrl').textContent = url;
+  }
+
+  function saveLinkFromModal() {
+    const title = document.getElementById('linkModalTitle').value.trim();
+    const url = document.getElementById('linkModalUrl').value.trim();
+
+    if (!title) {
+      toast('Please enter a title.', 'warning');
       return;
     }
-    setDirty();
-    const title = prompt('Enter link title:');
-    if (!title) return;
-    const url = prompt('Enter URL:');
-    if (!url) return;
-    // Default icon
-    customLinks.push({ title: title.trim(), url: url.trim(), icon: 'link' });
-    renderEdit();
-  }
-
-  function startEditCustomLink(idx) {
-    editingLinkIndex = idx;
-    renderEdit();
-    // Focus the title input
-    setTimeout(() => {
-      const inp = document.getElementById('editLinkTitle' + idx);
-      if (inp) inp.focus();
-    }, 100);
-  }
-
-  function cancelEditCustomLink(idx) {
-    if (editingLinkIndex === idx) {
-      editingLinkIndex = -1;
-      renderEdit();
-    }
-  }
-
-  function saveCustomLink(idx) {
-    const title = document.getElementById('editLinkTitle' + idx).value.trim();
-    const url = document.getElementById('editLinkUrl' + idx).value.trim();
-    if (!title || !url) {
-      toast('Title and URL are required.', 'warning');
+    if (!url) {
+      toast('Please enter a URL.', 'warning');
       return;
     }
-    // Update the link
-    if (customLinks[idx]) {
-      customLinks[idx].title = title;
-      customLinks[idx].url = url;
-      // icon already set from picker
+
+    const linkData = {
+      title: title,
+      url: url,
+      icon: linkModalIcon,
+      isEmoji: linkModalIsEmoji
+    };
+
+    if (linkModalEditingIndex >= 0) {
+      customLinks[linkModalEditingIndex] = linkData;
+    } else {
+      customLinks.push(linkData);
     }
+
     setDirty();
-    editingLinkIndex = -1;
+    closeCustomLinkModal();
     renderEdit();
   }
 
-  function openIconPickerForLink(idx) {
-    // Open icon picker and on selection, update the link's icon and re-render
-    openIconPicker((icon) => {
-      if (customLinks[idx]) {
-        customLinks[idx].icon = icon;
-        setDirty();
-        renderEdit();
-        // Re-enter edit mode for that link
-        editingLinkIndex = idx;
-        renderEdit();
-      }
-    }, currentPlan);
+  function editCustomLink(idx) {
+    const link = customLinks[idx];
+    if (!link) return;
+    openCustomLinkModal(link, idx);
   }
 
   function removeCustomLink(idx) {
     if (!confirm('Remove this custom link?')) return;
     setDirty();
     customLinks.splice(idx, 1);
-    if (editingLinkIndex === idx) editingLinkIndex = -1;
     renderEdit();
+  }
+
+  function addCustomLink() {
+    const limit = currentPlan === 'premium' ? 999 : (currentPlan === 'pro' ? 5 : 2);
+    if (customLinks.length >= limit) {
+      toast(`Limit reached (${limit}). Upgrade to add more.`, 'warning');
+      return;
+    }
+    openCustomLinkModal(null, -1);
+  }
+
+  function selectEmoji(emoji) {
+    linkModalIcon = emoji;
+    linkModalIsEmoji = true;
+    updateLinkPreview();
+  }
+
+  function renderEmojis() {
+    const grid = document.getElementById('emojiGrid');
+    grid.innerHTML = COMMON_EMOJIS.map(e =>
+      `<div class="emoji-item" onclick="selectEmoji('${e}')">${e}</div>`
+    ).join('');
+  }
+
+  // ================================================================
+  //  ICON PICKER (for custom link icon)
+  // ================================================================
+  function openIconPickerForModal() {
+    const plan = currentPlan || 'free';
+    const allowed = plan === 'premium' ? PREMIUM_ICONS : plan === 'pro' ? PRO_ICONS : FREE_ICONS;
+    const allIcons = plan === 'premium' ? PREMIUM_ICONS : plan === 'pro' ? PRO_ICONS : FREE_ICONS;
+
+    iconList = allIcons.map(ic => ({
+      name: ic,
+      icon: ic,
+      locked: !allowed.includes(ic)
+    }));
+
+    document.getElementById('iconSearch').value = '';
+    filterIcons();
+    document.getElementById('iconPickerModal').classList.add('on');
+  }
+
+  function closeIconPicker() {
+    document.getElementById('iconPickerModal').classList.remove('on');
+  }
+
+  function filterIcons() {
+    const q = document.getElementById('iconSearch').value.trim().toLowerCase();
+    let list = iconList;
+    if (q) list = list.filter(item => item.name.includes(q));
+    const grid = document.getElementById('iconGrid');
+    grid.innerHTML = list.map(item => `
+      <div class="grid-item ${item.locked ? 'locked' : ''}" onclick="${item.locked ? '' : `selectIconFromPicker('${item.name}')`}">
+        <i class="fa-solid fa-${item.icon}"></i>
+        <span>${item.icon}</span>
+        ${item.locked ? '<span class="lock-badge">🔒</span>' : ''}
+      </div>
+    `).join('');
+  }
+
+  function selectIconFromPicker(icon) {
+    linkModalIcon = icon;
+    linkModalIsEmoji = false;
+    closeIconPicker();
+    updateLinkPreview();
   }
 
   // ================================================================
@@ -1063,7 +1314,6 @@
     btn.classList.add('loading');
 
     try {
-      // Get category: if "Other" is selected, use the custom input value
       const catSelect = document.getElementById('editCategory');
       const catValue = catSelect.value;
       let category = catValue;
@@ -1102,7 +1352,7 @@
         body_font: document.getElementById('editBodyFont').value,
         latitude: parseFloat(document.getElementById('editLat').value) || undefined,
         longitude: parseFloat(document.getElementById('editLng').value) || undefined,
-        qr_code_url: null, // We don't let user edit QR URL manually; it's auto-generated
+        qr_code_url: null,
         logo_url: tempLogoUrl || null
       };
 
@@ -1112,7 +1362,6 @@
       if (window.S) window.S.plan = result.plan;
       if (window.updateDrawerInfo) window.updateDrawerInfo();
 
-      // Refresh data
       const session = getSession();
       if (session) {
         const data = await fetchShopData(session);
@@ -1200,7 +1449,7 @@
       </div>
     `;
 
-    // ---- Basic Info Card with "Other" category handling ----
+    // ---- Basic Info Card ----
     html += `
       <div class="card">
         <div class="card-title">Basic Information</div>
@@ -1294,17 +1543,17 @@
       </div>
     `;
 
-    // ---- Custom Links Card ----
+    // ---- Custom Links Card (REDESIGNED) ----
     html += `
       <div class="card">
         <div class="card-title">
           Custom Links
           <span class="badge">${linkCount} / ${linksLimit === 999 ? '∞' : linksLimit}</span>
         </div>
-        <div id="customLinksList" class="item-list">
-          ${renderCustomLinksList()}
+        <div id="customLinksList" class="custom-links-grid">
+          ${renderCustomLinksCards()}
         </div>
-        <button class="add-btn" onclick="addCustomLink()" ${linksExceeded ? 'disabled' : ''}>
+        <button class="add-link-btn" onclick="addCustomLink()" ${linksExceeded ? 'disabled' : ''}>
           <i class="fa-solid fa-plus"></i> Add Custom Link
         </button>
         ${linksExceeded && !isPremium ? `<div style="font-size:11px;color:var(--warning);margin-top:6px;">Upgrade to add more custom links.</div>` : ''}
@@ -1376,7 +1625,7 @@
       </div>
     `;
 
-    // ---- QR Code (Preview) Card ----
+    // ---- QR Code Card ----
     const qrUrl = sj.qr_code_url || '';
     html += `
       <div class="card">
@@ -1413,12 +1662,15 @@
       customLinks = sj.custom_links.map(l => ({ ...l }));
     }
 
-    // If dirty indicator was shown, re-apply
     if (dirty) {
       document.getElementById('dirtyIndicator').classList.add('show');
     } else {
       document.getElementById('dirtyIndicator').classList.remove('show');
     }
+
+    // Set up live preview listeners
+    document.getElementById('linkModalTitle')?.addEventListener('input', updateLinkPreview);
+    document.getElementById('linkModalUrl')?.addEventListener('input', updateLinkPreview);
   }
 
   // ================================================================
@@ -1466,9 +1718,7 @@
         }
       });
       if (dataUrl) {
-        // Update the shop_json with the new QR
         shopJson.qr_code_url = dataUrl;
-        // Save to backend
         const formData = {
           business_name: shopJson.business_name,
           tagline: shopJson.tagline,
@@ -1567,10 +1817,7 @@
   window.editSocial = editSocial;
   window.removeSocial = removeSocial;
   window.addCustomLink = addCustomLink;
-  window.startEditCustomLink = startEditCustomLink;
-  window.cancelEditCustomLink = cancelEditCustomLink;
-  window.saveCustomLink = saveCustomLink;
-  window.openIconPickerForLink = openIconPickerForLink;
+  window.editCustomLink = editCustomLink;
   window.removeCustomLink = removeCustomLink;
   window.handleLogoSelect = handleLogoSelect;
   window.useMyLocation = useMyLocation;
@@ -1580,17 +1827,22 @@
   window.toggleCategoryOther = toggleCategoryOther;
   window.setDirty = setDirty;
   window.resetDirty = resetDirty;
-  window.confirmLeave = confirmLeave;
   window.toast = toast;
+  window.navigate = navigate;
 
   // Modal functions
   window.closePlatformModal = closePlatformModal;
   window.filterPlatforms = filterPlatforms;
   window.selectPlatform = selectPlatform;
   window.confirmPlatform = confirmPlatform;
+  window.closeCustomLinkModal = closeCustomLinkModal;
+  window.saveLinkFromModal = saveLinkFromModal;
+  window.selectEmoji = selectEmoji;
   window.closeIconPicker = closeIconPicker;
   window.filterIcons = filterIcons;
-  window.selectIcon = selectIcon;
+  window.selectIconFromPicker = selectIconFromPicker;
+  window.openIconPickerForModal = openIconPickerForModal;
+  window.updateLinkPreview = updateLinkPreview;
 
   // Start
   init();

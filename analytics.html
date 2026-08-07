@@ -69,7 +69,7 @@
     }
     .chart-bar-wrap {
       flex: 1;
-      min-width: 32px;
+      min-width: 28px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -96,20 +96,21 @@
       min-height: 4px;
     }
     .chart-bar-label {
-      font-size: 10px;
+      font-size: 9px;
       color: var(--text-tertiary);
       text-align: center;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       width: 100%;
-      max-width: 60px;
+      max-width: 50px;
     }
     .chart-bar-value {
       font-size: 9px;
       font-weight: 600;
       color: var(--text-secondary);
     }
+
     .chart-container .chart-bar-wrap:first-child .chart-bar-label,
     .chart-container .chart-bar-wrap:last-child .chart-bar-label {
       max-width: none;
@@ -249,8 +250,8 @@
       .analytics-mini { grid-template-columns: 1fr 1fr; }
       .device-grid { grid-template-columns: 1fr; }
       .rank-item .rank-name { width: 70px; font-size: 12px; }
-      .chart-bar-wrap { min-width: 24px; }
-      .chart-bar-label { font-size: 8px; max-width: 40px; }
+      .chart-bar-wrap { min-width: 22px; }
+      .chart-bar-label { font-size: 8px; max-width: 36px; }
     }
   </style>
 </head>
@@ -261,10 +262,7 @@
 
 <script>
 // ================================================================
-//  ANALYTICS PAGE — FULLY FUNCTIONAL & BEAUTIFUL
-//  Based on actual backend structure from shop.py
-//  Tiered access: Free (basics), Pro (top 3), Premium (everything)
-//  Charts: 7-day shows weekdays, 30-day+ shows actual dates
+//  ANALYTICS PAGE — CORRECTED (no recursion)
 // ================================================================
 
 (function() {
@@ -279,8 +277,9 @@
   // ================================================================
   //  STATE
   // ================================================================
+  let shopData = null;
+  let shopJson = null;
   let analytics = {};
-  let shopJson = {};
   let isLoading = true;
   let loadError = null;
   let currentPlan = 'free';
@@ -331,7 +330,27 @@
       const data = await res.json();
       return data;
     } catch (e) {
+      console.warn('fetchShopData error:', e);
       return null;
+    }
+  }
+
+  // ================================================================
+  //  TOAST (fallback)
+  // ================================================================
+  function toast(msg, type) {
+    if (window.toast) { window.toast(msg, type); return; }
+    alert(msg);
+  }
+
+  // ================================================================
+  //  SAFE NAVIGATION (no recursion)
+  // ================================================================
+  function navigate(page) {
+    if (typeof window.loadPage === 'function') {
+      window.loadPage(page);
+    } else {
+      alert('Navigate to: ' + page);
     }
   }
 
@@ -350,16 +369,6 @@
     return String(n);
   }
 
-  function toast(msg, type) {
-    if (window.toast) { window.toast(msg, type); return; }
-    alert(msg);
-  }
-
-  function loadPage(page) {
-    if (window.loadPage) { window.loadPage(page); return; }
-    alert('Navigate to: ' + page);
-  }
-
   // ================================================================
   //  BUILD DAILY VISITS WITH ZERO FILL FOR MISSING DAYS
   // ================================================================
@@ -376,7 +385,7 @@
   }
 
   // ================================================================
-  //  RENDER CHARTS — with date labels for 30+ days
+  //  RENDER CHARTS
   // ================================================================
   function renderChart(container, rawData, days, label) {
     if (!container) return;
@@ -389,8 +398,8 @@
       return;
     }
 
-    // Determine label format based on days
-    const useFullDate = days >= 14; // 14+ days -> show dates, otherwise weekdays
+    // Show dates for 14+ days, weekdays for less
+    const useFullDate = days >= 14;
     let html = `<div class="chart-container">`;
     entries.forEach(([date, count]) => {
       const height = Math.max((count / maxVal) * 100, 4);
@@ -416,7 +425,7 @@
   }
 
   // ================================================================
-  //  RENDER YEARLY CHART
+  //  RENDER YEARLY CHART (grouped by month)
   // ================================================================
   function renderYearlyChart(container, rawData) {
     if (!container) return;
@@ -460,7 +469,7 @@
   }
 
   // ================================================================
-  //  RENDER RANKINGS (Countries, Socials, Referrers)
+  //  RENDER RANKINGS
   // ================================================================
   function renderRankings(container, data, limit, label, showPercentage = true) {
     if (!container) return;
@@ -596,8 +605,8 @@
     const a = analytics;
     let csv = 'Metric,Value\n';
     csv += `Total Visits,${a.visit_count || 0}\n`;
-    const today = Object.keys(a.daily_visits || {}).slice(-1)[0];
-    csv += `Today,${today ? a.daily_visits[today] : 0}\n`;
+    const todayKey = new Date().toISOString().split('T')[0];
+    csv += `Today,${a.daily_visits?.[todayKey] || 0}\n`;
     csv += 'Top Countries,';
     if (a.countries) {
       const entries = Object.entries(a.countries).sort((x, y) => y[1] - x[1]);
@@ -678,7 +687,11 @@
     const devices = analytics.devices || {};
     const clicks = analytics.clicks || {};
     const totalVisits = analytics.visit_count || 0;
-    const todayVisits = Object.values(dailyVisits).slice(-1)[0] || 0;
+
+    // Today's visits: check today's date key, default to 0
+    const todayKey = new Date().toISOString().split('T')[0];
+    const todayVisits = dailyVisits[todayKey] || 0;
+
     const weekKeys = Object.keys(dailyVisits).sort().slice(-7);
     const weekTotal = weekKeys.reduce((sum, k) => sum + dailyVisits[k], 0);
     const monthKeys = Object.keys(dailyVisits).sort().slice(-30);
@@ -707,10 +720,10 @@
       </div>
     `;
 
-    // ---- 7-Day Chart (weekday labels) ----
+    // ---- 7-Day Chart ----
     html += `<div class="card"><div class="card-title">Last 7 days</div><div id="chart7d"></div></div>`;
 
-    // ---- 30-Day Chart (date labels) ----
+    // ---- 30-Day Chart ----
     html += `<div class="card"><div class="card-title">Last 30 days</div><div id="chart30d"></div></div>`;
 
     // ---- Yearly Chart (Premium) ----
@@ -724,7 +737,7 @@
           <div class="locked-overlay">
             <i class="fa-solid fa-lock"></i>
             <span>Upgrade to Premium for yearly insights</span>
-            <button class="btn-upgrade" onclick="loadPage('upgrade')">Upgrade</button>
+            <button class="btn-upgrade" onclick="navigate('upgrade')">Upgrade</button>
           </div>
         </div>
       `;
@@ -745,7 +758,7 @@
           <div class="locked-overlay">
             <i class="fa-solid fa-lock"></i>
             <span>Upgrade to Pro for social insights</span>
-            <button class="btn-upgrade" onclick="loadPage('upgrade')">Upgrade</button>
+            <button class="btn-upgrade" onclick="navigate('upgrade')">Upgrade</button>
           </div>
         </div>
       `;
@@ -762,7 +775,7 @@
           <div class="locked-overlay">
             <i class="fa-solid fa-lock"></i>
             <span>Upgrade to Pro for referrer insights</span>
-            <button class="btn-upgrade" onclick="loadPage('upgrade')">Upgrade</button>
+            <button class="btn-upgrade" onclick="navigate('upgrade')">Upgrade</button>
           </div>
         </div>
       `;
@@ -779,7 +792,7 @@
           <div class="locked-overlay">
             <i class="fa-solid fa-lock"></i>
             <span>Upgrade to Pro to see catalog clicks</span>
-            <button class="btn-upgrade" onclick="loadPage('upgrade')">Upgrade</button>
+            <button class="btn-upgrade" onclick="navigate('upgrade')">Upgrade</button>
           </div>
         </div>
       `;
@@ -796,7 +809,7 @@
           <div class="locked-overlay">
             <i class="fa-solid fa-lock"></i>
             <span>Upgrade to Premium for custom link insights</span>
-            <button class="btn-upgrade" onclick="loadPage('upgrade')">Upgrade</button>
+            <button class="btn-upgrade" onclick="navigate('upgrade')">Upgrade</button>
           </div>
         </div>
       `;
@@ -813,7 +826,7 @@
           <div class="locked-overlay">
             <i class="fa-solid fa-lock"></i>
             <span>Upgrade to Premium for device insights</span>
-            <button class="btn-upgrade" onclick="loadPage('upgrade')">Upgrade</button>
+            <button class="btn-upgrade" onclick="navigate('upgrade')">Upgrade</button>
           </div>
         </div>
       `;
@@ -869,6 +882,7 @@
         return;
       }
 
+      // Update S if needed
       if (!window.S) window.S = {};
       window.S.email = session.email;
       window.S.password = session.password;
@@ -877,6 +891,7 @@
 
       const data = await fetchShopData(session);
       if (data) {
+        shopData = data;
         shopJson = data.shop_json || {};
         analytics = shopJson.analytics || {};
         currentPlan = data.plan || session.plan || 'free';
@@ -884,6 +899,7 @@
         window.S.shopJson = shopJson;
         window.S.shopData = data;
       } else {
+        // If failed, still show the page with empty state
         analytics = {};
         shopJson = {};
         currentPlan = session.plan || 'free';
@@ -899,9 +915,9 @@
     }
   }
 
-  // Expose functions globally
+  // Expose functions globally (do NOT override window.loadPage)
   window.exportCSV = exportCSV;
-  window.loadPage = loadPage;
+  window.navigate = navigate;  // safe navigation
   window.toast = toast;
 
   // Start

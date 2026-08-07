@@ -1,1232 +1,1287 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#1e40af">
-    <title>Discover — MyShub</title>
-    <link rel="manifest" href="/manifest-discover.json">
-    <link rel="icon" type="image/svg+xml" href="/icon.svg">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --text: #0f172a;
-            --text2: #475569;
-            --text3: #94a3b8;
-            --border: #e2e8f0;
-            --brand: #1e40af;
-            --brand-light: #3b82f6;
-            --brand-dark: #1e3a8a;
-            --brand-rgb: 30, 64, 175;
-            --radius: 16px;
-            --radius-sm: 10px;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
-            --shadow-md: 0 4px 20px rgba(0,0,0,0.06);
-            --shadow-lg: 0 12px 40px rgba(0,0,0,0.1);
-            --transition: 0.3s cubic-bezier(0.4,0,0.2,1);
-        }
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg: #0f172a;
-                --card: #1e293b;
-                --text: #f1f5f9;
-                --text2: #94a3b8;
-                --text3: #64748b;
-                --border: #334155;
-            }
-        }
-        html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; overflow: hidden; }
-        #app { display: flex; flex-direction: column; height: 100vh; max-height: 100vh; overflow: hidden; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#2563eb" />
+  <title>Discover – MyShub</title>
+  <meta name="description" content="Discover businesses on MyShub – Nigeria's business network. Find local shops, services, and stores near you." />
+  <meta name="keywords" content="business discovery, local businesses, find shops, Nigeria business network, MyShub" />
+  <meta name="author" content="EML Tech Studio" />
 
-        .app-header {
-            background: var(--card); border-bottom: 1px solid var(--border); padding: 12px 16px;
-            display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; z-index: 10;
-        }
-        .app-header .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1rem; color: var(--brand); text-decoration: none; }
-        .app-header .brand img { width: 28px; height: 28px; border-radius: 8px; }
-        .app-header .actions { display: flex; align-items: center; gap: 10px; }
-        .app-header .actions button { background: none; border: none; font-size: 1.1rem; color: var(--text2); cursor: pointer; padding: 6px; border-radius: 10px; transition: background var(--transition); position: relative; }
-        .app-header .actions button:hover { background: var(--border); }
-        .app-header .actions .notif-badge { position: absolute; top: 0; right: 0; background: #ef4444; color: white; font-size: 0.55rem; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transform: translate(4px, -4px); }
-        .app-header .actions .notif-badge.hidden { display: none; }
-        .app-header .actions .login-link { font-size: 0.85rem; font-weight: 600; color: var(--brand); text-decoration: none; padding: 6px 14px; border-radius: 30px; border: 1.5px solid var(--brand); transition: all var(--transition); }
-        .app-header .actions .login-link:hover { background: var(--brand); color: white; }
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://myshub.site/discover.html" />
+  <meta property="og:title" content="Discover – MyShub" />
+  <meta property="og:description" content="Discover businesses on MyShub – Nigeria's business network." />
+  <meta property="og:image" content="https://myshub.site/apple-touch-icon.png" />
+  <meta property="og:image:width" content="180" />
+  <meta property="og:image:height" content="180" />
+  <meta property="og:site_name" content="MyShub" />
 
-        /* ─── Search ─── */
-        .search-section {
-            padding: 12px 16px;
-            background: var(--card);
-            border-bottom: 1px solid var(--border);
-            flex-shrink: 0;
-        }
-        .search-row {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .search-bar {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: var(--bg);
-            border-radius: var(--radius);
-            padding: 8px 14px;
-            border: 1.5px solid var(--border);
-            transition: border-color var(--transition);
-            min-width: 180px;
-        }
-        .search-bar:focus-within { border-color: var(--brand-light); }
-        .search-bar i { color: var(--text3); font-size: 1rem; }
-        .search-bar input {
-            flex: 1; border: none; background: transparent; padding: 8px 0; font-size: 0.95rem;
-            color: var(--text); font-family: inherit; outline: none;
-        }
-        .search-bar input::placeholder { color: var(--text3); }
-        .search-bar .clear-btn { background: none; border: none; color: var(--text3); cursor: pointer; padding: 4px; display: none; }
-        .search-bar .clear-btn.show { display: block; }
-        .search-bar .search-btn {
-            background: var(--brand); color: white; border: none; border-radius: 30px; padding: 6px 16px;
-            font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: background var(--transition);
-            font-family: inherit; white-space: nowrap;
-        }
-        .search-bar .search-btn:hover { background: var(--brand-dark); }
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Discover – MyShub" />
+  <meta name="twitter:description" content="Discover businesses on MyShub – Nigeria's business network." />
+  <meta name="twitter:image" content="https://myshub.site/apple-touch-icon.png" />
 
-        .search-filters {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            align-items: center;
-            margin-top: 8px;
-        }
-        .search-filters select {
-            padding: 8px 12px;
-            border-radius: var(--radius);
-            border: 1.5px solid var(--border);
-            background: var(--bg);
-            color: var(--text);
-            font-family: inherit;
-            font-size: 0.85rem;
-            cursor: pointer;
-            outline: none;
-            transition: border-color var(--transition);
-            min-width: 140px;
-        }
-        .search-filters select:focus { border-color: var(--brand-light); }
+  <!-- Icons -->
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/manifest.json" />
 
-        /* ─── Location Context Bar ─── */
-        .location-context {
-            padding: 8px 16px;
-            background: var(--bg);
-            border-bottom: 1px solid var(--border);
-            font-size: 0.8rem;
-            color: var(--text2);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-shrink: 0;
-            flex-wrap: wrap;
-        }
-        .location-context .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-        .location-context .dot.active { background: #22c55e; }
-        .location-context .dot.inactive { background: #ef4444; }
-        .location-context .change-link { color: var(--brand); cursor: pointer; font-weight: 600; text-decoration: none; }
-        .location-context .change-link:hover { text-decoration: underline; }
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Variables ── */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --brand: #2563eb; --brand-dark: #1d4ed8; --brand-soft: #eff6ff;
+      --bg: #f8fafc; --surface: #ffffff; --surface-hover: #f1f5f9;
+      --text: #0f172a; --text-secondary: #475569; --text-tertiary: #94a3b8;
+      --border: #e2e8f0; --border-light: #f1f5f9;
+      --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
+      --purple: #8b5cf6; --purple-soft: #ede9fe;
+      --radius: 20px; --radius-sm: 12px; --shadow: 0 4px 20px rgba(0,0,0,0.06);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.10);
+      --transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+    }
+    [data-theme="dark"] {
+      --bg: #0f172a; --surface: #1e293b; --surface-hover: #334155;
+      --text: #f8fafc; --text-secondary: #94a3b8; --text-tertiary: #64748b;
+      --border: #334155; --border-light: #1e293b;
+    }
+    html, body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+    a { text-decoration: none; color: inherit; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-        /* ─── Results ─── */
-        .results-section {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-        }
-        .results-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .results-header .count { font-size: 0.85rem; color: var(--text2); }
-        .results-header .view-toggle { display: flex; gap: 4px; }
-        .results-header .view-toggle button {
-            background: none; border: 1px solid var(--border); border-radius: 8px; padding: 4px 8px;
-            font-size: 0.85rem; color: var(--text3); cursor: pointer; transition: all var(--transition);
-        }
-        .results-header .view-toggle button.active { background: var(--brand); color: white; border-color: var(--brand); }
-        .results-header .view-toggle button:hover:not(.active) { background: var(--bg); }
+    /* ── Header ── */
+    .discover-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 0;
+      backdrop-filter: blur(12px);
+      background: rgba(255,255,255,0.92);
+    }
+    [data-theme="dark"] .discover-header { background: rgba(15,23,42,0.92); }
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: var(--brand);
+    }
+    .header-brand img { width: 28px; height: 28px; border-radius: 8px; }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-actions a {
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 6px 14px;
+      border-radius: 30px;
+      transition: var(--transition);
+    }
+    .header-actions a:hover { background: var(--surface-hover); color: var(--text); }
+    .header-actions .btn-primary {
+      background: var(--brand);
+      color: #fff !important;
+      padding: 6px 18px;
+    }
+    .header-actions .btn-primary:hover { background: var(--brand-dark); }
 
-        /* ─── Shop Cards ─── */
-        .shops-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 16px;
-        }
-        .shops-grid.list-view { grid-template-columns: 1fr; }
-        .shop-card {
-            background: var(--card);
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            overflow: hidden;
-            transition: all var(--transition);
-            cursor: pointer;
-            text-decoration: none;
-            color: var(--text);
-            display: block;
-        }
-        .shop-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--brand-light); }
-        .shop-card .card-header { padding: 16px 16px 12px; display: flex; align-items: center; gap: 12px; }
-        .shop-card .card-header .logo {
-            width: 56px; height: 56px; border-radius: 14px; object-fit: cover;
-            background: var(--bg); border: 1px solid var(--border); flex-shrink: 0;
-        }
-        .shop-card .card-header .info { flex: 1; min-width: 0; }
-        .shop-card .card-header .info .name {
-            font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-        }
-        .shop-card .card-header .info .name .badge {
-            font-size: 0.6rem; font-weight: 700; padding: 2px 10px; border-radius: 30px; text-transform: uppercase; letter-spacing: 0.05em;
-        }
-        .shop-card .card-header .info .name .badge.pro { background: #0084ff; color: white; }
-        .shop-card .card-header .info .name .badge.premium { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: white; }
-        .shop-card .card-header .info .tagline { font-size: 0.85rem; color: var(--text2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .shop-card .card-body { padding: 0 16px 12px; font-size: 0.85rem; color: var(--text2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .shop-card .card-footer {
-            padding: 10px 16px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.75rem;
-            color: var(--text3);
-            flex-wrap: wrap;
-            gap: 4px;
-        }
-        .shop-card .card-footer .location { display: flex; align-items: center; gap: 4px; }
-        .shop-card .card-footer .stats { display: flex; align-items: center; gap: 12px; }
-        .shop-card .card-footer .stats span { display: flex; align-items: center; gap: 4px; }
-        .shop-card .card-footer .category-tag { background: var(--bg); padding: 2px 12px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; color: var(--text2); }
-        .shop-card .card-footer .distance { color: var(--brand); font-weight: 600; }
+    /* ── Search Bar ── */
+    .search-section {
+      padding: 20px 0 12px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .search-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .search-bar {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 50px;
+      padding: 8px 18px;
+      transition: var(--transition);
+      min-width: 200px;
+    }
+    .search-bar:focus-within { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+    .search-bar i { color: var(--text-tertiary); font-size: 0.9rem; }
+    .search-bar input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 8px 0;
+      font-size: 0.95rem;
+      color: var(--text);
+      font-family: inherit;
+      outline: none;
+    }
+    .search-bar input::placeholder { color: var(--text-tertiary); }
+    .search-bar .clear-btn {
+      background: none;
+      border: none;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      padding: 4px;
+      display: none;
+    }
+    .search-bar .clear-btn.show { display: block; }
+    .search-bar .search-btn {
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      padding: 6px 18px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .search-bar .search-btn:hover { background: var(--brand-dark); }
 
-        /* ─── Featured ─── */
-        .featured-section { padding: 0 0 16px; }
-        .featured-section .section-title {
-            font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
-            color: var(--text3); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
-        }
-        .featured-section .section-title i { color: #f59e0b; }
-        .featured-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
-        .featured-card {
-            background: linear-gradient(135deg, var(--brand-dark), var(--brand));
-            color: white; border-radius: var(--radius); padding: 16px 20px;
-            text-decoration: none; display: flex; align-items: center; gap: 16px;
-            transition: all var(--transition); cursor: pointer;
-        }
-        .featured-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
-        .featured-card .logo {
-            width: 48px; height: 48px; border-radius: 12px; object-fit: cover;
-            border: 2px solid rgba(255,255,255,0.2); flex-shrink: 0;
-            background: rgba(255,255,255,0.1);
-        }
-        .featured-card .info { flex: 1; min-width: 0; }
-        .featured-card .info .name { font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 6px; }
-        .featured-card .info .name .badge { font-size: 0.55rem; font-weight: 700; padding: 2px 10px; border-radius: 30px; background: rgba(255,255,255,0.2); text-transform: uppercase; letter-spacing: 0.05em; }
-        .featured-card .info .tagline { font-size: 0.8rem; opacity: 0.8; }
-        .featured-card .arrow { color: rgba(255,255,255,0.5); font-size: 1.2rem; flex-shrink: 0; }
-        .featured-card .distance { font-size: 0.7rem; opacity: 0.7; margin-top: 2px; }
+    .search-filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .search-filters select {
+      padding: 8px 14px;
+      border-radius: 30px;
+      border: 1.5px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.85rem;
+      cursor: pointer;
+      outline: none;
+      transition: var(--transition);
+    }
+    .search-filters select:focus { border-color: var(--brand); }
 
-        /* ─── Ads ─── */
-        .ads-section { padding: 12px 0 0; }
-        .ads-section .section-title {
-            font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
-            color: var(--text3); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
-        }
-        .ads-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
-        .ad-card {
-            background: var(--card); border-radius: var(--radius-sm); padding: 12px 14px;
-            border: 1px solid var(--border); text-decoration: none; color: var(--text);
-            display: flex; align-items: center; gap: 12px; transition: all var(--transition);
-        }
-        .ad-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--brand-light); }
-        .ad-card .icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
-        .ad-card .info .title { font-weight: 700; font-size: 0.85rem; }
-        .ad-card .info .desc { font-size: 0.75rem; color: var(--text2); }
-        .ad-card .sponsored { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text3); font-weight: 700; }
+    /* ── Location Context Bar ── */
+    .location-context {
+      padding: 10px 0;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .location-context .dot {
+      width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+    }
+    .location-context .dot.active { background: var(--success); }
+    .location-context .dot.inactive { background: var(--danger); }
+    .location-context .change-link {
+      color: var(--brand);
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .location-context .change-link:hover { text-decoration: underline; }
 
-        /* ─── Empty / Loading ─── */
-        .empty-state { text-align: center; padding: 60px 20px; }
-        .empty-state .icon { font-size: 3.5rem; color: var(--text3); margin-bottom: 16px; }
-        .empty-state h3 { font-weight: 700; font-size: 1.2rem; margin-bottom: 8px; }
-        .empty-state p { color: var(--text2); max-width: 400px; margin: 0 auto 16px; }
-        .empty-state .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 28px; border-radius: 40px; font-weight: 700; background: var(--brand); color: white; border: none; cursor: pointer; font-family: inherit; transition: all var(--transition); }
-        .empty-state .btn:hover { background: var(--brand-dark); transform: translateY(-2px); }
+    /* ── Results ── */
+    .results-section {
+      padding: 20px 0 40px;
+    }
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .results-header .count {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    .results-header .view-toggle {
+      display: flex;
+      gap: 4px;
+    }
+    .results-header .view-toggle button {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 0.85rem;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .results-header .view-toggle button.active {
+      background: var(--brand);
+      color: #fff;
+      border-color: var(--brand);
+    }
 
-        .loading-state { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; padding: 60px 20px; }
-        .loading-state .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--brand); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-state p { color: var(--text2); }
+    /* ── Shop Grid ── */
+    .shops-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .shop-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      transition: var(--transition);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .shop-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--brand-light);
+    }
+    .shop-card .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .shop-card .card-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      object-fit: cover;
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--brand);
+    }
+    .shop-card .card-name {
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .shop-card .card-name .badge {
+      font-size: 0.55rem;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 30px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .shop-card .card-name .badge.pro { background: var(--brand); color: #fff; }
+    .shop-card .card-name .badge.premium { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #fff; }
+    .shop-card .card-tagline {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .shop-card .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      border-top: 1px solid var(--border-light);
+      padding-top: 10px;
+      margin-top: 4px;
+    }
+    .shop-card .card-meta .category {
+      background: var(--surface-hover);
+      padding: 2px 12px;
+      border-radius: 30px;
+    }
+    .shop-card .card-meta .visits i { margin-right: 4px; }
+    .shop-card .card-meta .distance {
+      color: var(--brand);
+      font-weight: 600;
+    }
 
-        .load-more { text-align: center; padding: 20px 0; }
-        .load-more .btn {
-            display: inline-flex; align-items: center; gap: 8px; padding: 10px 28px; border-radius: 40px;
-            font-weight: 700; background: var(--bg); color: var(--text2); border: 1.5px solid var(--border);
-            cursor: pointer; font-family: inherit; transition: all var(--transition);
-        }
-        .load-more .btn:hover { border-color: var(--brand-light); color: var(--brand); background: var(--card); }
+    /* ── Ads ── */
+    .ads-section {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+    .ads-section .section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-tertiary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ads-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .ad-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+    .ad-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+      border-color: var(--brand-light);
+    }
+    .ad-card .ad-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .ad-card .ad-info .ad-title {
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+    .ad-card .ad-info .ad-desc {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .ad-card .ad-sponsor {
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-tertiary);
+      font-weight: 700;
+      margin-left: auto;
+    }
+    .ad-card.advertise-here {
+      border-style: dashed;
+      border-color: var(--brand);
+      background: var(--brand-soft);
+    }
+    .ad-card.advertise-here:hover { border-color: var(--brand-dark); }
 
-        /* ─── Bottom Nav ─── */
-        .bottom-nav {
-            display: flex;
-            background: var(--card);
-            border-top: 1px solid var(--border);
-            padding: 6px 0 env(safe-area-inset-bottom, 8px);
-            flex-shrink: 0;
-            backdrop-filter: blur(12px);
-            background: rgba(255,255,255,0.92);
-        }
-        @media (prefers-color-scheme: dark) {
-            .bottom-nav { background: rgba(15,23,42,0.92); }
-        }
-        .nav-item {
-            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
-            background: none; border: none; color: var(--text3); font-size: 0.6rem; font-weight: 500;
-            padding: 6px 0; cursor: pointer; transition: color var(--transition);
-            text-decoration: none; font-family: inherit;
-        }
-        .nav-item i { font-size: 1.2rem; transition: transform var(--transition); }
-        .nav-item.active { color: var(--brand); }
-        .nav-item.active i { transform: scale(1.05); }
-        .nav-item:hover:not(.active) { color: var(--text2); }
+    /* ── Load More ── */
+    .load-more {
+      text-align: center;
+      padding: 16px 0;
+    }
+    .load-more button {
+      padding: 10px 28px;
+      border-radius: 40px;
+      font-weight: 700;
+      background: var(--surface);
+      color: var(--text-secondary);
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      font-family: inherit;
+      transition: var(--transition);
+    }
+    .load-more button:hover {
+      border-color: var(--brand);
+      color: var(--brand);
+    }
 
-        /* ─── Toast ─── */
-        .toast-container {
-            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 2000;
-            max-width: 90%; pointer-events: none; display: flex; flex-direction: column; gap: 8px; align-items: center;
-        }
-        .toast {
-            background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 20px;
-            box-shadow: var(--shadow-lg); pointer-events: auto; opacity: 0; transform: translateY(-10px);
-            transition: all 0.3s ease; display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 500;
-            max-width: 420px; width: 100%;
-        }
-        .toast.show { opacity: 1; transform: translateY(0); }
-        .toast.success { border-left: 4px solid #22c55e; }
-        .toast.error { border-left: 4px solid #ef4444; }
-        .toast.info { border-left: 4px solid var(--brand); }
-        .toast .toast-close { margin-left: auto; background: none; border: none; color: var(--text3); cursor: pointer; font-size: 1rem; padding: 0 4px; }
+    /* ── Empty / Loading ── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .empty-state .icon { font-size: 3rem; color: var(--text-tertiary); margin-bottom: 16px; }
+    .empty-state h3 { font-weight: 700; font-size: 1.2rem; margin-bottom: 8px; }
+    .empty-state p { color: var(--text-secondary); max-width: 400px; margin: 0 auto 16px; }
+    .empty-state .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 28px;
+      border-radius: 40px;
+      font-weight: 700;
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: var(--transition);
+    }
+    .empty-state .btn:hover { background: var(--brand-dark); transform: translateY(-2px); }
 
-        /* ─── Consent Modal ─── */
-        .consent-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
-            z-index: 3000; display: none; align-items: center; justify-content: center; padding: 20px;
-        }
-        .consent-overlay.active { display: flex; }
-        .consent-card {
-            background: var(--card); border-radius: var(--radius); padding: 32px 28px;
-            max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto;
-            animation: slideUp 0.3s ease;
-        }
-        @keyframes slideUp {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .consent-card .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.2rem; color: var(--brand); margin-bottom: 16px; }
-        .consent-card .brand img { width: 32px; height: 32px; border-radius: 8px; }
-        .consent-card h2 { font-weight: 800; font-size: 1.3rem; margin-bottom: 4px; }
-        .consent-card p { color: var(--text2); font-size: 0.9rem; line-height: 1.6; margin-bottom: 12px; }
-        .consent-card .terms-summary {
-            background: var(--bg); border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 16px;
-            font-size: 0.85rem; color: var(--text2); max-height: 150px; overflow-y: auto;
-            border: 1px solid var(--border);
-        }
-        .consent-card .terms-summary strong { color: var(--text); }
-        .consent-card .checkbox-row {
-            display: flex; align-items: flex-start; gap: 10px; margin: 16px 0;
-        }
-        .consent-card .checkbox-row input[type="checkbox"] {
-            width: 20px; height: 20px; margin-top: 2px; accent-color: var(--brand); cursor: pointer;
-            flex-shrink: 0;
-        }
-        .consent-card .checkbox-row label {
-            font-size: 0.9rem; color: var(--text2); cursor: pointer; line-height: 1.5;
-        }
-        .consent-card .checkbox-row label a { color: var(--brand); text-decoration: none; font-weight: 600; }
-        .consent-card .checkbox-row label a:hover { text-decoration: underline; }
-        .consent-card .btn-primary {
-            width: 100%; padding: 14px; border-radius: 40px; font-weight: 700; font-size: 1rem;
-            border: none; cursor: pointer; background: var(--brand); color: white;
-            transition: all var(--transition); font-family: inherit;
-        }
-        .consent-card .btn-primary:hover { background: var(--brand-dark); transform: translateY(-2px); }
-        .consent-card .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .loading-state {
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .loading-state .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid var(--border);
+      border-top-color: var(--brand);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ─── Responsive ─── */
-        @media (max-width: 480px) {
-            .shops-grid { grid-template-columns: 1fr; }
-            .featured-grid { grid-template-columns: 1fr; }
-            .ads-grid { grid-template-columns: 1fr; }
-            .results-section { padding: 12px; }
-            .consent-card { padding: 24px 20px; }
-            .search-filters select { min-width: 0; flex: 1; }
-        }
-    </style>
+    /* ── Consent Modal ── */
+    .consent-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(6px);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .consent-overlay.active { display: flex; }
+    .consent-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      max-width: 480px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease;
+      box-shadow: var(--shadow-lg);
+    }
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .consent-card .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: var(--brand);
+      margin-bottom: 16px;
+    }
+    .consent-card .brand img { width: 32px; height: 32px; border-radius: 8px; }
+    .consent-card h2 { font-weight: 800; font-size: 1.3rem; margin-bottom: 4px; }
+    .consent-card p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; margin-bottom: 12px; }
+    .consent-card .terms-summary {
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      max-height: 150px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+    }
+    .consent-card .terms-summary strong { color: var(--text); }
+    .consent-card .checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 16px 0;
+    }
+    .consent-card .checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: var(--brand);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .consent-card .checkbox-row label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      line-height: 1.5;
+    }
+    .consent-card .checkbox-row label a {
+      color: var(--brand);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .consent-card .checkbox-row label a:hover { text-decoration: underline; }
+    .consent-card .btn-primary {
+      width: 100%;
+      padding: 14px;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      background: var(--brand);
+      color: #fff;
+      transition: var(--transition);
+      font-family: inherit;
+    }
+    .consent-card .btn-primary:hover { background: var(--brand-dark); transform: translateY(-2px); }
+    .consent-card .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* ── Toast ── */
+    .toast-container {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2000;
+      max-width: 90%;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+    }
+    .toast {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 20px;
+      box-shadow: var(--shadow-lg);
+      pointer-events: auto;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      max-width: 420px;
+      width: 100%;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.success { border-left: 4px solid var(--success); }
+    .toast.error { border-left: 4px solid var(--danger); }
+    .toast.info { border-left: 4px solid var(--brand); }
+    .toast .toast-close {
+      margin-left: auto;
+      background: none;
+      border: none;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0 4px;
+    }
+
+    /* ── Responsive ── */
+    @media(max-width: 640px) {
+      .shops-grid { grid-template-columns: 1fr; }
+      .ads-grid { grid-template-columns: 1fr; }
+      .search-bar { flex-wrap: wrap; border-radius: 12px; }
+      .search-bar .search-btn { width: 100%; justify-content: center; }
+      .header-inner { flex-direction: column; align-items: stretch; text-align: center; }
+      .header-actions { justify-content: center; flex-wrap: wrap; }
+      .consent-card { padding: 24px 20px; }
+    }
+  </style>
 </head>
 <body>
-    <div id="app">
-        <!-- ─── HEADER ─── -->
-        <header class="app-header">
-            <a href="/" class="brand">
-                <img src="icon.svg" alt="MyShub">
-                <span>MyShub</span>
-            </a>
-            <div class="actions">
-                <button id="notifBell" title="Notifications">
-                    <i class="fa-regular fa-bell"></i>
-                    <span class="notif-badge hidden" id="notifBadge">0</span>
-                </button>
-                <a href="/app.html" class="login-link" id="loginBtn">Sign In</a>
-            </div>
-        </header>
+  <!-- ===== CONSENT MODAL ===== -->
+  <div class="consent-overlay" id="consentOverlay">
+    <div class="consent-card">
+      <div class="brand"><img src="/icon.svg" alt="MyShub"> MyShub</div>
+      <h2>Welcome to Discover</h2>
+      <p>Before you start exploring businesses, please review our terms.</p>
+      <div class="terms-summary">
+        <p><strong>📋 Terms of Service</strong><br>
+        By using MyShub Discover, you agree to our <a href="/terms.html" target="_blank">Terms of Service</a> and <a href="/privacy.html" target="_blank">Privacy Policy</a>. You agree not to misuse the platform and to respect other users.</p>
+        <p style="margin-top:8px;"><strong>📍 Location & Privacy</strong><br>
+        To show you businesses near you, we may use your device's location and IP address. We do not store or share your precise location. <a href="/privacy.html" target="_blank">Learn more</a></p>
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="consentCheckbox">
+        <label for="consentCheckbox">
+          I have read and agree to the <a href="/terms.html" target="_blank">Terms of Service</a> and <a href="/privacy.html" target="_blank">Privacy Policy</a>.
+        </label>
+      </div>
+      <button class="btn-primary" id="consentBtn" disabled>Continue to Discover</button>
+    </div>
+  </div>
 
-        <!-- ─── SEARCH ─── -->
-        <div class="search-section">
-            <div class="search-row">
-                <div class="search-bar">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="searchInput" placeholder="Search businesses, categories, locations..." autocomplete="off">
-                    <button class="clear-btn" id="clearBtn"><i class="fa-regular fa-xmark"></i></button>
-                    <button class="search-btn" id="searchBtn">Search</button>
-                </div>
-            </div>
-            <div class="search-filters">
-                <select id="categoryFilter">
-                    <option value="">All Categories</option>
-                    <!-- Categories rendered by JS -->
-                </select>
-            </div>
+  <!-- ===== MAIN APP ===== -->
+  <div id="app">
+    <!-- Header -->
+    <header class="discover-header">
+      <div class="container">
+        <div class="header-inner">
+          <a href="/" class="header-brand">
+            <img src="/icon.svg" alt="MyShub">
+            <span>MyShub</span>
+          </a>
+          <div class="header-actions">
+            <a href="/app.html">Dashboard</a>
+            <a href="/app.html" class="btn-primary">Get Started</a>
+          </div>
         </div>
+      </div>
+    </header>
 
-        <!-- ─── LOCATION CONTEXT ─── -->
-        <div class="location-context" id="locationContext">
-            <span class="dot inactive" id="locationDot"></span>
-            <span id="locationText">Detecting your location...</span>
-            <a href="#" class="change-link" id="changeLocation">Change</a>
+    <!-- Search -->
+    <section class="search-section">
+      <div class="container">
+        <div class="search-row">
+          <div class="search-bar">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" placeholder="Search businesses, categories..." autocomplete="off">
+            <button class="clear-btn" id="clearBtn"><i class="fa-regular fa-xmark"></i></button>
+            <button class="search-btn" id="searchBtn">Search</button>
+          </div>
         </div>
-
-        <!-- ─── RESULTS ─── -->
-        <div class="results-section" id="resultsSection">
-            <div class="results-header">
-                <span class="count" id="resultCount">Loading...</span>
-                <div class="view-toggle">
-                    <button class="active" data-view="grid" title="Grid view"><i class="fa-regular fa-grid-2"></i></button>
-                    <button data-view="list" title="List view"><i class="fa-regular fa-list"></i></button>
-                </div>
-            </div>
-
-            <!-- Featured Shops -->
-            <div class="featured-section" id="featuredSection">
-                <div class="section-title"><i class="fa-solid fa-star"></i> Featured Shops</div>
-                <div class="featured-grid" id="featuredGrid"></div>
-            </div>
-
-            <!-- All Shops -->
-            <div id="shopsContainer">
-                <div class="shops-grid" id="shopsGrid"></div>
-            </div>
-
-            <!-- Ads -->
-            <div class="ads-section" id="adsSection">
-                <div class="section-title"><i class="fa-solid fa-bullhorn"></i> Sponsored</div>
-                <div class="ads-grid" id="adsGrid"></div>
-            </div>
-
-            <!-- Load More -->
-            <div class="load-more" id="loadMoreContainer">
-                <button class="btn" id="loadMoreBtn">Load More</button>
-            </div>
-
-            <!-- Empty State -->
-            <div class="empty-state hidden" id="emptyState">
-                <div class="icon"><i class="fa-regular fa-store-slash"></i></div>
-                <h3>No businesses found</h3>
-                <p>Try adjusting your search or filters to find what you're looking for.</p>
-                <button class="btn" onclick="resetFilters()"><i class="fa-regular fa-rotate"></i> Reset Filters</button>
-            </div>
-
-            <!-- Loading -->
-            <div class="loading-state hidden" id="loadingState">
-                <div class="spinner"></div>
-                <p>Loading businesses...</p>
-            </div>
+        <div class="search-filters">
+          <select id="categoryFilter">
+            <option value="">All Categories</option>
+          </select>
+          <select id="countryFilter">
+            <option value="">All Countries</option>
+          </select>
         </div>
+      </div>
+    </section>
 
-        <!-- ─── BOTTOM NAV ─── -->
-        <nav class="bottom-nav">
-            <a href="/discover.html" class="nav-item active">
-                <i class="fa-solid fa-compass"></i>
-                <span>Discover</span>
-            </a>
-            <a href="/app.html" class="nav-item">
-                <i class="fa-solid fa-store"></i>
-                <span>My Hub</span>
-            </a>
-            <a href="/index.html" class="nav-item">
-                <i class="fa-solid fa-house"></i>
-                <span>Home</span>
-            </a>
-        </nav>
-
-        <!-- ─── TOAST ─── -->
-        <div class="toast-container" id="toastContainer"></div>
-
-        <!-- ─── CONSENT MODAL ─── -->
-        <div class="consent-overlay" id="consentOverlay">
-            <div class="consent-card">
-                <div class="brand"><img src="icon.svg" alt="MyShub"> MyShub</div>
-                <h2>Welcome to Discover</h2>
-                <p>Before you start exploring businesses, please review our terms.</p>
-                <div class="terms-summary">
-                    <p><strong>🔍 Location & Privacy</strong><br>
-                    To show you businesses near you, we may use your device's location and IP address. We do not store or share your precise location. <a href="#" style="color:var(--brand);">Learn more</a></p>
-                    <p style="margin-top:8px;"><strong>📋 Terms of Service</strong><br>
-                    By using MyShub Discover, you agree to our <a href="#" style="color:var(--brand);">Terms of Service</a> and <a href="#" style="color:var(--brand);">Privacy Policy</a>. You agree not to misuse the platform and to respect other users.</p>
-                </div>
-                <div class="checkbox-row">
-                    <input type="checkbox" id="consentCheckbox">
-                    <label for="consentCheckbox">
-                        I have read and agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
-                    </label>
-                </div>
-                <button class="btn-primary" id="consentBtn" disabled>Continue to Discover</button>
-            </div>
-        </div>
+    <!-- Location Context -->
+    <div class="location-context" id="locationContext">
+      <span class="dot inactive" id="locationDot"></span>
+      <span id="locationText">Detecting your location...</span>
+      <a href="#" class="change-link" id="changeLocation">Change</a>
     </div>
 
-    <script>
-        // ═══════════════════════════════════════════════════════════════════
-        //  DATA
-        // ═══════════════════════════════════════════════════════════════════
+    <!-- Results -->
+    <section class="results-section">
+      <div class="container">
+        <div class="results-header">
+          <span class="count" id="resultCount">0 businesses found</span>
+          <div class="view-toggle">
+            <button class="active" data-view="grid" title="Grid view"><i class="fa-regular fa-grid-2"></i></button>
+            <button data-view="list" title="List view"><i class="fa-regular fa-list"></i></button>
+          </div>
+        </div>
 
-        const CATEGORIES = [
-            'Beauty', 'Fashion', 'Food', 'Tech', 'Services', 'Health',
-            'Education', 'Fitness', 'Photography', 'Real Estate',
-            'Automotive', 'Entertainment', 'Travel', 'Hospitality',
-            'Finance', 'Legal', 'Consulting', 'Construction',
-            'Agriculture', 'Manufacturing', 'Retail', 'Wholesale',
-            'Logistics', 'Media', 'Marketing', 'Design',
-            'Development', 'Writing', 'Translation', 'Tutoring',
-            'Coaching', 'Therapy', 'Wellness', 'Spa', 'Salon',
-            'Barber', 'Nails', 'Makeup', 'Skincare', 'Haircare',
-            'Jewelry', 'Watches', 'Shoes', 'Bags', 'Accessories',
-            'Electronics', 'Appliances', 'Furniture', 'Home Decor'
-        ];
+        <!-- Shops Grid -->
+        <div id="shopsContainer">
+          <div class="shops-grid" id="shopsGrid"></div>
+        </div>
 
-        // 250 countries (embedded — from old app.html)
-        const COUNTRIES = [
-            'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda',
-            'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain',
-            'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan',
-            'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria',
-            'Burkina Faso', 'Burundi', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde',
-            'Central African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros',
-            'Congo', 'Costa Rica', 'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Denmark',
-            'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador', 'Egypt', 'El Salvador',
-            'Equatorial Guinea', 'Eritrea', 'Estonia', 'Eswatini', 'Ethiopia', 'Fiji',
-            'Finland', 'France', 'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece',
-            'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Honduras',
-            'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel',
-            'Italy', 'Jamaica', 'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati',
-            'Kuwait', 'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia',
-            'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Madagascar', 'Malawi',
-            'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania',
-            'Mauritius', 'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia',
-            'Montenegro', 'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal',
-            'Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'North Macedonia',
-            'Norway', 'Oman', 'Pakistan', 'Palau', 'Panama', 'Papua New Guinea', 'Paraguay',
-            'Peru', 'Philippines', 'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia',
-            'Rwanda', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent', 'Samoa',
-            'San Marino', 'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia',
-            'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands',
-            'Somalia', 'South Africa', 'South Sudan', 'Spain', 'Sri Lanka', 'Sudan',
-            'Suriname', 'Sweden', 'Switzerland', 'Syria', 'Taiwan', 'Tajikistan', 'Tanzania',
-            'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad and Tobago', 'Tunisia',
-            'Turkey', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates',
-            'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan', 'Vanuatu',
-            'Vatican City', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
-        ];
+        <!-- Load More -->
+        <div class="load-more" id="loadMoreContainer">
+          <button id="loadMoreBtn">Load More</button>
+        </div>
 
-        // States by country (for IP detection and location context)
-        const STATES = {
-            'Nigeria': ['Lagos', 'Abuja', 'Kano', 'Oyo', 'Kaduna', 'Rivers', 'Delta', 'Ogun', 'Edo', 'Ondo'],
-            'United States': ['California', 'Texas', 'New York', 'Florida', 'Illinois', 'Georgia', 'North Carolina', 'Michigan', 'Ohio', 'Pennsylvania'],
-            'United Kingdom': ['England', 'Scotland', 'Wales', 'Northern Ireland'],
-            'Canada': ['Ontario', 'Quebec', 'British Columbia', 'Alberta'],
-            'Ghana': ['Greater Accra', 'Ashanti', 'Western', 'Central'],
-            'Kenya': ['Nairobi', 'Mombasa', 'Kisumu', 'Nakuru'],
-            'South Africa': ['Gauteng', 'Western Cape', 'KwaZulu-Natal', 'Eastern Cape'],
-            'India': ['Maharashtra', 'Uttar Pradesh', 'Bihar', 'West Bengal', 'Madhya Pradesh'],
-            'Germany': ['Bavaria', 'North Rhine-Westphalia', 'Baden-Württemberg', 'Hesse'],
-            'France': ['Île-de-France', 'Provence-Alpes-Côte d\'Azur', 'Auvergne-Rhône-Alpes'],
-            'Australia': ['New South Wales', 'Victoria', 'Queensland', 'Western Australia'],
-            'Brazil': ['São Paulo', 'Rio de Janeiro', 'Minas Gerais', 'Bahia'],
-            'Mexico': ['Mexico City', 'Jalisco', 'Nuevo León', 'Guanajuato'],
-            'Russia': ['Moscow', 'Saint Petersburg', 'Novosibirsk', 'Krasnodar'],
-            'Italy': ['Lombardy', 'Lazio', 'Campania', 'Sicily'],
-            'Spain': ['Madrid', 'Catalonia', 'Andalusia', 'Valencia'],
-            'Netherlands': ['North Holland', 'South Holland', 'Utrecht', 'Gelderland'],
-            'Sweden': ['Stockholm', 'Västra Götaland', 'Skåne', 'Uppsala'],
-            'China': ['Guangdong', 'Shanghai', 'Beijing', 'Zhejiang'],
-            'Japan': ['Tokyo', 'Osaka', 'Kyoto', 'Hokkaido'],
-            'Egypt': ['Cairo', 'Alexandria', 'Giza', 'Port Said'],
-            'Kenya': ['Nairobi', 'Mombasa', 'Kisumu', 'Nakuru']
-        };
+        <!-- Empty State -->
+        <div class="empty-state hidden" id="emptyState">
+          <div class="icon"><i class="fa-regular fa-store-slash"></i></div>
+          <h3>No businesses found</h3>
+          <p>Try adjusting your search or filters to find what you're looking for.</p>
+          <button class="btn" onclick="resetFilters()"><i class="fa-regular fa-rotate"></i> Reset Filters</button>
+        </div>
 
-        const API_BASE = 'https://emltechstudio-myshub-api.hf.space';
-        const BASE_URL = 'https://myshub.site';
+        <!-- Loading State -->
+        <div class="loading-state hidden" id="loadingState">
+          <div class="spinner"></div>
+          <p>Loading businesses...</p>
+        </div>
 
-        // ─── ADS (will be fetched from backend later) ────────────────
-        const ADS = [
-            { title: 'Boost Your Business', desc: 'Get premium tools to grow online.', icon: 'fa-solid fa-rocket', color: '#fef3c7', link: 'https://emltechstudio.site/app-suite' },
-            { title: 'Brand Design', desc: 'Professional logos & identity.', icon: 'fa-solid fa-palette', color: '#fce7f3', link: 'https://emltechstudio.site/services#brand-designs' },
-            { title: 'Web Development', desc: 'Custom websites built for you.', icon: 'fa-solid fa-code', color: '#d1fae5', link: 'https://emltechstudio.site/services' }
-        ];
+        <!-- Ads -->
+        <div class="ads-section" id="adsSection">
+          <div class="section-title"><i class="fa-solid fa-bullhorn"></i> Sponsored</div>
+          <div class="ads-grid" id="adsGrid"></div>
+        </div>
+      </div>
+    </section>
+  </div>
 
-        // ─── STATE ──────────────────────────────────────────────────────
-        let state = {
-            shops: [],
-            featuredShops: [],
-            page: 1,
-            limit: 12,
-            hasMore: false,
-            isLoading: false,
-            searchQuery: '',
-            selectedCategory: '',
-            viewMode: 'grid',
-            isLoggedIn: false,
-            notifications: [],
-            // Location (from IP or browser)
-            location: {
-                country: '',
-                state: '',
-                city: '',
-                lat: null,
-                lng: null,
-                detected: false,
-                source: '' // 'ip' or 'browser'
-            },
-            hasConsent: false
-        };
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
 
-        // ─── DOM REFS ──────────────────────────────────────────────────
-        const $ = id => document.getElementById(id);
-        const searchInput = $('searchInput');
-        const clearBtn = $('clearBtn');
-        const searchBtn = $('searchBtn');
-        const categoryFilter = $('categoryFilter');
-        const locationDot = $('locationDot');
-        const locationText = $('locationText');
-        const changeLocation = $('changeLocation');
-        const resultsSection = $('resultsSection');
-        const resultCount = $('resultCount');
-        const shopsGrid = $('shopsGrid');
-        const featuredGrid = $('featuredGrid');
-        const adsGrid = $('adsGrid');
-        const loadMoreBtn = $('loadMoreBtn');
-        const loadMoreContainer = $('loadMoreContainer');
-        const emptyState = $('emptyState');
-        const loadingState = $('loadingState');
-        const notifBell = $('notifBell');
-        const notifBadge = $('notifBadge');
-        const toastContainer = $('toastContainer');
-        const consentOverlay = $('consentOverlay');
-        const consentCheckbox = $('consentCheckbox');
-        const consentBtn = $('consentBtn');
-        const loginBtn = $('loginBtn');
+  <script>
+    // ================================================================
+    //  CONFIG
+    // ================================================================
+    const API = window.API || 'https://emltechstudio-myshub-api.hf.space';
+    const APP_URL = window.APP_URL || 'https://myshub.site';
 
-        // ─── TOAST ─────────────────────────────────────────────────────
-        function showToast(msg, type = 'info', duration = 4000) {
-            const t = document.createElement('div');
-            t.className = `toast ${type}`;
-            const iconMap = { success: 'fa-regular fa-circle-check', error: 'fa-regular fa-circle-xmark', info: 'fa-regular fa-circle-info' };
-            t.innerHTML = `<i class="${iconMap[type] || iconMap.info}"></i><span>${msg}</span><button class="toast-close"><i class="fa-regular fa-xmark"></i></button>`;
-            toastContainer.appendChild(t);
-            requestAnimationFrame(() => t.classList.add('show'));
-            t.querySelector('.toast-close').addEventListener('click', () => {
-                t.classList.remove('show');
-                setTimeout(() => t.remove(), 300);
-            });
-            setTimeout(() => {
-                t.classList.remove('show');
-                setTimeout(() => t.remove(), 300);
-            }, duration);
-        }
+    const CATEGORIES = [
+      'Beauty','Fashion','Food','Tech','Services','Health',
+      'Education','Fitness','Photography','Real Estate',
+      'Automotive','Entertainment','Travel','Hospitality',
+      'Finance','Legal','Consulting','Construction',
+      'Agriculture','Manufacturing','Retail','Wholesale',
+      'Logistics','Media','Marketing','Design',
+      'Development','Writing','Translation','Tutoring',
+      'Coaching','Therapy','Wellness','Spa','Salon',
+      'Barber','Nails','Makeup','Skincare','Haircare',
+      'Jewelry','Watches','Shoes','Bags','Accessories',
+      'Electronics','Appliances','Furniture','Home Decor'
+    ];
 
-        // ─── CONSENT ──────────────────────────────────────────────────
-        function checkConsent() {
-            const consent = localStorage.getItem('myshub_discover_consent');
-            state.hasConsent = consent === 'true';
-            if (!state.hasConsent) {
-                consentOverlay.classList.add('active');
-            } else {
-                consentOverlay.classList.remove('active');
-                initDiscover();
+    // ─── ADS ────────────────────────────────────────────────────────────
+    const ADS = [
+      {
+        title: '🚀 Build Your Business Website',
+        desc: 'Professional websites starting at ₦50,000. Get online today.',
+        icon: 'fa-solid fa-code',
+        color: '#dbeafe',
+        link: 'https://emltechstudio.site/services#web'
+      },
+      {
+        title: '🎨 Brand Identity Design',
+        desc: 'Logo, color palette, and brand guidelines — everything you need.',
+        icon: 'fa-solid fa-palette',
+        color: '#fce7f3',
+        link: 'https://emltechstudio.site/services#branding'
+      },
+      {
+        title: '📈 Digital Marketing',
+        desc: 'Reach more customers with SEO, social media, and ads.',
+        icon: 'fa-solid fa-chart-line',
+        color: '#d1fae5',
+        link: 'https://emltechstudio.site/services#marketing'
+      }
+    ];
+
+    // ─── STATE ──────────────────────────────────────────────────────────
+    let state = {
+      shops: [],
+      page: 1,
+      limit: 12,
+      hasMore: false,
+      isLoading: false,
+      searchQuery: '',
+      selectedCategory: '',
+      selectedCountry: '',  // will be populated from dropdown
+      viewMode: 'grid',
+      hasConsent: false,
+      location: {
+        country: '',
+        state: '',
+        city: '',
+        lat: null,
+        lng: null,
+        detected: false
+      }
+    };
+
+    // ─── DOM REFS ──────────────────────────────────────────────────────
+    const $ = id => document.getElementById(id);
+    const searchInput = $('searchInput');
+    const clearBtn = $('clearBtn');
+    const searchBtn = $('searchBtn');
+    const categoryFilter = $('categoryFilter');
+    const countryFilter = $('countryFilter');
+    const resultCount = $('resultCount');
+    const shopsGrid = $('shopsGrid');
+    const adsGrid = $('adsGrid');
+    const loadMoreBtn = $('loadMoreBtn');
+    const loadMoreContainer = $('loadMoreContainer');
+    const emptyState = $('emptyState');
+    const loadingState = $('loadingState');
+    const toastContainer = $('toastContainer');
+    const consentOverlay = $('consentOverlay');
+    const consentCheckbox = $('consentCheckbox');
+    const consentBtn = $('consentBtn');
+    const locationDot = $('locationDot');
+    const locationText = $('locationText');
+    const changeLocation = $('changeLocation');
+
+    // ─── TOAST ─────────────────────────────────────────────────────────
+    function showToast(msg, type = 'info', duration = 4000) {
+      const t = document.createElement('div');
+      t.className = `toast ${type}`;
+      const iconMap = { success: 'fa-regular fa-circle-check', error: 'fa-regular fa-circle-xmark', info: 'fa-regular fa-circle-info' };
+      t.innerHTML = `<i class="${iconMap[type] || iconMap.info}"></i><span>${msg}</span><button class="toast-close"><i class="fa-regular fa-xmark"></i></button>`;
+      toastContainer.appendChild(t);
+      requestAnimationFrame(() => t.classList.add('show'));
+      t.querySelector('.toast-close').addEventListener('click', () => {
+        t.classList.remove('show');
+        setTimeout(() => t.remove(), 300);
+      });
+      setTimeout(() => {
+        t.classList.remove('show');
+        setTimeout(() => t.remove(), 300);
+      }, duration);
+    }
+
+    // ─── CONSENT ──────────────────────────────────────────────────────
+    function checkConsent() {
+      const stored = localStorage.getItem('myshub_discover_consent');
+      state.hasConsent = stored === 'true';
+      if (!state.hasConsent) {
+        consentOverlay.classList.add('active');
+      } else {
+        consentOverlay.classList.remove('active');
+        initDiscover();
+      }
+    }
+
+    consentCheckbox.addEventListener('change', () => {
+      consentBtn.disabled = !consentCheckbox.checked;
+    });
+
+    consentBtn.addEventListener('click', () => {
+      if (consentCheckbox.checked) {
+        localStorage.setItem('myshub_discover_consent', 'true');
+        state.hasConsent = true;
+        consentOverlay.classList.remove('active');
+        initDiscover();
+        showToast('Welcome to Discover!', 'success', 2000);
+      }
+    });
+
+    // ─── LOCATION DETECTION ──────────────────────────────────────────
+    function detectLocation() {
+      // Step 1: Try browser geolocation (most accurate)
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            state.location.lat = pos.coords.latitude;
+            state.location.lng = pos.coords.longitude;
+            state.location.detected = true;
+            // Use IP for country/state
+            detectLocationFromIP();
+          },
+          (err) => {
+            console.warn('Geolocation error:', err);
+            detectLocationFromIP();
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+        );
+      } else {
+        detectLocationFromIP();
+      }
+    }
+
+    function detectLocationFromIP() {
+      fetch('https://ipapi.co/json/')
+        .then(res => res.json())
+        .then(data => {
+          if (data.country_name) {
+            state.location.country = data.country_name;
+            state.location.state = data.region || data.region_code || '';
+            state.location.city = data.city || '';
+            state.location.detected = true;
+            updateLocationUI();
+            // Set country filter to detected country if available
+            if (state.location.country) {
+              countryFilter.value = state.location.country;
+              state.selectedCountry = state.location.country;
             }
-        }
-
-        consentCheckbox.addEventListener('change', () => {
-            consentBtn.disabled = !consentCheckbox.checked;
-        });
-
-        consentBtn.addEventListener('click', () => {
-            if (consentCheckbox.checked) {
-                localStorage.setItem('myshub_discover_consent', 'true');
-                state.hasConsent = true;
-                consentOverlay.classList.remove('active');
-                initDiscover();
-                showToast('Welcome to Discover!', 'success', 2000);
-            }
-        });
-
-        // ─── SESSION ──────────────────────────────────────────────────
-        function checkSession() {
-            const session = JSON.parse(localStorage.getItem('myshub_session') || 'null');
-            state.isLoggedIn = !!(session && session.email && session.password);
-            if (state.isLoggedIn) {
-                loginBtn.textContent = 'Dashboard';
-                loginBtn.href = '/app.html';
-                loadNotifications();
-            } else {
-                loginBtn.textContent = 'Sign In';
-                loginBtn.href = '/app.html#login';
-            }
-        }
-
-        // ─── NOTIFICATIONS ─────────────────────────────────────────────
-        async function loadNotifications() {
-            try {
-                const session = JSON.parse(localStorage.getItem('myshub_session') || 'null');
-                if (!session) return;
-                const resp = await fetch(`${API_BASE}/notifications/`, {
-                    headers: { 'email': session.email, 'password': session.password }
-                });
-                if (resp.ok) {
-                    const data = await resp.json();
-                    state.notifications = data || [];
-                    const unread = state.notifications.filter(n => !n.read).length;
-                    if (unread > 0) {
-                        notifBadge.textContent = unread > 9 ? '9+' : unread;
-                        notifBadge.classList.remove('hidden');
-                    } else {
-                        notifBadge.classList.add('hidden');
-                    }
-                }
-            } catch (e) {}
-        }
-
-        notifBell.addEventListener('click', () => {
-            if (state.notifications.length === 0) {
-                showToast('No notifications yet', 'info', 2000);
-                return;
-            }
-            const unread = state.notifications.filter(n => !n.read).length;
-            const msg = `You have ${state.notifications.length} notification${state.notifications.length > 1 ? 's' : ''}${unread > 0 ? ` (${unread} unread)` : ''}`;
-            showToast(msg, 'info', 3000);
-            state.notifications.forEach(n => n.read = true);
-            notifBadge.classList.add('hidden');
-        });
-
-        // ─── LOCATION DETECTION ──────────────────────────────────────
-        function detectLocation() {
-            // Step 1: Try browser geolocation (most accurate)
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    // Success
-                    (pos) => {
-                        state.location.lat = pos.coords.latitude;
-                        state.location.lng = pos.coords.longitude;
-                        state.location.detected = true;
-                        state.location.source = 'browser';
-                        // Try to get city/state from reverse geocoding or use IP for country
-                        // For now, we'll use IP for country/state and browser for lat/lng
-                        detectLocationFromIP();
-                    },
-                    // Error — fallback to IP
-                    (err) => {
-                        console.warn('Geolocation error:', err);
-                        detectLocationFromIP();
-                    },
-                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-                );
-            } else {
-                // No geolocation support — fallback to IP
-                detectLocationFromIP();
-            }
-        }
-
-        function detectLocationFromIP() {
-            // Use ip-api.com to get location from IP
-            fetch('https://ipapi.co/json/')
-                .then(res => res.json())
-                .then(data => {
-                    if (data.country_name) {
-                        state.location.country = data.country_name;
-                        state.location.state = data.region || data.region_code || '';
-                        state.location.city = data.city || '';
-                        state.location.detected = true;
-                        state.location.source = state.location.source || 'ip';
-                        updateLocationUI();
-                        // Load shops with location context
-                        loadShops();
-                    } else {
-                        // Fallback: use default
-                        state.location.country = 'Nigeria';
-                        state.location.state = 'Lagos';
-                        state.location.city = 'Ikeja';
-                        state.location.detected = true;
-                        state.location.source = 'default';
-                        updateLocationUI();
-                        loadShops();
-                    }
-                })
-                .catch(() => {
-                    // Final fallback
-                    state.location.country = 'Nigeria';
-                    state.location.state = 'Lagos';
-                    state.location.city = 'Ikeja';
-                    state.location.detected = true;
-                    state.location.source = 'default';
-                    updateLocationUI();
-                    loadShops();
-                });
-        }
-
-        function updateLocationUI() {
-            const loc = state.location;
-            if (loc.detected) {
-                locationDot.className = 'dot active';
-                let text = '';
-                if (loc.city && loc.state && loc.country) {
-                    text = `📍 ${loc.city}, ${loc.state}, ${loc.country}`;
-                } else if (loc.state && loc.country) {
-                    text = `📍 ${loc.state}, ${loc.country}`;
-                } else if (loc.country) {
-                    text = `📍 ${loc.country}`;
-                } else {
-                    text = '📍 Location detected';
-                }
-                locationText.textContent = text;
-            } else {
-                locationDot.className = 'dot inactive';
-                locationText.textContent = '📍 Location not detected — showing all businesses';
-            }
-        }
-
-        // ─── CHANGE LOCATION ─────────────────────────────────────────
-        changeLocation.addEventListener('click', (e) => {
-            e.preventDefault();
-            // Simple modal or prompt to change location
-            const country = prompt('Enter your country (or leave blank for "near me"):', state.location.country || 'Nigeria');
-            if (country !== null) {
-                state.location.country = country.trim() || 'Nigeria';
-                state.location.state = '';
-                state.location.city = '';
-                state.location.detected = true;
-                updateLocationUI();
-                state.page = 1;
-                loadShops();
-                showToast(`Location changed to ${state.location.country}`, 'success', 2000);
-            }
-        });
-
-        // ─── BUILD FILTERS ────────────────────────────────────────────
-        function buildFilters() {
-            categoryFilter.innerHTML = '<option value="">All Categories</option>';
-            CATEGORIES.forEach(c => {
-                categoryFilter.innerHTML += `<option value="${c}">${c}</option>`;
-            });
-            categoryFilter.value = state.selectedCategory;
-
-            categoryFilter.addEventListener('change', () => {
-                state.selectedCategory = categoryFilter.value;
-                state.page = 1;
-                loadShops();
-            });
-        }
-
-        // ─── SEARCH ────────────────────────────────────────────────────
-        searchInput.addEventListener('input', () => {
-            clearBtn.classList.toggle('show', searchInput.value.length > 0);
-        });
-
-        searchInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') { e.preventDefault();
-                doSearch(); }
-        });
-
-        clearBtn.addEventListener('click', () => {
-            searchInput.value = '';
-            clearBtn.classList.remove('show');
-            state.searchQuery = '';
-            state.page = 1;
             loadShops();
-            searchInput.focus();
-        });
-
-        searchBtn.addEventListener('click', doSearch);
-
-        function doSearch() {
-            state.searchQuery = searchInput.value.trim();
-            state.page = 1;
+          } else {
+            // Fallback
+            state.location.country = 'Nigeria';
+            state.location.state = 'Lagos';
+            state.location.city = 'Ikeja';
+            state.location.detected = true;
+            updateLocationUI();
+            countryFilter.value = 'Nigeria';
+            state.selectedCountry = 'Nigeria';
             loadShops();
-        }
-
-        window.resetFilters = function() {
-            state.searchQuery = '';
-            state.selectedCategory = '';
-            searchInput.value = '';
-            clearBtn.classList.remove('show');
-            categoryFilter.value = '';
-            state.page = 1;
-            loadShops();
-            showToast('Filters reset', 'info', 1500);
-        };
-
-        // ─── SMART QUERY PARSING ─────────────────────────────────────
-        function parseQuery(query) {
-            if (!query) return { term: '', location: null };
-
-            const result = {
-                term: query,
-                location: null,
-                nearMe: false
-            };
-
-            // Check for "near me"
-            if (/near\s*me/i.test(query)) {
-                result.nearMe = true;
-                result.term = query.replace(/near\s*me/i, '').trim();
-                return result;
-            }
-
-            // Check for "in [location]"
-            const inMatch = query.match(/\bin\s+([a-zA-Z\s\-]+)(?:\s|$)/i);
-            if (inMatch) {
-                const loc = inMatch[1].trim();
-                // Check if it's a country
-                const countryMatch = COUNTRIES.find(c => c.toLowerCase() === loc.toLowerCase());
-                if (countryMatch) {
-                    result.location = { country: countryMatch };
-                    result.term = query.replace(inMatch[0], '').trim();
-                    return result;
-                }
-                // Check if it's a state
-                for (const [country, states] of Object.entries(STATES)) {
-                    const stateMatch = states.find(s => s.toLowerCase() === loc.toLowerCase());
-                    if (stateMatch) {
-                        result.location = { country, state: stateMatch };
-                        result.term = query.replace(inMatch[0], '').trim();
-                        return result;
-                    }
-                }
-                // If we don't recognize it, treat it as a location anyway
-                result.location = { location: loc };
-                result.term = query.replace(inMatch[0], '').trim();
-                return result;
-            }
-
-            return result;
-        }
-
-        // ─── VIEW TOGGLE ──────────────────────────────────────────────
-        document.querySelectorAll('.view-toggle button').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                state.viewMode = btn.dataset.view;
-                shopsGrid.className = 'shops-grid' + (state.viewMode === 'list' ? ' list-view' : '');
-                renderShops();
-            });
+          }
+        })
+        .catch(() => {
+          // Final fallback
+          state.location.country = 'Nigeria';
+          state.location.state = 'Lagos';
+          state.location.city = 'Ikeja';
+          state.location.detected = true;
+          updateLocationUI();
+          countryFilter.value = 'Nigeria';
+          state.selectedCountry = 'Nigeria';
+          loadShops();
         });
+    }
 
-        // ─── LOAD SHOPS ──────────────────────────────────────────────
-        async function loadShops() {
-            if (state.isLoading) return;
-            state.isLoading = true;
-            loadingState.classList.remove('hidden');
-            emptyState.classList.add('hidden');
-            shopsGrid.innerHTML = '';
+    function updateLocationUI() {
+      const loc = state.location;
+      if (loc.detected) {
+        locationDot.className = 'dot active';
+        let text = '';
+        if (loc.city && loc.state && loc.country) {
+          text = `📍 ${loc.city}, ${loc.state}, ${loc.country}`;
+        } else if (loc.state && loc.country) {
+          text = `📍 ${loc.state}, ${loc.country}`;
+        } else if (loc.country) {
+          text = `📍 ${loc.country}`;
+        } else {
+          text = '📍 Location detected';
+        }
+        locationText.textContent = text;
+      } else {
+        locationDot.className = 'dot inactive';
+        locationText.textContent = '📍 Location not detected — showing all businesses';
+      }
+    }
 
-            try {
-                const params = new URLSearchParams();
-                params.set('page', state.page);
-                params.set('limit', state.limit);
+    // ─── CHANGE LOCATION ─────────────────────────────────────────────
+    changeLocation.addEventListener('click', (e) => {
+      e.preventDefault();
+      const country = prompt('Enter your country (or leave blank for "near me"):', state.location.country || 'Nigeria');
+      if (country !== null) {
+        const trimmed = country.trim();
+        state.location.country = trimmed || 'Nigeria';
+        state.location.state = '';
+        state.location.city = '';
+        state.location.detected = true;
+        // Update country filter to match
+        countryFilter.value = state.location.country;
+        state.selectedCountry = state.location.country;
+        updateLocationUI();
+        state.page = 1;
+        loadShops();
+        showToast(`Location changed to ${state.location.country}`, 'success', 2000);
+      }
+    });
 
-                // Parse search query for smart location detection
-                const parsed = parseQuery(state.searchQuery);
-                let searchTerm = parsed.term || state.searchQuery;
+    // ─── POPULATE COUNTRY FILTER ──────────────────────────────────────
+    async function populateCountryFilter() {
+      try {
+        const res = await fetch(`${API}/discover/locations`);
+        const data = await res.json();
+        if (data.countries && Array.isArray(data.countries)) {
+          const select = countryFilter;
+          // Keep "All Countries" option
+          select.innerHTML = '<option value="">All Countries</option>';
+          data.countries.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c;
+            opt.textContent = c;
+            select.appendChild(opt);
+          });
+          // If location detected, select that country
+          if (state.location.country) {
+            select.value = state.location.country;
+            state.selectedCountry = state.location.country;
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to load country list:', e);
+        // Fallback: use a static list or just keep default
+      }
+    }
 
-                // If search query is empty, use the term as-is
-                if (!searchTerm && state.searchQuery) {
-                    searchTerm = state.searchQuery;
-                }
+    // ─── BUILD FILTERS ────────────────────────────────────────────────
+    function buildFilters() {
+      // Category filter
+      categoryFilter.innerHTML = '<option value="">All Categories</option>';
+      CATEGORIES.forEach(c => {
+        categoryFilter.innerHTML += `<option value="${c}">${c}</option>`;
+      });
+      categoryFilter.value = state.selectedCategory;
 
-                if (searchTerm) params.set('q', searchTerm);
+      categoryFilter.addEventListener('change', () => {
+        state.selectedCategory = categoryFilter.value;
+        state.page = 1;
+        loadShops();
+      });
 
-                // Location from parsed query or from IP
-                let country = state.location.country || '';
-                let stateLoc = state.location.state || '';
-                let lat = state.location.lat || null;
-                let lng = state.location.lng || null;
+      // Country filter
+      countryFilter.addEventListener('change', () => {
+        state.selectedCountry = countryFilter.value;
+        // Update location context to reflect manual selection
+        if (state.selectedCountry) {
+          state.location.country = state.selectedCountry;
+          state.location.detected = true;
+          updateLocationUI();
+        } else {
+          // If "All Countries" selected, revert to detected location if any
+          if (state.location.detected) {
+            // Keep detected country
+          } else {
+            state.location.country = '';
+          }
+          updateLocationUI();
+        }
+        state.page = 1;
+        loadShops();
+      });
+    }
 
-                // Override with parsed location if found
-                if (parsed.location) {
-                    if (parsed.location.country) country = parsed.location.country;
-                    if (parsed.location.state) stateLoc = parsed.location.state;
-                    if (parsed.location.location) {
-                        // Try to match against known locations
-                        const match = findLocation(parsed.location.location);
-                        if (match) {
-                            if (match.country) country = match.country;
-                            if (match.state) stateLoc = match.state;
-                            if (match.city) city = match.city;
-                        }
-                    }
-                }
+    // ─── SEARCH ──────────────────────────────────────────────────────
+    searchInput.addEventListener('input', () => {
+      clearBtn.classList.toggle('show', searchInput.value.length > 0);
+    });
 
-                // If "near me", use lat/lng
-                if (parsed.nearMe && state.location.lat && state.location.lng) {
-                    params.set('lat', state.location.lat);
-                    params.set('lng', state.location.lng);
-                    params.set('distance', 25);
-                } else if (state.location.lat && state.location.lng) {
-                    // If we have browser location, use it
-                    params.set('lat', state.location.lat);
-                    params.set('lng', state.location.lng);
-                    params.set('distance', 50);
-                }
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); doSearch(); }
+    });
 
-                if (country) params.set('country', country);
-                if (stateLoc) params.set('state', stateLoc);
-                if (state.selectedCategory) params.set('category', state.selectedCategory);
+    clearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      clearBtn.classList.remove('show');
+      state.searchQuery = '';
+      state.page = 1;
+      loadShops();
+      searchInput.focus();
+    });
 
-                let response = await fetch(`${API_BASE}/discover/search?${params.toString()}`);
-                let data = await response.json();
+    searchBtn.addEventListener('click', doSearch);
 
-                if (!data.shops || data.shops.length === 0) {
-                    data = generateDemoData();
-                }
+    function doSearch() {
+      state.searchQuery = searchInput.value.trim();
+      state.page = 1;
+      loadShops();
+    }
 
-                // Get featured shops
-                let featuredData = [];
-                try {
-                    const featuredResp = await fetch(`${API_BASE}/discover/featured?limit=3`);
-                    featuredData = await featuredResp.json();
-                    if (!featuredData.featured || featuredData.featured.length === 0) {
-                        featuredData = { featured: data.shops.filter(s => s.plan === 'premium').slice(0, 3) };
-                    }
-                } catch (e) {
-                    featuredData = { featured: data.shops.filter(s => s.plan === 'premium').slice(0, 3) };
-                }
+    window.resetFilters = function() {
+      state.searchQuery = '';
+      state.selectedCategory = '';
+      state.selectedCountry = '';
+      searchInput.value = '';
+      clearBtn.classList.remove('show');
+      categoryFilter.value = '';
+      countryFilter.value = '';
+      // Revert to detected location if any
+      if (state.location.detected && state.location.country) {
+        countryFilter.value = state.location.country;
+        state.selectedCountry = state.location.country;
+      }
+      state.page = 1;
+      loadShops();
+      showToast('Filters reset', 'info', 1500);
+    };
 
-                if (state.page === 1) {
-                    state.shops = data.shops || [];
-                    state.featuredShops = featuredData.featured || [];
-                    state.hasMore = data.hasMore || false;
-                } else {
-                    state.shops = [...state.shops, ...(data.shops || [])];
-                    state.hasMore = data.hasMore || false;
-                }
+    // ─── VIEW TOGGLE ──────────────────────────────────────────────────
+    document.querySelectorAll('.view-toggle button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.viewMode = btn.dataset.view;
+        shopsGrid.className = 'shops-grid' + (state.viewMode === 'list' ? ' list-view' : '');
+        renderShops();
+      });
+    });
 
-                renderAll();
+    // ─── LOAD SHOPS ──────────────────────────────────────────────────
+    async function loadShops() {
+      if (state.isLoading) return;
+      state.isLoading = true;
+      loadingState.classList.remove('hidden');
+      emptyState.classList.add('hidden');
+      shopsGrid.innerHTML = '';
 
-            } catch (error) {
-                console.error('Error loading shops:', error);
-                const data = generateDemoData();
-                state.shops = data.shops || [];
-                state.featuredShops = data.shops.filter(s => s.plan === 'premium').slice(0, 3);
-                state.hasMore = false;
-                renderAll();
-            } finally {
-                state.isLoading = false;
-                loadingState.classList.add('hidden');
-            }
+      try {
+        const params = new URLSearchParams();
+        params.set('page', state.page);
+        params.set('limit', state.limit);
+
+        if (state.searchQuery) params.set('q', state.searchQuery);
+        if (state.selectedCategory) params.set('category', state.selectedCategory);
+        if (state.selectedCountry) params.set('country', state.selectedCountry);
+
+        // Location params (if we have lat/lng and want nearby)
+        // For now, we only send country/state from the dropdown; we could also send lat/lng for nearby search
+        // We'll let the backend handle it via country filter.
+        // If we want to use the /nearby endpoint, we'd need to change the endpoint.
+        // We'll keep using /search for simplicity.
+
+        const res = await fetch(`${API}/discover/search?${params.toString()}`);
+        const data = await res.json();
+
+        // The API returns { total, page, limit, results }
+        if (!data.results || data.results.length === 0) {
+          state.shops = [];
+          state.hasMore = false;
+        } else {
+          if (state.page === 1) {
+            state.shops = data.results;
+          } else {
+            state.shops = [...state.shops, ...data.results];
+          }
+          // hasMore = total > page * limit
+          state.hasMore = (data.total || 0) > state.page * state.limit;
         }
 
-        function findLocation(location) {
-            // Check against countries
-            const countryMatch = COUNTRIES.find(c => c.toLowerCase() === location.toLowerCase());
-            if (countryMatch) return { country: countryMatch };
+        renderAll();
 
-            // Check against states
-            for (const [country, states] of Object.entries(STATES)) {
-                const stateMatch = states.find(s => s.toLowerCase() === location.toLowerCase());
-                if (stateMatch) return { country, state: stateMatch };
-            }
+      } catch (error) {
+        console.error('Error loading shops:', error);
+        showToast('Failed to load businesses. Please try again.', 'error');
+        state.shops = [];
+        state.hasMore = false;
+        renderAll();
+      } finally {
+        state.isLoading = false;
+        loadingState.classList.add('hidden');
+      }
+    }
 
-            // Check if it's a state name in the US or other country
-            return null;
-        }
+    // ─── RENDER ALL ──────────────────────────────────────────────────
+    function renderAll() {
+      renderShops();
+      renderAds();
+      updateResultCount();
+      updateLoadMore();
+    }
 
-        // ─── GENERATE DEMO DATA ──────────────────────────────────────
-        function generateDemoData() {
-            const demoShops = [
-                { slug: 'amaraglow-beauty', business_name: "Amara's Glow Beauty", tagline: "Premium skincare & beauty products", category: 'Beauty', country: 'Nigeria', state: 'Lagos', city: 'Lekki', plan: 'premium', logo_url: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=200&h=200&fit=crop&crop=face', visit_count: 1247, description: "Curating the best skincare and beauty products for melanin-rich skin. Everything is tested and trusted.", lat: 6.4281, lng: 3.4447 },
-                { slug: 'taste-of-africa', business_name: "Taste of Africa", tagline: "Authentic African cuisine delivered to your door", category: 'Food', country: 'Nigeria', state: 'Lagos', city: 'Ikeja', plan: 'pro', logo_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=200&h=200&fit=crop&crop=center', visit_count: 856, description: "Bringing the rich flavors of Africa to your table. From jollof rice to egusi soup, we've got you covered.", lat: 6.6015, lng: 3.3515 },
-                { slug: 'tech-solutions-ng', business_name: "Tech Solutions NG", tagline: "Web development & IT consulting", category: 'Tech', country: 'Nigeria', state: 'Abuja', city: 'Garki', plan: 'premium', logo_url: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=200&h=200&fit=crop&crop=face', visit_count: 2341, description: "Building the future of tech in Africa. We design, develop, and deploy innovative solutions.", lat: 9.0252, lng: 7.4683 },
-                { slug: 'fashion-forward', business_name: "Fashion Forward", tagline: "Contemporary African fashion for the modern woman", category: 'Fashion', country: 'Nigeria', state: 'Lagos', city: 'Victoria Island', plan: 'free', logo_url: 'https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?w=200&h=200&fit=crop&crop=face', visit_count: 432, description: "Elevate your style with our collection of contemporary African fashion. Quality fabrics, unique designs.", lat: 6.4281, lng: 3.4214 },
-                { slug: 'glow-spa-wellness', business_name: "Glow Spa & Wellness", tagline: "Rejuvenate your mind, body, and soul", category: 'Wellness', country: 'Nigeria', state: 'Lagos', city: 'Surulere', plan: 'pro', logo_url: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=200&h=200&fit=crop&crop=face', visit_count: 678, description: "Experience the ultimate relaxation with our spa and wellness services. From massages to facials.", lat: 6.5001, lng: 3.3619 },
-                { slug: 'build-right-construction', business_name: "Build Right Construction", tagline: "Quality construction services you can trust", category: 'Construction', country: 'Nigeria', state: 'Lagos', city: 'Ikeja', plan: 'free', logo_url: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=200&h=200&fit=crop&crop=center', visit_count: 234, description: "Building dreams one project at a time. We specialize in residential and commercial construction.", lat: 6.6015, lng: 3.3515 }
-            ];
+    // ─── RENDER SHOPS ──────────────────────────────────────────────────
+    function renderShops() {
+      if (!state.shops || state.shops.length === 0) {
+        shopsGrid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+      emptyState.classList.add('hidden');
 
-            const sortedShops = demoShops.sort((a, b) => {
-                const order = { premium: 0, pro: 1, free: 2 };
-                return (order[a.plan] || 3) - (order[b.plan] || 3);
-            });
+      shopsGrid.className = 'shops-grid' + (state.viewMode === 'list' ? ' list-view' : '');
 
-            return {
-                shops: sortedShops,
-                hasMore: false
-            };
-        }
+      shopsGrid.innerHTML = state.shops.map(shop => {
+        const logo = shop.logo_url || '';
+        const initial = (shop.business_name || 'S').charAt(0).toUpperCase();
+        const distance = shop.distance_km ? `${shop.distance_km} km` : '';
+        return `
+          <div class="shop-card" onclick="openShop('${shop.slug}')">
+            <div class="card-header">
+              ${logo ? `<img src="${logo}" class="card-logo" onerror="this.style.display='none'">` : `<div class="card-logo">${initial}</div>`}
+              <div class="card-name">
+                ${escapeHtml(shop.business_name || 'Unnamed Shop')}
+                ${shop.plan === 'premium' ? `<span class="badge premium">Premium</span>` : ''}
+                ${shop.plan === 'pro' ? `<span class="badge pro">Pro</span>` : ''}
+              </div>
+            </div>
+            ${shop.tagline ? `<div class="card-tagline">${escapeHtml(shop.tagline)}</div>` : ''}
+            <div class="card-meta">
+              <span class="category">${escapeHtml(shop.category || 'Uncategorized')}</span>
+              <span class="visits"><i class="fa-regular fa-eye"></i> ${fmt(shop.visit_count || 0)}</span>
+              ${distance ? `<span class="distance">📍 ${distance}</span>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
 
-        // ─── RENDER ALL ──────────────────────────────────────────────
-        function renderAll() {
-            renderFeatured();
-            renderShops();
-            renderAds();
-            updateResultCount();
-            updateLoadMore();
-        }
+    // ─── RENDER ADS ──────────────────────────────────────────────────
+    function renderAds() {
+      let html = ADS.map(ad => `
+        <a href="${ad.link}" target="_blank" class="ad-card">
+          <div class="ad-icon" style="background:${ad.color};">
+            <i class="${ad.icon}" style="color:var(--brand-dark);"></i>
+          </div>
+          <div class="ad-info">
+            <div class="ad-title">${ad.title}</div>
+            <div class="ad-desc">${ad.desc}</div>
+          </div>
+          <span class="ad-sponsor">Sponsored</span>
+        </a>
+      `).join('');
 
-        // ─── RENDER FEATURED ──────────────────────────────────────────
-        function renderFeatured() {
-            if (!state.featuredShops || state.featuredShops.length === 0) {
-                featuredGrid.innerHTML = '<p class="text-muted" style="padding:12px 0;font-size:0.9rem;">No featured shops yet.</p>';
-                return;
-            }
-            featuredGrid.innerHTML = state.featuredShops.map(shop => `
-                <a href="/shop.html?slug=${shop.slug}" class="featured-card">
-                    ${shop.logo_url ? `<img src="${shop.logo_url}" alt="${shop.business_name}" class="logo" onerror="this.style.display='none'">` : `<div class="logo" style="display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.15);"><i class="fa-solid fa-store" style="font-size:1.2rem;"></i></div>`}
-                    <div class="info">
-                        <div class="name">${shop.business_name || 'Unnamed Shop'} <span class="badge">${shop.plan || 'free'}</span></div>
-                        <div class="tagline">${shop.tagline || ''}</div>
-                        ${shop.distance ? `<div class="distance">📍 ${shop.distance} km away</div>` : ''}
-                    </div>
-                    <div class="arrow"><i class="fa-regular fa-chevron-right"></i></div>
-                </a>
-            `).join('');
-        }
+      // Advertise with us card
+      html += `
+        <a href="mailto:emltechstudio@gmail.com?subject=Advertise%20on%20MyShub%20Discover" class="ad-card advertise-here">
+          <div class="ad-icon" style="background:var(--brand-soft);color:var(--brand);">
+            <i class="fa-solid fa-bullhorn"></i>
+          </div>
+          <div class="ad-info">
+            <div class="ad-title">📢 Advertise with us</div>
+            <div class="ad-desc">Reach thousands of businesses. Contact us today.</div>
+          </div>
+          <span class="ad-sponsor">Your Ad</span>
+        </a>
+      `;
 
-        // ─── RENDER SHOPS ─────────────────────────────────────────────
-        function renderShops() {
-            if (!state.shops || state.shops.length === 0) {
-                shopsGrid.innerHTML = '';
-                emptyState.classList.remove('hidden');
-                return;
-            }
-            emptyState.classList.add('hidden');
+      adsGrid.innerHTML = html;
+    }
 
-            shopsGrid.className = 'shops-grid' + (state.viewMode === 'list' ? ' list-view' : '');
+    // ─── UPDATE RESULT COUNT ──────────────────────────────────────────
+    function updateResultCount() {
+      const total = state.shops.length;
+      const searchText = state.searchQuery ? ` for "${state.searchQuery}"` : '';
+      const filterText = state.selectedCategory ? ` in ${state.selectedCategory}` : '';
+      const countryText = state.selectedCountry ? ` · ${state.selectedCountry}` : '';
+      resultCount.textContent = `${total} businesses found${searchText}${filterText}${countryText}`;
+    }
 
-            shopsGrid.innerHTML = state.shops.map(shop => `
-                <a href="/shop.html?slug=${shop.slug}" class="shop-card">
-                    <div class="card-header">
-                        ${shop.logo_url ? `<img src="${shop.logo_url}" alt="${shop.business_name}" class="logo" onerror="this.style.display='none'">` : `<div class="logo" style="display:flex;align-items:center;justify-content:center;background:var(--bg);border:1px solid var(--border);"><i class="fa-solid fa-store" style="font-size:1.2rem;color:var(--text3);"></i></div>`}
-                        <div class="info">
-                            <div class="name">
-                                ${shop.business_name || 'Unnamed Shop'}
-                                ${shop.plan === 'premium' ? `<span class="badge premium">Premium</span>` : ''}
-                                ${shop.plan === 'pro' ? `<span class="badge pro">Pro</span>` : ''}
-                            </div>
-                            ${shop.tagline ? `<div class="tagline">${shop.tagline}</div>` : ''}
-                        </div>
-                    </div>
-                    ${shop.description ? `<div class="card-body">${shop.description}</div>` : ''}
-                    <div class="card-footer">
-                        <div class="location">
-                            <i class="fa-regular fa-location-dot"></i>
-                            ${shop.city || shop.state || shop.country || 'Location not set'}
-                        </div>
-                        <div class="stats">
-                            ${shop.distance ? `<span class="distance">📍 ${shop.distance} km</span>` : ''}
-                            ${shop.visit_count ? `<span><i class="fa-regular fa-eye"></i> ${shop.visit_count}</span>` : ''}
-                            <span class="category-tag">${shop.category || 'Uncategorized'}</span>
-                        </div>
-                    </div>
-                </a>
-            `).join('');
-        }
+    // ─── UPDATE LOAD MORE ──────────────────────────────────────────────
+    function updateLoadMore() {
+      if (state.hasMore) {
+        loadMoreContainer.classList.remove('hidden');
+      } else {
+        loadMoreContainer.classList.add('hidden');
+      }
+    }
 
-        // ─── RENDER ADS ────────────────────────────────────────────────
-        function renderAds() {
-            adsGrid.innerHTML = ADS.map(ad => `
-                <a href="${ad.link}" target="_blank" class="ad-card">
-                    <div class="icon" style="background:${ad.color};">
-                        <i class="${ad.icon}" style="color:var(--brand-dark);"></i>
-                    </div>
-                    <div class="info">
-                        <div class="title">${ad.title}</div>
-                        <div class="desc">${ad.desc}</div>
-                    </div>
-                    <span class="sponsored">Sponsored</span>
-                </a>
-            `).join('');
-        }
+    // ─── LOAD MORE ──────────────────────────────────────────────────────
+    loadMoreBtn.addEventListener('click', () => {
+      if (state.isLoading || !state.hasMore) return;
+      state.page++;
+      loadShops();
+    });
 
-        // ─── UPDATE RESULT COUNT ──────────────────────────────────────
-        function updateResultCount() {
-            const total = state.shops.length + (state.featuredShops?.length || 0);
-            const searchText = state.searchQuery ? ` for "${state.searchQuery}"` : '';
-            const filterText = state.selectedCategory ? ` in ${state.selectedCategory}` : '';
-            const locationText = state.location.detected ? ` · ${state.location.country || 'Near you'}` : '';
-            resultCount.textContent = `${total} businesses found${searchText}${filterText}${locationText}`;
-        }
+    // ─── OPEN SHOP ──────────────────────────────────────────────────────
+    window.openShop = function(slug) {
+      if (!slug) return;
+      window.open(`${APP_URL}/shop.html?slug=${slug}`, '_blank');
+    };
 
-        // ─── UPDATE LOAD MORE ─────────────────────────────────────────
-        function updateLoadMore() {
-            if (state.hasMore) {
-                loadMoreContainer.classList.remove('hidden');
-            } else {
-                loadMoreContainer.classList.add('hidden');
-            }
-        }
+    // ─── HELPERS ─────────────────────────────────────────────────────────
+    function escapeHtml(s) {
+      if (!s) return '';
+      return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+    }
 
-        // ─── LOAD MORE ────────────────────────────────────────────────
-        loadMoreBtn.addEventListener('click', () => {
-            if (state.isLoading || !state.hasMore) return;
-            state.page++;
-            loadShops();
-        });
+    function fmt(n) {
+      n = Number(n) || 0;
+      if (n >= 1000000) return (n/1000000).toFixed(1).replace(/\.0$/,'') + 'M';
+      if (n >= 1000) return (n/1000).toFixed(1).replace(/\.0$/,'') + 'K';
+      return String(n);
+    }
 
-        // ─── INIT DISCOVER ────────────────────────────────────────────
-        function initDiscover() {
-            checkSession();
-            buildFilters();
+    // ─── INIT DISCOVER ────────────────────────────────────────────────────
+    async function initDiscover() {
+      buildFilters();
+      await populateCountryFilter();
+      detectLocation();
+    }
 
-            // Detect location (IP + browser)
-            detectLocation();
+    // ─── SERVICE WORKER ──────────────────────────────────────────────────
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
 
-            // Listen for auth changes
-            window.addEventListener('storage', (e) => {
-                if (e.key === 'myshub_session') {
-                    checkSession();
-                }
-            });
-        }
-
-        // ─── SERVICE WORKER ────────────────────────────────────────────
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw-discover.js').catch(() => {});
-        }
-
-        // ─── START ─────────────────────────────────────────────────────
-        checkConsent();
-        console.log('MyShub Discover v3 loaded.');
-    </script>
+    // ─── START ──────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      checkConsent();
+    });
+  </script>
 </body>
 </html>
