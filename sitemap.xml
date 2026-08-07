@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://myshub.site/</loc>
+    <lastmod>2026-08-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://myshub.site/icon.svg</image:loc>
+      <image:title>MyShub Logo</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://myshub.site/og-image.png</image:loc>
+      <image:title>MyShub - Business Network for Sellers</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://myshub.site/discover.html</loc>
+    <lastmod>2026-08-07</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://myshub.site/app.html</loc>
+    <lastmod>2026-08-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://myshub.site/blog/grow-business-connecting-audience-social-media.html</loc>
+    <lastmod>2026-08-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://myshub.site/og-image.png</image:loc>
+      <image:title>How to Grow Your Business by Connecting Your Audience</image:title>
+    </image:image>
+  </url>
+</urlset>
