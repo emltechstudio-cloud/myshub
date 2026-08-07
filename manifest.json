@@ -1,7 +1,7 @@
 {
   "name": "MyShub — Business Network for Sellers",
   "short_name": "MyShub",
-  "start_url": "/",
+  "start_url": "/app.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f8fafc",
