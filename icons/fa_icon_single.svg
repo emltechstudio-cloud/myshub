@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Shopping bag with handles as one shape -->
+  <path d="M136 180h240c22 0 40 18 40 40v220c0 22-18 40-40 40H136c-22 0-40-18-40-40V220c0-22 18-40 40-40z" fill="currentColor"/>
+  <path d="M156 180c0-44 18-80 40-80s40 36 40 80" fill="none" stroke="currentColor" stroke-width="28" stroke-linecap="round"/>
+  <path d="M276 180c0-44 18-80 40-80s40 36 40 80" fill="none" stroke="currentColor" stroke-width="28" stroke-linecap="round"/>
+  <!-- M as negative space / overlay -->
+  <path d="M196 385V285l30 50 30-50v100h30V265h-40l-20 35-20-35h-40v120h30z" fill="currentColor" opacity="0.3"/>
+</svg>
