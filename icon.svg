@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="100" fill="#1e40af"/>
+  <rect x="96" y="180" width="320" height="260" rx="40" fill="white"/>
+  <path d="M156 180 Q156 100 196 100 Q236 100 236 180" stroke="white" stroke-width="28" fill="none" stroke-linecap="round"/>
+  <path d="M276 180 Q276 100 316 100 Q356 100 356 180" stroke="white" stroke-width="28" fill="none" stroke-linecap="round"/>
+  <text x="256" y="385" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="180" fill="#1e40af">M</text>
+</svg>
