@@ -1,22 +1,37 @@
 {
-  "name": "MY.SHUB",
-  "short_name": "MY.SHUB",
-  "description": "Create and manage your online shop",
-  "start_url": "app.html",
+  "name": "MyShub — Business Network for Sellers",
+  "short_name": "MyShub",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#f0f2f5",
-  "theme_color": "#1877f2",
   "orientation": "portrait",
+  "background_color": "#f8fafc",
+  "theme_color": "#2563eb",
+  "description": "Create your professional business hub, get discovered by customers, and track your growth.",
+  "categories": ["business", "networking", "social", "ecommerce", "marketing"],
   "icons": [
+    { "src": "/icons/icon_72x72.png", "sizes": "72x72", "type": "image/png" },
+    { "src": "/icons/icon_96x96.png", "sizes": "96x96", "type": "image/png" },
+    { "src": "/icons/icon_128x128.png", "sizes": "128x128", "type": "image/png" },
+    { "src": "/icons/icon_144x144.png", "sizes": "144x144", "type": "image/png" },
+    { "src": "/icons/icon_152x152.png", "sizes": "152x152", "type": "image/png" },
+    { "src": "/icons/icon_192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon_384x384.png", "sizes": "384x384", "type": "image/png" },
+    { "src": "/icons/icon_512x512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "screenshots": [
     {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%231877f2' rx='24'/%3E%3Ctext x='96' y='120' font-family='Arial' font-size='100' font-weight='bold' fill='white' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E",
-      "sizes": "192x192",
-      "type": "image/svg+xml"
+      "src": "/screenshots/home.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Home Dashboard"
     },
     {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%231877f2' rx='64'/%3E%3Ctext x='256' y='320' font-family='Arial' font-size='280' font-weight='bold' fill='white' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E",
-      "sizes": "512x512",
-      "type": "image/svg+xml"
+      "src": "/screenshots/shop.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Shop Preview"
     }
   ]
 }
