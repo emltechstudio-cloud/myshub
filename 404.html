@@ -21,7 +21,7 @@
         :root {
             --bg: #f8fafc;
             --card: #ffffff;
-            --,: #0f172a;
+            --text: #0f172a;
             --text2: #475569;
             --text3: #94a3b8;
             --border: #e2e8f0;
@@ -1152,6 +1152,48 @@
         pro: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop&crop=face',
         premium: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&h=400&fit=crop&crop=face'
     };
+        
+
+        // CLICK TRACKING (Pro/Premium only)
+        const CLICK_TRACKING = {
+            slug: '', plan: 'free', buffer: [], timer: null, INTERVAL: 30000,
+            init(slug, plan) {
+                this.slug = slug; this.plan = plan;
+                if (plan === 'free') return;
+                const saved = localStorage.getItem('myshub_clicks_' + slug);
+                if (saved) { try { this.buffer = JSON.parse(saved); } catch(e) {} }
+                this.timer = setInterval(() => this.flush(), this.INTERVAL);
+                window.addEventListener('beforeunload', () => this.flush(true));
+                window.addEventListener('pagehide', () => this.flush(true));
+            },
+            track(type, detail) {
+                if (this.plan === 'free') return;
+                this.buffer.push({ type: type, detail: detail || '', ts: Date.now() });
+                localStorage.setItem('myshub_clicks_' + this.slug, JSON.stringify(this.buffer));
+            },
+            flush(isBeacon) {
+                if (this.plan === 'free' || this.buffer.length === 0) return;
+                const agg = {};
+                this.buffer.forEach(c => { const key = c.type + '|' + c.detail; agg[key] = (agg[key] || 0) + 1; });
+                const payload = Object.entries(agg).map(([key, count]) => { const parts = key.split('|'); return { type: parts[0], detail: parts[1] || '', count: count }; });
+                const url = API_BASE + '/shop/click/' + this.slug;
+                const body = JSON.stringify({ clicks: payload });
+                if (isBeacon && navigator.sendBeacon) { navigator.sendBeacon(url, body); }
+                else { fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body }).then(() => { this.buffer = []; localStorage.removeItem('myshub_clicks_' + this.slug); }).catch(() => {}); }
+            }
+        };
+        function attachClickTracking(plan) {
+            if (plan === 'free') return;
+            const catalogBtn = document.querySelector('.catalog-btn');
+            if (catalogBtn) catalogBtn.addEventListener('click', () => CLICK_TRACKING.track('catalog', 'catalog'));
+            const fab = document.querySelector('.fab');
+            if (fab) fab.addEventListener('click', () => CLICK_TRACKING.track('whatsapp', 'fab'));
+            document.querySelectorAll('.social-item').forEach(el => { el.addEventListener('click', () => { const platform = el.getAttribute('title') || 'unknown'; CLICK_TRACKING.track('social', platform.toLowerCase()); }); });
+            document.querySelectorAll('.custom-link-btn').forEach(el => { el.addEventListener('click', () => { const text = el.textContent.trim().replace(/^\S+\s*/, '').substring(0, 30); CLICK_TRACKING.track('custom_link', text); }); });
+            document.querySelectorAll('.msg-btn').forEach(el => { const platform = Array.from(el.classList).find(c => c !== 'msg-btn') || 'unknown'; el.addEventListener('click', () => CLICK_TRACKING.track('social', platform.toLowerCase())); });
+            document.querySelectorAll('.hero-cta a, .hero-cta button').forEach(el => { el.addEventListener('click', () => { const text = el.textContent.trim().toLowerCase(); if (text.includes('chat')) CLICK_TRACKING.track('whatsapp', 'hero_cta'); else if (text.includes('catalog') || text.includes('browse')) CLICK_TRACKING.track('catalog', 'hero_cta'); }); });
+        }
+
         // ─── BOOT ─────────────────────────────────────────────────────────
         const urlParams = new URLSearchParams(window.location.search);
         const demoPlan = urlParams.get('plan');
@@ -1162,13 +1204,15 @@
 
         if (demoPlan && DEMO_DATA[demoPlan]) {
             renderShop(DEMO_DATA[demoPlan]);
+            CLICK_TRACKING.init(resolveSlug(), DEMO_DATA[demoPlan].plan);
+            attachClickTracking(DEMO_DATA[demoPlan].plan);
         } else if (slug) {
             const apiUrl = isPreview && previewEmail && previewPassword
                 ? `${API_BASE}/shop/preview/${slug}?email=${encodeURIComponent(previewEmail)}&password=${encodeURIComponent(previewPassword)}`
                 : `${API_BASE}/shop/live/${slug}`;
             fetch(apiUrl)
                 .then(res => res.ok ? res.json() : Promise.reject())
-                .then(shop => renderShop(shop))
+                .then(shop => { renderShop(shop); CLICK_TRACKING.init(slug, shop.plan || 'free'); attachClickTracking(shop.plan || 'free'); })
                 .catch(() => {
                     document.getElementById('app').innerHTML = `
                         <div class="error-state">
