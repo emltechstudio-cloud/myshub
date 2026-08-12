@@ -714,11 +714,34 @@
             const qSlug = urlParams.get('slug');
             if (qSlug) return qSlug;
             const parts = window.location.pathname.split('/').filter(Boolean);
-            const reserved = ['index.html','app.html','shop.html','install.html','404.html','admin','suadmin'];
+            const RESERVED_SLUGS = [
+    // Root
+    '', 'index',
+    // Public pages (with and without .html)
+    'discover', 'discover.html',
+    'app', 'app.html',
+    'privacy', 'privacy.html',
+    'terms', 'terms.html',
+    'support', 'support.html',
+    'install', 'install.html',
+    'admin', 'admin.html',
+    'blog', 'blog/', 'blog/index.html',
+    // Also add any other static files
+    'icon.svg', 'manifest.json', 'robots.txt', 'sitemap.xml'
+];
             if (parts.length && !reserved.includes(parts[0])) return parts[0];
             return '';
         }
-
+            function isReserved(slug) {
+                if (!slug) return true;
+                const clean = slug.toLowerCase();
+    // Check exact match
+                if (RESERVED_SLUGS.includes(clean)) return true;
+    // Check if it's a blog post (starts with blog/)
+                if (clean.startsWith('blog/')) return true;
+                return false;
+        }
+            
         // ─── SEO ───────────────────────────────────────────────────────────
         function setMeta(name, content) {
             let el = document.querySelector(`meta[name="${CSS.escape(name)}"]`);
