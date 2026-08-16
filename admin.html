@@ -2,1472 +2,1070 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin — MyShub</title>
-    <meta name="robots" content="noindex, follow" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>MyShop Admin Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     <style>
-        /* ===== FULL STYLES (Login + Dashboard) ===== */
-        *,
-        *::before,
-        *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --brand: #2563eb;
-            --brand-light: #3b82f6;
-            --brand-dark: #1d4ed8;
-            --brand-glow: rgba(37, 99, 235, 0.15);
-            --bg: #f8fafc;
-            --card: #fff;
-            --text: #0f172a;
-            --text2: #475569;
-            --text3: #94a3b8;
-            --border: #e2e8f0;
-            --radius: 16px;
-            --shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.08);
-            --success: #22c55e;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-        }
-        @media(prefers-color-scheme:dark) {
-            :root {
-                --bg: #0f172a;
-                --card: #1e293b;
-                --text: #f1f5f9;
-                --text2: #94a3b8;
-                --text3: #64748b;
-                --border: #334155;
-                --shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-                --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.3);
-            }
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-        }
-
-        /* ===== LOGIN ===== */
-        #loginSection {
-            width: 100%;
-            max-width: 400px;
-        }
-        .login-card {
-            background: var(--card);
-            border-radius: 24px;
-            padding: 48px 40px;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-        }
-        .login-card .logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--brand);
-            margin-bottom: 8px;
-            text-decoration: none;
-        }
-        .login-card .logo img {
-            width: 32px;
-            height: 32px;
-        }
-        .login-card .subtitle {
-            text-align: center;
-            color: var(--text2);
-            font-size: 0.95rem;
-            margin-bottom: 32px;
-        }
-        .login-card .form-group {
-            margin-bottom: 20px;
-        }
-        .login-card .form-group label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: var(--text2);
-        }
-        .login-card .form-group input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            font-size: 1rem;
-            background: var(--bg);
-            color: var(--text);
-            font-family: inherit;
-            transition: border-color 0.2s;
-            outline: none;
-        }
-        .login-card .form-group input:focus {
-            border-color: var(--brand);
-        }
-        .login-card .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 40px;
-            font-weight: 700;
-            font-size: 1rem;
-            background: var(--brand);
-            color: #fff;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-        .login-card .btn:hover {
-            background: var(--brand-dark);
-            transform: translateY(-2px);
-        }
-        .login-card .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        .login-card .error {
-            color: var(--danger);
-            font-size: 0.85rem;
-            margin-top: 12px;
-            text-align: center;
-            display: none;
-        }
-        .spinner-btn {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-            vertical-align: middle;
-            margin-right: 8px;
-        }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* ===== DASHBOARD ===== */
-        #dashboardSection {
-            display: none;
-            width: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        .dashboard-wrapper {
-            display: flex;
-            min-height: 100vh;
-            gap: 0;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 260px;
-            background: var(--card);
-            border-right: 1px solid var(--border);
-            padding: 24px 16px;
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-            height: 100vh;
-            position: sticky;
-            top: 0;
-            overflow-y: auto;
-            transition: transform 0.3s ease;
-            z-index: 100;
-        }
-        .sidebar .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 800;
-            font-size: 1.2rem;
-            color: var(--brand);
-            text-decoration: none;
-            margin-bottom: 24px;
-        }
-        .sidebar .logo img {
-            width: 28px;
-            height: 28px;
-        }
-        .sidebar .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            border-radius: 12px;
-            color: var(--text2);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.2s;
-            cursor: pointer;
-            margin-bottom: 4px;
-            font-size: 0.9rem;
-        }
-        .sidebar .nav-item:hover {
-            background: var(--brand-glow);
-            color: var(--brand);
-        }
-        .sidebar .nav-item.active {
-            background: var(--brand);
-            color: #fff;
-        }
-        .sidebar .nav-item i {
-            width: 20px;
-            text-align: center;
-            font-size: 1rem;
-        }
-        .sidebar .nav-item .badge {
-            margin-left: auto;
-            background: var(--brand-glow);
-            color: var(--brand);
-            padding: 2px 10px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            font-weight: 700;
-        }
-        .sidebar .nav-item.active .badge {
-            background: rgba(255, 255, 255, 0.2);
-            color: #fff;
-        }
-        .sidebar .spacer {
-            flex: 1;
-        }
-        .sidebar .logout {
-            border-top: 1px solid var(--border);
-            padding-top: 16px;
-            margin-top: 8px;
-        }
-
-        /* Main content */
-        .main {
-            flex: 1;
-            padding: 24px 32px 40px;
-            overflow-x: hidden;
-            min-width: 0;
-        }
-
-        /* Mobile toggle */
-        .mobile-toggle {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--text);
-            cursor: pointer;
-            padding: 8px;
-            position: fixed;
-            top: 16px;
-            left: 16px;
-            z-index: 101;
-            background: var(--card);
-            border-radius: 10px;
-            box-shadow: var(--shadow);
-        }
-        @media(max-width:768px) {
-            .sidebar {
-                transform: translateX(-110%);
-                position: fixed;
-                top: 0;
-                left: 0;
-                height: 100vh;
-                width: 280px;
-                z-index: 200;
-                box-shadow: var(--shadow-lg);
-            }
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            .main {
-                padding: 24px 16px 40px;
-                padding-top: 70px;
-            }
-            .mobile-toggle {
-                display: block;
-            }
-            .sidebar-backdrop {
-                display: none;
-                position: fixed;
-                inset: 0;
-                background: rgba(0, 0, 0, 0.4);
-                z-index: 150;
-            }
-            .sidebar-backdrop.show {
-                display: block;
-            }
-        }
-
-        /* Cards & stats */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        .page-header h1 {
-            font-size: 1.6rem;
-            font-weight: 800;
-        }
-        .page-header .sub {
-            color: var(--text2);
-            font-size: 0.9rem;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 16px;
-            margin-bottom: 32px;
-        }
-        .stat-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 16px 20px;
-            box-shadow: var(--shadow);
-            transition: transform 0.2s;
-        }
-        .stat-card:hover {
-            transform: translateY(-2px);
-        }
-        .stat-card .label {
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text3);
-        }
-        .stat-card .value {
-            font-size: 1.8rem;
-            font-weight: 800;
-            margin-top: 2px;
-            color: var(--text);
-        }
-
-        /* Tables */
-        .table-wrap {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            overflow: auto;
-            box-shadow: var(--shadow);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-        }
-        th {
-            background: var(--bg);
-            text-align: left;
-            padding: 10px 14px;
-            font-weight: 600;
-            color: var(--text2);
-            border-bottom: 1px solid var(--border);
-            white-space: nowrap;
-        }
-        td {
-            padding: 10px 14px;
-            border-bottom: 1px solid var(--border);
-            vertical-align: middle;
-        }
-        tr:last-child td {
-            border-bottom: none;
-        }
-        tr:hover td {
-            background: var(--brand-glow);
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-        .status-badge.active {
-            background: #d1fae5;
-            color: #065f46;
-        }
-        .status-badge.inactive {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-        .status-badge.free {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        .status-badge.pro {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        .status-badge.premium {
-            background: #f3e8ff;
-            color: #6b21a8;
-        }
-
-        .action-btn {
-            background: none;
-            border: none;
-            color: var(--text3);
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 6px;
-            transition: all 0.2s;
-            font-size: 0.9rem;
-        }
-        .action-btn:hover {
-            background: var(--border);
-            color: var(--text);
-        }
-        .action-btn.danger:hover {
-            background: #fee2e2;
-            color: var(--danger);
-        }
-        .action-btn.primary:hover {
-            background: var(--brand-glow);
-            color: var(--brand);
-        }
-
-        /* Search bar */
-        .search-bar {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-        .search-bar input,
-        .search-bar select {
-            padding: 10px 14px;
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            background: var(--bg);
-            color: var(--text);
-            font-family: inherit;
-            font-size: 0.9rem;
-            outline: none;
-            transition: border-color 0.2s;
-            flex: 1;
-            min-width: 150px;
-        }
-        .search-bar input:focus,
-        .search-bar select:focus {
-            border-color: var(--brand);
-        }
-        .search-bar button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 40px;
-            background: var(--brand);
-            color: #fff;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-            font-family: inherit;
-            font-size: 0.9rem;
-            white-space: nowrap;
-        }
-        .search-bar button:hover {
-            background: var(--brand-dark);
-        }
-
-        /* Modal */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
-            z-index: 300;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .modal-overlay.active {
-            display: flex;
-        }
-        .modal-box {
-            background: var(--card);
-            border-radius: 24px;
-            max-width: 640px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            padding: 32px;
-            box-shadow: var(--shadow-lg);
-            animation: fadeIn 0.2s ease;
-        }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.96);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-        .modal-box .close-btn {
-            float: right;
-            background: none;
-            border: none;
-            font-size: 1.4rem;
-            color: var(--text3);
-            cursor: pointer;
-            padding: 4px;
-        }
-        .modal-box .close-btn:hover {
-            color: var(--text);
-        }
-        .modal-box h2 {
-            font-size: 1.3rem;
-            font-weight: 800;
-            margin-bottom: 16px;
-        }
-        .modal-box .field {
-            margin-bottom: 12px;
-        }
-        .modal-box .field label {
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: var(--text2);
-            display: block;
-            margin-bottom: 4px;
-        }
-        .modal-box .field .value {
-            padding: 8px 12px;
-            background: var(--bg);
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            font-size: 0.9rem;
-            word-break: break-all;
-        }
-        .modal-box .field .value a {
-            color: var(--brand);
-            text-decoration: none;
-        }
-        .modal-box .field .value a:hover {
-            text-decoration: underline;
-        }
-        .modal-box .btn-row {
-            display: flex;
-            gap: 10px;
-            margin-top: 16px;
-            flex-wrap: wrap;
-        }
-        .modal-box .btn-row .btn {
-            padding: 8px 18px;
-            border: none;
-            border-radius: 40px;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 0.85rem;
-            transition: all 0.2s;
-        }
-        .btn-primary {
-            background: var(--brand);
-            color: #fff;
-        }
-        .btn-primary:hover {
-            background: var(--brand-dark);
-        }
-        .btn-success {
-            background: var(--success);
-            color: #fff;
-        }
-        .btn-success:hover {
-            background: #16a34a;
-        }
-        .btn-danger {
-            background: var(--danger);
-            color: #fff;
-        }
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-        .btn-ghost {
-            background: var(--border);
-            color: var(--text);
-        }
-        .btn-ghost:hover {
-            background: var(--text3);
-            color: #fff;
-        }
-
-        /* Broadcast */
-        .broadcast-area {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 24px;
-            box-shadow: var(--shadow);
-        }
-        .broadcast-area textarea {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            font-family: inherit;
-            font-size: 0.9rem;
-            background: var(--bg);
-            color: var(--text);
-            resize: vertical;
-            min-height: 100px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        .broadcast-area textarea:focus {
-            border-color: var(--brand);
-        }
-        .broadcast-area .recipient-options {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin: 12px 0;
-        }
-        .broadcast-area .recipient-options label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-        }
-        .broadcast-area .recipient-options input[type="radio"] {
-            accent-color: var(--brand);
-        }
-
-        /* Feedback items */
-        .feedback-item {
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-        }
-        .feedback-item:last-child {
-            border-bottom: none;
-        }
-        .feedback-item .meta {
-            display: flex;
-            gap: 12px;
-            font-size: 0.8rem;
-            color: var(--text3);
-            flex-wrap: wrap;
-            margin-bottom: 4px;
-        }
-        .feedback-item .meta strong {
-            color: var(--text);
-        }
-        .feedback-item .message {
-            color: var(--text2);
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-        .feedback-item .actions {
-            margin-top: 8px;
-            display: flex;
-            gap: 8px;
-        }
-        .feedback-item .actions button {
-            padding: 4px 12px;
-            border: none;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-        .feedback-item .actions .reply {
-            background: var(--brand-glow);
-            color: var(--brand);
-        }
-        .feedback-item .actions .reply:hover {
-            background: var(--brand);
-            color: #fff;
-        }
-        .feedback-item .actions .delete {
-            background: #fee2e2;
-            color: var(--danger);
-        }
-        .feedback-item .actions .delete:hover {
-            background: var(--danger);
-            color: #fff;
-        }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 14px 20px;
-            box-shadow: var(--shadow-lg);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            z-index: 400;
-            animation: slideUp 0.3s ease;
-            max-width: 400px;
-        }
-        .toast.success {
-            border-left: 4px solid var(--success);
-        }
-        .toast.error {
-            border-left: 4px solid var(--danger);
-        }
-        .toast .icon {
-            font-size: 1.2rem;
-        }
-        .toast .msg {
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Loading */
-        .loading-spinner {
-            display: flex;
-            justify-content: center;
-            padding: 40px 0;
-        }
-        .loading-spinner .spinner {
-            width: 32px;
-            height: 32px;
-            border: 4px solid var(--border);
-            border-top-color: var(--brand);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        /* Pagination */
-        .pagination-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 16px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .pagination-info button {
-            padding: 6px 16px;
-            border: 1px solid var(--border);
-            border-radius: 30px;
-            background: transparent;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 0.85rem;
-            color: var(--text);
-            transition: all 0.2s;
-        }
-        .pagination-info button:hover:not(:disabled) {
-            background: var(--brand);
-            color: #fff;
-            border-color: var(--brand);
-        }
-        .pagination-info button:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        @media(max-width:480px) {
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-            .search-bar {
-                flex-direction: column;
-            }
-            .search-bar input,
-            .search-bar select,
-            .search-bar button {
-                width: 100%;
-                flex: none;
-            }
-            .login-card {
-                padding: 32px 24px;
-            }
-        }
+            --brand: #2563eb; --brand-light: #3b82f6; --brand-dark: #1d4ed8;
+            --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --text2: #475569;
+            --border: #e2e8f0; --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
+            --radius: 16px; --shadow: 0 4px 24px rgba(0,0,0,0.06);
+        }
+        [data-theme="dark"] {
+            --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --text2: #94a3b8; --border: #334155;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; overflow-x: hidden; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+        .header { background: var(--card); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); border: 1px solid var(--border); position: relative; z-index: 100; }
+        .header h1 { font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .header h1 i { color: var(--brand); }
+        .header-right { display: flex; align-items: center; gap: 12px; }
+        .role-badge { background: linear-gradient(135deg, var(--brand), var(--brand-light)); color: white; padding: 6px 14px; border-radius: 50px; font-size: .75rem; font-weight: 700; text-transform: uppercase; }
+        .btn { padding: 10px 20px; background: var(--brand); color: white; font-weight: 600; border: none; border-radius: 12px; cursor: pointer; transition: all .2s; display: inline-flex; align-items: center; gap: 8px; font-size: .9rem; }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37,99,235,0.25); }
+        .btn-outline { background: white; color: var(--brand); border: 2px solid var(--brand); }
+        .btn-outline:hover { background: var(--brand); color: white; }
+        .btn-danger { background: var(--danger); }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-sm { padding: 8px 14px; font-size: .8rem; }
+        .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+        .hamburger { display: none; background: none; border: none; font-size: 1.5rem; color: var(--text); cursor: pointer; padding: 8px; border-radius: 8px; }
+        .hamburger:hover { background: var(--bg); }
+        .sidebar-layout { display: grid; grid-template-columns: 260px 1fr; gap: 24px; }
+        .sidebar { background: var(--card); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); border: 1px solid var(--border); height: fit-content; position: sticky; top: 24px; transition: transform 0.3s ease; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 12px; cursor: pointer; transition: all .2s; font-weight: 500; color: var(--text2); margin-bottom: 4px; }
+        .nav-item:hover { background: var(--bg); color: var(--brand); }
+        .nav-item.active { background: linear-gradient(135deg, var(--brand), var(--brand-light)); color: white; }
+        .nav-item i { width: 20px; text-align: center; }
+        .mobile-sidebar-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .mobile-sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+        .main-content { animation: fadeIn 0.3s ease; min-width: 0; }
+        .card { background: var(--card); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 20px; }
+        .card h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .card h2 i { color: var(--brand); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: linear-gradient(135deg, var(--brand-dark), var(--brand)); color: white; padding: 20px; border-radius: var(--radius); box-shadow: 0 8px 24px rgba(37,99,235,0.2); transition: all .3s; }
+        .stat-card:hover { transform: translateY(-4px); }
+        .stat-card h3 { font-size: 2rem; font-weight: 900; }
+        .stat-card p { font-size: .85rem; opacity: .9; margin-top: 4px; }
+        .stat-card.danger { background: linear-gradient(135deg, #dc2626, #ef4444); }
+        .stat-card.success { background: linear-gradient(135deg, #059669, #10b981); }
+        .stat-card.warning { background: linear-gradient(135deg, #d97706, #f59e0b); }
+        .stat-card.info { background: linear-gradient(135deg, #1e40af, #3b82f6); }
+        .search-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .search-bar input { flex: 1; min-width: 200px; padding: 12px 16px; border: 2px solid var(--border); border-radius: 12px; font-size: .9rem; outline: none; transition: all .2s; background: var(--card); color: var(--text); }
+        .search-bar input:focus { border-color: var(--brand-light); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+        .search-bar select { padding: 12px 16px; border: 2px solid var(--border); border-radius: 12px; font-size: .9rem; outline: none; background: var(--card); color: var(--text); }
+        .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+        th { background: var(--bg); padding: 12px 16px; text-align: left; font-weight: 600; color: var(--text2); font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; border-bottom: 2px solid var(--border); white-space: nowrap; }
+        td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        tr:hover td { background: var(--bg); }
+        tr:last-child td { border-bottom: none; }
+        .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 50px; font-size: .75rem; font-weight: 700; }
+        .status-active { background: #d1fae5; color: #065f46; }
+        .status-expired { background: #fee2e2; color: #991b1b; }
+        .status-flagged { background: #fef3c7; color: #92400e; }
+        .status-pending { background: #dbeafe; color: #1e40af; }
+        .plan-badge { display: inline-flex; padding: 4px 12px; border-radius: 50px; font-size: .75rem; font-weight: 700; background: var(--bg); color: var(--text2); }
+        .plan-pro { background: #dbeafe; color: #1e40af; }
+        .plan-premium { background: #f3e8ff; color: #6b21a8; }
+        .plan-free { background: #f1f5f9; color: #475569; }
+        .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+        .action-btn { padding: 6px 10px; border-radius: 8px; border: none; cursor: pointer; font-size: .75rem; font-weight: 600; transition: all .2s; }
+        .action-btn:hover { transform: scale(1.05); }
+        .action-btn.view { background: #dbeafe; color: #1e40af; }
+        .action-btn.upgrade { background: #d1fae5; color: #065f46; }
+        .action-btn.downgrade { background: #fee2e2; color: #991b1b; }
+        .action-btn.edit { background: #fef3c7; color: #92400e; }
+        .action-btn.delete { background: #fee2e2; color: #991b1b; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; opacity: 0; pointer-events: none; transition: opacity .3s; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal { background: var(--card); border-radius: 24px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 48px rgba(0,0,0,0.2); animation: fadeIn 0.3s ease; }
+        .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { font-size: 1.2rem; font-weight: 700; }
+        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text2); padding: 4px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
+        .modal-close:hover { background: var(--bg); }
+        .modal-body { padding: 24px; }
+        .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-weight: 600; font-size: .85rem; margin-bottom: 6px; color: var(--text); }
+        .form-group input, .form-group select { width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 12px; font-size: .9rem; outline: none; transition: all .2s; background: var(--bg); color: var(--text); }
+        .form-group input:focus, .form-group select:focus { border-color: var(--brand-light); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .detail-item { padding: 12px; background: var(--bg); border-radius: 12px; }
+        .detail-item label { font-size: .75rem; color: var(--text2); text-transform: uppercase; letter-spacing: .05em; font-weight: 600; display: block; margin-bottom: 4px; }
+        .detail-item value { font-size: .9rem; font-weight: 600; color: var(--text); word-break: break-all; }
+        .chart-container { height: 300px; margin: 20px 0; position: relative; }
+        .chart-bar { display: flex; align-items: flex-end; gap: 4px; height: 100%; padding: 0 10px 30px 10px; }
+        .bar { flex: 1; background: linear-gradient(to top, var(--brand), var(--brand-light)); border-radius: 4px 4px 0 0; min-height: 4px; transition: height 0.6s ease; position: relative; }
+        .bar:hover { opacity: 0.8; }
+        .bar-label { position: absolute; bottom: -24px; left: 50%; transform: translateX(-50%) rotate(-45deg); font-size: .65rem; color: var(--text2); white-space: nowrap; transform-origin: left center; }
+        .bar-value { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: .7rem; font-weight: 700; color: var(--text); }
+        .donut-chart { width: 180px; height: 180px; border-radius: 50%; position: relative; margin: 0 auto 20px; }
+        .donut-hole { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 100px; height: 100px; background: var(--card); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .donut-hole h4 { font-size: 1.5rem; font-weight: 800; }
+        .donut-hole p { font-size: .75rem; color: var(--text2); }
+        .donut-legend { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-top: 16px; }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: .85rem; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .referrer-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .referrer-name { min-width: 120px; font-size: .85rem; font-weight: 600; }
+        .referrer-track { flex: 1; height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+        .referrer-fill { height: 100%; background: var(--brand); border-radius: 4px; transition: width 0.6s ease; }
+        .referrer-count { font-size: .85rem; font-weight: 700; color: var(--text); min-width: 40px; text-align: right; }
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 20px; }
+        .page-btn { padding: 8px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); cursor: pointer; font-weight: 600; font-size: .85rem; transition: all .2s; }
+        .page-btn:hover { background: var(--brand); color: white; border-color: var(--brand); }
+        .page-btn.active { background: var(--brand); color: white; border-color: var(--brand); }
+        .page-btn:disabled { opacity: .5; cursor: not-allowed; }
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text2); }
+        .empty-state i { font-size: 3rem; margin-bottom: 16px; color: var(--border); }
+        .empty-state h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+        .login-screen { max-width: 420px; margin: 80px auto; }
+        .login-screen .card { padding: 40px; }
+        .login-screen h1 { text-align: center; margin-bottom: 8px; }
+        .login-screen .sub { text-align: center; margin-bottom: 24px; color: var(--text2); font-size: .9rem; }
+        .hidden { display: none !important; }
+        .msg { padding: 12px 16px; border-radius: 12px; margin-bottom: 16px; font-size: .9rem; font-weight: 500; display: none; }
+        .msg.show { display: block; }
+        .msg-success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .msg-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .msg-info { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+        .tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 2px; overflow-x: auto; }
+        .tab { padding: 10px 16px; border-radius: 12px 12px 0 0; font-weight: 600; cursor: pointer; transition: all .2s; border: none; background: none; color: var(--text2); font-size: .9rem; white-space: nowrap; position: relative; }
+        .tab.active { color: var(--brand); }
+        .tab.active::after { content: ''; position: absolute; bottom: -6px; left: 0; right: 0; height: 3px; background: var(--brand); border-radius: 2px; }
+        .tab:hover { color: var(--brand); }
+        .device-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+        .device-card { text-align: center; padding: 20px; background: var(--bg); border-radius: 12px; }
+        .device-card i { font-size: 2rem; margin-bottom: 8px; color: var(--brand); }
+        .device-card h4 { font-size: 1.5rem; font-weight: 800; }
+        .device-card p { font-size: .85rem; color: var(--text2); }
+        .country-list { max-height: 400px; overflow-y: auto; }
+        .country-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+        .country-item:last-child { border-bottom: none; }
+        .admin-card { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--bg); border-radius: 12px; margin-bottom: 10px; }
+        .admin-info { display: flex; align-items: center; gap: 12px; }
+        .admin-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--brand), var(--brand-light)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; }
+        .key-card { display: flex; justify-content: space-between; align-items: center; padding: 14px; background: var(--bg); border-radius: 12px; margin-bottom: 8px; font-family: monospace; font-size: .9rem; flex-wrap: wrap; gap: 8px; }
+        .key-value { font-weight: 700; color: var(--brand); }
+        .key-used { opacity: .5; text-decoration: line-through; }
+        .loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+        .loading-overlay.hidden { display: none !important; }
+        .spinner { width: 48px; height: 48px; border: 4px solid var(--border); border-top-color: var(--brand); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .platform-visits-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 24px; }
+        @media(max-width: 1024px) {
+            .sidebar-layout { grid-template-columns: 1fr; }
+            .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; z-index: 200; border-radius: 0; transform: translateX(-100%); overflow-y: auto; }
+            .sidebar.mobile-open { transform: translateX(0); animation: slideIn 0.3s ease; }
+            .hamburger { display: block; }
+            .header { padding: 16px 20px; }
+            .header h1 { font-size: 1.1rem; }
+        }
+        @media(max-width: 640px) {
+            .container { padding: 12px; }
+            .header { flex-wrap: wrap; gap: 8px; }
+            .header-right { order: 3; width: 100%; justify-content: flex-end; }
+            .stats-grid { grid-template-columns: repeat(2,1fr); }
+            .search-bar { flex-direction: column; }
+            .search-bar input, .search-bar select { width: 100%; }
+            .action-btns { flex-direction: column; }
+            .action-btn { width: 100%; text-align: center; }
+            .detail-grid { grid-template-columns: 1fr; }
+            .device-grid { grid-template-columns: 1fr; }
+            .platform-visits-grid { grid-template-columns: 1fr; }
+            .login-screen { margin: 40px auto; padding: 0 12px; }
+            .login-screen .card { padding: 24px; }
+            .modal { border-radius: 16px; }
+            .chart-container { height: 220px; }
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } }
     </style>
 </head>
 <body>
+<div id="loading-overlay" class="loading-overlay hidden"><div class="spinner"></div></div>
 
-    <!-- ===== APP ROOT ===== -->
-    <div id="app">
-
-        <!-- ===== LOGIN SECTION ===== -->
-        <div id="loginSection">
-            <div class="login-card">
-                <a href="/" class="logo"><img src="/icon.svg" alt="MyShub" /> MyShub</a>
-                <p class="subtitle">Admin Login</p>
-                <form id="loginForm" onsubmit="handleLogin(event)">
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="adminEmail" placeholder="admin@myshub.site" required />
-                    </div>
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" id="adminPassword" placeholder="••••••••" required />
-                    </div>
-                    <button type="submit" class="btn" id="loginBtn">Login</button>
-                    <div class="error" id="loginError">Invalid credentials. Please try again.</div>
-                </form>
+<!-- Login Screen -->
+<div id="login-screen" class="login-screen">
+    <div class="card">
+        <div style="text-align:center;margin-bottom:24px;">
+            <div style="width:64px;height:64px;background:linear-gradient(135deg,var(--brand),var(--brand-light));border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+                <i class="fa-solid fa-shield-halved" style="color:white;font-size:1.8rem;"></i>
+            </div>
+            <h1>Admin Login</h1>
+            <p class="sub">MyShop Admin Dashboard</p>
+        </div>
+        <div id="login-msg" class="msg"></div>
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="admin-email" placeholder="admin@example.com" onkeydown="if(event.key==='Enter')adminLogin()">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <div style="position:relative;">
+                <input type="password" id="admin-password" placeholder="••••••••" style="padding-right:44px;" onkeydown="if(event.key==='Enter')adminLogin()">
+                <button type="button" onclick="togglePassword('admin-password', this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text2);cursor:pointer;font-size:1rem;padding:4px;">
+                    <i class="fa-solid fa-eye"></i>
+                </button>
             </div>
         </div>
+        <div class="form-group">
+            <label>Admin Key <span style="color:var(--text2);font-weight:400;">(for super admin signup/login)</span></label>
+            <input type="password" id="admin-key" placeholder="Enter admin key" onkeydown="if(event.key==='Enter')adminLogin()">
+        </div>
+        <button class="btn" onclick="adminLogin()" id="login-btn" style="width:100%;">
+            <i class="fa-solid fa-arrow-right"></i> Sign In
+        </button>
+        <p style="text-align:center;margin-top:16px;font-size:.85rem;color:var(--text2);">
+            <a href="#" onclick="showStaffRegister();return false;" style="color:var(--brand);">Register with staff key or admin key</a>
+        </p>
+    </div>
+</div>
 
-        <!-- ===== DASHBOARD SECTION ===== -->
-        <div id="dashboardSection">
-            <div class="dashboard-wrapper">
-
-                <!-- Sidebar -->
-                <aside class="sidebar" id="sidebar">
-                    <a href="/" class="logo"><img src="/icon.svg" alt="MyShub" /> MyShub</a>
-                    <div class="nav-item active" data-tab="dashboard" onclick="switchTab('dashboard')">
-                        <i class="fa-solid fa-gauge-high"></i> Dashboard
-                    </div>
-                    <div class="nav-item" data-tab="shops" onclick="switchTab('shops')">
-                        <i class="fa-solid fa-store"></i> Shops
-                        <span class="badge" id="shopCountBadge">0</span>
-                    </div>
-                    <div class="nav-item" data-tab="feedback" onclick="switchTab('feedback')">
-                        <i class="fa-solid fa-comment"></i> Feedback
-                        <span class="badge" id="feedbackCountBadge">0</span>
-                    </div>
-                    <div class="nav-item" data-tab="broadcast" onclick="switchTab('broadcast')">
-                        <i class="fa-solid fa-bullhorn"></i> Broadcast
-                    </div>
-                    <div class="spacer"></div>
-                    <div class="nav-item logout" onclick="logout()">
-                        <i class="fa-solid fa-sign-out-alt"></i> Logout
-                    </div>
-                </aside>
-
-                <!-- Main -->
-                <main class="main" id="mainContent">
-                    <button class="mobile-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
-
-                    <!-- ===== DASHBOARD TAB ===== -->
-                    <div id="tab-dashboard" class="tab-content">
-                        <div class="page-header">
-                            <div>
-                                <h1>Dashboard</h1>
-                                <div class="sub">Overview of your business network</div>
-                            </div>
-                            <button class="btn btn-primary" onclick="refreshDashboard()" style="padding:8px 20px;border-radius:40px;border:none;font-weight:600;background:var(--brand);color:#fff;cursor:pointer;"><i class="fa-solid fa-rotate"></i> Refresh</button>
-                        </div>
-                        <div class="stats-grid" id="statsGrid">
-                            <div class="stat-card"><div class="label">Total Shops</div><div class="value" id="statShops">—</div></div>
-                            <div class="stat-card"><div class="label">Total Visits</div><div class="value" id="statVisits">—</div></div>
-                            <div class="stat-card"><div class="label">Visits Today</div><div class="value" id="statVisitsToday">—</div></div>
-                            <div class="stat-card"><div class="label">Total Clicks</div><div class="value" id="statClicks">—</div></div>
-                            <div class="stat-card"><div class="label">Free</div><div class="value" id="statFree">—</div></div>
-                            <div class="stat-card"><div class="label">Pro</div><div class="value" id="statPro">—</div></div>
-                            <div class="stat-card"><div class="label">Premium</div><div class="value" id="statPremium">—</div></div>
-                            <div class="stat-card"><div class="label">Active Shops</div><div class="value" id="statActive">—</div></div>
-                        </div>
-                        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);">
-                            <h3 style="font-weight:700;margin-bottom:12px;">Recent Signups</h3>
-                            <div id="recentSignups">Loading...</div>
-                        </div>
-                    </div>
-
-                    <!-- ===== SHOPS TAB ===== -->
-                    <div id="tab-shops" class="tab-content" style="display:none;">
-                        <div class="page-header">
-                            <div><h1>Shops</h1><div class="sub">Search and manage all shops</div></div>
-                        </div>
-                        <div class="search-bar">
-                            <input type="text" id="shopSearch" placeholder="Search by email or slug..." onkeyup="searchShops()" />
-                            <select id="shopPlanFilter" onchange="searchShops()">
-                                <option value="">All Plans</option>
-                                <option value="free">Free</option>
-                                <option value="pro">Pro</option>
-                                <option value="premium">Premium</option>
-                            </select>
-                            <select id="shopStatusFilter" onchange="searchShops()">
-                                <option value="">All Status</option>
-                                <option value="active">Active</option>
-                                <option value="expired">Expired</option>
-                            </select>
-                            <button onclick="searchShops()"><i class="fa-solid fa-search"></i> Search</button>
-                        </div>
-                        <div class="table-wrap">
-                            <table>
-                                <thead><tr><th>Slug</th><th>Business Name</th><th>Email</th><th>Plan</th><th>Status</th><th>Visits</th><th>Actions</th></tr></thead>
-                                <tbody id="shopsTableBody"><tr><td colspan="7" class="loading-spinner"><div class="spinner"></div></td></tr></tbody>
-                            </table>
-                        </div>
-                        <div class="pagination-info">
-                            <span id="shopsPaginationInfo">Showing 0-0 of 0</span>
-                            <div>
-                                <button onclick="prevPage()" id="prevPageBtn" disabled>← Prev</button>
-                                <button onclick="nextPage()" id="nextPageBtn">Next →</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ===== FEEDBACK TAB ===== -->
-                    <div id="tab-feedback" class="tab-content" style="display:none;">
-                        <div class="page-header">
-                            <div><h1>Feedback</h1><div class="sub">View and manage user feedback</div></div>
-                        </div>
-                        <div class="search-bar">
-                            <select id="feedbackTypeFilter" onchange="loadFeedback()">
-                                <option value="">All Types</option>
-                                <option value="general">General</option>
-                                <option value="report">Report</option>
-                                <option value="claim">Claim</option>
-                                <option value="partnership">Partnership</option>
-                            </select>
-                            <button onclick="loadFeedback()"><i class="fa-solid fa-rotate"></i> Refresh</button>
-                        </div>
-                        <div id="feedbackList" style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);">
-                            <div class="loading-spinner"><div class="spinner"></div></div>
-                        </div>
-                    </div>
-
-                    <!-- ===== BROADCAST TAB ===== -->
-                    <div id="tab-broadcast" class="tab-content" style="display:none;">
-                        <div class="page-header">
-                            <div><h1>Broadcast</h1><div class="sub">Send notifications to shops</div></div>
-                        </div>
-                        <div class="broadcast-area">
-                            <div style="margin-bottom:16px;">
-                                <label style="font-weight:600;display:block;margin-bottom:4px;">Title</label>
-                                <input type="text" id="broadcastTitle" placeholder="e.g. New Feature Update" style="width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:1rem;background:var(--bg);color:var(--text);font-family:inherit;outline:none;" />
-                            </div>
-                            <div style="margin-bottom:16px;">
-                                <label style="font-weight:600;display:block;margin-bottom:4px;">Message</label>
-                                <textarea id="broadcastMessage" placeholder="Write your message here..."></textarea>
-                            </div>
-                            <div style="margin-bottom:16px;">
-                                <label style="font-weight:600;display:block;margin-bottom:4px;">Recipients</label>
-                                <div class="recipient-options">
-                                    <label><input type="radio" name="recipientType" value="all" checked /> All Shops</label>
-                                    <label><input type="radio" name="recipientType" value="free" /> Free</label>
-                                    <label><input type="radio" name="recipientType" value="pro" /> Pro</label>
-                                    <label><input type="radio" name="recipientType" value="premium" /> Premium</label>
-                                    <label><input type="radio" name="recipientType" value="selected" /> Selected</label>
-                                </div>
-                                <div id="selectedRecipients" style="display:none;margin-top:8px;">
-                                    <input type="text" id="selectedShopSlugs" placeholder="Enter comma-separated slugs (e.g. shop1, shop2)" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:12px;background:var(--bg);color:var(--text);font-family:inherit;outline:none;" />
-                                </div>
-                            </div>
-                            <button onclick="sendBroadcast()" class="btn btn-primary" style="padding:12px 32px;border-radius:40px;border:none;font-weight:700;background:var(--brand);color:#fff;cursor:pointer;font-size:1rem;"><i class="fa-solid fa-paper-plane"></i> Send Broadcast</button>
-                            <div id="broadcastResult" style="margin-top:12px;"></div>
-                        </div>
-                    </div>
-                </main>
+<!-- Staff Register Screen -->
+<div id="staff-register-screen" class="login-screen hidden">
+    <div class="card">
+        <div style="text-align:center;margin-bottom:24px;">
+            <h1>Staff Registration</h1>
+            <p class="sub">Use your staff key or admin key to create an account</p>
+        </div>
+        <div id="staff-msg" class="msg"></div>
+        <div class="form-group">
+            <label>Staff Key <span style="color:var(--text2);font-weight:400;">(or leave blank if using Admin Key)</span></label>
+            <input type="text" id="staff-key" placeholder="XXXX-XXXX-XXXX" onkeydown="if(event.key==='Enter')staffRegister()">
+        </div>
+        <div class="form-group">
+            <label>Admin Key <span style="color:var(--text2);font-weight:400;">(for super admin — optional)</span></label>
+            <input type="password" id="admin-key-register" placeholder="Enter admin key" onkeydown="if(event.key==='Enter')staffRegister()">
+        </div>
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="staff-email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')staffRegister()">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <div style="position:relative;">
+                <input type="password" id="staff-password" placeholder="Min 6 characters" style="padding-right:44px;" onkeydown="if(event.key==='Enter')staffRegister()">
+                <button type="button" onclick="togglePassword('staff-password', this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text2);cursor:pointer;font-size:1rem;padding:4px;">
+                    <i class="fa-solid fa-eye"></i>
+                </button>
             </div>
         </div>
+        <button class="btn" onclick="staffRegister()" id="register-btn" style="width:100%;">Create Account</button>
+        <p style="text-align:center;margin-top:16px;">
+            <a href="#" onclick="showLogin();return false;" style="color:var(--brand);">Back to Login</a>
+        </p>
     </div>
+</div>
 
-    <!-- ===== SHOP DETAIL MODAL ===== -->
-    <div class="modal-overlay" id="shopDetailModal" onclick="if(event.target===this) closeModal()">
-        <div class="modal-box">
-            <button class="close-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
-            <h2 id="modalShopTitle">Shop Details</h2>
-            <div id="modalShopContent">Loading...</div>
+<!-- Dashboard -->
+<div id="dashboard" class="hidden">
+    <div class="container">
+        <div class="header">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <button class="hamburger" onclick="toggleMobileSidebar()" aria-label="Open menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h1><i class="fa-solid fa-shield-halved"></i> MyShop Admin</h1>
+            </div>
+            <div class="header-right">
+                <span class="role-badge" id="admin-role">VIEWER</span>
+                <span id="admin-email-display" style="font-size:.85rem;color:var(--text2);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+                <button class="btn btn-outline btn-sm" onclick="logout()">
+                    <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+                </button>
+            </div>
+        </div>
+        <div class="sidebar-layout">
+            <div class="sidebar" id="sidebar">
+                <div class="nav-item active" onclick="switchSection('overview', this)"><i class="fa-solid fa-chart-pie"></i> Overview</div>
+                <div class="nav-item" onclick="switchSection('shops', this)"><i class="fa-solid fa-store"></i> All Shops</div>
+                <div class="nav-item" onclick="switchSection('search', this)"><i class="fa-solid fa-magnifying-glass"></i> Search</div>
+                <div class="nav-item" onclick="switchSection('analytics', this)"><i class="fa-solid fa-chart-line"></i> Analytics</div>
+                <div class="nav-item" onclick="switchSection('referrals', this)"><i class="fa-solid fa-gift"></i> Referrals</div>
+                <div class="nav-item" onclick="switchSection('feedback', this)"><i class="fa-solid fa-comment-dots"></i> Feedback</div>
+                <div class="nav-item admin-only hidden" onclick="switchSection('admins', this)"><i class="fa-solid fa-users-gear"></i> Admins</div>
+                <div class="nav-item admin-only hidden" onclick="switchSection('staff-keys', this)"><i class="fa-solid fa-key"></i> Staff Keys</div>
+            </div>
+            <div class="main-content" id="main-content"></div>
         </div>
     </div>
+</div>
 
-    <script>
-        // ================================================================
-        // CONFIG & STATE
-        // ================================================================
-        const API_BASE = 'https://emltechstudio-myshub-api.hf.space';
-        let currentPage = 1;
-        let totalShops = 0;
-        let shopSearchQuery = '';
-        let shopPlanFilter = '';
-        let shopStatusFilter = '';
+<!-- Mobile sidebar overlay -->
+<div id="mobile-sidebar-overlay" class="mobile-sidebar-overlay" onclick="closeSidebarMobile()"></div>
 
-        // ================================================================
-        // AUTH & SESSION
-        // ================================================================
-        function getAdminSession() {
-            try {
-                const raw = localStorage.getItem('admin_session');
-                if (raw) return JSON.parse(raw);
-                return null;
-            } catch { return null; }
+<!-- Shop Details Modal -->
+<div id="shop-modal" class="modal-overlay" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+        <div class="modal-header"><h3><i class="fa-solid fa-store"></i> Shop Details</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+        <div class="modal-body" id="shop-modal-body"></div>
+        <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal()">Close</button></div>
+    </div>
+</div>
+
+<!-- Upgrade Modal -->
+<div id="upgrade-modal" class="modal-overlay" onclick="if(event.target===this)closeUpgradeModal()">
+    <div class="modal">
+        <div class="modal-header"><h3><i class="fa-solid fa-crown"></i> Upgrade/Downgrade Shop</h3><button class="modal-close" onclick="closeUpgradeModal()">&times;</button></div>
+        <div class="modal-body">
+            <div class="form-group"><label>Shop</label><input type="text" id="upgrade-shop-id" readonly></div>
+            <div class="form-group"><label>Current Plan</label><input type="text" id="upgrade-current-plan" readonly></div>
+            <div class="form-group"><label>New Plan</label><select id="upgrade-new-plan"><option value="free">Free</option><option value="pro">Pro (N1,500 / 31 days)</option><option value="premium">Premium (N3,500 / 31 days)</option></select></div>
+            <div class="form-group"><label>Duration (days)</label><input type="number" id="upgrade-days" value="31" min="1" max="365"></div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-outline" onclick="closeUpgradeModal()">Cancel</button><button class="btn" onclick="confirmUpgrade()">Apply Change</button></div>
+    </div>
+</div>
+
+<!-- Status Modal -->
+<div id="status-modal" class="modal-overlay" onclick="if(event.target===this)closeStatusModal()">
+    <div class="modal">
+        <div class="modal-header"><h3><i class="fa-solid fa-toggle-on"></i> Change Shop Status</h3><button class="modal-close" onclick="closeStatusModal()">&times;</button></div>
+        <div class="modal-body">
+            <div class="form-group"><label>Shop</label><input type="text" id="status-shop-id" readonly></div>
+            <div class="form-group"><label>New Status</label><select id="status-new-status"><option value="active">Active</option><option value="expired">Expired</option><option value="flagged">Flagged</option></select></div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-outline" onclick="closeStatusModal()">Cancel</button><button class="btn" onclick="confirmStatusChange()">Apply</button></div>
+    </div>
+</div>
+
+<!-- Feedback Modal -->
+<div id="feedback-modal" class="modal-overlay" onclick="if(event.target===this)closeFeedbackModal()">
+    <div class="modal">
+        <div class="modal-header"><h3><i class="fa-solid fa-comment"></i> Feedback Details</h3><button class="modal-close" onclick="closeFeedbackModal()">&times;</button></div>
+        <div class="modal-body" id="feedback-modal-body"></div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeFeedbackModal()">Close</button>
+            <button class="btn btn-danger" onclick="deleteFeedback()">Delete</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const API = 'https://emltechstudio-myshub-api.hf.space';
+let adminToken = localStorage.getItem('myshop_admin_token');
+let adminRole = localStorage.getItem('myshop_admin_role');
+let adminEmail = localStorage.getItem('myshop_admin_email');
+let currentSection = 'overview';
+let allShopsData = [], currentShopPage = 1;
+let shopSearchQuery = '', shopFilterPlan = '', shopFilterStatus = '';
+let feedbackList = [], currentFeedbackId = null;
+
+function showLoading(show) {
+    document.getElementById('loading-overlay').classList.toggle('hidden', !show);
+}
+function setButtonLoading(btn, loading, text) {
+    if (!btn) return;
+    if (loading) {
+        if (!btn._orig) btn._orig = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> ' + (text || 'Loading...');
+        btn.disabled = true;
+    } else {
+        btn.innerHTML = btn._orig || text || btn.innerHTML;
+        btn.disabled = false;
+    }
+}
+function showToast(msg, type = 'info') {
+    let t = document.getElementById('admin-toast');
+    if (!t) {
+        t = document.createElement('div');
+        t.id = 'admin-toast';
+        t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);padding:14px 28px;border-radius:12px;font-weight:600;font-size:0.9rem;z-index:10000;transition:all 0.3s ease;opacity:0;box-shadow:0 8px 24px rgba(0,0,0,0.15);max-width:90%;text-align:center;';
+        document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    const colors = { success: { bg: '#d1fae5', color: '#065f46', border: '#a7f3d0' }, error: { bg: '#fee2e2', color: '#991b1b', border: '#fecaca' }, info: { bg: '#dbeafe', color: '#1e40af', border: '#bfdbfe' } };
+    const c = colors[type] || colors.info;
+    t.style.background = c.bg; t.style.color = c.color; t.style.border = '1px solid ' + c.border;
+    t.style.transform = 'translateX(-50%) translateY(0)'; t.style.opacity = '1';
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => { t.style.transform = 'translateX(-50%) translateY(100px)'; t.style.opacity = '0'; }, 4000);
+}
+function showMsg(id, text, type = 'info') {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = text;
+    el.className = 'msg msg-' + type + ' show';
+    setTimeout(() => el.classList.remove('show'), 5000);
+}
+function authHeaders() {
+    return { 'Authorization': 'Bearer ' + adminToken, 'Content-Type': 'application/json' };
+}
+async function apiGet(ep) {
+    const r = await fetch(API + ep, { headers: authHeaders() });
+    if (r.status === 403) { logout(); throw new Error('Session expired'); }
+    if (!r.ok) { const d = await r.json().catch(() => ({})); throw new Error(d.detail || 'Request failed'); }
+    return r.json();
+}
+async function apiPost(ep, body) {
+    const r = await fetch(API + ep, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
+    if (r.status === 403) { logout(); throw new Error('Session expired'); }
+    if (!r.ok) { const d = await r.json().catch(() => ({})); throw new Error(d.detail || 'Request failed'); }
+    return r.json();
+}
+async function apiDelete(ep) {
+    const r = await fetch(API + ep, { method: 'DELETE', headers: authHeaders() });
+    if (r.status === 403) { logout(); throw new Error('Session expired'); }
+    if (!r.ok) { const d = await r.json().catch(() => ({})); throw new Error(d.detail || 'Request failed'); }
+    return r.json();
+}
+function showLogin() {
+    document.getElementById('login-screen').classList.remove('hidden');
+    document.getElementById('staff-register-screen').classList.add('hidden');
+    document.getElementById('dashboard').classList.add('hidden');
+}
+function showStaffRegister() {
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('staff-register-screen').classList.remove('hidden');
+}
+function showDashboard() {
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('staff-register-screen').classList.add('hidden');
+    document.getElementById('dashboard').classList.remove('hidden');
+    document.getElementById('admin-role').textContent = (adminRole || 'viewer').toUpperCase();
+    document.getElementById('admin-email-display').textContent = adminEmail || '';
+    document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', adminRole !== 'super'));
+    loadOverview();
+}
+function toggleMobileSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('mobile-sidebar-overlay');
+    sidebar.classList.add('mobile-open');
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+function closeSidebarMobile() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('mobile-sidebar-overlay');
+    sidebar.classList.remove('mobile-open');
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+}
+async function adminLogin() {
+    const email = document.getElementById('admin-email').value.trim();
+    const password = document.getElementById('admin-password').value;
+    const key = document.getElementById('admin-key').value.trim();
+    const btn = document.getElementById('login-btn');
+    if (!email || !password) { showMsg('login-msg', 'Email and password required', 'error'); return; }
+    setButtonLoading(btn, true, 'Signing in...');
+    showLoading(true);
+    showMsg('login-msg', 'Connecting...', 'info');
+    try {
+        const body = { email, password };
+        if (key) body.admin_key = key;
+        const res = await fetch(API + '/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        let data;
+        try { data = await res.json(); } catch (e) { const text = await res.text(); throw new Error('Server error: ' + res.status + ' — ' + text.slice(0, 200)); }
+        if (!res.ok) throw new Error(data.detail || data.message || 'Login failed (' + res.status + ')');
+        adminToken = data.token; adminRole = data.role; adminEmail = data.email;
+        localStorage.setItem('myshop_admin_token', adminToken);
+        localStorage.setItem('myshop_admin_role', adminRole);
+        localStorage.setItem('myshop_admin_email', adminEmail);
+        showMsg('login-msg', 'Login successful!', 'success');
+        setTimeout(showDashboard, 500);
+    } catch (e) {
+        console.error('Login error:', e);
+        showMsg('login-msg', e.message || 'Network error', 'error');
+    } finally {
+        setButtonLoading(btn, false, 'Sign In');
+        showLoading(false);
+    }
+}
+async function staffRegister() {
+    const key = document.getElementById('staff-key').value.trim();
+    const adminKey = document.getElementById('admin-key-register').value.trim();
+    const email = document.getElementById('staff-email').value.trim();
+    const password = document.getElementById('staff-password').value;
+    const btn = document.getElementById('register-btn');
+    if (!email || !password) { showMsg('staff-msg', 'Email and password required', 'error'); return; }
+    if (!key && !adminKey) { showMsg('staff-msg', 'Staff key or Admin key required', 'error'); return; }
+    setButtonLoading(btn, true, 'Creating...');
+    showLoading(true);
+    try {
+        const body = { email, password };
+        if (adminKey) body.admin_key = adminKey; else body.key = key;
+        const res = await fetch(API + '/admin/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Registration failed');
+        if (data.token) {
+            adminToken = data.token; adminRole = data.role; adminEmail = data.email;
+            localStorage.setItem('myshop_admin_token', adminToken);
+            localStorage.setItem('myshop_admin_role', adminRole);
+            localStorage.setItem('myshop_admin_email', adminEmail);
+            showMsg('staff-msg', 'Account created! Logging you in...', 'success');
+            setTimeout(showDashboard, 1000);
+        } else {
+            showMsg('staff-msg', 'Account created! Please login.', 'success');
+            setTimeout(showLogin, 2000);
         }
-
-        function setAdminSession(email, password) {
-            localStorage.setItem('admin_session', JSON.stringify({ email, password }));
-        }
-
-        function clearAdminSession() {
-            localStorage.removeItem('admin_session');
-        }
-
-        function getAdminHeaders() {
-            const session = getAdminSession();
-            if (!session) throw new Error('Not logged in');
-            return { 'admin-email': session.email, 'admin-password': session.password };
-        }
-
-        function isLoggedIn() {
-            const session = getAdminSession();
-            return session && session.email && session.password;
-        }
-
-        // ================================================================
-        // LOGIN
-        // ================================================================
-        async function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('adminEmail').value.trim();
-            const password = document.getElementById('adminPassword').value.trim();
-            const btn = document.getElementById('loginBtn');
-            const errorEl = document.getElementById('loginError');
-
-            if (!email || !password) {
-                errorEl.style.display = 'block';
-                errorEl.textContent = 'Please fill in all fields.';
-                return;
-            }
-
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-btn"></span> Logging in...';
-            errorEl.style.display = 'none';
-
-            try {
-                const headers = {
-                    'admin-email': email,
-                    'admin-password': password
-                };
-                const res = await fetch(API_BASE + '/admin/me', { headers });
-
-                if (res.ok) {
-                    setAdminSession(email, password);
-                    showDashboard();
-                } else {
-                    errorEl.style.display = 'block';
-                    errorEl.textContent = 'Invalid email or password.';
-                }
-            } catch (err) {
-                errorEl.style.display = 'block';
-                errorEl.textContent = 'Network error. Please try again.';
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = 'Login';
-            }
-        }
-
-        // ================================================================
-        // LOGOUT
-        // ================================================================
-        function logout() {
-            if (confirm('Are you sure you want to logout?')) {
-                clearAdminSession();
-                showLogin();
-            }
-        }
-
-        // ================================================================
-        // UI SWITCH
-        // ================================================================
-        function showLogin() {
-            document.getElementById('loginSection').style.display = 'block';
-            document.getElementById('dashboardSection').style.display = 'none';
-        }
-
-        function showDashboard() {
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('dashboardSection').style.display = 'block';
-            // Load initial data
-            refreshDashboard();
-            searchShops();
-            loadFeedback();
-        }
-
-        // ================================================================
-        // SIDEBAR / TABS
-        // ================================================================
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-            document.getElementById('sidebarBackdrop')?.classList.toggle('show');
-        }
-
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
-            document.getElementById('tab-' + tab).style.display = 'block';
-            document.querySelectorAll('.sidebar .nav-item').forEach(el => el.classList.remove('active'));
-            document.querySelector(`.sidebar .nav-item[data-tab="${tab}"]`).classList.add('active');
-            if (window.innerWidth <= 768) toggleSidebar();
-            if (tab === 'dashboard') refreshDashboard();
-            else if (tab === 'shops') searchShops();
-            else if (tab === 'feedback') loadFeedback();
-        }
-
-        // ================================================================
-        // TOAST
-        // ================================================================
-        function showToast(msg, type) {
-            const existing = document.querySelector('.toast');
-            if (existing) existing.remove();
-            const div = document.createElement('div');
-            div.className = 'toast ' + (type || '');
-            div.innerHTML = `<span class="icon">${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span><span class="msg">${msg}</span>`;
-            document.body.appendChild(div);
-            setTimeout(() => div.remove(), 4000);
-        }
-
-        // ================================================================
-        // API HELPERS
-        // ================================================================
-        async function apiFetch(endpoint, options = {}) {
-            const headers = getAdminHeaders();
-            const res = await fetch(API_BASE + endpoint, {
-                ...options,
-                headers: { ...headers, 'Content-Type': 'application/json', ...options.headers }
-            });
-            if (!res.ok) {
-                const text = await res.text();
-                throw new Error(text || 'API error');
-            }
-            return res.json();
-        }
-
-        // ================================================================
-        // DASHBOARD
-        // ================================================================
-        async function refreshDashboard() {
-            try {
-                const data = await apiFetch('/admin/analytics');
-                document.getElementById('statShops').textContent = data.total_shops || 0;
-                document.getElementById('statVisits').textContent = data.total_visits || 0;
-                document.getElementById('statVisitsToday').textContent = data.visits_today || 0;
-                document.getElementById('statClicks').textContent = data.total_clicks || 0;
-                document.getElementById('statFree').textContent = data.plans?.free || 0;
-                document.getElementById('statPro').textContent = data.plans?.pro || 0;
-                document.getElementById('statPremium').textContent = data.plans?.premium || 0;
-                document.getElementById('statActive').textContent = data.active_shops || 0;
-                document.getElementById('shopCountBadge').textContent = data.total_shops || 0;
-
-                const recent = data.recent_shops || [];
-                const container = document.getElementById('recentSignups');
-                if (recent.length === 0) {
-                    container.innerHTML = '<p style="color:var(--text3);">No recent signups</p>';
-                } else {
-                    container.innerHTML = recent.map(s =>
-                        `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:0.9rem;">
-                            <span><strong>${s.business_name || s.slug}</strong> (${s.slug})</span>
-                            <span style="color:var(--text3);">${s.plan} · ${new Date(s.created_at).toLocaleDateString()}</span>
-                        </div>`
-                    ).join('');
-                }
-            } catch (e) {
-                showToast('Failed to load dashboard: ' + e.message, 'error');
-            }
-        }
-
-        // ================================================================
-        // SHOPS
-        // ================================================================
-        async function searchShops(page = currentPage) {
-            const search = document.getElementById('shopSearch').value.trim();
-            const plan = document.getElementById('shopPlanFilter').value;
-            const status = document.getElementById('shopStatusFilter').value;
-            shopSearchQuery = search;
-            shopPlanFilter = plan;
-            shopStatusFilter = status;
-            currentPage = page;
-
-            try {
-                const params = new URLSearchParams({
-                    page: page,
-                    limit: 20,
-                });
-                if (search) params.append('search', search);
-                if (plan) params.append('plan', plan);
-                if (status) params.append('status', status);
-
-                const data = await apiFetch('/admin/shops?' + params.toString());
-                const shops = data.shops || [];
-                totalShops = data.total || 0;
-
-                const tbody = document.getElementById('shopsTableBody');
-                if (shops.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text3);">No shops found</td></tr>';
-                } else {
-                    tbody.innerHTML = shops.map(s => `
+    } catch (e) {
+        showMsg('staff-msg', e.message, 'error');
+    } finally {
+        setButtonLoading(btn, false, 'Create Account');
+        showLoading(false);
+    }
+}
+function logout() {
+    localStorage.removeItem('myshop_admin_token');
+    localStorage.removeItem('myshop_admin_role');
+    localStorage.removeItem('myshop_admin_email');
+    adminToken = null; adminRole = null; adminEmail = null;
+    showLogin();
+}
+function switchSection(section, el) {
+    currentSection = section;
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (el) el.classList.add('active');
+    closeSidebarMobile();
+    const content = document.getElementById('main-content');
+    content.innerHTML = '<div class="card" style="text-align:center;padding:60px;"><i class="fa-solid fa-circle-notch fa-spin" style="font-size:2rem;color:var(--brand);"></i><p>Loading...</p></div>';
+    if (section === 'overview') loadOverview();
+    else if (section === 'shops') loadShops();
+    else if (section === 'search') loadSearch();
+    else if (section === 'analytics') loadAnalyticsSection();
+    else if (section === 'referrals') loadReferralsSection();
+    else if (section === 'feedback') loadFeedbackSection();
+    else if (section === 'admins') loadAdminsSection();
+    else if (section === 'staff-keys') loadStaffKeysSection();
+}
+async function loadOverview() {
+    showLoading(true);
+    try {
+        const data = await apiGet('/admin/analytics');
+        document.getElementById('main-content').innerHTML = `
+            <div class="stats-grid">
+                <div class="stat-card"><h3>${data.total_shops || 0}</h3><p>Total Shops</p></div>
+                <div class="stat-card success"><h3>${data.status_breakdown?.active || 0}</h3><p>Active</p></div>
+                <div class="stat-card danger"><h3>${data.status_breakdown?.expired || 0}</h3><p>Expired</p></div>
+                <div class="stat-card warning"><h3>${data.status_breakdown?.flagged || 0}</h3><p>Flagged</p></div>
+                <div class="stat-card info"><h3>${data.plan_breakdown?.pro || 0}</h3><p>Pro Plans</p></div>
+                <div class="stat-card" style="background:linear-gradient(135deg,#7c3aed,#a855f7);"><h3>${data.plan_breakdown?.premium || 0}</h3><p>Premium Plans</p></div>
+            </div>
+            <div class="card"><h2><i class="fa-solid fa-chart-line"></i> Revenue Estimate</h2>
+                <div style="font-size:2rem;font-weight:800;color:var(--brand);">N${(data.estimated_monthly_revenue_ngn || 0).toLocaleString()}</div>
+                <p class="sub">Estimated monthly revenue based on active paid plans</p>
+            </div>
+            <div class="card"><h2><i class="fa-solid fa-globe"></i> Top Countries</h2>
+                ${Object.entries(data.countries || {}).sort((a,b) => b[1]-a[1]).slice(0,10).map(([c,v]) => `
+                    <div class="country-item"><span>${c}</span><span style="font-weight:700;">${v}</span></div>
+                `).join('') || '<p class="sub">No data yet</p>'}
+            </div>
+            <div class="card"><h2><i class="fa-solid fa-arrow-trend-up"></i> Top Shops by Visits</h2>
+                <div class="table-wrap"><table><thead><tr><th>Shop</th><th>Visits</th><th>Plan</th></tr></thead><tbody>
+                    ${(data.top_shops_by_visits || []).map(s => `
+                        <tr><td><strong>${s.slug}</strong></td><td>${s.visits}</td><td><span class="plan-badge plan-${s.plan}">${s.plan.toUpperCase()}</span></td></tr>
+                    `).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--text2);">No visits yet</td></tr>'}
+                </tbody></table></div>
+            </div>
+            <div class="card"><h2><i class="fa-solid fa-users"></i> Referral Stats</h2>
+                <div class="stats-grid" style="grid-template-columns:repeat(2,1fr);">
+                    <div class="stat-card" style="background:linear-gradient(135deg,#0d9488,#14b8a6);"><h3>${data.referral_stats?.total_referral_codes || 0}</h3><p>Referral Codes</p></div>
+                    <div class="stat-card" style="background:linear-gradient(135deg,#0891b2,#06b6d4);"><h3>${data.referral_stats?.total_referred || 0}</h3><p>Total Referred</p></div>
+                </div>
+            </div>`;
+    } catch (e) {
+        document.getElementById('main-content').innerHTML = `<div class="card"><div class="msg msg-error show">${e.message || 'Failed to load Overview'}</div></div>`;
+        showToast(e.message || 'Failed to load Overview', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+async function loadShops(page = 1) {
+    currentShopPage = page;
+    showLoading(true);
+    try {
+        const params = new URLSearchParams();
+        params.set('page', page); params.set('limit', 50);
+        if (shopSearchQuery) params.set('search', shopSearchQuery);
+        if (shopFilterPlan) params.set('plan', shopFilterPlan);
+        if (shopFilterStatus) params.set('status', shopFilterStatus);
+        const data = await apiGet('/admin/shops?' + params.toString());
+        allShopsData = data.shops || [];
+        const totalPages = Math.ceil((data.total || 0) / 50) || 1;
+        document.getElementById('main-content').innerHTML = `
+            <div class="card"><h2><i class="fa-solid fa-store"></i> All Shops</h2>
+                <div class="search-bar">
+                    <input type="text" id="shop-search-input" placeholder="Search by email or slug..." value="${shopSearchQuery}" onkeydown="if(event.key==='Enter'){shopSearchQuery=this.value;loadShops(1);}">
+                    <select id="shop-filter-plan" onchange="shopFilterPlan=this.value;loadShops(1);">
+                        <option value="">All Plans</option><option value="free" ${shopFilterPlan==='free'?'selected':''}>Free</option><option value="pro" ${shopFilterPlan==='pro'?'selected':''}>Pro</option><option value="premium" ${shopFilterPlan==='premium'?'selected':''}>Premium</option>
+                    </select>
+                    <select id="shop-filter-status" onchange="shopFilterStatus=this.value;loadShops(1);">
+                        <option value="">All Status</option><option value="active" ${shopFilterStatus==='active'?'selected':''}>Active</option><option value="expired" ${shopFilterStatus==='expired'?'selected':''}>Expired</option><option value="flagged" ${shopFilterStatus==='flagged'?'selected':''}>Flagged</option><option value="pending" ${shopFilterStatus==='pending'?'selected':''}>Pending</option>
+                    </select>
+                    <button class="btn btn-sm" onclick="shopSearchQuery=document.getElementById('shop-search-input').value;loadShops(1);"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    <button class="btn btn-outline btn-sm" onclick="shopSearchQuery='';shopFilterPlan='';shopFilterStatus='';loadShops(1);"><i class="fa-solid fa-rotate-left"></i></button>
+                </div>
+                <div class="table-wrap"><table><thead><tr><th>Shop</th><th>Email</th><th>Plan</th><th>Status</th><th>Visits</th><th>Country</th><th>Created</th><th>Actions</th></tr></thead><tbody>
+                    ${allShopsData.map(s => `
                         <tr>
-                            <td><a href="/${s.slug}" target="_blank" style="color:var(--brand);text-decoration:none;">${s.slug}</a></td>
-                            <td>${s.business_name || '—'}</td>
-                            <td>${s.email || '—'}</td>
-                            <td><span class="status-badge ${s.plan || 'free'}">${s.plan || 'free'}</span></td>
-                            <td><span class="status-badge ${s.status === 'active' ? 'active' : 'inactive'}">${s.status || 'expired'}</span></td>
+                            <td><strong>${s.slug}</strong></td>
+                            <td>${s.email}</td>
+                            <td><span class="plan-badge plan-${s.plan}">${s.plan.toUpperCase()}</span></td>
+                            <td><span class="status-badge status-${s.status}"><i class="fa-solid fa-circle" style="font-size:.4rem;"></i> ${s.status.toUpperCase()}</span></td>
                             <td>${s.visit_count || 0}</td>
-                            <td>
-                                <button class="action-btn primary" onclick="viewShop('${s.slug}')" title="View Details"><i class="fa-regular fa-eye"></i></button>
-                            </td>
+                            <td>${s.country || '-'}</td>
+                            <td>${s.created_at ? s.created_at.slice(0,10) : '-'}</td>
+                            <td><div class="action-btns">
+                                <button class="action-btn view" onclick="viewShop('${s.email}')"><i class="fa-solid fa-eye"></i></button>
+                                <button class="action-btn upgrade" onclick="openUpgrade('${s.email}', '${s.plan}')"><i class="fa-solid fa-crown"></i></button>
+                                <button class="action-btn edit" onclick="openStatusModal('${s.email}', '${s.status}')"><i class="fa-solid fa-toggle-on"></i></button>
+                                <a href="https://myshop.afric.site/${s.slug}" target="_blank" class="action-btn view" style="text-decoration:none;"><i class="fa-solid fa-external-link-alt"></i></a>
+                            </div></td>
                         </tr>
-                    `).join('');
-                }
-
-                const totalPages = Math.ceil(totalShops / 20);
-                document.getElementById('shopsPaginationInfo').textContent = `Showing ${Math.min((page-1)*20+1, totalShops)}-${Math.min(page*20, totalShops)} of ${totalShops}`;
-                document.getElementById('prevPageBtn').disabled = page <= 1;
-                document.getElementById('nextPageBtn').disabled = page >= totalPages;
-            } catch (e) {
-                showToast('Failed to load shops: ' + e.message, 'error');
-            }
-        }
-
-        function prevPage() { if (currentPage > 1) searchShops(currentPage - 1); }
-
-        function nextPage() { searchShops(currentPage + 1); }
-
-        // ================================================================
-        // SHOP DETAIL MODAL
-        // ================================================================
-        async function viewShop(slug) {
-            const modal = document.getElementById('shopDetailModal');
-            modal.classList.add('active');
-            document.getElementById('modalShopTitle').textContent = 'Loading...';
-            document.getElementById('modalShopContent').innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
-
-            try {
-                const data = await apiFetch('/admin/shop/' + slug);
-                const shop = data.shop || data;
-                document.getElementById('modalShopTitle').textContent = shop.business_name || shop.slug;
-
-                const html = `
-                    <div class="field"><label>Slug</label><div class="value"><a href="/${shop.slug}" target="_blank">/${shop.slug}</a></div></div>
-                    <div class="field"><label>Business Name</label><div class="value">${shop.business_name || '—'}</div></div>
-                    <div class="field"><label>Email</label><div class="value">${shop.email || '—'}</div></div>
-                    <div class="field"><label>Plan</label><div class="value"><span class="status-badge ${shop.plan}">${shop.plan}</span></div></div>
-                    <div class="field"><label>Status</label><div class="value"><span class="status-badge ${shop.status === 'active' ? 'active' : 'inactive'}">${shop.status}</span></div></div>
-                    <div class="field"><label>Visits</label><div class="value">${shop.visit_count || 0}</div></div>
-                    <div class="field"><label>Location</label><div class="value">${shop.location || '—'}</div></div>
-                    <div class="field"><label>Category</label><div class="value">${shop.category || '—'}</div></div>
-                    <div class="field"><label>Security Questions</label><div class="value">${shop.security_questions ? shop.security_questions.map(q => q.question).join(', ') : '—'}</div></div>
-                    <div class="btn-row">
-                        <button class="btn btn-success" onclick="upgradeShop('${shop.slug}', 'pro')">Upgrade to Pro</button>
-                        <button class="btn btn-success" onclick="upgradeShop('${shop.slug}', 'premium')">Upgrade to Premium</button>
-                        <button class="btn ${shop.status === 'active' ? 'btn-danger' : 'btn-success'}" onclick="toggleShopStatus('${shop.slug}', '${shop.status}')">${shop.status === 'active' ? 'Deactivate' : 'Reactivate'}</button>
-                        <button class="btn btn-danger" onclick="resetShopPassword('${shop.slug}')">Reset Password</button>
+                    `).join('') || '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text2);">No shops found</td></tr>'}
+                </tbody></table></div>
+                <div class="pagination">
+                    <button class="page-btn" onclick="loadShops(${page-1})" ${page<=1?'disabled':''}><i class="fa-solid fa-chevron-left"></i></button>
+                    <span style="font-weight:600;color:var(--text2);">Page ${page} of ${totalPages}</span>
+                    <button class="page-btn" onclick="loadShops(${page+1})" ${page>=totalPages?'disabled':''}><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+                <p style="text-align:center;color:var(--text2);font-size:.85rem;margin-top:8px;">Showing ${allShopsData.length} of ${data.total || 0} shops</p>
+            </div>`;
+    } catch (e) {
+        document.getElementById('main-content').innerHTML = `<div class="card"><div class="msg msg-error show">${e.message || 'Failed to load shops'}</div></div>`;
+        showToast(e.message || 'Failed to load shops', 'error');
+    } finally { showLoading(false); }
+}
+function loadSearch() {
+    document.getElementById('main-content').innerHTML = `
+        <div class="card"><h2><i class="fa-solid fa-magnifying-glass"></i> Search Shops</h2>
+            <div class="search-bar" style="margin-bottom:24px;">
+                <input type="text" id="search-input" placeholder="Enter email or slug..." style="flex:1;" onkeydown="if(event.key==='Enter')performSearch()">
+                <button class="btn" onclick="performSearch()"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+            </div>
+            <div id="search-results"></div>
+        </div>`;
+}
+async function performSearch() {
+    const query = document.getElementById('search-input')?.value.trim();
+    if (!query) return;
+    showLoading(true);
+    try {
+        const shop = await apiGet('/admin/shop/' + encodeURIComponent(query));
+        const shopJson = typeof shop.shop_json === 'string' ? JSON.parse(shop.shop_json) : (shop.shop_json || {});
+        document.getElementById('search-results').innerHTML = `
+            <div class="card" style="animation:fadeIn 0.3s ease;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+                    <div><h3 style="font-size:1.3rem;">${shopJson.business_name || shop.slug}</h3><p style="color:var(--text2);font-size:.9rem;">${shop.email}</p></div>
+                    <div style="display:flex;gap:8px;">
+                        <span class="plan-badge plan-${shop.plan}">${shop.plan.toUpperCase()}</span>
+                        <span class="status-badge status-${shop.status}">${shop.status.toUpperCase()}</span>
                     </div>
-                `;
-                document.getElementById('modalShopContent').innerHTML = html;
-            } catch (e) {
-                document.getElementById('modalShopContent').innerHTML = `<p style="color:var(--danger);">Error: ${e.message}</p>`;
-            }
-        }
+                </div>
+                <div class="detail-grid">
+                    <div class="detail-item"><label>Slug</label><value>${shop.slug}</value></div>
+                    <div class="detail-item"><label>Email</label><value>${shop.email}</value></div>
+                    <div class="detail-item"><label>Plan</label><value>${shop.plan}</value></div>
+                    <div class="detail-item"><label>Status</label><value>${shop.status}</value></div>
+                    <div class="detail-item"><label>Visits</label><value>${shop.visit_count || 0}</value></div>
+                    <div class="detail-item"><label>Country</label><value>${shop.country || '-'}</value></div>
+                    <div class="detail-item"><label>Referral Code</label><value>${shop.referral_code || '-'}</value></div>
+                    <div class="detail-item"><label>Referred By</label><value>${shop.referred_by || '-'}</value></div>
+                    <div class="detail-item"><label>Created</label><value>${shop.created_at || '-'}</value></div>
+                    <div class="detail-item"><label>Expires</label><value>${shop.expires_at || 'Never'}</value></div>
+                    <div class="detail-item"><label>Sub Type</label><value>${shop.sub_type || '-'}</value></div>
+                    <div class="detail-item"><label>Phone</label><value>${shopJson.phone || shopJson.contact?.phone || '-'}</value></div>
+                </div>
+                <div style="margin-top:20px;"><h4 style="margin-bottom:10px;">Security Questions</h4>
+                    ${(shopJson.security_questions || []).map(q => `<div class="detail-item"><label>${q.question}</label><value>${q.answer}</value></div>`).join('') || '<p>No security questions stored.</p>'}
+                </div>
+                <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
+                    <button class="btn" onclick="openUpgrade('${shop.email}', '${shop.plan}')"><i class="fa-solid fa-crown"></i> Upgrade/Downgrade</button>
+                    <button class="btn btn-outline" onclick="openStatusModal('${shop.email}', '${shop.status}')"><i class="fa-solid fa-toggle-on"></i> Change Status</button>
+                    <a href="https://myshop.afric.site/${shop.slug}" target="_blank" class="btn btn-outline" style="text-decoration:none;"><i class="fa-solid fa-external-link-alt"></i> View Live</a>
+                    <button class="btn btn-danger" onclick="resetShopPassword('${shop.email}')"><i class="fa-solid fa-key"></i> Reset Password</button>
+                </div>
+            </div>`;
+    } catch (e) {
+        document.getElementById('search-results').innerHTML = `<div class="msg msg-error show">${e.message}</div>`;
+        showToast(e.message || 'Search failed', 'error');
+    } finally { showLoading(false); }
+}
+async function loadAnalyticsSection() {
+    showLoading(true);
+    try {
+        const data = await apiGet('/admin/analytics');
+        const dailyVisits = data.daily_visits || {};
+        const monthlyVisits = data.monthly_visits || {};
+        const yearlyVisits = data.yearly_visits || {};
+        const dailySignups = data.daily_signups || {};
+        const deviceBreakdown = data.device_breakdown || { mobile: 0, desktop: 0, tablet: 0 };
+        const referrers = data.referrers || {};
+        const topShopsByVisits = data.top_shops_by_visits || [];
+        const topShopsByReferrals = data.top_shops_by_referrals || [];
+        const totalVisits = data.total_visits || 0;
 
-        function closeModal() {
-            document.getElementById('shopDetailModal').classList.remove('active');
-        }
+        const sortedDailyVisits = Object.entries(dailyVisits).sort((a,b) => a[0].localeCompare(b[0])).slice(-30);
+        const maxDaily = Math.max(...sortedDailyVisits.map(d => d[1]), 1);
+        const sortedMonthlyVisits = Object.entries(monthlyVisits).sort((a,b) => a[0].localeCompare(b[0])).slice(-12);
+        const maxMonthly = Math.max(...sortedMonthlyVisits.map(d => d[1]), 1);
+        const sortedYearlyVisits = Object.entries(yearlyVisits).sort((a,b) => a[0].localeCompare(b[0]));
+        const sortedSignups = Object.entries(dailySignups).sort((a,b) => a[0].localeCompare(b[0])).slice(-30);
+        const maxSignups = Math.max(...sortedSignups.map(d => d[1]), 1);
 
-        // ================================================================
-        // SHOP ACTIONS
-        // ================================================================
-        async function upgradeShop(slug, plan) {
-            if (!confirm(`Upgrade ${slug} to ${plan}?`)) return;
-            try {
-                await apiFetch('/admin/shop/' + slug + '/upgrade', {
-                    method: 'POST',
-                    body: JSON.stringify({ plan })
-                });
-                showToast(`✅ ${slug} upgraded to ${plan}`, 'success');
-                closeModal();
-                searchShops();
-            } catch (e) {
-                showToast('Failed to upgrade: ' + e.message, 'error');
-            }
-        }
-
-        async function toggleShopStatus(slug, currentStatus) {
-            const newStatus = currentStatus === 'active' ? 'expired' : 'active';
-            if (!confirm(`${newStatus === 'active' ? 'Reactivate' : 'Deactivate'} ${slug}?`)) return;
-            try {
-                await apiFetch('/admin/shop/' + slug + '/status', {
-                    method: 'POST',
-                    body: JSON.stringify({ status: newStatus })
-                });
-                showToast(`✅ ${slug} ${newStatus === 'active' ? 'reactivated' : 'deactivated'}`, 'success');
-                closeModal();
-                searchShops();
-            } catch (e) {
-                showToast('Failed to update status: ' + e.message, 'error');
-            }
-        }
-
-        async function resetShopPassword(slug) {
-            if (!confirm(`Reset password for ${slug}?`)) return;
-            try {
-                await apiFetch('/admin/shop/' + slug + '/reset-password', { method: 'POST' });
-                showToast(`✅ Password reset for ${slug}. New password sent to email.`, 'success');
-                closeModal();
-            } catch (e) {
-                showToast('Failed to reset password: ' + e.message, 'error');
-            }
-        }
-
-        // ================================================================
-        // FEEDBACK
-        // ================================================================
-        async function loadFeedback() {
-            const type = document.getElementById('feedbackTypeFilter').value;
-            const container = document.getElementById('feedbackList');
-            container.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
-
-            try {
-                const params = new URLSearchParams();
-                if (type) params.append('type_filter', type);
-                const data = await apiFetch('/feedback/admin/feedback?' + params.toString());
-                const items = data.feedback || [];
-
-                document.getElementById('feedbackCountBadge').textContent = items.length;
-
-                if (items.length === 0) {
-                    container.innerHTML = '<p style="color:var(--text3);text-align:center;padding:40px;">No feedback found</p>';
-                    return;
-                }
-
-                container.innerHTML = items.map(f => `
-                    <div class="feedback-item">
-                        <div class="meta">
-                            <strong>${f.name || 'Anonymous'}</strong>
-                            <span>${f.email || 'no email'}</span>
-                            <span>${f.type || 'general'}</span>
-                            <span>${new Date(f.created_at).toLocaleString()}</span>
-                        </div>
-                        <div class="message">${f.message}</div>
-                        <div class="actions">
-                            <button class="reply" onclick="replyToFeedback('${f.email}', '${f.name}')"><i class="fa-regular fa-reply"></i> Reply</button>
-                            <button class="delete" onclick="deleteFeedback('${f.id}')"><i class="fa-regular fa-trash-can"></i> Delete</button>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (e) {
-                container.innerHTML = `<p style="color:var(--danger);">Error loading feedback: ${e.message}</p>`;
-            }
-        }
-
-        function replyToFeedback(email, name) {
-            const subject = encodeURIComponent(`Re: Your feedback on MyShub`);
-            const body = encodeURIComponent(`Hello ${name || 'there'},\n\nThank you for your feedback. We appreciate you taking the time to share your thoughts.\n\nBest,\nMyShub Team`);
-            window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_blank');
-        }
-
-        async function deleteFeedback(id) {
-            if (!confirm('Delete this feedback?')) return;
-            try {
-                await apiFetch('/feedback/admin/feedback/' + id, { method: 'DELETE' });
-                showToast('Feedback deleted', 'success');
-                loadFeedback();
-            } catch (e) {
-                showToast('Failed to delete: ' + e.message, 'error');
-            }
-        }
-
-        // ================================================================
-        // BROADCAST
-        // ================================================================
-        document.querySelectorAll('input[name="recipientType"]').forEach(el => {
-            el.addEventListener('change', function() {
-                document.getElementById('selectedRecipients').style.display = this.value === 'selected' ? 'block' :
-                'none';
-            });
+        const deviceTotal = (deviceBreakdown.mobile || 0) + (deviceBreakdown.desktop || 0) + (deviceBreakdown.tablet || 0) || 1;
+        const deviceColors = { mobile: '#2563eb', desktop: '#10b981', tablet: '#f59e0b' };
+        let deviceGradient = '';
+        let deg = 0;
+        Object.entries(deviceBreakdown).forEach(([device, count]) => {
+            const angle = (count / deviceTotal) * 360;
+            deviceGradient += `${deviceColors[device] || '#94a3b8'} ${deg}deg ${deg + angle}deg, `;
+            deg += angle;
         });
+        deviceGradient = deviceGradient.slice(0, -2);
 
-        async function sendBroadcast() {
-            const title = document.getElementById('broadcastTitle').value.trim();
-            const message = document.getElementById('broadcastMessage').value.trim();
-            const recipientType = document.querySelector('input[name="recipientType"]:checked').value;
-            let shopSlugs = [];
+        const sortedReferrers = Object.entries(referrers).sort((a,b) => b[1]-a[1]).slice(0,10);
+        const maxReferrer = Math.max(...sortedReferrers.map(r => r[1]), 1);
 
-            if (recipientType === 'selected') {
-                const slugs = document.getElementById('selectedShopSlugs').value.split(',').map(s => s.trim()).filter(
-                Boolean);
-                if (slugs.length === 0) {
-                    showToast('Please enter at least one shop slug for selected recipients.', 'error');
-                    return;
-                }
-                shopSlugs = slugs;
-            }
-
-            if (!title || !message) {
-                showToast('Please enter both a title and message.', 'error');
-                return;
-            }
-
-            const payload = {
-                title,
-                message,
-                recipients: recipientType,
-                shop_slugs: shopSlugs,
-                data: {}
-            };
-
-            const btn = event.target;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-btn"></span> Sending...';
-
-            try {
-                const result = await apiFetch('/notifications/broadcast', {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-                showToast(`✅ Broadcast sent successfully! (${result.sent || 0} recipients)`, 'success');
-                document.getElementById('broadcastTitle').value = '';
-                document.getElementById('broadcastMessage').value = '';
-                document.getElementById('selectedShopSlugs').value = '';
-            } catch (e) {
-                showToast('Failed to send broadcast: ' + e.message, 'error');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Broadcast';
-            }
+        document.getElementById('main-content').innerHTML = `
+            <div class="stats-grid">
+                <div class="stat-card"><h3>${data.total_shops || 0}</h3><p>Total Shops</p></div>
+                <div class="stat-card success"><h3>${data.status_breakdown?.active || 0}</h3><p>Active</p></div>
+                <div class="stat-card info"><h3>${totalVisits.toLocaleString()}</h3><p>Total Visits</p></div>
+                <div class="stat-card warning"><h3>${data.status_breakdown?.flagged || 0}</h3><p>Flagged</p></div>
+            </div>
+            <div class="platform-visits-grid">
+                <div class="card"><h2><i class="fa-solid fa-chart-column"></i> Daily Visits (Last 30 Days)</h2>
+                    <div class="chart-container"><div class="chart-bar">
+                        ${sortedDailyVisits.map(([day, count]) => `
+                            <div class="bar" style="height:${(count/maxDaily)*100}%;">
+                                <div class="bar-value">${count}</div>
+                                <div class="bar-label">${day.slice(5)}</div>
+                            </div>
+                        `).join('') || '<div style="text-align:center;color:var(--text2);width:100%;">No visit data</div>'}
+                    </div></div>
+                </div>
+                <div class="card"><h2><i class="fa-solid fa-mobile-screen"></i> Device Breakdown</h2>
+                    ${deviceTotal > 1 ? `
+                    <div class="donut-chart" style="background:conic-gradient(${deviceGradient});">
+                        <div class="donut-hole">
+                            <h4>${totalVisits.toLocaleString()}</h4>
+                            <p>Total Visits</p>
+                        </div>
+                    </div>
+                    <div class="donut-legend">
+                        ${Object.entries(deviceBreakdown).map(([device, count]) => `
+                            <div class="legend-item">
+                                <div class="legend-dot" style="background:${deviceColors[device] || '#94a3b8'};"></div>
+                                <span>${device.charAt(0).toUpperCase() + device.slice(1)}: ${count} (${Math.round((count/deviceTotal)*100)}%)</span>
+                            </div>
+                        `).join('')}
+                    </div>` : '<p class="sub" style="text-align:center;padding:40px;">No device data yet</p>'}
+                </div>
+            </div>
+            <div class="card"><h2><i class="fa-solid fa-chart-line"></i> Monthly Visits (Last 12 Months)</h2>
+                <div class="chart-container"><div class="chart-bar">
+                    ${sortedMonthlyVisits.map(([month, count]) => `
+                        <div class="bar" style="height:${(count/maxMonthly)*100}%;">
+                            <div class="bar-value">${count}</div>
+                            <div class="bar-label">${month}</div>
+                        </div>
+                    `).join('') || '<div style="text-align:center;color:var(--text2);width:100%;">No data</div>'}
+                </div></div>
+            </div>
+            <div class="card"><h2><i class="fa-solid fa-calendar"></i> Yearly Visits</h2>
+                <div class="table-wrap"><table><thead><tr><th>Year</th><th>Visits</th></tr></thead><tbody>
+                    ${sortedYearlyVisits.map(([year, count]) => `<tr><td>${year}</td><td>${count}</td></tr>`).join('') || '<tr><td colspan="2">No data</td></tr>'}
+                </tbody></table></div>
+            </div>
+            <div class="card"><h2><i class="fa-solid fa-user-plus"></i> Daily Signups (Last 30 Days)</h2>
+                <div class="chart-container"><div class="chart-bar">
+                    ${sortedSignups.map(([day, count]) => `
+                        <div class="bar" style="height:${(count/maxSignups)*100}%;background:linear-gradient(to top,#059669,#10b981);">
+                            <div class="bar-value">${count}</div>
+                            <div class="bar-label">${day.slice(5)}</div>
+                        </div>
+                    `).join('') || '<div style="text-align:center;color:var(--text2);width:100%;">No signup data</div>'}
+                </div></div>
+            </div>
+            <div class="card"><h2><i class="fa-solid fa-arrow-trend-up"></i> Top Referrers</h2>
+                ${sortedReferrers.length ? sortedReferrers.map(([name, count]) => `
+                    <div class="referrer-bar">
+                        <div class="referrer-name">${name}</div>
+                        <div class="referrer-track"><div class="referrer-fill" style="width:${(count/maxReferrer)*100}%;"></div></div>
+                        <div class="referrer-count">${count}</div>
+                    </div>
+                `).join('') : '<p class="sub">No referrer data yet</p>'}
+            </div>
+            <div class="card"><h2><i class="fa-solid fa-crown"></i> Top Shops by Visits</h2>
+                <div class="table-wrap"><table><thead><tr><th>Rank</th><th>Shop</th><th>Visits</th><th>Plan</th></tr></thead><tbody>
+                    ${topShopsByVisits.map((s, i) => `
+                        <tr><td><strong>#${i+1}</strong></td><td>${s.slug}</td><td>${s.visits}</td><td><span class="plan-badge plan-${s.plan}">${s.plan.toUpperCase()}</span></td></tr>
+                    `).join('') || '<tr><td colspan="4">No data</td></tr>'}
+                </tbody></table></div>
+            </div>
+            <div class="card"><h2><i class="fa-solid fa-gift"></i> Top Shops by Referrals</h2>
+                <div class="table-wrap"><table><thead><tr><th>Rank</th><th>Shop</th><th>Referral Code</th><th>Referrals</th></tr></thead><tbody>
+                    ${topShopsByReferrals.map((s, i) => `
+                        <tr><td><strong>#${i+1}</strong></td><td>${s.slug}</td><td>${s.referral_code}</td><td>${s.referrals}</td></tr>
+                    `).join('') || '<tr><td colspan="4">No referrals yet</td></tr>'}
+                </tbody></table></div>
+            </div>
+            <div class="card"><h2><i class="fa-solid fa-globe"></i> Countries</h2>
+                <div class="country-list">
+                    ${Object.entries(data.countries || {}).sort((a,b) => b[1]-a[1]).map(([c,v]) => `
+                        <div class="country-item"><span>${c}</span><span style="font-weight:700;">${v} shops</span></div>
+                    `).join('') || '<p class="sub">No data</p>'}
+                </div>
+            </div>`;
+    } catch (e) {
+        document.getElementById('main-content').innerHTML = `<div class="card"><div class="msg msg-error show">${e.message || 'Failed to load Analytics'}</div></div>`;
+        showToast(e.message || 'Failed to load Analytics', 'error');
+    } finally { showLoading(false); }
+}
+async function loadReferralsSection() {
+    showLoading(true);
+    try {
+        const data = await apiGet('/admin/referral-payouts');
+        document.getElementById('main-content').innerHTML = `
+            <div class="stats-grid">
+                <div class="stat-card" style="background:linear-gradient(135deg,#0d9488,#14b8a6);"><h3>${data.total_payouts || 0}</h3><p>Referrers</p></div>
+                <div class="stat-card" style="background:linear-gradient(135deg,#0891b2,#06b6d4);"><h3>N${(data.total_commission || 0).toLocaleString()}</h3><p>Total Commission</p></div>
+            </div>
+            <div class="card"><h2><i class="fa-solid fa-gift"></i> Referral Payouts</h2>
+                <div class="table-wrap"><table><thead><tr><th>Email</th><th>Code</th><th>Total Referred</th><th>Active</th><th>Commission</th></tr></thead><tbody>
+                    ${(data.payouts || []).map(p => `
+                        <tr><td>${p.email}</td><td><code style="background:var(--bg);padding:4px 8px;border-radius:6px;">${p.referral_code}</code></td>
+                        <td>${p.total_referred}</td><td>${p.active_referred}</td><td><strong>N${p.commission_due.toLocaleString()}</strong></td></tr>
+                    `).join('') || '<tr><td colspan="5" style="text-align:center;padding:40px;">No referrals yet</td></tr>'}
+                </tbody></table></div>
+            </div>`;
+    } catch (e) {
+        document.getElementById('main-content').innerHTML = `<div class="card"><div class="msg msg-error show">${e.message || 'Failed to load Referrals'}</div></div>`;
+        showToast(e.message || 'Failed to load Referrals', 'error');
+    } finally { showLoading(false); }
+}
+async function loadFeedbackSection() {
+    showLoading(true);
+    try {
+        const data = await apiGet('/admin/feedback');
+        feedbackList = data.feedback || [];
+        document.getElementById('main-content').innerHTML = `
+            <div class="card"><h2><i class="fa-solid fa-comment-dots"></i> Feedback (${feedbackList.length})</h2>
+                <div class="table-wrap"><table><thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Type</th><th>Message</th><th>Actions</th></tr></thead><tbody>
+                    ${feedbackList.map(f => `
+                        <tr>
+                            <td>${f.created_at ? f.created_at.slice(0,10) : '-'}</td>
+                            <td>${f.name}</td>
+                            <td>${f.email}</td>
+                            <td><span class="badge">${f.type}</span></td>
+                            <td>${f.message.substring(0,100)}${f.message.length>100?'...':''}</td>
+                            <td><div class="action-btns">
+                                <button class="action-btn view" onclick="viewFeedback('${f.id}')"><i class="fa-solid fa-eye"></i></button>
+                                <button class="action-btn edit" onclick="replyFeedback('${f.email}')"><i class="fa-solid fa-reply"></i></button>
+                                <button class="action-btn delete" onclick="deleteFeedback('${f.id}')"><i class="fa-solid fa-trash"></i></button>
+                            </div></td>
+                        </tr>
+                    `).join('') || '<tr><td colspan="6">No feedback yet</td></tr>'}
+                </tbody></table></div>
+            </div>`;
+    } catch (e) {
+        document.getElementById('main-content').innerHTML = `<div class="card"><div class="msg msg-error show">${e.message || 'Failed to load Feedback'}</div></div>`;
+        showToast(e.message || 'Failed to load Feedback', 'error');
+    } finally { showLoading(false); }
+}
+function viewFeedback(id) {
+    const f = feedbackList.find(x => x.id === id);
+    if (!f) return;
+    currentFeedbackId = id;
+    document.getElementById('feedback-modal-body').innerHTML = `
+        <p><strong>From:</strong> ${f.name} (${f.email})</p>
+        <p><strong>Type:</strong> ${f.type}</p>
+        <p><strong>Date:</strong> ${f.created_at}</p>
+        <p><strong>Message:</strong><br>${f.message}</p>
+    `;
+    document.getElementById('feedback-modal').classList.add('active');
+}
+function replyFeedback(email) {
+    window.location.href = `mailto:${email}?subject=Re: Your MyShop Feedback`;
+}
+async function deleteFeedback(id) {
+    if (!confirm('Delete this feedback?')) return;
+    showLoading(true);
+    try {
+        await apiDelete('/admin/feedback/' + id);
+        showToast('Feedback deleted', 'success');
+        loadFeedbackSection();
+    } catch (e) {
+        showToast(e.message, 'error');
+    } finally { showLoading(false); }
+}
+function closeFeedbackModal() {
+    document.getElementById('feedback-modal').classList.remove('active');
+}
+async function loadAdminsSection() {
+    showLoading(true);
+    try {
+        const data = await apiGet('/admin/admins');
+        document.getElementById('main-content').innerHTML = `
+            <div class="card"><h2><i class="fa-solid fa-users-gear"></i> Admin Management</h2>
+                <div style="margin-bottom:20px;"><button class="btn" onclick="showCreateAdminModal()"><i class="fa-solid fa-plus"></i> Create Admin</button></div>
+                ${(data.admins || []).map(a => `
+                    <div class="admin-card">
+                        <div class="admin-info">
+                            <div class="admin-avatar">${a.email.charAt(0).toUpperCase()}</div>
+                            <div>
+                                <div style="font-weight:700;">${a.email}</div>
+                                <div style="font-size:.85rem;color:var(--text2);">
+                                    <span class="role-badge" style="font-size:.65rem;padding:2px 8px;">${a.role.toUpperCase()}</span>
+                                    ${a.active !== false ? '<span style="color:var(--success);">● Active</span>' : '<span style="color:var(--danger);">● Inactive</span>'}
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:8px;">
+                            ${a.email !== adminEmail ? `<button class="action-btn delete" onclick="deleteAdmin('${a.email}')"><i class="fa-solid fa-trash"></i></button>` : '<span style="font-size:.8rem;color:var(--text2);">You</span>'}
+                        </div>
+                    </div>
+                `).join('') || '<p class="sub">No admins found</p>'}
+            </div>`;
+    } catch (e) {
+        document.getElementById('main-content').innerHTML = `<div class="card"><div class="msg msg-error show">${e.message || 'Failed to load Admins'}</div></div>`;
+        showToast(e.message || 'Failed to load Admins', 'error');
+    } finally { showLoading(false); }
+}
+function showCreateAdminModal() {
+    const email = prompt('Admin email:'); if (!email) return;
+    const password = prompt('Password:'); if (!password) return;
+    const role = prompt('Role (viewer/editor/admin):', 'viewer'); if (!role) return;
+    showLoading(true);
+    apiPost('/admin/admins', { email, password, role })
+        .then(() => { showToast('Admin created!', 'success'); loadAdminsSection(); })
+        .catch(e => showToast(e.message, 'error'))
+        .finally(() => showLoading(false));
+}
+function deleteAdmin(email) {
+    if (!confirm('Delete admin ' + email + '?')) return;
+    showLoading(true);
+    apiDelete('/admin/admins/' + encodeURIComponent(email))
+        .then(() => { showToast('Admin deleted', 'success'); loadAdminsSection(); })
+        .catch(e => showToast(e.message, 'error'))
+        .finally(() => showLoading(false));
+}
+async function loadStaffKeysSection() {
+    showLoading(true);
+    try {
+        const data = await apiGet('/admin/staff-keys');
+        document.getElementById('main-content').innerHTML = `
+            <div class="card"><h2><i class="fa-solid fa-key"></i> Staff Keys</h2>
+                <div style="margin-bottom:20px;"><button class="btn" onclick="generateStaffKey()"><i class="fa-solid fa-plus"></i> Generate Key</button></div>
+                ${(data.staff_keys || []).map(k => `
+                    <div class="key-card ${k.used ? 'key-used' : ''}">
+                        <span class="key-value">${k.key}</span>
+                        <div style="display:flex;gap:12px;align-items:center;">
+                            <span class="role-badge" style="font-size:.65rem;">${k.role.toUpperCase()}</span>
+                            <span style="font-size:.8rem;color:var(--text2);">${k.used ? 'Used' : 'Available'}</span>
+                            <span style="font-size:.75rem;color:var(--text2);">${k.created_at ? k.created_at.slice(0,10) : ''}</span>
+                        </div>
+                    </div>
+                `).join('') || '<p class="sub">No keys generated</p>'}
+            </div>`;
+    } catch (e) {
+        document.getElementById('main-content').innerHTML = `<div class="card"><div class="msg msg-error show">${e.message || 'Failed to load Staff Keys'}</div></div>`;
+        showToast(e.message || 'Failed to load Staff Keys', 'error');
+    } finally { showLoading(false); }
+}
+function generateStaffKey() {
+    const role = prompt('Role (viewer/editor):', 'viewer'); if (!role) return;
+    showLoading(true);
+    apiPost('/admin/staff-keys', { role })
+        .then(() => { showToast('Key generated!', 'success'); loadStaffKeysSection(); })
+        .catch(e => showToast(e.message, 'error'))
+        .finally(() => showLoading(false));
+}
+function viewShop(email) {
+    switchSection('search', document.querySelectorAll('.nav-item')[2]);
+    setTimeout(() => {
+        const input = document.getElementById('search-input');
+        if (input) { input.value = email; performSearch(); }
+    }, 100);
+}
+function openUpgrade(email, currentPlan) {
+    document.getElementById('upgrade-shop-id').value = email;
+    document.getElementById('upgrade-current-plan').value = currentPlan.toUpperCase();
+    document.getElementById('upgrade-new-plan').value = currentPlan;
+    document.getElementById('upgrade-days').value = 31;
+    document.getElementById('upgrade-modal').classList.add('active');
+}
+function closeUpgradeModal() { document.getElementById('upgrade-modal').classList.remove('active'); }
+async function confirmUpgrade() {
+    const email = document.getElementById('upgrade-shop-id').value;
+    const plan = document.getElementById('upgrade-new-plan').value;
+    const days = parseInt(document.getElementById('upgrade-days').value) || 31;
+    const btn = document.querySelector('#upgrade-modal .modal-footer .btn:last-child');
+    setButtonLoading(btn, true, 'Applying...');
+    showLoading(true);
+    try {
+        await apiPost('/admin/shop/' + encodeURIComponent(email) + '/upgrade', { plan, days });
+        closeUpgradeModal();
+        showToast('Shop upgraded to ' + plan.toUpperCase() + ' for ' + days + ' days!', 'success');
+        if (currentSection === 'shops') loadShops(currentShopPage);
+        else if (currentSection === 'search') performSearch();
+        else loadOverview();
+    } catch (e) { showToast(e.message, 'error'); }
+    finally { setButtonLoading(btn, false, 'Apply Change'); showLoading(false); }
+}
+function openStatusModal(email, currentStatus) {
+    document.getElementById('status-shop-id').value = email;
+    document.getElementById('status-new-status').value = currentStatus;
+    document.getElementById('status-modal').classList.add('active');
+}
+function closeStatusModal() { document.getElementById('status-modal').classList.remove('active'); }
+async function confirmStatusChange() {
+    const email = document.getElementById('status-shop-id').value;
+    const status = document.getElementById('status-new-status').value;
+    const btn = document.querySelector('#status-modal .modal-footer .btn:last-child');
+    setButtonLoading(btn, true, 'Applying...');
+    showLoading(true);
+    try {
+        await apiPost('/admin/shop/' + encodeURIComponent(email) + '/status', { status });
+        closeStatusModal();
+        showToast('Status changed to ' + status.toUpperCase(), 'success');
+        if (currentSection === 'shops') loadShops(currentShopPage);
+        else if (currentSection === 'search') performSearch();
+        else loadOverview();
+    } catch (e) { showToast(e.message, 'error'); }
+    finally { setButtonLoading(btn, false, 'Apply'); showLoading(false); }
+}
+async function resetShopPassword(email) {
+    if (!confirm('Generate password reset link for ' + email + '?')) return;
+    showLoading(true);
+    try {
+        const data = await apiPost('/admin/shop/' + encodeURIComponent(email) + '/reset-password', {});
+        showToast('Reset link generated!', 'success');
+        if (data.reset_link) {
+            if (navigator.clipboard) { navigator.clipboard.writeText(data.reset_link); showToast('Link copied to clipboard!', 'success'); }
+            alert('Reset link generated!\n\n' + data.reset_link);
         }
-
-        // ================================================================
-        // INIT
-        // ================================================================
-        (function init() {
-            if (isLoggedIn()) {
-                showDashboard();
-                // Set up auto-refresh for dashboard every 60 seconds
-                setInterval(() => {
-                    if (document.getElementById('tab-dashboard').style.display !== 'none') {
-                        refreshDashboard();
-                    }
-                }, 60000);
-            } else {
-                showLogin();
-            }
-        })();
-    </script>
-
+    } catch (e) { showToast(e.message, 'error'); }
+    finally { showLoading(false); }
+}
+function closeModal() { document.getElementById('shop-modal').classList.remove('active'); }
+function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') { input.type = 'text'; icon.className = 'fa-solid fa-eye-slash'; }
+    else { input.type = 'password'; icon.className = 'fa-solid fa-eye'; }
+}
+function isTokenValid() {
+    if (!adminToken) return false;
+    try { const payload = JSON.parse(atob(adminToken.split('.')[1])); const exp = payload.exp * 1000; return Date.now() < exp; } catch (e) { return false; }
+}
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeModal(); closeUpgradeModal(); closeStatusModal(); closeFeedbackModal(); closeSidebarMobile();
+    }
+});
+window.addEventListener('resize', () => {
+    if (window.innerWidth > 1024) closeSidebarMobile();
+});
+if (adminToken && adminRole && isTokenValid()) { showDashboard(); } else { logout(); showLogin(); }
+</script>
 </body>
 </html>
