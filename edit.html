@@ -713,11 +713,16 @@
         let linkModalEditingIndex = -1;
 
         // ================================================================
-        //  GET SESSION
+        //  GET SESSION — uses window.S first, then localStorage
         // ================================================================
         function getSession() {
             if (window.S && window.S.email) {
-                return { email: window.S.email, password: window.S.password || '', slug: window.S.slug || '', plan: window.S.plan || 'free' };
+                return {
+                    email: window.S.email,
+                    password: window.S.password || '',
+                    slug: window.S.slug || '',
+                    plan: window.S.plan || 'free'
+                };
             }
             try {
                 const raw = localStorage.getItem('myshub_session');
@@ -745,10 +750,15 @@
         async function fetchShopData(session) {
             if (!session || !session.slug) return null;
             try {
-                const headers = { 'Content-Type': 'application/json', 'email': session.email, 'password': session.password };
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'email': session.email,
+                    'password': session.password
+                };
                 const res = await fetch(API + '/shop/preview/' + session.slug, { headers });
                 if (!res.ok) return null;
-                return await res.json();
+                const data = await res.json();
+                return data;
             } catch (e) { return null; }
         }
 
@@ -868,6 +878,39 @@
         function escapeHtml(s) {
             if (!s) return '';
             return String(s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+        }
+
+        // ================================================================
+        //  FLATTEN NESTED SHOP JSON (from backend response) to flat
+        // ================================================================
+        function flattenShopJson(nested) {
+            if (!nested || typeof nested !== 'object') return {};
+            const contact = nested.contact || {};
+            const catalog = nested.catalog || {};
+            const brand = nested.brand_colors || {};
+            const typography = nested.typography || {};
+            return {
+                business_name: nested.business_name || '',
+                tagline: nested.tagline || '',
+                description: nested.description || '',
+                logo_url: nested.logo_url || '',
+                category: nested.category || '',
+                state: nested.state || '',
+                city: nested.city || '',
+                brand_colors: brand,
+                typography: typography,
+                socials: nested.socials || {},
+                custom_links: nested.custom_links || [],
+                analytics: nested.analytics || {},
+                phone: contact.phone || '',
+                whatsapp: contact.whatsapp || '',
+                email: contact.email || '',
+                location: contact.location || '',
+                catalog_url: catalog.url || '',
+                lat: nested.lat,
+                lng: nested.lng,
+                qr_code_url: nested.qr_code_url || '',
+            };
         }
 
         // ================================================================
@@ -1331,33 +1374,60 @@
                 toast(result.message || 'Shop updated successfully!', 'success');
                 resetDirty();
 
+                // Immediately update local state from save response
+                if (result.shop_json) {
+                    const flat = flattenShopJson(result.shop_json);
+                    shopJson = flat;
+                    shopData = { ...(shopData || {}), shop_json: flat, plan: result.plan || currentPlan };
+                    currentPlan = result.plan || currentPlan;
+                    socials = { ...(flat.socials || {}) };
+                    customLinks = Array.isArray(flat.custom_links)
+                        ? flat.custom_links.map(l => ({
+                            ...l,
+                            label: l.label || l.title || 'Untitled',
+                            title: l.title || l.label || 'Untitled'
+                          }))
+                        : [];
+                    tempLogoUrl = flat.logo_url || '';
+                } else {
+                    // Fallback: refetch from server
+                    const session = getSession();
+                    if (session) {
+                        const data = await fetchShopData(session);
+                        if (data) {
+                            shopData = data;
+                            shopJson = data.shop_json || {};
+                            currentPlan = data.plan || session.plan || 'free';
+                            socials = { ...(shopJson.socials || {}) };
+                            if (shopJson.custom_links) {
+                                customLinks = shopJson.custom_links.map(l => ({
+                                    ...l,
+                                    label: l.label || l.title || 'Untitled',
+                                    title: l.title || l.label || 'Untitled'
+                                }));
+                            } else {
+                                customLinks = [];
+                            }
+                            tempLogoUrl = shopJson.logo_url || '';
+                        }
+                    }
+                }
+
+                // Update window.S if it exists
+                if (window.S) {
+                    window.S.shopJson = shopJson;
+                    window.S.shopData = shopData;
+                    window.S.plan = currentPlan;
+                    if (typeof window.updateDrawerInfo === 'function') {
+                        window.updateDrawerInfo();
+                    }
+                }
+
                 if (btnText) btnText.innerHTML = '<i class="fa-solid fa-check"></i> Saved!';
                 setTimeout(() => {
                     if (btnText) btnText.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Changes';
                 }, 2000);
 
-                // Refresh data from server
-                const session = getSession();
-                if (session) {
-                    const data = await fetchShopData(session);
-                    if (data) {
-                        shopData = data;
-                        shopJson = data.shop_json || {};
-                        currentPlan = data.plan || session.plan || 'free';
-                        // Update working copies ONLY after successful refetch
-                        socials = { ...(shopJson.socials || {}) };
-                        if (shopJson.custom_links) {
-                            customLinks = shopJson.custom_links.map(l => ({
-                                ...l,
-                                label: l.label || l.title || 'Untitled',
-                                title: l.title || l.label || 'Untitled'
-                            }));
-                        } else {
-                            customLinks = [];
-                        }
-                        tempLogoUrl = shopJson.logo_url || '';
-                    }
-                }
                 renderEdit();
             } catch (e) {
                 toast(e.message || 'Failed to save. Please try again.', 'error');
@@ -1423,8 +1493,6 @@
             const isPro = plan === 'pro' || plan === 'premium';
             const isPremium = plan === 'premium';
 
-            // Flat fields: phone, location, catalog_url, lat, lng are top-level
-            // Brand colors and typography remain nested objects
             const brandColors = sj.brand_colors || {};
             const typography = sj.typography || {};
 
@@ -1638,7 +1706,6 @@
 
             toggleCategoryOther();
 
-            // Update dirty indicator
             const dirtyEl = document.getElementById('dirtyIndicator');
             if (dirtyEl) {
                 dirtyEl.classList.toggle('show', dirty);
@@ -1685,6 +1752,28 @@
                 window.S.slug = session.slug;
                 window.S.plan = session.plan;
 
+                // Use shell's shop data if already available
+                if (window.S.shopJson && typeof window.S.shopJson === 'object') {
+                    shopJson = window.S.shopJson;
+                    shopData = window.S.shopData || null;
+                    currentPlan = window.S.plan || session.plan || 'free';
+                    socials = { ...(shopJson.socials || {}) };
+                    if (shopJson.custom_links) {
+                        customLinks = shopJson.custom_links.map(l => ({
+                            ...l,
+                            label: l.label || l.title || 'Untitled',
+                            title: l.title || l.label || 'Untitled'
+                        }));
+                    } else {
+                        customLinks = [];
+                    }
+                    tempLogoUrl = shopJson.logo_url || '';
+                    isLoading = false;
+                    renderEdit();
+                    return;
+                }
+
+                // Otherwise fetch fresh data
                 const data = await fetchShopData(session);
                 if (data) {
                     shopData = data;
@@ -1693,7 +1782,6 @@
                     window.S.plan = currentPlan;
                     window.S.shopJson = shopJson;
                     window.S.shopData = data;
-                    // Initialize working copies ONLY once
                     socials = { ...(shopJson.socials || {}) };
                     if (shopJson.custom_links) {
                         customLinks = shopJson.custom_links.map(l => ({
@@ -1737,7 +1825,7 @@
         window.generateQR = generateQR;
         window.downloadQr = downloadQr;
         window.toggleCategoryOther = toggleCategoryOther;
-        window.markDirty = function() { setDirty(); };  // for inline oninput/onchange
+        window.markDirty = function() { setDirty(); };
         window.setDirty = setDirty;
         window.resetDirty = resetDirty;
         window.toast = toast;
