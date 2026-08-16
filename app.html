@@ -252,7 +252,7 @@
   <div id="toastWrap" class="toast-wrap"></div>
 </div>
 
-<!-- Global Loading Overlay (outside #app to cover everything) -->
+<!-- Global Loading Overlay -->
 <div class="loading-overlay" id="globalLoadingOverlay">
   <img src="/icon.svg" alt="MyShub" class="loader-logo" onerror="this.style.display='none'; document.getElementById('loaderFallbackGlobal').style.display='block';" />
   <div id="loaderFallbackGlobal" class="loader-fallback" style="display:none;">M</div>
@@ -275,6 +275,9 @@ let S = {
   darkMode: false,
   currentPage: 'overview'
 };
+
+// Expose S to child pages (edit, etc.)
+window.S = S;
 
 // ================================================================
 //  GLOBAL LOADING OVERLAY CONTROLS
@@ -508,6 +511,7 @@ async function refreshNotifications() {
     S.shopData = shop;
     S.shopJson = shop.shop_json || {};
     S.plan = shop.plan || S.plan;
+    window.S = S; // keep global reference updated
     const localNotifs = generateLocalNotifications(S.shopJson, S.plan);
     let remoteNotifs = [];
     try {
@@ -737,6 +741,7 @@ async function doLogin() {
     const data = await apiPub('/auth/login', 'POST', { email, password: pw });
     S.email = email; S.password = pw; S.slug = data.slug || ''; S.plan = data.plan || 'free';
     localStorage.setItem('myshub_session', JSON.stringify({ email, password: pw, slug: S.slug, plan: S.plan }));
+    window.S = S; // expose globally
     toast('Welcome back!', 'success');
     enterApp();
   } catch (e) {
@@ -796,7 +801,7 @@ function openDrawer() { $('drawerOverlay').classList.add('on'); $('drawer').clas
 function closeDrawer() { $('drawerOverlay').classList.remove('on'); $('drawer').classList.remove('on'); }
 
 // ================================================================
-//  PAGE LOADER with header/nav visibility toggles
+//  PAGE LOADER
 // ================================================================
 const pageMap = {
   overview: { file: 'overview.html', title: 'Dashboard' },
@@ -818,8 +823,7 @@ function loadPage(page) {
   if (page === currentPage && page !== 'notifications') return;
   currentPage = page;
 
-window.loadPage = loadPage;
- document.querySelectorAll('.drawer-item').forEach(el => el.classList.toggle('active', el.dataset.page === page));
+  document.querySelectorAll('.drawer-item').forEach(el => el.classList.toggle('active', el.dataset.page === page));
   document.querySelectorAll('.bot-item').forEach(el => el.classList.toggle('on', el.dataset.page === page));
 
   if (pageMap[page] && pageMap[page].iframe) {
@@ -899,11 +903,10 @@ function renderIframePage(page) {
     <div class="iframe-wrap"><iframe src="${src}" loading="lazy"></iframe></div>
   `;
   document.title = title + ' – MyShub';
-  // Wait for iframe to load before hiding overlay
   const iframe = content.querySelector('iframe');
   if (iframe) {
     iframe.onload = () => { hideLoading(); };
-    setTimeout(hideLoading, 5000); // fallback
+    setTimeout(hideLoading, 5000);
   } else {
     hideLoading();
   }
@@ -933,18 +936,18 @@ async function loadShopData() {
     S.shopData = d;
     S.shopJson = d.shop_json || d;
     S.plan = d.plan || S.plan;
+    window.S = S; // keep global reference updated
     updateDrawerInfo();
     await refreshNotifications();
   } catch(e) {}
 }
 
 // ================================================================
-//  LOGOUT — fixed to avoid errors and properly reset state
+//  LOGOUT
 // ================================================================
 function doLogout() {
   showLoading();
 
-  // Clear session and state
   localStorage.removeItem('myshub_session');
   S = {
     email: '', password: '', slug: '', plan: 'free',
@@ -954,12 +957,11 @@ function doLogout() {
     darkMode: S.darkMode,
     currentPage: 'overview'
   };
+  window.S = S; // clear global reference
 
-  // Switch to landing page
   document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
   $('sec-landing').classList.add('active');
 
-  // Hide loading after a short delay
   setTimeout(hideLoading, 400);
   window.updateNotifBadge();
   toast('Logged out successfully', 'info');
@@ -980,6 +982,7 @@ function init() {
     try {
       const s = JSON.parse(session);
       S.email = s.email || ''; S.password = s.password || ''; S.slug = s.slug || ''; S.plan = s.plan || 'free';
+      window.S = S; // expose globally before entering app
       if (S.email && S.password && S.slug) { enterApp(); return; }
     } catch {}
   }
