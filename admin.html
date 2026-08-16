@@ -1,282 +1,1473 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0f172a">
-<title>Admin - MyShub</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-:root{--primary:#6366f1;--primary-dark:#4f46e5;--secondary:#ec4899;--accent:#f59e0b;--bg:#0f172a;--surface:#1e293b;--surface-light:#334155;--text:#f8fafc;--text-muted:#94a3b8;--border:#334155;--success:#22c55e;--danger:#ef4444;--gold:#fbbf24}
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--surface-light);border-radius:2px}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.animate-fade-in{animation:fadeIn .4s ease-out}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px}
-.btn{padding:10px 20px;border-radius:10px;font-weight:600;font-size:13px;border:none;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
-.btn-primary{background:var(--primary);color:white}
-.btn-primary:hover{background:var(--primary-dark)}
-.btn-danger{background:var(--danger);color:white}
-.btn-secondary{background:var(--surface-light);color:var(--text);border:1px solid var(--border)}
-.input{width:100%;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;font-family:inherit}
-.input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,.15)}
-.table-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 100px;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);align-items:center;font-size:13px}
-.table-row:hover{background:rgba(99,102,241,.05)}
-.table-header{font-weight:600;color:var(--text-muted);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
-.tab-btn{padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;border:none;background:transparent;color:var(--text-muted)}
-.tab-btn.active{background:var(--primary);color:white}
-.tab-btn:hover:not(.active){background:var(--surface-light);color:var(--text)}
-.toast-container{position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:300;display:flex;flex-direction:column;gap:8px}
-.toast{padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;animation:fadeIn .3s ease-out;display:flex;align-items:center;gap:8px}
-.toast-success{background:rgba(34,197,94,.15);color:var(--success);border:1px solid rgba(34,197,94,.3)}
-.toast-error{background:rgba(239,68,68,.15);color:var(--danger);border:1px solid rgba(239,68,68,.3)}
-</style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin — MyShub</title>
+    <meta name="robots" content="noindex, follow" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <style>
+        /* ===== FULL STYLES (Login + Dashboard) ===== */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+        :root {
+            --brand: #2563eb;
+            --brand-light: #3b82f6;
+            --brand-dark: #1d4ed8;
+            --brand-glow: rgba(37, 99, 235, 0.15);
+            --bg: #f8fafc;
+            --card: #fff;
+            --text: #0f172a;
+            --text2: #475569;
+            --text3: #94a3b8;
+            --border: #e2e8f0;
+            --radius: 16px;
+            --shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.08);
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+        @media(prefers-color-scheme:dark) {
+            :root {
+                --bg: #0f172a;
+                --card: #1e293b;
+                --text: #f1f5f9;
+                --text2: #94a3b8;
+                --text3: #64748b;
+                --border: #334155;
+                --shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+                --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.3);
+            }
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        /* ===== LOGIN ===== */
+        #loginSection {
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-card {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 48px 40px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+        .login-card .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--brand);
+            margin-bottom: 8px;
+            text-decoration: none;
+        }
+        .login-card .logo img {
+            width: 32px;
+            height: 32px;
+        }
+        .login-card .subtitle {
+            text-align: center;
+            color: var(--text2);
+            font-size: 0.95rem;
+            margin-bottom: 32px;
+        }
+        .login-card .form-group {
+            margin-bottom: 20px;
+        }
+        .login-card .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text2);
+        }
+        .login-card .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: var(--bg);
+            color: var(--text);
+            font-family: inherit;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        .login-card .form-group input:focus {
+            border-color: var(--brand);
+        }
+        .login-card .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1rem;
+            background: var(--brand);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .login-card .btn:hover {
+            background: var(--brand-dark);
+            transform: translateY(-2px);
+        }
+        .login-card .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .login-card .error {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 12px;
+            text-align: center;
+            display: none;
+        }
+        .spinner-btn {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ===== DASHBOARD ===== */
+        #dashboardSection {
+            display: none;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .dashboard-wrapper {
+            display: flex;
+            min-height: 100vh;
+            gap: 0;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--card);
+            border-right: 1px solid var(--border);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 100;
+        }
+        .sidebar .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: var(--brand);
+            text-decoration: none;
+            margin-bottom: 24px;
+        }
+        .sidebar .logo img {
+            width: 28px;
+            height: 28px;
+        }
+        .sidebar .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: var(--text2);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+        .sidebar .nav-item:hover {
+            background: var(--brand-glow);
+            color: var(--brand);
+        }
+        .sidebar .nav-item.active {
+            background: var(--brand);
+            color: #fff;
+        }
+        .sidebar .nav-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+        .sidebar .nav-item .badge {
+            margin-left: auto;
+            background: var(--brand-glow);
+            color: var(--brand);
+            padding: 2px 10px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+        .sidebar .nav-item.active .badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+        .sidebar .spacer {
+            flex: 1;
+        }
+        .sidebar .logout {
+            border-top: 1px solid var(--border);
+            padding-top: 16px;
+            margin-top: 8px;
+        }
+
+        /* Main content */
+        .main {
+            flex: 1;
+            padding: 24px 32px 40px;
+            overflow-x: hidden;
+            min-width: 0;
+        }
+
+        /* Mobile toggle */
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text);
+            cursor: pointer;
+            padding: 8px;
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 101;
+            background: var(--card);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+        @media(max-width:768px) {
+            .sidebar {
+                transform: translateX(-110%);
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                width: 280px;
+                z-index: 200;
+                box-shadow: var(--shadow-lg);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main {
+                padding: 24px 16px 40px;
+                padding-top: 70px;
+            }
+            .mobile-toggle {
+                display: block;
+            }
+            .sidebar-backdrop {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.4);
+                z-index: 150;
+            }
+            .sidebar-backdrop.show {
+                display: block;
+            }
+        }
+
+        /* Cards & stats */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .page-header h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+        }
+        .page-header .sub {
+            color: var(--text2);
+            font-size: 0.9rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+        .stat-card .label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text3);
+        }
+        .stat-card .value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-top: 2px;
+            color: var(--text);
+        }
+
+        /* Tables */
+        .table-wrap {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: auto;
+            box-shadow: var(--shadow);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        th {
+            background: var(--bg);
+            text-align: left;
+            padding: 10px 14px;
+            font-weight: 600;
+            color: var(--text2);
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover td {
+            background: var(--brand-glow);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .status-badge.active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-badge.inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .status-badge.free {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .status-badge.pro {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .status-badge.premium {
+            background: #f3e8ff;
+            color: #6b21a8;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text3);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        .action-btn:hover {
+            background: var(--border);
+            color: var(--text);
+        }
+        .action-btn.danger:hover {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+        .action-btn.primary:hover {
+            background: var(--brand-glow);
+            color: var(--brand);
+        }
+
+        /* Search bar */
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .search-bar input,
+        .search-bar select {
+            padding: 10px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+            flex: 1;
+            min-width: 150px;
+        }
+        .search-bar input:focus,
+        .search-bar select:focus {
+            border-color: var(--brand);
+        }
+        .search-bar button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 40px;
+            background: var(--brand);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-family: inherit;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        .search-bar button:hover {
+            background: var(--brand-dark);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 300;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-box {
+            background: var(--card);
+            border-radius: 24px;
+            max-width: 640px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 32px;
+            box-shadow: var(--shadow-lg);
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        .modal-box .close-btn {
+            float: right;
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            color: var(--text3);
+            cursor: pointer;
+            padding: 4px;
+        }
+        .modal-box .close-btn:hover {
+            color: var(--text);
+        }
+        .modal-box h2 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        .modal-box .field {
+            margin-bottom: 12px;
+        }
+        .modal-box .field label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text2);
+            display: block;
+            margin-bottom: 4px;
+        }
+        .modal-box .field .value {
+            padding: 8px 12px;
+            background: var(--bg);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+        .modal-box .field .value a {
+            color: var(--brand);
+            text-decoration: none;
+        }
+        .modal-box .field .value a:hover {
+            text-decoration: underline;
+        }
+        .modal-box .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        .modal-box .btn-row .btn {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: var(--brand);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: var(--brand-dark);
+        }
+        .btn-success {
+            background: var(--success);
+            color: #fff;
+        }
+        .btn-success:hover {
+            background: #16a34a;
+        }
+        .btn-danger {
+            background: var(--danger);
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        .btn-ghost {
+            background: var(--border);
+            color: var(--text);
+        }
+        .btn-ghost:hover {
+            background: var(--text3);
+            color: #fff;
+        }
+
+        /* Broadcast */
+        .broadcast-area {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+        .broadcast-area textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            background: var(--bg);
+            color: var(--text);
+            resize: vertical;
+            min-height: 100px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .broadcast-area textarea:focus {
+            border-color: var(--brand);
+        }
+        .broadcast-area .recipient-options {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 12px 0;
+        }
+        .broadcast-area .recipient-options label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .broadcast-area .recipient-options input[type="radio"] {
+            accent-color: var(--brand);
+        }
+
+        /* Feedback items */
+        .feedback-item {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .feedback-item:last-child {
+            border-bottom: none;
+        }
+        .feedback-item .meta {
+            display: flex;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: var(--text3);
+            flex-wrap: wrap;
+            margin-bottom: 4px;
+        }
+        .feedback-item .meta strong {
+            color: var(--text);
+        }
+        .feedback-item .message {
+            color: var(--text2);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .feedback-item .actions {
+            margin-top: 8px;
+            display: flex;
+            gap: 8px;
+        }
+        .feedback-item .actions button {
+            padding: 4px 12px;
+            border: none;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .feedback-item .actions .reply {
+            background: var(--brand-glow);
+            color: var(--brand);
+        }
+        .feedback-item .actions .reply:hover {
+            background: var(--brand);
+            color: #fff;
+        }
+        .feedback-item .actions .delete {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+        .feedback-item .actions .delete:hover {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px 20px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 400;
+            animation: slideUp 0.3s ease;
+            max-width: 400px;
+        }
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+        .toast.error {
+            border-left: 4px solid var(--danger);
+        }
+        .toast .icon {
+            font-size: 1.2rem;
+        }
+        .toast .msg {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Loading */
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            padding: 40px 0;
+        }
+        .loading-spinner .spinner {
+            width: 32px;
+            height: 32px;
+            border: 4px solid var(--border);
+            border-top-color: var(--brand);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* Pagination */
+        .pagination-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .pagination-info button {
+            padding: 6px 16px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: transparent;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85rem;
+            color: var(--text);
+            transition: all 0.2s;
+        }
+        .pagination-info button:hover:not(:disabled) {
+            background: var(--brand);
+            color: #fff;
+            border-color: var(--brand);
+        }
+        .pagination-info button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        @media(max-width:480px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .search-bar {
+                flex-direction: column;
+            }
+            .search-bar input,
+            .search-bar select,
+            .search-bar button {
+                width: 100%;
+                flex: none;
+            }
+            .login-card {
+                padding: 32px 24px;
+            }
+        }
+    </style>
 </head>
 <body>
-<div id="toastContainer" class="toast-container"></div>
 
-<!-- Header -->
-<header class="border-b border-[#334155] bg-[#0f172a]/80 backdrop-blur-xl sticky top-0 z-50">
-  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-        <i class="fas fa-shield-alt text-white text-sm"></i>
-      </div>
-      <span class="font-bold text-lg" style="font-family:'Space Grotesk',sans-serif">MyShub Admin</span>
+    <!-- ===== APP ROOT ===== -->
+    <div id="app">
+
+        <!-- ===== LOGIN SECTION ===== -->
+        <div id="loginSection">
+            <div class="login-card">
+                <a href="/" class="logo"><img src="/icon.svg" alt="MyShub" /> MyShub</a>
+                <p class="subtitle">Admin Login</p>
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="adminEmail" placeholder="admin@myshub.site" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="adminPassword" placeholder="••••••••" required />
+                    </div>
+                    <button type="submit" class="btn" id="loginBtn">Login</button>
+                    <div class="error" id="loginError">Invalid credentials. Please try again.</div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ===== DASHBOARD SECTION ===== -->
+        <div id="dashboardSection">
+            <div class="dashboard-wrapper">
+
+                <!-- Sidebar -->
+                <aside class="sidebar" id="sidebar">
+                    <a href="/" class="logo"><img src="/icon.svg" alt="MyShub" /> MyShub</a>
+                    <div class="nav-item active" data-tab="dashboard" onclick="switchTab('dashboard')">
+                        <i class="fa-solid fa-gauge-high"></i> Dashboard
+                    </div>
+                    <div class="nav-item" data-tab="shops" onclick="switchTab('shops')">
+                        <i class="fa-solid fa-store"></i> Shops
+                        <span class="badge" id="shopCountBadge">0</span>
+                    </div>
+                    <div class="nav-item" data-tab="feedback" onclick="switchTab('feedback')">
+                        <i class="fa-solid fa-comment"></i> Feedback
+                        <span class="badge" id="feedbackCountBadge">0</span>
+                    </div>
+                    <div class="nav-item" data-tab="broadcast" onclick="switchTab('broadcast')">
+                        <i class="fa-solid fa-bullhorn"></i> Broadcast
+                    </div>
+                    <div class="spacer"></div>
+                    <div class="nav-item logout" onclick="logout()">
+                        <i class="fa-solid fa-sign-out-alt"></i> Logout
+                    </div>
+                </aside>
+
+                <!-- Main -->
+                <main class="main" id="mainContent">
+                    <button class="mobile-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+
+                    <!-- ===== DASHBOARD TAB ===== -->
+                    <div id="tab-dashboard" class="tab-content">
+                        <div class="page-header">
+                            <div>
+                                <h1>Dashboard</h1>
+                                <div class="sub">Overview of your business network</div>
+                            </div>
+                            <button class="btn btn-primary" onclick="refreshDashboard()" style="padding:8px 20px;border-radius:40px;border:none;font-weight:600;background:var(--brand);color:#fff;cursor:pointer;"><i class="fa-solid fa-rotate"></i> Refresh</button>
+                        </div>
+                        <div class="stats-grid" id="statsGrid">
+                            <div class="stat-card"><div class="label">Total Shops</div><div class="value" id="statShops">—</div></div>
+                            <div class="stat-card"><div class="label">Total Visits</div><div class="value" id="statVisits">—</div></div>
+                            <div class="stat-card"><div class="label">Visits Today</div><div class="value" id="statVisitsToday">—</div></div>
+                            <div class="stat-card"><div class="label">Total Clicks</div><div class="value" id="statClicks">—</div></div>
+                            <div class="stat-card"><div class="label">Free</div><div class="value" id="statFree">—</div></div>
+                            <div class="stat-card"><div class="label">Pro</div><div class="value" id="statPro">—</div></div>
+                            <div class="stat-card"><div class="label">Premium</div><div class="value" id="statPremium">—</div></div>
+                            <div class="stat-card"><div class="label">Active Shops</div><div class="value" id="statActive">—</div></div>
+                        </div>
+                        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);">
+                            <h3 style="font-weight:700;margin-bottom:12px;">Recent Signups</h3>
+                            <div id="recentSignups">Loading...</div>
+                        </div>
+                    </div>
+
+                    <!-- ===== SHOPS TAB ===== -->
+                    <div id="tab-shops" class="tab-content" style="display:none;">
+                        <div class="page-header">
+                            <div><h1>Shops</h1><div class="sub">Search and manage all shops</div></div>
+                        </div>
+                        <div class="search-bar">
+                            <input type="text" id="shopSearch" placeholder="Search by email or slug..." onkeyup="searchShops()" />
+                            <select id="shopPlanFilter" onchange="searchShops()">
+                                <option value="">All Plans</option>
+                                <option value="free">Free</option>
+                                <option value="pro">Pro</option>
+                                <option value="premium">Premium</option>
+                            </select>
+                            <select id="shopStatusFilter" onchange="searchShops()">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="expired">Expired</option>
+                            </select>
+                            <button onclick="searchShops()"><i class="fa-solid fa-search"></i> Search</button>
+                        </div>
+                        <div class="table-wrap">
+                            <table>
+                                <thead><tr><th>Slug</th><th>Business Name</th><th>Email</th><th>Plan</th><th>Status</th><th>Visits</th><th>Actions</th></tr></thead>
+                                <tbody id="shopsTableBody"><tr><td colspan="7" class="loading-spinner"><div class="spinner"></div></td></tr></tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-info">
+                            <span id="shopsPaginationInfo">Showing 0-0 of 0</span>
+                            <div>
+                                <button onclick="prevPage()" id="prevPageBtn" disabled>← Prev</button>
+                                <button onclick="nextPage()" id="nextPageBtn">Next →</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ===== FEEDBACK TAB ===== -->
+                    <div id="tab-feedback" class="tab-content" style="display:none;">
+                        <div class="page-header">
+                            <div><h1>Feedback</h1><div class="sub">View and manage user feedback</div></div>
+                        </div>
+                        <div class="search-bar">
+                            <select id="feedbackTypeFilter" onchange="loadFeedback()">
+                                <option value="">All Types</option>
+                                <option value="general">General</option>
+                                <option value="report">Report</option>
+                                <option value="claim">Claim</option>
+                                <option value="partnership">Partnership</option>
+                            </select>
+                            <button onclick="loadFeedback()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+                        </div>
+                        <div id="feedbackList" style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);">
+                            <div class="loading-spinner"><div class="spinner"></div></div>
+                        </div>
+                    </div>
+
+                    <!-- ===== BROADCAST TAB ===== -->
+                    <div id="tab-broadcast" class="tab-content" style="display:none;">
+                        <div class="page-header">
+                            <div><h1>Broadcast</h1><div class="sub">Send notifications to shops</div></div>
+                        </div>
+                        <div class="broadcast-area">
+                            <div style="margin-bottom:16px;">
+                                <label style="font-weight:600;display:block;margin-bottom:4px;">Title</label>
+                                <input type="text" id="broadcastTitle" placeholder="e.g. New Feature Update" style="width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:1rem;background:var(--bg);color:var(--text);font-family:inherit;outline:none;" />
+                            </div>
+                            <div style="margin-bottom:16px;">
+                                <label style="font-weight:600;display:block;margin-bottom:4px;">Message</label>
+                                <textarea id="broadcastMessage" placeholder="Write your message here..."></textarea>
+                            </div>
+                            <div style="margin-bottom:16px;">
+                                <label style="font-weight:600;display:block;margin-bottom:4px;">Recipients</label>
+                                <div class="recipient-options">
+                                    <label><input type="radio" name="recipientType" value="all" checked /> All Shops</label>
+                                    <label><input type="radio" name="recipientType" value="free" /> Free</label>
+                                    <label><input type="radio" name="recipientType" value="pro" /> Pro</label>
+                                    <label><input type="radio" name="recipientType" value="premium" /> Premium</label>
+                                    <label><input type="radio" name="recipientType" value="selected" /> Selected</label>
+                                </div>
+                                <div id="selectedRecipients" style="display:none;margin-top:8px;">
+                                    <input type="text" id="selectedShopSlugs" placeholder="Enter comma-separated slugs (e.g. shop1, shop2)" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:12px;background:var(--bg);color:var(--text);font-family:inherit;outline:none;" />
+                                </div>
+                            </div>
+                            <button onclick="sendBroadcast()" class="btn btn-primary" style="padding:12px 32px;border-radius:40px;border:none;font-weight:700;background:var(--brand);color:#fff;cursor:pointer;font-size:1rem;"><i class="fa-solid fa-paper-plane"></i> Send Broadcast</button>
+                            <div id="broadcastResult" style="margin-top:12px;"></div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
     </div>
-    <div class="flex items-center gap-3">
-      <span id="adminEmail" class="text-sm text-[#94a3b8] hidden md:block"></span>
-      <a href="app.html" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back to App</a>
-      <button onclick="logout()" class="btn btn-danger btn-sm"><i class="fas fa-sign-out-alt"></i></button>
+
+    <!-- ===== SHOP DETAIL MODAL ===== -->
+    <div class="modal-overlay" id="shopDetailModal" onclick="if(event.target===this) closeModal()">
+        <div class="modal-box">
+            <button class="close-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+            <h2 id="modalShopTitle">Shop Details</h2>
+            <div id="modalShopContent">Loading...</div>
+        </div>
     </div>
-  </div>
-</header>
 
-<!-- Main -->
-<main class="max-w-7xl mx-auto px-4 py-6">
-  <!-- Stats Cards -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-    <div class="card">
-      <div class="text-2xl font-bold text-indigo-400" id="statTotalShops">-</div>
-      <div class="text-xs text-[#94a3b8]">Total Shops</div>
-    </div>
-    <div class="card">
-      <div class="text-2xl font-bold text-pink-400" id="statTotalUsers">-</div>
-      <div class="text-xs text-[#94a3b8]">Total Users</div>
-    </div>
-    <div class="card">
-      <div class="text-2xl font-bold text-emerald-400" id="statTotalViews">-</div>
-      <div class="text-xs text-[#94a3b8]">Total Views</div>
-    </div>
-    <div class="card">
-      <div class="text-2xl font-bold text-amber-400" id="statPremiumShops">-</div>
-      <div class="text-xs text-[#94a3b8]">Premium Shops</div>
-    </div>
-  </div>
+    <script>
+        // ================================================================
+        // CONFIG & STATE
+        // ================================================================
+        const API_BASE = 'https://emltechstudio-myshub-api.hf.space';
+        let currentPage = 1;
+        let totalShops = 0;
+        let shopSearchQuery = '';
+        let shopPlanFilter = '';
+        let shopStatusFilter = '';
 
-  <!-- Tabs -->
-  <div class="flex gap-2 mb-6 overflow-x-auto">
-    <button class="tab-btn active" data-tab="shops" onclick="switchTab('shops')">🏪 Shops</button>
-    <button class="tab-btn" data-tab="users" onclick="switchTab('users')">👤 Users</button>
-    <button class="tab-btn" data-tab="analytics" onclick="switchTab('analytics')">📊 Analytics</button>
-    <button class="tab-btn" data-tab="notifications" onclick="switchTab('notifications')">🔔 Broadcast</button>
-    <button class="tab-btn" data-tab="payments" onclick="switchTab('payments')">💳 Payments</button>
-  </div>
+        // ================================================================
+        // AUTH & SESSION
+        // ================================================================
+        function getAdminSession() {
+            try {
+                const raw = localStorage.getItem('admin_session');
+                if (raw) return JSON.parse(raw);
+                return null;
+            } catch { return null; }
+        }
 
-  <!-- Content -->
-  <div id="tabContent" class="animate-fade-in">
-    <!-- Rendered by JS -->
-  </div>
-</main>
+        function setAdminSession(email, password) {
+            localStorage.setItem('admin_session', JSON.stringify({ email, password }));
+        }
 
-<script>
-const API_BASE='https://emltechstudio-myshub-api.hf.space';
-let currentTab='shops';
-let shopsData=[];
-let usersData=[];
+        function clearAdminSession() {
+            localStorage.removeItem('admin_session');
+        }
 
-function init(){
-  const token=localStorage.getItem('myshub_token');
-  if(!token){window.location.href='app.html';return}
-  fetch(`${API_BASE}/auth/me`,{headers:{'Authorization':`Bearer ${token}`}})
-    .then(r=>r.ok?r.json():Promise.reject())
-    .then(u=>{
-      if(!u.is_admin){window.location.href='app.html';return}
-      document.getElementById('adminEmail').textContent=u.email;
-      loadStats();switchTab('shops');
-    })
-    .catch(()=>{localStorage.removeItem('myshub_token');window.location.href='app.html'});
-}
+        function getAdminHeaders() {
+            const session = getAdminSession();
+            if (!session) throw new Error('Not logged in');
+            return { 'admin-email': session.email, 'admin-password': session.password };
+        }
 
-async function loadStats(){
-  const token=localStorage.getItem('myshub_token');
-  try{
-    const r=await fetch(`${API_BASE}/admin/stats`,{headers:{'Authorization':`Bearer ${token}`}});
-    if(r.ok){
-      const d=await r.json();
-      document.getElementById('statTotalShops').textContent=d.total_shops||0;
-      document.getElementById('statTotalUsers').textContent=d.total_users||0;
-      document.getElementById('statTotalViews').textContent=(d.total_views||0).toLocaleString();
-      document.getElementById('statPremiumShops').textContent=d.premium_shops||0;
-    }
-  }catch(e){console.error('Stats error:',e)}
-}
+        function isLoggedIn() {
+            const session = getAdminSession();
+            return session && session.email && session.password;
+        }
 
-function switchTab(tab){
-  currentTab=tab;
-  document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
-  document.querySelector(`.tab-btn[data-tab="${tab}"]`)?.classList.add('active');
-  const content=document.getElementById('tabContent');
-  content.innerHTML='<div class="flex items-center justify-center py-12"><i class="fas fa-spinner fa-spin text-2xl text-indigo-500"></i></div>';
-  switch(tab){
-    case'shops':renderShopsTab();break;
-    case'users':renderUsersTab();break;
-    case'analytics':renderAnalyticsTab();break;
-    case'notifications':renderNotificationsTab();break;
-    case'payments':renderPaymentsTab();break;
-  }
-}
+        // ================================================================
+        // LOGIN
+        // ================================================================
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('adminEmail').value.trim();
+            const password = document.getElementById('adminPassword').value.trim();
+            const btn = document.getElementById('loginBtn');
+            const errorEl = document.getElementById('loginError');
 
-async function renderShopsTab(){
-  const token=localStorage.getItem('myshub_token');
-  try{
-    const r=await fetch(`${API_BASE}/admin/shops`,{headers:{'Authorization':`Bearer ${token}`}});
-    if(r.ok){shopsData=await r.json();}else{shopsData=[]}
-  }catch(e){shopsData=[]}
+            if (!email || !password) {
+                errorEl.style.display = 'block';
+                errorEl.textContent = 'Please fill in all fields.';
+                return;
+            }
 
-  document.getElementById('tabContent').innerHTML=`<div class="card">
-    <div class="flex items-center justify-between mb-4"><h3 class="font-bold">All Shops</h3><input type="text" class="input max-w-xs" placeholder="Search shops..." oninput="filterShops(this.value)"></div>
-    <div class="overflow-x-auto">
-      <div class="table-row table-header"><div>Name</div><div>Plan</div><div>Views</div><div>Status</div><div>Actions</div></div>
-      <div id="shopsList">${shopsData.map(s=>renderShopRow(s)).join('')}</div>
-    </div>
-  </div>`;
-}
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-btn"></span> Logging in...';
+            errorEl.style.display = 'none';
 
-function renderShopRow(s){
-  const planClass=s.plan==='premium'?'text-yellow-400':s.plan==='pro'?'text-indigo-400':'text-[#94a3b8]';
-  return`<div class="table-row">
-    <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs">🏪</div><div><div class="font-medium">${s.name}</div><div class="text-xs text-[#64748b]">${s.slug}</div></div></div>
-    <div class="${planClass} font-medium capitalize">${s.plan||'free'}</div>
-    <div>${s.total_views||0}</div>
-    <div><span class="px-2 py-0.5 rounded-full text-xs ${s.is_active!==false?'bg-green-500/10 text-green-400':'bg-red-500/10 text-red-400'}">${s.is_active!==false?'Active':'Inactive'}</span></div>
-    <div class="flex gap-1"><button onclick="viewShop('${s.slug}')" class="p-1.5 rounded-lg hover:bg-[#334155]" title="View"><i class="fas fa-eye text-[#94a3b8]"></i></button><button onclick="toggleShop('${s.slug}',${s.is_active!==false})" class="p-1.5 rounded-lg hover:bg-[#334155]" title="${s.is_active!==false?'Deactivate':'Activate'}"><i class="fas ${s.is_active!==false?'fa-pause':'fa-play'} text-[#94a3b8]"></i></button></div>
-  </div>`;
-}
+            try {
+                const headers = {
+                    'admin-email': email,
+                    'admin-password': password
+                };
+                const res = await fetch(API_BASE + '/admin/me', { headers });
 
-function filterShops(q){
-  const filtered=shopsData.filter(s=>s.name.toLowerCase().includes(q.toLowerCase())||s.slug.toLowerCase().includes(q.toLowerCase()));
-  document.getElementById('shopsList').innerHTML=filtered.map(s=>renderShopRow(s)).join('');
-}
+                if (res.ok) {
+                    setAdminSession(email, password);
+                    showDashboard();
+                } else {
+                    errorEl.style.display = 'block';
+                    errorEl.textContent = 'Invalid email or password.';
+                }
+            } catch (err) {
+                errorEl.style.display = 'block';
+                errorEl.textContent = 'Network error. Please try again.';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Login';
+            }
+        }
 
-async function renderUsersTab(){
-  const token=localStorage.getItem('myshub_token');
-  try{
-    const r=await fetch(`${API_BASE}/admin/users`,{headers:{'Authorization':`Bearer ${token}`}});
-    if(r.ok){usersData=await r.json();}else{usersData=[]}
-  }catch(e){usersData=[]}
+        // ================================================================
+        // LOGOUT
+        // ================================================================
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                clearAdminSession();
+                showLogin();
+            }
+        }
 
-  document.getElementById('tabContent').innerHTML=`<div class="card">
-    <div class="flex items-center justify-between mb-4"><h3 class="font-bold">All Users</h3><input type="text" class="input max-w-xs" placeholder="Search users..." oninput="filterUsers(this.value)"></div>
-    <div class="overflow-x-auto">
-      <div class="table-row table-header"><div>User</div><div>Shop</div><div>Plan</div><div>Joined</div><div>Actions</div></div>
-      <div id="usersList">${usersData.map(u=>renderUserRow(u)).join('')}</div>
-    </div>
-  </div>`;
-}
+        // ================================================================
+        // UI SWITCH
+        // ================================================================
+        function showLogin() {
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('dashboardSection').style.display = 'none';
+        }
 
-function renderUserRow(u){
-  return`<div class="table-row">
-    <div><div class="font-medium">${u.email}</div><div class="text-xs text-[#64748b]">${u.phone||''}</div></div>
-    <div class="text-[#94a3b8]">${u.shop_name||'No shop'}</div>
-    <div class="${u.plan==='premium'?'text-yellow-400':u.plan==='pro'?'text-indigo-400':'text-[#94a3b8]'} font-medium capitalize">${u.plan||'free'}</div>
-    <div class="text-[#94a3b8] text-xs">${u.created_at?new Date(u.created_at).toLocaleDateString():'-'}</div>
-    <div class="flex gap-1"><button onclick="viewUser('${u.id}')" class="p-1.5 rounded-lg hover:bg-[#334155]" title="View"><i class="fas fa-eye text-[#94a3b8]"></i></button></div>
-  </div>`;
-}
+        function showDashboard() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('dashboardSection').style.display = 'block';
+            // Load initial data
+            refreshDashboard();
+            searchShops();
+            loadFeedback();
+        }
 
-function filterUsers(q){
-  const filtered=usersData.filter(u=>u.email.toLowerCase().includes(q.toLowerCase())||(u.shop_name||'').toLowerCase().includes(q.toLowerCase()));
-  document.getElementById('usersList').innerHTML=filtered.map(u=>renderUserRow(u)).join('');
-}
+        // ================================================================
+        // SIDEBAR / TABS
+        // ================================================================
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarBackdrop')?.classList.toggle('show');
+        }
 
-function renderAnalyticsTab(){
-  document.getElementById('tabContent').innerHTML=`<div class="grid md:grid-cols-2 gap-4">
-    <div class="card"><h3 class="font-bold mb-4">Views Over Time</h3><div class="h-48 flex items-end gap-2">${[30,45,25,60,40,80,55,70,90,65,50,75].map(v=>`<div class="flex-1 bg-indigo-500/30 rounded-t-lg hover:bg-indigo-500/50 transition-all" style="height:${v}%"></div>`).join('')}</div><div class="flex justify-between mt-2 text-xs text-[#64748b]"><span>Jan</span><span>Dec</span></div></div>
-    <div class="card"><h3 class="font-bold mb-4">Plans Distribution</h3><div class="space-y-3"><div><div class="flex justify-between text-sm mb-1"><span>Free</span><span>65%</span></div><div class="w-full bg-[#0f172a] rounded-full h-2"><div class="bg-[#94a3b8] h-2 rounded-full" style="width:65%"></div></div></div><div><div class="flex justify-between text-sm mb-1"><span>Pro</span><span>25%</span></div><div class="w-full bg-[#0f172a] rounded-full h-2"><div class="bg-indigo-500 h-2 rounded-full" style="width:25%"></div></div></div><div><div class="flex justify-between text-sm mb-1"><span>Premium</span><span>10%</span></div><div class="w-full bg-[#0f172a] rounded-full h-2"><div class="bg-yellow-400 h-2 rounded-full" style="width:10%"></div></div></div></div></div>
-    <div class="card"><h3 class="font-bold mb-4">Top Countries</h3><div class="space-y-2">${[['Nigeria',45],['Ghana',12],['USA',8],['UK',6],['Kenya',5]].map(([c,v])=>`<div class="flex items-center justify-between p-2 rounded-lg bg-[#0f172a]"><span>${c}</span><span class="font-medium text-indigo-400">${v}%</span></div>`).join('')}</div></div>
-    <div class="card"><h3 class="font-bold mb-4">Top Categories</h3><div class="space-y-2">${[['Beauty',18],['Fashion',15],['Food',12],['Tech',10],['Services',8]].map(([c,v])=>`<div class="flex items-center justify-between p-2 rounded-lg bg-[#0f172a]"><span>${c}</span><span class="font-medium text-pink-400">${v}%</span></div>`).join('')}</div></div>
-  </div>`;
-}
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+            document.getElementById('tab-' + tab).style.display = 'block';
+            document.querySelectorAll('.sidebar .nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelector(`.sidebar .nav-item[data-tab="${tab}"]`).classList.add('active');
+            if (window.innerWidth <= 768) toggleSidebar();
+            if (tab === 'dashboard') refreshDashboard();
+            else if (tab === 'shops') searchShops();
+            else if (tab === 'feedback') loadFeedback();
+        }
 
-function renderNotificationsTab(){
-  document.getElementById('tabContent').innerHTML=`<div class="max-w-xl">
-    <div class="card mb-4">
-      <h3 class="font-bold mb-4">Send Broadcast Notification</h3>
-      <div class="space-y-3">
-        <div><label class="text-sm text-[#94a3b8] mb-1 block">Target</label><select id="notifTarget" class="input"><option value="all">All Users</option><option value="free">Free Users</option><option value="pro">Pro Users</option><option value="premium">Premium Users</option></select></div>
-        <div><label class="text-sm text-[#94a3b8] mb-1 block">Title</label><input type="text" id="notifTitle" class="input" placeholder="Notification title"></div>
-        <div><label class="text-sm text-[#94a3b8] mb-1 block">Message</label><textarea id="notifBody" class="input" rows="3" placeholder="Your message..."></textarea></div>
-        <button onclick="sendBroadcast()" class="btn btn-primary w-full justify-center" id="sendNotifBtn"><i class="fas fa-paper-plane"></i> Send Broadcast</button>
-      </div>
-    </div>
-    <div class="card">
-      <h3 class="font-bold mb-4">Recent Broadcasts</h3>
-      <div class="space-y-2" id="broadcastList"><p class="text-sm text-[#94a3b8] text-center py-4">No broadcasts yet</p></div>
-    </div>
-  </div>`;
-}
+        // ================================================================
+        // TOAST
+        // ================================================================
+        function showToast(msg, type) {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+            const div = document.createElement('div');
+            div.className = 'toast ' + (type || '');
+            div.innerHTML = `<span class="icon">${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span><span class="msg">${msg}</span>`;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 4000);
+        }
 
-async function sendBroadcast(){
-  const target=document.getElementById('notifTarget').value;
-  const title=document.getElementById('notifTitle').value;
-  const body=document.getElementById('notifBody').value;
-  if(!title||!body){showToast('Title and message required','error');return}
-  const btn=document.getElementById('sendNotifBtn');btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';btn.disabled=true;
-  try{
-    const token=localStorage.getItem('myshub_token');
-    const r=await fetch(`${API_BASE}/admin/broadcast`,{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({target,title,body})});
-    if(r.ok){showToast('Broadcast sent!','success');document.getElementById('notifTitle').value='';document.getElementById('notifBody').value='';}else{const d=await r.json();showToast(d.detail||'Failed','error')}
-  }catch(e){showToast('Network error','error')}
-  finally{btn.innerHTML='<i class="fas fa-paper-plane"></i> Send Broadcast';btn.disabled=false;}
-}
+        // ================================================================
+        // API HELPERS
+        // ================================================================
+        async function apiFetch(endpoint, options = {}) {
+            const headers = getAdminHeaders();
+            const res = await fetch(API_BASE + endpoint, {
+                ...options,
+                headers: { ...headers, 'Content-Type': 'application/json', ...options.headers }
+            });
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(text || 'API error');
+            }
+            return res.json();
+        }
 
-function renderPaymentsTab(){
-  document.getElementById('tabContent').innerHTML=`<div class="card">
-    <h3 class="font-bold mb-4">Payment Transactions</h3>
-    <div class="overflow-x-auto">
-      <div class="table-row table-header"><div>User</div><div>Plan</div><div>Amount</div><div>Status</div><div>Date</div></div>
-      <div class="text-center py-8 text-[#94a3b8]"><i class="fas fa-receipt text-3xl mb-2"></i><p>No transactions yet</p></div>
-    </div>
-  </div>`;
-}
+        // ================================================================
+        // DASHBOARD
+        // ================================================================
+        async function refreshDashboard() {
+            try {
+                const data = await apiFetch('/admin/analytics');
+                document.getElementById('statShops').textContent = data.total_shops || 0;
+                document.getElementById('statVisits').textContent = data.total_visits || 0;
+                document.getElementById('statVisitsToday').textContent = data.visits_today || 0;
+                document.getElementById('statClicks').textContent = data.total_clicks || 0;
+                document.getElementById('statFree').textContent = data.plans?.free || 0;
+                document.getElementById('statPro').textContent = data.plans?.pro || 0;
+                document.getElementById('statPremium').textContent = data.plans?.premium || 0;
+                document.getElementById('statActive').textContent = data.active_shops || 0;
+                document.getElementById('shopCountBadge').textContent = data.total_shops || 0;
 
-function viewShop(slug){window.open(`https://myshub.site/${slug}`,'_blank')}
-function viewUser(id){showToast('User details coming soon','success')}
-async function toggleShop(slug,currentStatus){
-  const token=localStorage.getItem('myshub_token');
-  try{
-    const r=await fetch(`${API_BASE}/admin/shop/${slug}/toggle`,{method:'POST',headers:{'Authorization':`Bearer ${token}`}});
-    if(r.ok){showToast(currentStatus?'Shop deactivated':'Shop activated','success');renderShopsTab();}else{showToast('Failed','error')}
-  }catch(e){showToast('Network error','error')}
-}
+                const recent = data.recent_shops || [];
+                const container = document.getElementById('recentSignups');
+                if (recent.length === 0) {
+                    container.innerHTML = '<p style="color:var(--text3);">No recent signups</p>';
+                } else {
+                    container.innerHTML = recent.map(s =>
+                        `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:0.9rem;">
+                            <span><strong>${s.business_name || s.slug}</strong> (${s.slug})</span>
+                            <span style="color:var(--text3);">${s.plan} · ${new Date(s.created_at).toLocaleDateString()}</span>
+                        </div>`
+                    ).join('');
+                }
+            } catch (e) {
+                showToast('Failed to load dashboard: ' + e.message, 'error');
+            }
+        }
 
-function logout(){localStorage.removeItem('myshub_token');window.location.href='app.html'}
-function showToast(msg,type='success'){
-  const c=document.getElementById('toastContainer');
-  const t=document.createElement('div');
-  t.className=`toast toast-${type}`;
-  t.innerHTML=`<i class="fas ${type==='success'?'fa-check-circle':'fa-exclamation-circle'}"></i>${msg}`;
-  c.appendChild(t);
-  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateY(-10px)';setTimeout(()=>t.remove(),300)},3000);
-}
+        // ================================================================
+        // SHOPS
+        // ================================================================
+        async function searchShops(page = currentPage) {
+            const search = document.getElementById('shopSearch').value.trim();
+            const plan = document.getElementById('shopPlanFilter').value;
+            const status = document.getElementById('shopStatusFilter').value;
+            shopSearchQuery = search;
+            shopPlanFilter = plan;
+            shopStatusFilter = status;
+            currentPage = page;
 
-init();
-</script>
+            try {
+                const params = new URLSearchParams({
+                    page: page,
+                    limit: 20,
+                });
+                if (search) params.append('search', search);
+                if (plan) params.append('plan', plan);
+                if (status) params.append('status', status);
+
+                const data = await apiFetch('/admin/shops?' + params.toString());
+                const shops = data.shops || [];
+                totalShops = data.total || 0;
+
+                const tbody = document.getElementById('shopsTableBody');
+                if (shops.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text3);">No shops found</td></tr>';
+                } else {
+                    tbody.innerHTML = shops.map(s => `
+                        <tr>
+                            <td><a href="/${s.slug}" target="_blank" style="color:var(--brand);text-decoration:none;">${s.slug}</a></td>
+                            <td>${s.business_name || '—'}</td>
+                            <td>${s.email || '—'}</td>
+                            <td><span class="status-badge ${s.plan || 'free'}">${s.plan || 'free'}</span></td>
+                            <td><span class="status-badge ${s.status === 'active' ? 'active' : 'inactive'}">${s.status || 'expired'}</span></td>
+                            <td>${s.visit_count || 0}</td>
+                            <td>
+                                <button class="action-btn primary" onclick="viewShop('${s.slug}')" title="View Details"><i class="fa-regular fa-eye"></i></button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+
+                const totalPages = Math.ceil(totalShops / 20);
+                document.getElementById('shopsPaginationInfo').textContent = `Showing ${Math.min((page-1)*20+1, totalShops)}-${Math.min(page*20, totalShops)} of ${totalShops}`;
+                document.getElementById('prevPageBtn').disabled = page <= 1;
+                document.getElementById('nextPageBtn').disabled = page >= totalPages;
+            } catch (e) {
+                showToast('Failed to load shops: ' + e.message, 'error');
+            }
+        }
+
+        function prevPage() { if (currentPage > 1) searchShops(currentPage - 1); }
+
+        function nextPage() { searchShops(currentPage + 1); }
+
+        // ================================================================
+        // SHOP DETAIL MODAL
+        // ================================================================
+        async function viewShop(slug) {
+            const modal = document.getElementById('shopDetailModal');
+            modal.classList.add('active');
+            document.getElementById('modalShopTitle').textContent = 'Loading...';
+            document.getElementById('modalShopContent').innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+
+            try {
+                const data = await apiFetch('/admin/shop/' + slug);
+                const shop = data.shop || data;
+                document.getElementById('modalShopTitle').textContent = shop.business_name || shop.slug;
+
+                const html = `
+                    <div class="field"><label>Slug</label><div class="value"><a href="/${shop.slug}" target="_blank">/${shop.slug}</a></div></div>
+                    <div class="field"><label>Business Name</label><div class="value">${shop.business_name || '—'}</div></div>
+                    <div class="field"><label>Email</label><div class="value">${shop.email || '—'}</div></div>
+                    <div class="field"><label>Plan</label><div class="value"><span class="status-badge ${shop.plan}">${shop.plan}</span></div></div>
+                    <div class="field"><label>Status</label><div class="value"><span class="status-badge ${shop.status === 'active' ? 'active' : 'inactive'}">${shop.status}</span></div></div>
+                    <div class="field"><label>Visits</label><div class="value">${shop.visit_count || 0}</div></div>
+                    <div class="field"><label>Location</label><div class="value">${shop.location || '—'}</div></div>
+                    <div class="field"><label>Category</label><div class="value">${shop.category || '—'}</div></div>
+                    <div class="field"><label>Security Questions</label><div class="value">${shop.security_questions ? shop.security_questions.map(q => q.question).join(', ') : '—'}</div></div>
+                    <div class="btn-row">
+                        <button class="btn btn-success" onclick="upgradeShop('${shop.slug}', 'pro')">Upgrade to Pro</button>
+                        <button class="btn btn-success" onclick="upgradeShop('${shop.slug}', 'premium')">Upgrade to Premium</button>
+                        <button class="btn ${shop.status === 'active' ? 'btn-danger' : 'btn-success'}" onclick="toggleShopStatus('${shop.slug}', '${shop.status}')">${shop.status === 'active' ? 'Deactivate' : 'Reactivate'}</button>
+                        <button class="btn btn-danger" onclick="resetShopPassword('${shop.slug}')">Reset Password</button>
+                    </div>
+                `;
+                document.getElementById('modalShopContent').innerHTML = html;
+            } catch (e) {
+                document.getElementById('modalShopContent').innerHTML = `<p style="color:var(--danger);">Error: ${e.message}</p>`;
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('shopDetailModal').classList.remove('active');
+        }
+
+        // ================================================================
+        // SHOP ACTIONS
+        // ================================================================
+        async function upgradeShop(slug, plan) {
+            if (!confirm(`Upgrade ${slug} to ${plan}?`)) return;
+            try {
+                await apiFetch('/admin/shop/' + slug + '/upgrade', {
+                    method: 'POST',
+                    body: JSON.stringify({ plan })
+                });
+                showToast(`✅ ${slug} upgraded to ${plan}`, 'success');
+                closeModal();
+                searchShops();
+            } catch (e) {
+                showToast('Failed to upgrade: ' + e.message, 'error');
+            }
+        }
+
+        async function toggleShopStatus(slug, currentStatus) {
+            const newStatus = currentStatus === 'active' ? 'expired' : 'active';
+            if (!confirm(`${newStatus === 'active' ? 'Reactivate' : 'Deactivate'} ${slug}?`)) return;
+            try {
+                await apiFetch('/admin/shop/' + slug + '/status', {
+                    method: 'POST',
+                    body: JSON.stringify({ status: newStatus })
+                });
+                showToast(`✅ ${slug} ${newStatus === 'active' ? 'reactivated' : 'deactivated'}`, 'success');
+                closeModal();
+                searchShops();
+            } catch (e) {
+                showToast('Failed to update status: ' + e.message, 'error');
+            }
+        }
+
+        async function resetShopPassword(slug) {
+            if (!confirm(`Reset password for ${slug}?`)) return;
+            try {
+                await apiFetch('/admin/shop/' + slug + '/reset-password', { method: 'POST' });
+                showToast(`✅ Password reset for ${slug}. New password sent to email.`, 'success');
+                closeModal();
+            } catch (e) {
+                showToast('Failed to reset password: ' + e.message, 'error');
+            }
+        }
+
+        // ================================================================
+        // FEEDBACK
+        // ================================================================
+        async function loadFeedback() {
+            const type = document.getElementById('feedbackTypeFilter').value;
+            const container = document.getElementById('feedbackList');
+            container.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+
+            try {
+                const params = new URLSearchParams();
+                if (type) params.append('type_filter', type);
+                const data = await apiFetch('/feedback/admin/feedback?' + params.toString());
+                const items = data.feedback || [];
+
+                document.getElementById('feedbackCountBadge').textContent = items.length;
+
+                if (items.length === 0) {
+                    container.innerHTML = '<p style="color:var(--text3);text-align:center;padding:40px;">No feedback found</p>';
+                    return;
+                }
+
+                container.innerHTML = items.map(f => `
+                    <div class="feedback-item">
+                        <div class="meta">
+                            <strong>${f.name || 'Anonymous'}</strong>
+                            <span>${f.email || 'no email'}</span>
+                            <span>${f.type || 'general'}</span>
+                            <span>${new Date(f.created_at).toLocaleString()}</span>
+                        </div>
+                        <div class="message">${f.message}</div>
+                        <div class="actions">
+                            <button class="reply" onclick="replyToFeedback('${f.email}', '${f.name}')"><i class="fa-regular fa-reply"></i> Reply</button>
+                            <button class="delete" onclick="deleteFeedback('${f.id}')"><i class="fa-regular fa-trash-can"></i> Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                container.innerHTML = `<p style="color:var(--danger);">Error loading feedback: ${e.message}</p>`;
+            }
+        }
+
+        function replyToFeedback(email, name) {
+            const subject = encodeURIComponent(`Re: Your feedback on MyShub`);
+            const body = encodeURIComponent(`Hello ${name || 'there'},\n\nThank you for your feedback. We appreciate you taking the time to share your thoughts.\n\nBest,\nMyShub Team`);
+            window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_blank');
+        }
+
+        async function deleteFeedback(id) {
+            if (!confirm('Delete this feedback?')) return;
+            try {
+                await apiFetch('/feedback/admin/feedback/' + id, { method: 'DELETE' });
+                showToast('Feedback deleted', 'success');
+                loadFeedback();
+            } catch (e) {
+                showToast('Failed to delete: ' + e.message, 'error');
+            }
+        }
+
+        // ================================================================
+        // BROADCAST
+        // ================================================================
+        document.querySelectorAll('input[name="recipientType"]').forEach(el => {
+            el.addEventListener('change', function() {
+                document.getElementById('selectedRecipients').style.display = this.value === 'selected' ? 'block' :
+                'none';
+            });
+        });
+
+        async function sendBroadcast() {
+            const title = document.getElementById('broadcastTitle').value.trim();
+            const message = document.getElementById('broadcastMessage').value.trim();
+            const recipientType = document.querySelector('input[name="recipientType"]:checked').value;
+            let shopSlugs = [];
+
+            if (recipientType === 'selected') {
+                const slugs = document.getElementById('selectedShopSlugs').value.split(',').map(s => s.trim()).filter(
+                Boolean);
+                if (slugs.length === 0) {
+                    showToast('Please enter at least one shop slug for selected recipients.', 'error');
+                    return;
+                }
+                shopSlugs = slugs;
+            }
+
+            if (!title || !message) {
+                showToast('Please enter both a title and message.', 'error');
+                return;
+            }
+
+            const payload = {
+                title,
+                message,
+                recipients: recipientType,
+                shop_slugs: shopSlugs,
+                data: {}
+            };
+
+            const btn = event.target;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-btn"></span> Sending...';
+
+            try {
+                const result = await apiFetch('/notifications/broadcast', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                showToast(`✅ Broadcast sent successfully! (${result.sent || 0} recipients)`, 'success');
+                document.getElementById('broadcastTitle').value = '';
+                document.getElementById('broadcastMessage').value = '';
+                document.getElementById('selectedShopSlugs').value = '';
+            } catch (e) {
+                showToast('Failed to send broadcast: ' + e.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Broadcast';
+            }
+        }
+
+        // ================================================================
+        // INIT
+        // ================================================================
+        (function init() {
+            if (isLoggedIn()) {
+                showDashboard();
+                // Set up auto-refresh for dashboard every 60 seconds
+                setInterval(() => {
+                    if (document.getElementById('tab-dashboard').style.display !== 'none') {
+                        refreshDashboard();
+                    }
+                }, 60000);
+            } else {
+                showLogin();
+            }
+        })();
+    </script>
+
 </body>
 </html>
