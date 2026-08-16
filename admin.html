@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>MyShop Admin Dashboard</title>
+    <title>MyShub Admin Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     <style>
@@ -93,8 +93,8 @@
         .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-weight: 600; font-size: .85rem; margin-bottom: 6px; color: var(--text); }
-        .form-group input, .form-group select { width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 12px; font-size: .9rem; outline: none; transition: all .2s; background: var(--bg); color: var(--text); }
-        .form-group input:focus, .form-group select:focus { border-color: var(--brand-light); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 12px; font-size: .9rem; outline: none; transition: all .2s; background: var(--bg); color: var(--text); }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--brand-light); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
         .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .detail-item { padding: 12px; background: var(--bg); border-radius: 12px; }
         .detail-item label { font-size: .75rem; color: var(--text2); text-transform: uppercase; letter-spacing: .05em; font-weight: 600; display: block; margin-bottom: 4px; }
@@ -198,8 +198,8 @@
             <div style="width:64px;height:64px;background:linear-gradient(135deg,var(--brand),var(--brand-light));border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
                 <i class="fa-solid fa-shield-halved" style="color:white;font-size:1.8rem;"></i>
             </div>
-            <h1>Admin Login</h1>
-            <p class="sub">MyShop Admin Dashboard</p>
+            <h1>MyShub Admin</h1>
+            <p class="sub">Admin Dashboard</p>
         </div>
         <div id="login-msg" class="msg"></div>
         <div class="form-group">
@@ -272,7 +272,7 @@
                 <button class="hamburger" onclick="toggleMobileSidebar()" aria-label="Open menu">
                     <i class="fa-solid fa-bars"></i>
                 </button>
-                <h1><i class="fa-solid fa-shield-halved"></i> MyShop Admin</h1>
+                <h1><i class="fa-solid fa-shield-halved"></i> MyShub Admin</h1>
             </div>
             <div class="header-right">
                 <span class="role-badge" id="admin-role">VIEWER</span>
@@ -290,6 +290,7 @@
                 <div class="nav-item" onclick="switchSection('analytics', this)"><i class="fa-solid fa-chart-line"></i> Analytics</div>
                 <div class="nav-item" onclick="switchSection('referrals', this)"><i class="fa-solid fa-gift"></i> Referrals</div>
                 <div class="nav-item" onclick="switchSection('feedback', this)"><i class="fa-solid fa-comment-dots"></i> Feedback</div>
+                <div class="nav-item" onclick="switchSection('notifications', this)"><i class="fa-solid fa-bell"></i> Notifications</div>
                 <div class="nav-item admin-only hidden" onclick="switchSection('admins', this)"><i class="fa-solid fa-users-gear"></i> Admins</div>
                 <div class="nav-item admin-only hidden" onclick="switchSection('staff-keys', this)"><i class="fa-solid fa-key"></i> Staff Keys</div>
             </div>
@@ -350,9 +351,9 @@
 
 <script>
 const API = 'https://emltechstudio-myshub-api.hf.space';
-let adminToken = localStorage.getItem('myshop_admin_token');
-let adminRole = localStorage.getItem('myshop_admin_role');
-let adminEmail = localStorage.getItem('myshop_admin_email');
+let adminToken = localStorage.getItem('myshub_admin_token');
+let adminRole = localStorage.getItem('myshub_admin_role');
+let adminEmail = localStorage.getItem('myshub_admin_email');
 let currentSection = 'overview';
 let allShopsData = [], currentShopPage = 1;
 let shopSearchQuery = '', shopFilterPlan = '', shopFilterStatus = '';
@@ -465,9 +466,9 @@ async function adminLogin() {
         try { data = await res.json(); } catch (e) { const text = await res.text(); throw new Error('Server error: ' + res.status + ' — ' + text.slice(0, 200)); }
         if (!res.ok) throw new Error(data.detail || data.message || 'Login failed (' + res.status + ')');
         adminToken = data.token; adminRole = data.role; adminEmail = data.email;
-        localStorage.setItem('myshop_admin_token', adminToken);
-        localStorage.setItem('myshop_admin_role', adminRole);
-        localStorage.setItem('myshop_admin_email', adminEmail);
+        localStorage.setItem('myshub_admin_token', adminToken);
+        localStorage.setItem('myshub_admin_role', adminRole);
+        localStorage.setItem('myshub_admin_email', adminEmail);
         showMsg('login-msg', 'Login successful!', 'success');
         setTimeout(showDashboard, 500);
     } catch (e) {
@@ -496,9 +497,9 @@ async function staffRegister() {
         if (!res.ok) throw new Error(data.detail || 'Registration failed');
         if (data.token) {
             adminToken = data.token; adminRole = data.role; adminEmail = data.email;
-            localStorage.setItem('myshop_admin_token', adminToken);
-            localStorage.setItem('myshop_admin_role', adminRole);
-            localStorage.setItem('myshop_admin_email', adminEmail);
+            localStorage.setItem('myshub_admin_token', adminToken);
+            localStorage.setItem('myshub_admin_role', adminRole);
+            localStorage.setItem('myshub_admin_email', adminEmail);
             showMsg('staff-msg', 'Account created! Logging you in...', 'success');
             setTimeout(showDashboard, 1000);
         } else {
@@ -513,9 +514,9 @@ async function staffRegister() {
     }
 }
 function logout() {
-    localStorage.removeItem('myshop_admin_token');
-    localStorage.removeItem('myshop_admin_role');
-    localStorage.removeItem('myshop_admin_email');
+    localStorage.removeItem('myshub_admin_token');
+    localStorage.removeItem('myshub_admin_role');
+    localStorage.removeItem('myshub_admin_email');
     adminToken = null; adminRole = null; adminEmail = null;
     showLogin();
 }
@@ -532,6 +533,7 @@ function switchSection(section, el) {
     else if (section === 'analytics') loadAnalyticsSection();
     else if (section === 'referrals') loadReferralsSection();
     else if (section === 'feedback') loadFeedbackSection();
+    else if (section === 'notifications') loadNotificationsSection();
     else if (section === 'admins') loadAdminsSection();
     else if (section === 'staff-keys') loadStaffKeysSection();
 }
@@ -616,7 +618,7 @@ async function loadShops(page = 1) {
                                 <button class="action-btn view" onclick="viewShop('${s.email}')"><i class="fa-solid fa-eye"></i></button>
                                 <button class="action-btn upgrade" onclick="openUpgrade('${s.email}', '${s.plan}')"><i class="fa-solid fa-crown"></i></button>
                                 <button class="action-btn edit" onclick="openStatusModal('${s.email}', '${s.status}')"><i class="fa-solid fa-toggle-on"></i></button>
-                                <a href="https://myshop.afric.site/${s.slug}" target="_blank" class="action-btn view" style="text-decoration:none;"><i class="fa-solid fa-external-link-alt"></i></a>
+                                <a href="https://myshub.afric.site/${s.slug}" target="_blank" class="action-btn view" style="text-decoration:none;"><i class="fa-solid fa-external-link-alt"></i></a>
                             </div></td>
                         </tr>
                     `).join('') || '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text2);">No shops found</td></tr>'}
@@ -679,7 +681,7 @@ async function performSearch() {
                 <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
                     <button class="btn" onclick="openUpgrade('${shop.email}', '${shop.plan}')"><i class="fa-solid fa-crown"></i> Upgrade/Downgrade</button>
                     <button class="btn btn-outline" onclick="openStatusModal('${shop.email}', '${shop.status}')"><i class="fa-solid fa-toggle-on"></i> Change Status</button>
-                    <a href="https://myshop.afric.site/${shop.slug}" target="_blank" class="btn btn-outline" style="text-decoration:none;"><i class="fa-solid fa-external-link-alt"></i> View Live</a>
+                    <a href="https://myshub.afric.site/${shop.slug}" target="_blank" class="btn btn-outline" style="text-decoration:none;"><i class="fa-solid fa-external-link-alt"></i> View Live</a>
                     <button class="btn btn-danger" onclick="resetShopPassword('${shop.email}')"><i class="fa-solid fa-key"></i> Reset Password</button>
                 </div>
             </div>`;
@@ -901,7 +903,7 @@ function viewFeedback(id) {
     document.getElementById('feedback-modal').classList.add('active');
 }
 function replyFeedback(email) {
-    window.location.href = `mailto:${email}?subject=Re: Your MyShop Feedback`;
+    window.location.href = `mailto:${email}?subject=Re: Your MyShub Feedback`;
 }
 async function deleteFeedback(id) {
     if (!confirm('Delete this feedback?')) return;
@@ -916,6 +918,81 @@ async function deleteFeedback(id) {
 }
 function closeFeedbackModal() {
     document.getElementById('feedback-modal').classList.remove('active');
+}
+async function loadNotificationsSection() {
+    showLoading(true);
+    try {
+        const data = await apiGet('/admin/notifications');
+        const notifs = data.notifications || [];
+        document.getElementById('main-content').innerHTML = `
+            <div class="card">
+                <h2><i class="fa-solid fa-bell"></i> Send Broadcast</h2>
+                <div class="form-group">
+                    <label>Target</label>
+                    <select id="notif-target" class="form-input">
+                        <option value="ALL">All Users</option>
+                        <option value="single">Specific Email</option>
+                    </select>
+                </div>
+                <div class="form-group" id="notif-email-group" style="display:none;">
+                    <label>Email</label>
+                    <input type="email" id="notif-email" class="form-input" placeholder="user@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="notif-title" class="form-input" placeholder="Notification title">
+                </div>
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea id="notif-message" class="form-input" rows="3" placeholder="Notification message"></textarea>
+                </div>
+                <button class="btn" onclick="sendNotification()"><i class="fa-solid fa-paper-plane"></i> Send</button>
+            </div>
+            <div class="card">
+                <h2><i class="fa-solid fa-clock-rotate-left"></i> Recent Notifications</h2>
+                <div class="table-wrap">
+                    <table><thead><tr><th>Date</th><th>To</th><th>Type</th><th>Title</th><th>Message</th></tr></thead>
+                    <tbody>
+                        ${notifs.map(n => `
+                            <tr>
+                                <td>${n.created_at ? n.created_at.slice(0,16) : '-'}</td>
+                                <td>${n.email}</td>
+                                <td><span class="badge">${n.type}</span></td>
+                                <td>${n.title}</td>
+                                <td>${n.message}</td>
+                            </tr>
+                        `).join('') || '<tr><td colspan="5">No notifications sent yet</td></tr>'}
+                    </tbody></table>
+                </div>
+            </div>`;
+        // Add event listener for target select
+        document.getElementById('notif-target').addEventListener('change', function(e) {
+            const emailGroup = document.getElementById('notif-email-group');
+            emailGroup.style.display = e.target.value === 'single' ? 'block' : 'none';
+        });
+    } catch (e) {
+        document.getElementById('main-content').innerHTML = `<div class="card"><div class="msg msg-error show">${e.message || 'Failed to load notifications'}</div></div>`;
+        showToast(e.message || 'Failed to load notifications', 'error');
+    } finally { showLoading(false); }
+}
+async function sendNotification() {
+    const target = document.getElementById('notif-target').value;
+    const title = document.getElementById('notif-title').value.trim();
+    const message = document.getElementById('notif-message').value.trim();
+    let email = 'ALL';
+    if (target === 'single') {
+        email = document.getElementById('notif-email').value.trim();
+        if (!email) { showToast('Please enter an email', 'error'); return; }
+    }
+    if (!title || !message) { showToast('Title and message required', 'error'); return; }
+    showLoading(true);
+    try {
+        await apiPost('/admin/notifications/broadcast', { target: email, title, message });
+        showToast('Notification sent!', 'success');
+        loadNotificationsSection();
+    } catch (e) {
+        showToast(e.message, 'error');
+    } finally { showLoading(false); }
 }
 async function loadAdminsSection() {
     showLoading(true);
@@ -1085,4 +1162,4 @@ window.addEventListener('resize', () => {
 if (adminToken && adminRole && isTokenValid()) { showDashboard(); } else { logout(); showLogin(); }
 </script>
 </body>
-                                                                                                                                      </html>
+</html>
