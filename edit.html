@@ -445,6 +445,34 @@
             .custom-links-grid { grid-template-columns: 1fr; }
             .emoji-picker-section .emoji-grid { grid-template-columns: repeat(6, 1fr); }
         }
+
+        /* Toast container */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .toast {
+            padding: 12px 20px;
+            border-radius: 30px;
+            background: var(--text);
+            color: var(--surface);
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease;
+        }
+        .toast.success { background: var(--success); color: #fff; }
+        .toast.error { background: var(--danger); color: #fff; }
+        .toast.warning { background: var(--warning); color: #fff; }
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -544,7 +572,7 @@
 
 <script>
     // ================================================================
-    //  EDIT PAGE — FIXED: title+label, no country, toast works, no stack overflow
+    //  EDIT PAGE — FIXED: nested shop_json payload, instant dirty tracking
     // ================================================================
 
     (function() {
@@ -711,7 +739,7 @@
         }
 
         // ================================================================
-        //  FETCH SHOP DATA
+        //  FETCH SHOP DATA (from /shop/preview)
         // ================================================================
         async function fetchShopData(session) {
             if (!session || !session.slug) return null;
@@ -724,7 +752,7 @@
         }
 
         // ================================================================
-        //  SAVE SHOP — NO country (derived from IP), gradient as boolean
+        //  SAVE SHOP — sends nested shop_json matching registration
         // ================================================================
         async function saveShop(formData) {
             const session = getSession();
@@ -733,28 +761,40 @@
             const payload = {
                 email: session.email,
                 password: session.password,
-                business_name: formData.business_name || null,
-                tagline: formData.tagline || null,
-                description: formData.description || null,
-                phone: formData.phone || null,
-                location: formData.location || null,
-                state: formData.state || null,
-                city: formData.city || null,
-                // country NOT included – derived from IP
-                category: formData.category || null,
-                logo_url: formData.logo_url || null,
-                catalog_url: formData.catalog_url || null,
-                socials: formData.socials || null,
-                custom_links: formData.custom_links || null,
-                brand_primary: formData.brand_primary || null,
-                brand_secondary: formData.brand_secondary || null,
-                gradient: formData.gradient, // boolean
-                gradient_colors: formData.gradient_colors || null,
-                heading_font: formData.heading_font || null,
-                body_font: formData.body_font || null,
-                latitude: formData.latitude !== undefined ? formData.latitude : null,
-                longitude: formData.longitude !== undefined ? formData.longitude : null
-                // qr_code_url omitted
+                shop_json: {
+                    business_name: formData.business_name || null,
+                    tagline: formData.tagline || null,
+                    description: formData.description || null,
+                    category: formData.category || null,
+                    logo_url: formData.logo_url || null,
+                    state: formData.state || null,
+                    city: formData.city || null,
+                    brand_colors: {
+                        primary: formData.brand_primary || null,
+                        secondary: formData.brand_secondary || null,
+                        gradient: formData.gradient,
+                        gradient_colors: formData.gradient_colors || null,
+                    },
+                    typography: {
+                        heading_font: formData.heading_font || null,
+                        body_font: formData.body_font || null,
+                    },
+                    contact: {
+                        phone: formData.phone || null,
+                        location: formData.location || null,
+                        email: session.email,
+                        whatsapp: "",
+                    },
+                    catalog: {
+                        url: formData.catalog_url || null,
+                    },
+                    socials: formData.socials || {},
+                    custom_links: formData.custom_links || [],
+                    lat: formData.latitude !== undefined ? formData.latitude : null,
+                    lng: formData.longitude !== undefined ? formData.longitude : null,
+                    qr_code_url: null,
+                    analytics: null,  // backend keeps existing
+                }
             };
 
             const headers = { 'Content-Type': 'application/json', 'email': session.email, 'password': session.password };
@@ -819,14 +859,20 @@
             }
         });
 
-        // ================================================================
-        //  TOAST
-        // ================================================================
-        function toast(msg, type) {
-            if (window.toast) { window.toast(msg, type); return; }
-            // Fallback: alert
-            alert(msg);
-        }
+        // Simple toast system (no dependency)
+        window.toast = function(message, type = 'info') {
+            let container = document.querySelector('.toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            const toastEl = document.createElement('div');
+            toastEl.className = `toast ${type}`;
+            toastEl.textContent = message;
+            container.appendChild(toastEl);
+            setTimeout(() => toastEl.remove(), 3000);
+        };
 
         // ================================================================
         //  ESCAPE HTML
@@ -862,7 +908,6 @@
             return customLinks.map((link, idx) => {
                 const isEmoji = link.isEmoji || false;
                 const iconContent = isEmoji ? `<span class="emoji-icon">${link.icon}</span>` : `<i class="fa-solid fa-${link.icon}"></i>`;
-                // Use label for display (title is also set)
                 const displayTitle = link.label || link.title || 'Untitled';
                 return `
                     <div class="custom-link-card">
@@ -1249,6 +1294,9 @@
             btn.disabled = true;
             btn.classList.add('loading');
 
+            const btnText = btn.querySelector('.btn-text');
+            if (btnText) btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+
             try {
                 const catSelect = document.getElementById('editCategory');
                 const catValue = catSelect.value;
@@ -1259,6 +1307,7 @@
                         toast('Please specify your category.', 'warning');
                         btn.disabled = false;
                         btn.classList.remove('loading');
+                        if (btnText) btnText.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Changes';
                         return;
                     }
                     category = customCat;
@@ -1272,7 +1321,6 @@
                     location: document.getElementById('editLocation').value.trim(),
                     state: document.getElementById('editState').value.trim(),
                     city: document.getElementById('editCity').value.trim(),
-                    // country NOT included – derived from IP
                     category: category,
                     catalog_url: document.getElementById('editCatalog').value.trim(),
                     socials: socials,
@@ -1295,8 +1343,10 @@
                 toast(result.message || 'Shop updated successfully!', 'success');
                 resetDirty();
 
-                if (window.S) window.S.plan = result.plan;
-                if (window.updateDrawerInfo) window.updateDrawerInfo();
+                if (btnText) btnText.innerHTML = '<i class="fa-solid fa-check"></i> Saved!';
+                setTimeout(() => {
+                    if (btnText) btnText.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Changes';
+                }, 2000);
 
                 const session = getSession();
                 if (session) {
@@ -1305,7 +1355,6 @@
                         shopData = data;
                         shopJson = data.shop_json || {};
                         currentPlan = data.plan || session.plan || 'free';
-                        // Ensure custom links have both title and label
                         if (shopJson.custom_links) {
                             customLinks = shopJson.custom_links.map(l => ({
                                 ...l,
@@ -1322,16 +1371,15 @@
                 renderEdit();
             } catch (e) {
                 toast(e.message || 'Failed to save. Please try again.', 'error');
+                if (btnText) btnText.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Changes';
             } finally {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.classList.remove('loading');
-                }
+                btn.disabled = false;
+                btn.classList.remove('loading');
             }
         }
 
         // ================================================================
-        //  RENDER — no country, ensures title+label
+        //  RENDER — reads nested shop_json correctly
         // ================================================================
         function renderEdit() {
             if (isRendering) return;
@@ -1385,7 +1433,11 @@
             const isPro = plan === 'pro' || plan === 'premium';
             const isPremium = plan === 'premium';
 
-            // Ensure customLinks have both title and label
+            const brandColors = sj.brand_colors || {};
+            const typography = sj.typography || {};
+            const contact = sj.contact || {};
+            const catalog = sj.catalog || {};
+
             if (sj.custom_links) {
                 customLinks = sj.custom_links.map(l => ({
                     ...l,
@@ -1407,10 +1459,10 @@
             const categoryValue = isCategoryOther ? 'Other' : (sj.category || '');
             const customCategoryValue = isCategoryOther ? sj.category : '';
 
-            const primaryColor = sj.brand_colors?.primary || '#1e40af';
-            const secondaryColor = sj.brand_colors?.secondary || '#ffffff';
-            const grad1 = sj.brand_colors?.gradient_colors?.[0] || '#1e40af';
-            const grad2 = sj.brand_colors?.gradient_colors?.[1] || '#3b82f6';
+            const primaryColor = brandColors.primary || '#1e40af';
+            const secondaryColor = brandColors.secondary || '#ffffff';
+            const grad1 = brandColors.gradient_colors?.[0] || '#1e40af';
+            const grad2 = brandColors.gradient_colors?.[1] || '#3b82f6';
 
             let html = '';
 
@@ -1427,25 +1479,25 @@
                     <div class="card-title">Basic Information</div>
                     <div class="form-group">
                         <label>Business Name <span class="required">*</span></label>
-                        <input type="text" id="editBusinessName" class="form-input" value="${escapeHtml(sj.business_name || '')}" placeholder="My Business" onchange="setDirty()" />
+                        <input type="text" id="editBusinessName" class="form-input" value="${escapeHtml(sj.business_name || '')}" placeholder="My Business" oninput="markDirty()" />
                     </div>
                     <div class="form-group">
                         <label>Tagline</label>
-                        <input type="text" id="editTagline" class="form-input" value="${escapeHtml(sj.tagline || '')}" placeholder="A short catchy phrase" onchange="setDirty()" />
+                        <input type="text" id="editTagline" class="form-input" value="${escapeHtml(sj.tagline || '')}" placeholder="A short catchy phrase" oninput="markDirty()" />
                     </div>
                     <div class="form-group">
                         <label>Description</label>
-                        <textarea id="editDescription" class="form-input" rows="3" placeholder="Tell customers about your business" onchange="setDirty()">${escapeHtml(sj.description || '')}</textarea>
+                        <textarea id="editDescription" class="form-input" rows="3" placeholder="Tell customers about your business" oninput="markDirty()">${escapeHtml(sj.description || '')}</textarea>
                     </div>
                     <div class="form-group">
                         <label>Category</label>
-                        <select id="editCategory" class="form-input" onchange="toggleCategoryOther(); setDirty();">
+                        <select id="editCategory" class="form-input" onchange="toggleCategoryOther(); markDirty();">
                             ${getCategoryOptions(categoryValue)}
                         </select>
                     </div>
                     <div class="form-group" id="categoryOtherGroup" style="${isCategoryOther || categoryValue === 'Other' ? 'display:block;' : 'display:none;'}">
                         <label>Specify Category</label>
-                        <input type="text" id="editCategoryOther" class="form-input" value="${escapeHtml(customCategoryValue)}" placeholder="e.g. Handmade Crafts" onchange="setDirty()" />
+                        <input type="text" id="editCategoryOther" class="form-input" value="${escapeHtml(customCategoryValue)}" placeholder="e.g. Handmade Crafts" oninput="markDirty()" />
                     </div>
                 </div>
             `;
@@ -1456,31 +1508,31 @@
                     <div class="card-title">Contact & Location</div>
                     <div class="form-group">
                         <label>Phone</label>
-                        <input type="text" id="editPhone" class="form-input" value="${escapeHtml(sj.phone || '')}" placeholder="+234..." onchange="setDirty()" />
+                        <input type="text" id="editPhone" class="form-input" value="${escapeHtml(contact.phone || '')}" placeholder="+234..." oninput="markDirty()" />
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label>State / Region</label>
-                            <input type="text" id="editState" class="form-input" value="${escapeHtml(sj.state || '')}" placeholder="e.g. Lagos" onchange="setDirty()" />
+                            <input type="text" id="editState" class="form-input" value="${escapeHtml(sj.state || '')}" placeholder="e.g. Lagos" oninput="markDirty()" />
                         </div>
                         <div class="form-group">
                             <label>City</label>
-                            <input type="text" id="editCity" class="form-input" value="${escapeHtml(sj.city || '')}" placeholder="e.g. Ikeja" onchange="setDirty()" />
+                            <input type="text" id="editCity" class="form-input" value="${escapeHtml(sj.city || '')}" placeholder="e.g. Ikeja" oninput="markDirty()" />
                         </div>
                     </div>
                     <div class="form-group">
                         <label>Location (Address)</label>
-                        <input type="text" id="editLocation" class="form-input" value="${escapeHtml(sj.location || '')}" placeholder="Full address or area" onchange="setDirty()" />
+                        <input type="text" id="editLocation" class="form-input" value="${escapeHtml(contact.location || '')}" placeholder="Full address or area" oninput="markDirty()" />
                         <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">Your country is automatically detected from your IP address.</div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label>Latitude</label>
-                            <input type="number" step="any" id="editLat" class="form-input" value="${sj.lat !== undefined && sj.lat !== null ? sj.lat : ''}" placeholder="6.4281" onchange="setDirty()" />
+                            <input type="number" step="any" id="editLat" class="form-input" value="${sj.lat !== undefined && sj.lat !== null ? sj.lat : ''}" placeholder="6.4281" oninput="markDirty()" />
                         </div>
                         <div class="form-group">
                             <label>Longitude</label>
-                            <input type="number" step="any" id="editLng" class="form-input" value="${sj.lng !== undefined && sj.lng !== null ? sj.lng : ''}" placeholder="3.4447" onchange="setDirty()" />
+                            <input type="number" step="any" id="editLng" class="form-input" value="${sj.lng !== undefined && sj.lng !== null ? sj.lng : ''}" placeholder="3.4447" oninput="markDirty()" />
                         </div>
                     </div>
                     <button class="btn btn-ghost btn-sm" onclick="useMyLocation()"><i class="fa-solid fa-location-crosshairs"></i> Use my location</button>
@@ -1493,7 +1545,7 @@
                     <div class="card-title">Catalog</div>
                     <div class="form-group">
                         <label>Catalog URL</label>
-                        <input type="url" id="editCatalog" class="form-input" value="${escapeHtml(sj.catalog_url || '')}" placeholder="https://selar.co/your-store" onchange="setDirty()" />
+                        <input type="url" id="editCatalog" class="form-input" value="${escapeHtml(catalog.url || '')}" placeholder="https://selar.co/your-store" oninput="markDirty()" />
                         <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">Your online store, WhatsApp catalog, or any product link.</div>
                     </div>
                 </div>
@@ -1543,42 +1595,42 @@
                     <div class="form-group ${!isPro ? 'locked-overlay' : ''}">
                         <label>Primary Color</label>
                         <div class="color-row">
-                            <input type="color" id="editPrimary" class="color-input" value="${primaryColor}" ${!isPro ? 'disabled' : ''} onchange="setDirty()" />
-                            <input type="text" class="form-input" value="${primaryColor}" oninput="document.getElementById('editPrimary').value=this.value;setDirty();" ${!isPro ? 'disabled' : ''} />
+                            <input type="color" id="editPrimary" class="color-input" value="${primaryColor}" ${!isPro ? 'disabled' : ''} oninput="markDirty()" />
+                            <input type="text" class="form-input" value="${primaryColor}" oninput="document.getElementById('editPrimary').value=this.value;markDirty();" ${!isPro ? 'disabled' : ''} />
                         </div>
                     </div>
                     <div class="form-group ${!isPro ? 'locked-overlay' : ''}">
                         <label>Secondary Color</label>
                         <div class="color-row">
-                            <input type="color" id="editSecondary" class="color-input" value="${secondaryColor}" ${!isPro ? 'disabled' : ''} onchange="setDirty()" />
-                            <input type="text" class="form-input" value="${secondaryColor}" oninput="document.getElementById('editSecondary').value=this.value;setDirty();" ${!isPro ? 'disabled' : ''} />
+                            <input type="color" id="editSecondary" class="color-input" value="${secondaryColor}" ${!isPro ? 'disabled' : ''} oninput="markDirty()" />
+                            <input type="text" class="form-input" value="${secondaryColor}" oninput="document.getElementById('editSecondary').value=this.value;markDirty();" ${!isPro ? 'disabled' : ''} />
                         </div>
                     </div>
                     <div class="form-group ${!isPremium ? 'locked-overlay' : ''}">
                         <label>Enable Gradient</label>
-                        <input type="checkbox" id="editGradient" ${sj.brand_colors?.gradient ? 'checked' : ''} ${!isPremium ? 'disabled' : ''} onchange="setDirty()" />
+                        <input type="checkbox" id="editGradient" ${brandColors.gradient ? 'checked' : ''} ${!isPremium ? 'disabled' : ''} onchange="markDirty()" />
                         <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">Gradients overlay the secondary color.</div>
                     </div>
                     <div class="form-row ${!isPremium ? 'locked-overlay' : ''}">
                         <div class="form-group">
                             <label>Gradient Color 1</label>
-                            <input type="color" id="editGrad1" class="color-input" value="${grad1}" ${!isPremium ? 'disabled' : ''} onchange="setDirty()" />
+                            <input type="color" id="editGrad1" class="color-input" value="${grad1}" ${!isPremium ? 'disabled' : ''} oninput="markDirty()" />
                         </div>
                         <div class="form-group">
                             <label>Gradient Color 2</label>
-                            <input type="color" id="editGrad2" class="color-input" value="${grad2}" ${!isPremium ? 'disabled' : ''} onchange="setDirty()" />
+                            <input type="color" id="editGrad2" class="color-input" value="${grad2}" ${!isPremium ? 'disabled' : ''} oninput="markDirty()" />
                         </div>
                     </div>
                     <div class="form-group ${!isPro ? 'locked-overlay' : ''}">
                         <label>Heading Font</label>
-                        <select id="editHeadingFont" class="form-input" ${!isPro ? 'disabled' : ''} onchange="setDirty()">
-                            ${getFontOptions(sj.typography?.heading_font || 'Inter')}
+                        <select id="editHeadingFont" class="form-input" ${!isPro ? 'disabled' : ''} onchange="markDirty()">
+                            ${getFontOptions(typography.heading_font || 'Inter')}
                         </select>
                     </div>
                     <div class="form-group ${!isPro ? 'locked-overlay' : ''}">
                         <label>Body Font</label>
-                        <select id="editBodyFont" class="form-input" ${!isPro ? 'disabled' : ''} onchange="setDirty()">
-                            ${getFontOptions(sj.typography?.body_font || 'Inter')}
+                        <select id="editBodyFont" class="form-input" ${!isPro ? 'disabled' : ''} onchange="markDirty()">
+                            ${getFontOptions(typography.body_font || 'Inter')}
                         </select>
                     </div>
                     <div class="form-group">
@@ -1594,7 +1646,7 @@
                 </div>
             `;
 
-            // ---- Save Button (QR card removed) ----
+            // ---- Save Button ----
             html += `
                 <button id="saveBtn" class="btn btn-primary btn-block" onclick="saveEdit()">
                     <span class="spinner"></span>
@@ -1606,18 +1658,14 @@
 
             toggleCategoryOther();
 
-            // Ensure socials are synced
             if (Object.keys(socials).length === 0 && sj.socials) {
                 socials = { ...sj.socials };
             }
 
-            // Update dirty indicator
             const dirtyEl = document.getElementById('dirtyIndicator');
             if (dirtyEl) {
                 dirtyEl.classList.toggle('show', dirty);
             }
-
-            // No need to attach listeners here because inputs use oninput="updateLinkPreview()" directly.
         }
 
         // ================================================================
@@ -1711,6 +1759,7 @@
         window.generateQR = generateQR;
         window.downloadQr = downloadQr;
         window.toggleCategoryOther = toggleCategoryOther;
+        window.markDirty = function() { setDirty(); };  // for inline oninput/onchange
         window.setDirty = setDirty;
         window.resetDirty = resetDirty;
         window.toast = toast;
@@ -1733,4 +1782,4 @@
     })();
 </script>
 </body>
-</html>
+    </html>
