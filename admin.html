@@ -693,6 +693,7 @@ async function loadAnalyticsSection() {
     try {
         const data = await apiGet('/admin/analytics');
         const dailyVisits = data.daily_visits || {};
+        const weeklyVisits = data.weekly_visits || {};
         const monthlyVisits = data.monthly_visits || {};
         const yearlyVisits = data.yearly_visits || {};
         const dailySignups = data.daily_signups || {};
@@ -704,9 +705,15 @@ async function loadAnalyticsSection() {
 
         const sortedDailyVisits = Object.entries(dailyVisits).sort((a,b) => a[0].localeCompare(b[0])).slice(-30);
         const maxDaily = Math.max(...sortedDailyVisits.map(d => d[1]), 1);
+
+        const sortedWeeklyVisits = Object.entries(weeklyVisits).sort((a,b) => a[0].localeCompare(b[0])).slice(-12);
+        const maxWeekly = Math.max(...sortedWeeklyVisits.map(d => d[1]), 1);
+
         const sortedMonthlyVisits = Object.entries(monthlyVisits).sort((a,b) => a[0].localeCompare(b[0])).slice(-12);
         const maxMonthly = Math.max(...sortedMonthlyVisits.map(d => d[1]), 1);
+
         const sortedYearlyVisits = Object.entries(yearlyVisits).sort((a,b) => a[0].localeCompare(b[0]));
+
         const sortedSignups = Object.entries(dailySignups).sort((a,b) => a[0].localeCompare(b[0])).slice(-30);
         const maxSignups = Math.max(...sortedSignups.map(d => d[1]), 1);
 
@@ -759,6 +766,16 @@ async function loadAnalyticsSection() {
                         `).join('')}
                     </div>` : '<p class="sub" style="text-align:center;padding:40px;">No device data yet</p>'}
                 </div>
+            </div>
+            <div class="card"><h2><i class="fa-solid fa-calendar-week"></i> Weekly Visits (Last 12 Weeks)</h2>
+                <div class="chart-container"><div class="chart-bar">
+                    ${sortedWeeklyVisits.map(([week, count]) => `
+                        <div class="bar" style="height:${(count/maxWeekly)*100}%;">
+                            <div class="bar-value">${count}</div>
+                            <div class="bar-label">${week}</div>
+                        </div>
+                    `).join('') || '<div style="text-align:center;color:var(--text2);width:100%;">No data</div>'}
+                </div></div>
             </div>
             <div class="card"><h2><i class="fa-solid fa-chart-line"></i> Monthly Visits (Last 12 Months)</h2>
                 <div class="chart-container"><div class="chart-bar">
@@ -1068,4 +1085,4 @@ window.addEventListener('resize', () => {
 if (adminToken && adminRole && isTokenValid()) { showDashboard(); } else { logout(); showLogin(); }
 </script>
 </body>
-</html>
+                                                                                                                                      </html>
