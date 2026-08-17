@@ -166,7 +166,8 @@
             text-align: center;
         }
         .hero-logo {
-            width: 80px; height: 80px;
+            width: 120px;                /* Increased from 80px */
+            height: 120px;
             border-radius: 24px;
             object-fit: cover;
             margin: 0 auto 16px;
@@ -416,6 +417,9 @@
         .footer-brand img { width: 22px; height: 22px; border-radius: 6px; }
         .footer-text { color: var(--text3); font-size: 0.78rem; }
         .footer-text a { color: var(--brand); text-decoration: none; font-weight: 600; }
+        .footer-referral { margin-top: 8px; font-size: 0.85rem; }
+        .footer-referral a { color: var(--brand); text-decoration: none; font-weight: 600; }
+        .footer-referral a:hover { text-decoration: underline; }
         .fab {
             position: fixed;
             bottom: 24px; right: 24px;
@@ -493,7 +497,7 @@
             .premium-hero { padding: 100px 20px 50px; }
             .premium-hero .premium-tagline { font-size: 1.8rem; }
             .hero-name { font-size: 1.5rem; }
-            .hero-logo { width: 64px; height: 64px; }
+            .hero-logo { width: 80px; height: 80px; }  /* Slightly smaller on mobile */
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -612,6 +616,8 @@
             phone: "+2348034567890",
             email: "amaraglowbeauty@gmail.com",
             location: "Lekki, Lagos, Nigeria",
+            city: "Lekki",
+            state: "Lagos",
             catalog_url: "https://selar.co/amaraglowbeauty",
             brand_colors: {
                 primary: "#d946ef",
@@ -709,39 +715,41 @@
             if (l.includes('shopify.com')) return 'shopify';
             return 'generic';
         }
+
+        // ─── SLUG RESOLUTION (FIXED) ─────────────────────────────────────
+        const RESERVED_SLUGS = [
+            '', 'index',
+            'discover', 'discover.html',
+            'app', 'app.html',
+            'privacy', 'privacy.html',
+            'terms', 'terms.html',
+            'support', 'support.html',
+            'install', 'install.html',
+            'admin', 'admin.html',
+            'blog', 'blog/', 'blog/index.html',
+            'icon.svg', 'manifest.json', 'robots.txt', 'sitemap.xml'
+        ];
+
+        function isReserved(slug) {
+            if (!slug) return true;
+            const clean = slug.toLowerCase().replace(/\/+$/, ''); // trim trailing slash
+            return RESERVED_SLUGS.some(r => clean === r.toLowerCase()) ||
+                   clean.startsWith('blog/');
+        }
+
         function resolveSlug() {
             const urlParams = new URLSearchParams(window.location.search);
             const qSlug = urlParams.get('slug');
-            if (qSlug) return qSlug;
+            if (qSlug) return qSlug.toLowerCase();
+
             const parts = window.location.pathname.split('/').filter(Boolean);
-            const RESERVED_SLUGS = [
-    // Root
-    '', 'index',
-    // Public pages (with and without .html)
-    'discover', 'discover.html',
-    'app', 'app.html',
-    'privacy', 'privacy.html',
-    'terms', 'terms.html',
-    'support', 'support.html',
-    'install', 'install.html',
-    'admin', 'admin.html',
-    'blog', 'blog/', 'blog/index.html',
-    // Also add any other static files
-    'icon.svg', 'manifest.json', 'robots.txt', 'sitemap.xml'
-];
-            if (parts.length && !reserved.includes(parts[0])) return parts[0];
+            if (parts.length) {
+                const candidate = parts[0].toLowerCase();
+                if (!isReserved(candidate)) return candidate;
+            }
             return '';
         }
-            function isReserved(slug) {
-                if (!slug) return true;
-                const clean = slug.toLowerCase();
-    // Check exact match
-                if (RESERVED_SLUGS.includes(clean)) return true;
-    // Check if it's a blog post (starts with blog/)
-                if (clean.startsWith('blog/')) return true;
-                return false;
-        }
-            
+
         // ─── SEO ───────────────────────────────────────────────────────────
         function setMeta(name, content) {
             let el = document.querySelector(`meta[name="${CSS.escape(name)}"]`);
@@ -766,20 +774,19 @@
             const ogImg = hasImg ? logo : `${BASE_URL}/icon.svg`;
             document.title = `${name} | MyShub`;
             setMeta('description', desc);
-            if (plan !== 'free') {
-                setOG('og:title', name);
-                setOG('og:description', desc);
-                setOG('og:type', 'website');
-                setOG('og:url', pageUrl);
-                setOG('og:image', ogImg);
-                setOG('og:image:width', '1200');
-                setOG('og:image:height','630');
-                setOG('og:site_name', 'MyShub');
-                setMeta('twitter:card', 'summary_large_image');
-                setMeta('twitter:title', name);
-                setMeta('twitter:description', desc);
-                setMeta('twitter:image', ogImg);
-            }
+            setOG('og:title', name);
+            setOG('og:description', desc);
+            setOG('og:type', 'website');
+            setOG('og:url', pageUrl);
+            setOG('og:image', ogImg);
+            setOG('og:image:width', '1200');
+            setOG('og:image:height','630');
+            setOG('og:site_name', 'MyShub');
+            setMeta('twitter:card', 'summary_large_image');
+            setMeta('twitter:title', name);
+            setMeta('twitter:description', desc);
+            setMeta('twitter:image', ogImg);
+
             if (plan === 'premium') {
                 let link = document.querySelector('link[rel="canonical"]');
                 if (!link) { link = document.createElement('link'); link.rel = 'canonical'; document.head.appendChild(link); }
@@ -794,7 +801,15 @@
                 if (hasImg) ld.image = logo;
                 if (json.phone) ld.telephone = json.phone;
                 if (json.email) ld.email = json.email;
-                if (json.location) ld.address = { '@type': 'PostalAddress', addressLocality: json.location, addressCountry: 'NG' };
+                if (json.location || json.city || json.state) {
+                    ld.address = {
+                        '@type': 'PostalAddress',
+                        streetAddress: json.location || '',
+                        addressLocality: json.city || '',
+                        addressRegion: json.state || '',
+                        addressCountry: 'NG'
+                    };
+                }
                 if (json.catalog_url) ld.hasOfferCatalog = { '@type': 'OfferCatalog', url: json.catalog_url };
                 const s = document.createElement('script');
                 s.type = 'application/ld+json';
@@ -850,12 +865,11 @@
             const p = getMessagingPlatform(platform);
             if (!p) return;
             let link = p.urlTemplate(identifier);
-            if (platform === 'whatsapp') link += '?text=' + encodeURIComponent('Hi ' + (businessName || 'there') + ', I found your shop on MyShub.');
+            // No extra text; just the link
+            fabEl.href = isDemo ? '#' : link;
             if (isDemo) {
-                fabEl.href = '#';
                 fabEl.onclick = function(e) { e.preventDefault(); showDemoToast(); };
             } else {
-                fabEl.href = link;
                 fabEl.onclick = null;
             }
             fabEl.innerHTML = `<i class="${p.icon}"></i>`;
@@ -957,7 +971,9 @@
             applyTheme(shop);
 
             const socials = json.socials || {}, phone = json.phone || '', email = json.email || '';
-            const location = json.location || '', catalogUrl = json.catalog_url || '';
+            const location = json.location || '', city = json.city || '', state = json.state || '';
+            const fullAddress = [location, city, state].filter(Boolean).join(', ');
+            const catalogUrl = json.catalog_url || '';
             let socialList = [], messagingList = [];
             for (let [key, url] of Object.entries(socials)) {
                 if (!url) continue;
@@ -995,7 +1011,6 @@
                 const mp = getMessagingPlatform(primaryMsg.platform);
                 if (mp) {
                     let link = mp.urlTemplate(primaryMsg.identifier);
-                    if (primaryMsg.platform === 'whatsapp') link += '?text=' + encodeURIComponent('Hi ' + (json.business_name||'there') + ', I found your shop on MyShub.');
                     const href = isDemoMode ? '#' : link;
                     const onclick = isDemoMode ? 'showDemoToast(); return false;' : '';
                     heroCta += `<a href="${href}" onclick="${onclick}" class="btn-primary"><i class="${mp.icon}"></i> Chat on ${mp.name}</a>`;
@@ -1064,7 +1079,6 @@
                     const mp = getMessagingPlatform(m.platform);
                     if (!mp) return;
                     let link = mp.urlTemplate(m.identifier);
-                    if (m.platform === 'whatsapp') link += '?text=' + encodeURIComponent('Hi, I found your shop on MyShub.');
                     const href = isDemoMode ? '#' : link;
                     const onclick = isDemoMode ? 'showDemoToast(); return false;' : '';
                     sections += `<a href="${href}" onclick="${onclick}" target="_blank" class="msg-btn ${m.platform}">
@@ -1090,13 +1104,24 @@
                 sections += `</div></section>`;
             }
 
+            // Footer
             let footerHtml = '';
+            const year = new Date().getFullYear();
+            const referralCode = json.referral_code || shop.referral_code || '';
+            const referralUrl = referralCode ? `${BASE_URL}/app.html?ref=${encodeURIComponent(referralCode)}` : `${BASE_URL}/app.html`;
+
             if (cfg.branding) {
                 footerHtml = `<footer class="site-footer">
-                    <a href="index.html" class="footer-brand"><img src="icon.svg" alt="MyShub"> MyShub</a>
-                    <p class="footer-text">Powered by <a href="index.html">MyShub</a> — <a href="https://emltechstudio.site" target="_blank">EML Tech Studio</a></p>
+                    <p class="footer-text">© ${year} ${escapeHtml(json.business_name || 'My Hub')}. All rights reserved. Powered by <a href="index.html">MyShub</a></p>
+                    ${referralCode ? `<p class="footer-referral"><a href="${referralUrl}">Join ${escapeHtml(json.business_name)} on MyShub</a></p>` : ''}
+                </footer>`;
+            } else {
+                footerHtml = `<footer class="site-footer">
+                    <p class="footer-text">© ${year} ${escapeHtml(json.business_name || 'My Hub')}. All rights reserved. <a href="index.html">MyShub</a></p>
+                    ${referralCode ? `<p class="footer-referral"><a href="${referralUrl}">Join ${escapeHtml(json.business_name)} on MyShub</a></p>` : ''}
                 </footer>`;
             }
+
             const feedbackBtnHtml = cfg.feedback && currentShopEmail
                 ? `<div style="position:fixed;bottom:100px;right:24px;z-index:998;">
                     <button onclick="openFeedbackModal()" style="background:#f59e0b;width:56px;height:56px;border-radius:50%;border:none;color:white;font-size:1.5rem;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);">
@@ -1122,7 +1147,7 @@
                 html = `<nav class="navbar" id="navbar">
                     <div class="nav-inner">
                         <a href="#" class="nav-brand" style="color:var(--text);">
-                            <img src="${logoUrl}" onerror="this.src='icon.svg'" style="width:28px;height:28px;border-radius:8px;object-fit:cover;">
+                            <img src="${logoUrl}" onerror="this.src='icon.svg'" style="width:36px;height:36px;border-radius:8px;object-fit:cover;">
                             <span>${escapeHtml(businessName)}</span>${verifiedMark}
                         </a>
                         <div class="nav-links" id="navLinks">${navLinks}</div>
@@ -1136,13 +1161,13 @@
                     <img src="${logoUrl}" alt="${escapeHtml(businessName)}" class="hero-logo" onerror="this.src='icon.svg'">
                     <h1 class="hero-name">${escapeHtml(businessName)}${verifiedMark}</h1>
                     ${tagline ? `<p class="hero-tagline">${escapeHtml(tagline)}</p>` : ''}
-                    <div class="hero-meta">${location ? `<span><i class="fa-solid fa-location-dot"></i> ${escapeHtml(location)}</span>` : ''}</div>
+                    <div class="hero-meta">${fullAddress ? `<span><i class="fa-solid fa-location-dot"></i> ${escapeHtml(fullAddress)}</span>` : ''}</div>
                     ${heroCta}
                 </header>`;
             } else {
                 html += `<header class="premium-hero">
                     <div class="premium-tagline">${escapeHtml(tagline || businessName)}</div>
-                    ${location ? `<div class="premium-location"><i class="fa-solid fa-location-dot"></i> ${escapeHtml(location)}</div>` : ''}
+                    ${fullAddress ? `<div class="premium-location"><i class="fa-solid fa-location-dot"></i> ${escapeHtml(fullAddress)}</div>` : ''}
                     ${heroCta}
                 </header>`;
             }
@@ -1171,11 +1196,10 @@
 
         // ─── DEMO UNSPLASH LOGOS ─────────────────────────────────────────
         const DEMO_UNSPLASH_LOGOS = {
-        free: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=400&fit=crop&crop=center',
-        pro: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop&crop=face',
-        premium: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&h=400&fit=crop&crop=face'
-    };
-        
+            free: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=400&fit=crop&crop=center',
+            pro: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop&crop=face',
+            premium: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&h=400&fit=crop&crop=face'
+        };
 
         // CLICK TRACKING (Pro/Premium only)
         const CLICK_TRACKING = {
