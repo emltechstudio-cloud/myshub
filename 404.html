@@ -1043,7 +1043,28 @@
                 });
                 sections += `</div></section>`;
             }
-            if (hasCatalog) {
+            // 2. Catalog Iframe with WhatsApp Fallback - MyShub v2
+            if (json.catalog_iframe_url && (currentPlan === 'pro' || currentPlan === 'premium')) {
+                const cUrl = json.catalog_iframe_url;
+                const isWA = cUrl.includes('wa.me') || cUrl.includes('whatsapp.com');
+                sections += `<section class="section" id="catalog">
+                    <div class="section-title fade-in"><i class="fa-solid fa-bag-shopping"></i> Catalog</div>
+                    <div class="card catalog-card fade-in" style="padding: 16px;">`;
+                if (isWA) {
+                    sections += `<div class="catalog-icon"><i class="fa-brands fa-whatsapp"></i></div>
+                        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:16px;">Browse our full catalog directly on WhatsApp.</p>
+                        <a href="${fixUrl(cUrl)}" class="catalog-btn">Open WhatsApp Catalog</a>`;
+                } else {
+                    sections += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                        <span style="font-size:0.85rem;font-weight:600;color:var(--text2);">Live Preview</span>
+                        <button onclick="window.open('${cUrl}', '_blank')" class="btn btn-sm btn-ghost" style="font-size:11px;padding:4px 10px;border-radius:30px;background:var(--card);border:1.5px solid var(--border);cursor:pointer;color:var(--text);">Full Screen <i class="fa-solid fa-expand"></i></button>
+                    </div>
+                    <div style="width:100%;height:450px;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#fff;">
+                        <iframe src="${cUrl}" style="width:100%;height:100%;border:0;" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+                    </div>`;
+                }
+                sections += `</div></section>`;
+            } else if (hasCatalog) {
                 let icon = 'fa-solid fa-store', catName = 'Online Store', btn = 'Browse Catalog';
                 if (catalogPlatform === 'whatsapp') { icon = 'fa-brands fa-whatsapp'; catName = 'WhatsApp Catalog'; btn = 'View on WhatsApp'; }
                 else if (catalogPlatform === 'selar')   { icon = 'fa-solid fa-bolt';     catName = 'Selar Store';      btn = 'Shop on Selar'; }
