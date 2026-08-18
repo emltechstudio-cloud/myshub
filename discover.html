@@ -144,10 +144,11 @@
     .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
     .card-identity { display: flex; align-items: center; min-width: 0; gap: 11px; }
     .card-logo { width: 56px; height: 56px; flex: 0 0 56px; border: 1px solid var(--line); border-radius: 15px; object-fit: cover; background: var(--blue-soft); }
-    .card-name-wrap { min-width: 0; }
-    .card-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .98rem; font-weight: 850; letter-spacing: -.02em; }
+    .card-name-wrap { min-width: 0; flex: 1 1 auto; }
+    .card-name-line { display: flex; align-items: center; min-width: 0; width: 100%; }
+    .card-name { min-width: 0; flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .98rem; font-weight: 850; letter-spacing: -.02em; }
     .card-tagline { margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: .76rem; }
-    .verified-mark { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; margin-left: 5px; border-radius: 50%; color: #fff; font-size: .62rem; line-height: 1; vertical-align: 2px; box-shadow: 0 2px 6px rgba(15,23,42,.15); }
+    .verified-mark { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; flex: 0 0 18px; margin-left: 6px; border-radius: 50%; color: #fff; font-size: .62rem; line-height: 1; vertical-align: middle; box-shadow: 0 2px 6px rgba(15,23,42,.15); }
     .verified-mark.pro { background: #0084ff; }
     .verified-mark.premium { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
     .verified-mark:hover { transform: scale(1.08); }
@@ -303,6 +304,9 @@
     function normalizeApiList(value) { return Array.isArray(value) ? value : []; }
     function optionName(option) { return typeof option === 'string' ? option : option?.name || ''; }
     function optionCount(option) { return typeof option === 'object' ? option.count || 0 : ''; }
+    function optionCountry(option) { return typeof option === 'object' ? (option.country || option.country_name || '') : ''; }
+    function optionState(option) { return typeof option === 'object' ? (option.state || option.state_name || '') : ''; }
+    function samePlace(left, right) { return String(left || '').trim().toLowerCase() === String(right || '').trim().toLowerCase(); }
     function mergeOptions(existing, derived, fields = []) {
       const output = [];
       const seen = new Set();
@@ -367,14 +371,13 @@
       if (type === 'category') return filterData.categoryOptions.length ? filterData.categoryOptions : filterData.categories;
       if (type === 'country') return filterData.countryOptions.length ? filterData.countryOptions : filterData.countries;
       if (type === 'state') {
-        const selectedCountry = state.country.toLowerCase();
         const options = filterData.stateOptions.length ? filterData.stateOptions : filterData.states;
-        return options.filter((item) => !selectedCountry || String(item.country || '').toLowerCase() === selectedCountry);
+        // Once a country is selected, only states belonging to that country remain.
+        return options.filter((item) => !state.country || samePlace(optionCountry(item), state.country));
       }
-      const selectedCountry = state.country.toLowerCase();
-      const selectedState = state.state.toLowerCase();
       const options = filterData.cityOptions.length ? filterData.cityOptions : filterData.cities;
-      return options.filter((item) => (!selectedCountry || String(item.country || '').toLowerCase() === selectedCountry) && (!selectedState || String(item.state || '').toLowerCase() === selectedState));
+      // Cities are dependent on both selected country and selected state.
+      return options.filter((item) => (!state.country || samePlace(optionCountry(item), state.country)) && (!state.state || samePlace(optionState(item), state.state)));
     }
 
     function closeFilterMenu() { openFilter = ''; refs.filterMenu.classList.remove('open'); }
@@ -460,7 +463,7 @@
         <div class="card-top">
           <div class="card-identity">
             <img class="card-logo" src="${escapeHtml(logo)}" alt="${escapeHtml(shop.business_name || 'Business')} logo" loading="lazy" onerror="this.onerror=null;this.src='/icon.svg';">
-            <div class="card-name-wrap"><div class="card-name" title="${escapeHtml(shop.business_name)}">${escapeHtml(shop.business_name || 'Unnamed business')}${verification}</div><div class="card-tagline">${escapeHtml(shop.tagline || shop.category || 'Business on MyShub')}</div></div>
+            <div class="card-name-wrap"><div class="card-name-line"><div class="card-name" title="${escapeHtml(shop.business_name)}">${escapeHtml(shop.business_name || 'Unnamed business')}</div>${verification}</div><div class="card-tagline">${escapeHtml(shop.tagline || shop.category || 'Business on MyShub')}</div></div>
           </div>
         </div>
         <p class="card-description">${escapeHtml(description)}</p>

@@ -1130,7 +1130,17 @@
                    </div>`
                 : '';
 
-            const logoUrl = (isDemoMode && DEMO_UNSPLASH_LOGOS[currentPlan]) ? DEMO_UNSPLASH_LOGOS[currentPlan] : (json.logo_url || 'icon.svg');
+            function normalizeLogoUrl(value) {
+                if (typeof value !== 'string') return '';
+                const candidate = value.trim();
+                if (!candidate || candidate === 'null' || candidate === 'undefined') return '';
+                // Preserve long data URLs exactly; truncating or rewriting them breaks the logo.
+                return candidate;
+            }
+            const logoUrl = (isDemoMode && DEMO_UNSPLASH_LOGOS[currentPlan])
+                ? DEMO_UNSPLASH_LOGOS[currentPlan]
+                : (normalizeLogoUrl(json.logo_url) || normalizeLogoUrl(json.logoUrl) || 'icon.svg');
+            const safeLogoUrl = escapeHtml(logoUrl);
             const businessName = json.business_name || 'My Hub';
             const tagline = json.tagline || '';
 
@@ -1147,7 +1157,7 @@
                 html = `<nav class="navbar" id="navbar">
                     <div class="nav-inner">
                         <a href="#" class="nav-brand" style="color:var(--text);">
-                            <img src="${logoUrl}" onerror="this.src='icon.svg'" style="width:36px;height:36px;border-radius:8px;object-fit:cover;">
+                            <img src="${safeLogoUrl}" onerror="this.onerror=null;this.src='icon.svg'" style="width:36px;height:36px;border-radius:8px;object-fit:cover;">
                             <span>${escapeHtml(businessName)}</span>${verifiedMark}
                         </a>
                         <div class="nav-links" id="navLinks">${navLinks}</div>
@@ -1158,7 +1168,7 @@
 
             if (!isPremium) {
                 html += `<header class="hero">
-                    <img src="${logoUrl}" alt="${escapeHtml(businessName)}" class="hero-logo" onerror="this.src='icon.svg'">
+                    <img src="${safeLogoUrl}" alt="${escapeHtml(businessName)}" class="hero-logo" onerror="this.onerror=null;this.src='icon.svg'">
                     <h1 class="hero-name">${escapeHtml(businessName)}${verifiedMark}</h1>
                     ${tagline ? `<p class="hero-tagline">${escapeHtml(tagline)}</p>` : ''}
                     <div class="hero-meta">${fullAddress ? `<span><i class="fa-solid fa-location-dot"></i> ${escapeHtml(fullAddress)}</span>` : ''}</div>
@@ -1189,8 +1199,27 @@
                 const nav = document.getElementById('navbar');
                 if (nav) window.scrollY > 20 ? nav.classList.add('scrolled') : nav.classList.remove('scrolled');
             });
+            const navLinksElement = document.getElementById('navLinks');
             document.getElementById('menuToggle')?.addEventListener('click', () => {
-                document.getElementById('navLinks')?.classList.toggle('active');
+                navLinksElement?.classList.toggle('active');
+            });
+
+            // Scroll inside the already-rendered shop document. A normal hash
+            // navigation can trigger the host fallback and refetch /shop/live/{slug},
+            // which incorrectly increments the visit counter again.
+            navLinksElement?.querySelectorAll('a[href^="#"]').forEach(link => {
+                link.addEventListener('click', event => {
+                    const targetId = link.getAttribute('href')?.slice(1);
+                    const target = targetId ? document.getElementById(targetId) : null;
+                    if (!target) return;
+                    event.preventDefault();
+                    const nav = document.getElementById('navbar');
+                    const offset = (nav?.offsetHeight || 0) + 12;
+                    const top = target.getBoundingClientRect().top + window.scrollY - offset;
+                    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+                    history.replaceState(null, '', `#${targetId}`);
+                    navLinksElement.classList.remove('active');
+                });
             });
         }
 
