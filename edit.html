@@ -1352,8 +1352,11 @@
                     location: document.getElementById('editLocation').value.trim(),
                     state: document.getElementById('editState').value.trim(),
                     city: document.getElementById('editCity').value.trim(),
+                    country: document.getElementById('editCountry').value.trim(),
                     category: category,
                     catalog_url: document.getElementById('editCatalog').value.trim(),
+                    youtube_url: document.getElementById('editYouTubeUrl')?.value.trim() || null,
+                    catalog_iframe_url: document.getElementById('editCatalogIframeUrl')?.value.trim() || null,
                     socials: socials,
                     custom_links: customLinks,
                     brand_primary: document.getElementById('editPrimary').value,
@@ -1499,7 +1502,7 @@
             const socialCount = Object.keys(socials).length;
             const linkCount = customLinks.length;
             const socialsLimit = isPremium ? 999 : (isPro ? 10 : 5);
-            const linksLimit = isPremium ? 999 : (isPro ? 5 : 2);
+            const linksLimit = isPremium ? 999 : (isPro ? 10 : 2);
             const socialsExceeded = socialCount >= socialsLimit;
             const linksExceeded = linkCount >= linksLimit;
 
@@ -1570,8 +1573,13 @@
                     </div>
                     <div class="form-group">
                         <label>Location (Address)</label>
-                        <input type="text" id="editLocation" class="form-input" value="${escapeHtml(sj.location || '')}" placeholder="Full address or area" oninput="markDirty()" />
-                        <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">Your country is automatically detected from your IP address.</div>
+                        <input type="text" id="editLocation" class="form-input" value="${escapeHtml(sj.location || '')}" placeholder="e.g. Plot 22-24 Obabiyi street" oninput="markDirty()" />
+                        <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;"><strong>Note:</strong> Enter full address only. Do not include city or state here.</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Country</label>
+                        <input type="text" id="editCountry" class="form-input" value="${escapeHtml(sj.country || '')}" placeholder="e.g. Nigeria" oninput="markDirty()" />
+                        <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">Leave blank to use auto-detected country.</div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
@@ -1630,6 +1638,26 @@
                         <i class="fa-solid fa-plus"></i> Add Custom Link
                     </button>
                     ${linksExceeded && !isPremium ? `<div style="font-size:11px;color:var(--warning);margin-top:6px;">Upgrade to add more custom links.</div>` : ''}
+                </div>
+            `;
+
+            // ---- Media Previews (MyShub v2) ----
+            html += `
+                <div class="card" style="${!isPro ? 'opacity:0.6; pointer-events:none;' : ''}">
+                    <div class="card-title">
+                        Media Previews
+                        <span class="badge ${isPro ? 'pro' : ''}">${isPremium ? 'Premium' : isPro ? 'Pro' : 'Free'}</span>
+                    </div>
+                    <div class="form-group">
+                        <label>Featured YouTube Video URL</label>
+                        <input type="url" id="editYouTubeUrl" class="form-input" value="${sj.youtube_url || ''}" placeholder="https://www.youtube.com/watch?v=..." oninput="markDirty()" ${!isPro ? 'disabled' : ''} />
+                        <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">Pro: 1 video. Premium: Unlimited.</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Live Catalog Embed URL</label>
+                        <input type="url" id="editCatalogIframeUrl" class="form-input" value="${sj.catalog_iframe_url || ''}" placeholder="https://wa.me/c/... or https://yourstore.com" oninput="markDirty()" ${!isPro ? 'disabled' : ''} />
+                        <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">Show your full catalog directly on your hub.</div>
+                    </div>
                 </div>
             `;
 

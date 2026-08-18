@@ -741,19 +741,8 @@
     const API = window.API || 'https://emltechstudio-myshub-api.hf.space';
     const APP_URL = window.APP_URL || 'https://myshub.site';
 
-    const CATEGORIES = [
-      'Beauty','Fashion','Food','Tech','Services','Health',
-      'Education','Fitness','Photography','Real Estate',
-      'Automotive','Entertainment','Travel','Hospitality',
-      'Finance','Legal','Consulting','Construction',
-      'Agriculture','Manufacturing','Retail','Wholesale',
-      'Logistics','Media','Marketing','Design',
-      'Development','Writing','Translation','Tutoring',
-      'Coaching','Therapy','Wellness','Spa','Salon',
-      'Barber','Nails','Makeup','Skincare','Haircare',
-      'Jewelry','Watches','Shoes','Bags','Accessories',
-      'Electronics','Appliances','Furniture','Home Decor'
-    ];
+    let CATEGORIES = [];
+    let LOCATIONS = { cities: [], states: [] };
 
     // ─── ADS ────────────────────────────────────────────────────────────
     const ADS = [
@@ -850,7 +839,7 @@
         consentOverlay.classList.add('active');
       } else {
         consentOverlay.classList.remove('active');
-        initDiscover();
+        await initDiscover();
       }
     }
 
@@ -863,7 +852,7 @@
         localStorage.setItem('myshub_discover_consent', 'true');
         state.hasConsent = true;
         consentOverlay.classList.remove('active');
-        initDiscover();
+        await initDiscover();
         showToast('Welcome to Discover!', 'success', 2000);
       }
     });
@@ -1001,7 +990,19 @@
     }
 
     // ─── BUILD FILTERS ────────────────────────────────────────────────
-    function buildFilters() {
+    async function buildFilters() {
+      try {
+        const [catRes, locRes] = await Promise.all([
+          fetch(API + '/discover/categories').then(r => r.json()),
+          fetch(API + '/discover/locations').then(r => r.json())
+        ]);
+        CATEGORIES = catRes || [];
+        LOCATIONS = locRes || { cities: [], states: [] };
+      } catch (e) {
+        console.error('Failed to fetch filters:', e);
+        CATEGORIES = ['Beauty','Fashion','Food','Tech','Services','Health'];
+      }
+
       // Category filter
       categoryFilter.innerHTML = '<option value="">All Categories</option>';
       CATEGORIES.forEach(c => {
@@ -1015,23 +1016,31 @@
         loadShops();
       });
 
-      // Country filter
+      // Location filter (Smart)
+      countryFilter.innerHTML = '<option value="">All Locations</option>';
+      
+      const stateGroup = document.createElement('optgroup');
+      stateGroup.label = "States";
+      LOCATIONS.states.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = 'state:' + s;
+        opt.textContent = s;
+        stateGroup.appendChild(opt);
+      });
+      countryFilter.appendChild(stateGroup);
+
+      const cityGroup = document.createElement('optgroup');
+      cityGroup.label = "Cities";
+      LOCATIONS.cities.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = 'city:' + c;
+        opt.textContent = c;
+        cityGroup.appendChild(opt);
+      });
+      countryFilter.appendChild(cityGroup);
+
       countryFilter.addEventListener('change', () => {
         state.selectedCountry = countryFilter.value;
-        // Update location context to reflect manual selection
-        if (state.selectedCountry) {
-          state.location.country = state.selectedCountry;
-          state.location.detected = true;
-          updateLocationUI();
-        } else {
-          // If "All Countries" selected, revert to detected location if any
-          if (state.location.detected) {
-            // Keep detected country
-          } else {
-            state.location.country = '';
-          }
-          updateLocationUI();
-        }
         state.page = 1;
         loadShops();
       });
@@ -1098,7 +1107,7 @@
       state.isLoading = true;
       loadingState.classList.remove('hidden');
       emptyState.classList.add('hidden');
-      shopsGrid.innerHTML = '';
+      if (state.page === 1) shopsGrid.innerHTML = '';
 
       try {
         const params = new URLSearchParams();
@@ -1107,20 +1116,29 @@
 
         if (state.searchQuery) params.set('q', state.searchQuery);
         if (state.selectedCategory) params.set('category', state.selectedCategory);
-        if (state.selectedCountry) params.set('country', state.selectedCountry);
+        
+        // Handle smart location filter
+        if (state.selectedCountry) {
+            if (state.selectedCountry.startsWith('state:')) {
+                params.set('state', state.selectedCountry.replace('state:', ''));
+            } else if (state.selectedCountry.startsWith('city:')) {
+                params.set('city', state.selectedCountry.replace('city:', ''));
+            } else {
+                params.set('country', state.selectedCountry);
+            }
+        }
 
-        // Location params (if we have lat/lng and want nearby)
-        // For now, we only send country/state from the dropdown; we could also send lat/lng for nearby search
-        // We'll let the backend handle it via country filter.
-        // If we want to use the /nearby endpoint, we'd need to change the endpoint.
-        // We'll keep using /search for simplicity.
+        // Proximity search
+        if (state.location.lat && state.location.lng) {
+            params.set('lat', state.location.lat);
+            params.set('lng', state.location.lng);
+        }
 
         const res = await fetch(`${API}/discover/search?${params.toString()}`);
         const data = await res.json();
 
-        // The API returns { total, page, limit, results }
         if (!data.results || data.results.length === 0) {
-          state.shops = [];
+          if (state.page === 1) state.shops = [];
           state.hasMore = false;
         } else {
           if (state.page === 1) {
@@ -1128,7 +1146,6 @@
           } else {
             state.shops = [...state.shops, ...data.results];
           }
-          // hasMore = total > page * limit
           state.hasMore = (data.total || 0) > state.page * state.limit;
         }
 
@@ -1137,7 +1154,7 @@
       } catch (error) {
         console.error('Error loading shops:', error);
         showToast('Failed to load businesses. Please try again.', 'error');
-        state.shops = [];
+        if (state.page === 1) state.shops = [];
         state.hasMore = false;
         renderAll();
       } finally {
@@ -1165,29 +1182,29 @@
 
       shopsGrid.className = 'shops-grid' + (state.viewMode === 'list' ? ' list-view' : '');
 
-      shopsGrid.innerHTML = state.shops.map(shop => {
-        const logo = shop.logo_url || '';
-        const initial = (shop.business_name || 'S').charAt(0).toUpperCase();
-        const distance = shop.distance_km ? `${shop.distance_km} km` : '';
-        return `
-          <div class="shop-card" onclick="openShop('${shop.slug}')">
-            <div class="card-header">
-              ${logo ? `<img src="${logo}" class="card-logo" onerror="this.style.display='none'">` : `<div class="card-logo">${initial}</div>`}
-              <div class="card-name">
-                ${escapeHtml(shop.business_name || 'Unnamed Shop')}
-                ${shop.plan === 'premium' ? `<span class="badge premium">Premium</span>` : ''}
-                ${shop.plan === 'pro' ? `<span class="badge pro">Pro</span>` : ''}
-              </div>
-            </div>
-            ${shop.tagline ? `<div class="card-tagline">${escapeHtml(shop.tagline)}</div>` : ''}
-            <div class="card-meta">
-              <span class="category">${escapeHtml(shop.category || 'Uncategorized')}</span>
-              <span class="visits"><i class="fa-regular fa-eye"></i> ${fmt(shop.visit_count || 0)}</span>
-              ${distance ? `<span class="distance">📍 ${distance}</span>` : ''}
-            </div>
-          </div>
-        `;
-      }).join('');
+	      shopsGrid.innerHTML = state.shops.map(shop => {
+	        const logo = shop.logo_url || '';
+	        const initial = (shop.business_name || 'S').charAt(0).toUpperCase();
+	        const distance = shop.distance ? `${shop.distance} km` : (shop.distance_km ? `${shop.distance_km} km` : '');
+	        return `
+	          <div class="shop-card" onclick="openShop('${shop.slug}')">
+	            <div class="card-header">
+	              ${logo ? `<img src="${logo}" class="card-logo" onerror="this.style.display='none'">` : `<div class="card-logo">${initial}</div>`}
+	              <div class="card-name">
+	                ${escapeHtml(shop.business_name || 'Unnamed Shop')}
+	                ${shop.plan === 'premium' ? `<span class="badge premium"><i class="fa-solid fa-check-circle"></i> Premium</span>` : ''}
+	                ${shop.plan === 'pro' ? `<span class="badge pro"><i class="fa-solid fa-check-circle"></i> Pro</span>` : ''}
+	              </div>
+	            </div>
+	            ${shop.tagline ? `<div class="card-tagline">${escapeHtml(shop.tagline)}</div>` : ''}
+	            <div class="card-meta">
+	              <span class="category">${escapeHtml(shop.category || 'Uncategorized')}</span>
+	              <span class="visits"><i class="fa-regular fa-eye"></i> ${fmt(shop.visit_count || 0)}</span>
+	              ${distance ? `<span class="distance" title="Distance from you"><i class="fa-solid fa-person-walking"></i> ${distance}</span>` : ''}
+	            </div>
+	          </div>
+	        `;
+	      }).join('');
     }
 
     // ─── RENDER ADS ──────────────────────────────────────────────────
@@ -1268,8 +1285,7 @@
 
     // ─── INIT DISCOVER ────────────────────────────────────────────────────
     async function initDiscover() {
-      buildFilters();
-      await populateCountryFilter();
+      await buildFilters();
       detectLocation();
     }
 

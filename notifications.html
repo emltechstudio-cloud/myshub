@@ -504,26 +504,35 @@
   // ================================================================
   //  MARK READ
   // ================================================================
-  function markAsRead(id) {
+  async function markAsRead(id) {
     const n = notifications.find(x => x.id === id);
     if (!n || n.read) return;
+    
+    // 1. Immediate local update
     n.read = true;
     unreadCount = Math.max(0, unreadCount - 1);
     saveToCache();
     updateBadge();
     renderNotifications();
 
-    // Sync to backend
+    // 2. Sync to backend
     const session = getSession();
     if (session) {
-      fetch(API + '/notifications/' + id + '/read', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'email': session.email,
-          'password': session.password
-        }
-      }).catch(() => {});
+      try {
+        await fetch(API + '/notifications/' + id + '/read', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'email': session.email,
+            'password': session.password
+          }
+        });
+        
+        // 3. Re-fetch from backend after a short delay to ensure sync
+        setTimeout(() => fetchFromBackend(), 500);
+      } catch (e) {
+        console.warn('Failed to sync read status:', e);
+      }
     }
   }
 
