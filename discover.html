@@ -832,7 +832,7 @@
     }
 
     // ─── CONSENT ──────────────────────────────────────────────────────
-    function checkConsent() {
+    async function checkConsent() {
       const stored = localStorage.getItem('myshub_discover_consent');
       state.hasConsent = stored === 'true';
       if (!state.hasConsent) {
@@ -847,7 +847,7 @@
       consentBtn.disabled = !consentCheckbox.checked;
     });
 
-    consentBtn.addEventListener('click', () => {
+    consentBtn.addEventListener('click', async () => {
       if (consentCheckbox.checked) {
         localStorage.setItem('myshub_discover_consent', 'true');
         state.hasConsent = true;

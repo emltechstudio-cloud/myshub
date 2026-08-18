@@ -474,22 +474,24 @@
       if (!res.ok) return;
       const data = await res.json();
       const remote = data.notifications || [];
-      // Merge with local: keep local read status, add new ones
+      
       const localMap = {};
       notifications.forEach(n => localMap[n.id] = n);
       let changed = false;
+
       remote.forEach(r => {
         if (!localMap[r.id]) {
-          notifications.push({ ...r, read: false });
+          notifications.push(r);
           changed = true;
         } else {
-          // If remote says read, update local
-          if (r.read && !localMap[r.id].read) {
-            localMap[r.id].read = true;
+          // Sync read status from remote if it changed
+          if (r.read !== localMap[r.id].read) {
+            localMap[r.id].read = r.read;
             changed = true;
           }
         }
       });
+
       if (changed) {
         unreadCount = notifications.filter(n => !n.read).length;
         saveToCache();
@@ -575,6 +577,12 @@
     } else if (n.type === 'action' && n.message.includes('share')) {
       if (window.openPreviewShare) window.openPreviewShare();
     } else if (n.type === 'tutorial') {
+      // Mark tutorial as completed
+      const completed = JSON.parse(localStorage.getItem('myshub_tutorial_completed_' + (getSession()?.slug || '')) || '[]');
+      if (!completed.includes(n.id)) {
+        completed.push(n.id);
+        localStorage.setItem('myshub_tutorial_completed_' + (getSession()?.slug || ''), JSON.stringify(completed));
+      }
       if (window.loadPage) window.loadPage('tutorials');
     } else if (n.type === 'action' && n.id === 'milestone') {
       if (window.loadPage) window.loadPage('analytics');
