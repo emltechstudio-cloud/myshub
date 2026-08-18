@@ -4,8 +4,34 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#2563eb" />
-  <meta name="description" content="Discover businesses, shops, services, churches, and local brands on MyShub." />
-  <title>Discover Businesses – MyShub</title>
+  <meta name="description" content="Find local businesses, online shops, services, churches, and trusted brands near you. Discover businesses online and list your own business free on MyShub." />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <meta name="keywords" content="discover businesses online, local business directory, online marketplace, find shops near me, list a business online, Nigerian businesses" />
+  <link rel="canonical" href="https://myshub.site/discover.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://myshub.site/discover.html" />
+  <meta property="og:title" content="Discover Businesses, Shops & Services Near You | MyShub" />
+  <meta property="og:description" content="Search businesses by category and location, explore local brands, and list your own business on MyShub." />
+  <meta property="og:image" content="https://myshub.site/icon.svg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Discover Businesses, Shops & Services Near You | MyShub" />
+  <meta name="twitter:description" content="Find local businesses and list your business online with MyShub." />
+  <title>Discover Local Businesses, Shops & Services | MyShub</title>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Discover Businesses on MyShub",
+    "url": "https://myshub.site/discover.html",
+    "description": "A searchable directory for discovering local businesses, online shops, services, churches, and brands.",
+    "isPartOf": {"@type": "WebSite", "name": "MyShub", "url": "https://myshub.site/"},
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://myshub.site/discover.html?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
   <link rel="icon" href="/icon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -51,7 +77,10 @@
     .header-cta { padding: 10px 16px; border-radius: 999px; background: var(--blue); color: white; font-size: .86rem; font-weight: 800; text-decoration: none; box-shadow: 0 7px 18px rgba(37, 99, 235, .22); }
     .header-cta:hover { background: var(--blue-dark); }
 
-    .hero { padding: 64px 0 38px; background: radial-gradient(circle at 50% -15%, #dbeafe 0, #eff6ff 32%, rgba(248,250,252,0) 70%); text-align: center; }
+    .hero { padding: 64px 0 38px; background: radial-gradient(circle at 50% -15%, #dbeafe 0, #eff6ff 32%, rgba(248,250,252,0) 70%); text-align: center; transition: padding .22s ease; }
+    body.search-active .hero { padding: 22px 0 18px; }
+    body.search-active .hero .eyebrow, body.search-active .hero h1, body.search-active .hero > .container > p { display: none; }
+    body.search-active .search-panel { margin-top: 0; }
     .eyebrow { display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px; border: 1px solid #bfdbfe; border-radius: 999px; background: rgba(255,255,255,.72); color: var(--blue); font-size: .75rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
     .hero h1 { max-width: 720px; margin: 17px auto 10px; font-size: clamp(2rem, 5vw, 3.65rem); line-height: 1.05; letter-spacing: -.065em; }
     .hero p { max-width: 600px; margin: 0 auto; color: var(--muted); font-size: 1rem; line-height: 1.65; }
@@ -94,8 +123,9 @@
     .section-heading p { margin: 5px 0 0; color: var(--muted); font-size: .82rem; }
     .section-heading .heading-action { border: 0; background: transparent; color: var(--blue); font-size: .8rem; font-weight: 800; }
     .trending-section { margin-bottom: 34px; }
-    .trending-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; }
+    .trending-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
     .trending-card { display: flex; align-items: center; gap: 13px; min-width: 0; padding: 15px; border: 1px solid var(--line); border-radius: var(--radius-md); background: white; box-shadow: var(--shadow-sm); cursor: pointer; transition: .2s ease; }
+    .trending-grid > .shop-card { width: 100%; }
     .trending-card:hover { border-color: #93c5fd; box-shadow: var(--shadow-md); transform: translateY(-2px); }
     .trending-logo { width: 48px; height: 48px; flex: 0 0 48px; border: 1px solid var(--line); border-radius: 13px; object-fit: cover; background: var(--blue-soft); }
     .trending-copy { min-width: 0; }
@@ -117,9 +147,10 @@
     .card-name-wrap { min-width: 0; }
     .card-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .98rem; font-weight: 850; letter-spacing: -.02em; }
     .card-tagline { margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: .76rem; }
-    .plan-badge { flex: 0 0 auto; padding: 5px 8px; border-radius: 999px; background: var(--line-soft); color: var(--muted); font-size: .65rem; font-weight: 850; letter-spacing: .04em; text-transform: uppercase; }
-    .plan-badge.pro { background: var(--blue-soft); color: var(--blue); }
-    .plan-badge.premium { background: var(--premium-soft); color: var(--premium); }
+    .verified-mark { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; margin-left: 5px; border-radius: 50%; color: #fff; font-size: .62rem; line-height: 1; vertical-align: 2px; box-shadow: 0 2px 6px rgba(15,23,42,.15); }
+    .verified-mark.pro { background: #0084ff; }
+    .verified-mark.premium { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+    .verified-mark:hover { transform: scale(1.08); }
     .card-description { display: -webkit-box; min-height: 43px; margin: 16px 0 13px; overflow: hidden; color: var(--muted); font-size: .79rem; line-height: 1.55; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
     .card-facts { display: flex; flex-wrap: wrap; gap: 7px; }
     .fact { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; padding: 6px 8px; border-radius: 8px; background: var(--page); color: var(--muted); font-size: .68rem; }
@@ -138,6 +169,12 @@
     .skeleton.trending { height: 82px; }
     @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
 
+    .directory-intro { margin-top: 34px; padding: 24px; border: 1px solid #dbeafe; border-radius: var(--radius-lg); background: linear-gradient(135deg, #eff6ff, #ffffff 65%); }
+    .directory-intro h2 { margin: 0; font-size: 1.15rem; letter-spacing: -.03em; }
+    .directory-intro p { max-width: 760px; margin: 9px 0 0; color: var(--muted); font-size: .82rem; line-height: 1.65; }
+    .directory-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 16px; }
+    .directory-action { display: inline-flex; align-items: center; gap: 7px; padding: 10px 13px; border-radius: 10px; background: var(--blue); color: #fff; font-size: .75rem; font-weight: 800; text-decoration: none; }
+    .directory-action.secondary { border: 1px solid #bfdbfe; background: #fff; color: var(--blue); }
     .site-footer { padding: 24px 0; border-top: 1px solid var(--line); background: white; color: var(--muted); font-size: .75rem; }
     .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
     .footer-links { display: flex; flex-wrap: wrap; gap: 12px; }
@@ -163,9 +200,8 @@
       .filter-chip { flex: 0 0 auto; }
       .clear-filters { margin-left: 0; flex: 0 0 auto; }
       .trending-grid, .shops-grid { grid-template-columns: 1fr; }
-      .trending-grid { display: flex; margin-right: -12px; padding-right: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
-      .trending-grid::-webkit-scrollbar { display: none; }
-      .trending-card { min-width: min(84vw, 320px); scroll-snap-align: start; }
+      .trending-grid { display: grid; margin-right: 0; padding-right: 0; overflow: visible; scroll-snap-type: none; }
+      .trending-card { min-width: 0; scroll-snap-align: none; }
       .results-toolbar { align-items: flex-start; }
       .result-count { margin-top: 2px; }
       .footer-inner { align-items: flex-start; flex-direction: column; }
@@ -230,6 +266,12 @@
           </div>
           <div class="shops-grid" id="shopsGrid"></div>
         </section>
+
+        <section class="directory-intro" aria-labelledby="directoryIntroTitle">
+          <h2 id="directoryIntroTitle">Find businesses online and list yours on MyShub</h2>
+          <p>MyShub is a searchable business directory and online marketplace discovery hub. Explore local shops, services, churches, creators, and brands by category or location, then open a business profile to connect with them. If you run a business, you can create your own professional hub and make it easier for customers to find your links in one place.</p>
+          <div class="directory-actions"><a class="directory-action" href="/app.html"><i class="fa-solid fa-plus"></i> List your business free</a><a class="directory-action secondary" href="/blog/"><i class="fa-solid fa-book-open"></i> Read business guides</a></div>
+        </section>
       </div>
     </section>
   </main>
@@ -251,7 +293,7 @@
       resultsTitle: $('resultsTitle'), resultsSubtitle: $('resultsSubtitle'), resultCount: $('resultCount')
     };
     const state = { q: '', category: '', country: '', state: '', city: '', nearMe: false, lat: null, lng: null, radius: 50, mode: 'trending' };
-    let filterData = { categories: [], countries: [], states: [], cities: [], categoryOptions: [], countryOptions: [], stateOptions: [], cityOptions: [] };
+    let filterData = { categories: [], countries: [], states: [], cities: [], categoryOptions: [], countryOptions: [], stateOptions: [], cityOptions: [], directoryBySlug: {} };
     let openFilter = '';
 
     function escapeHtml(value) {
@@ -261,6 +303,33 @@
     function normalizeApiList(value) { return Array.isArray(value) ? value : []; }
     function optionName(option) { return typeof option === 'string' ? option : option?.name || ''; }
     function optionCount(option) { return typeof option === 'object' ? option.count || 0 : ''; }
+    function mergeOptions(existing, derived, fields = []) {
+      const output = [];
+      const seen = new Set();
+      [...(Array.isArray(existing) ? existing : []), ...(Array.isArray(derived) ? derived : [])].forEach((item) => {
+        const name = optionName(item);
+        if (!name) return;
+        const key = [name, ...fields.map((field) => item?.[field] || '')].join('|').toLowerCase();
+        if (seen.has(key)) return;
+        seen.add(key);
+        output.push(typeof item === 'string' ? { name: item, count: 0 } : item);
+      });
+      return output;
+    }
+    function normalizeClientQuery(value) {
+      let query = String(value || '').trim().replace(/\s+/g, ' ');
+      const aliases = [
+        [/\bchurches\b/gi, 'church'], [/\bministries\b/gi, 'ministry'],
+        [/\bmakeup shops?\b/gi, 'makeup'], [/\bcosmetics shops?\b/gi, 'beauty'],
+        [/\bhair vendors?\b/gi, 'haircare'], [/\brestaurants?\b/gi, 'food'],
+        [/\btech companies?\b/gi, 'tech'], [/\bnearby\b/gi, 'near me']
+      ];
+      aliases.forEach(([pattern, replacement]) => { query = query.replace(pattern, replacement); });
+      return query.replace(/\s+/g, ' ').trim();
+    }
+    function getLogoUrl(shop) {
+      return shop?.logo_url || shop?.shop_json?.logo_url || shop?.logo || '/icon.svg';
+    }
     function cleanDate(value) { return value ? String(value).slice(0, 10) : ''; }
     function formatViews(value) {
       const count = Number(value || 0);
@@ -343,22 +412,31 @@
 
     async function loadFilterData() {
       try {
-        const [categoriesResponse, locationsResponse] = await Promise.all([
-          fetch(`${API}/discover/categories`), fetch(`${API}/discover/locations`)
+        const [categoriesResponse, locationsResponse, directoryResponse] = await Promise.all([
+          fetch(`${API}/discover/categories`), fetch(`${API}/discover/locations`), fetch(`${API}/discover/search?limit=100`)
         ]);
         if (!categoriesResponse.ok || !locationsResponse.ok) throw new Error('Filter data unavailable');
         const categories = await categoriesResponse.json();
         const locations = await locationsResponse.json();
+        const directory = directoryResponse.ok ? await directoryResponse.json() : {};
+        const directoryResults = Array.isArray(directory.results) ? directory.results : [];
+        const derivedCountries = directoryResults.filter((shop) => shop.country).map((shop) => ({ name: shop.country, count: 0 }));
+        const derivedStates = directoryResults.filter((shop) => shop.state).map((shop) => ({ name: shop.state, country: shop.country || '', count: 0 }));
+        const derivedCities = directoryResults.filter((shop) => shop.city).map((shop) => ({ name: shop.city, state: shop.state || '', country: shop.country || '', count: 0 }));
         filterData = {
           categories: normalizeApiList(categories.categories || categories),
           countries: normalizeApiList(locations.countries),
           states: normalizeApiList(locations.states),
           cities: normalizeApiList(locations.cities || locations.lgas),
           categoryOptions: normalizeApiList(categories.category_options),
-          countryOptions: normalizeApiList(locations.country_options),
-          stateOptions: normalizeApiList(locations.state_options),
-          cityOptions: normalizeApiList(locations.city_options || locations.lga_options)
+          countryOptions: mergeOptions(normalizeApiList(locations.country_options), derivedCountries, []),
+          stateOptions: mergeOptions(normalizeApiList(locations.state_options), derivedStates, ['country']),
+          cityOptions: mergeOptions(normalizeApiList(locations.city_options || locations.lga_options), derivedCities, ['state', 'country'])
         };
+        filterData.countries = filterData.countryOptions.map(optionName);
+        filterData.states = filterData.stateOptions.map(optionName);
+        filterData.cities = filterData.cityOptions.map(optionName);
+        filterData.directoryBySlug = Object.fromEntries(directoryResults.filter((shop) => shop.slug).map((shop) => [shop.slug, shop]));
       } catch (error) {
         console.warn('Discover filter data could not be loaded.', error);
         setNote('Filters are temporarily unavailable, but you can still search by text.', 'error');
@@ -370,8 +448,9 @@
     }
 
     function cardMarkup(shop) {
-      const logo = shop.logo_url || '/icon.svg';
+      const logo = getLogoUrl(shop);
       const plan = String(shop.plan || 'free').toLowerCase();
+      const verification = plan === 'premium' ? '<span class="verified-mark premium" title="MyShub profile badge" aria-label="MyShub profile badge"><i class="fa-solid fa-check"></i></span>' : (plan === 'pro' ? '<span class="verified-mark pro" title="MyShub profile badge" aria-label="MyShub profile badge"><i class="fa-solid fa-check"></i></span>' : '');
       const location = shop.location_label || [shop.city, shop.state, shop.country].filter(Boolean).join(', ') || 'Location not provided';
       const description = shop.short_description || shop.description || 'A business on MyShub.';
       const distance = shop.distance_label ? `<span class="fact"><i class="fa-solid fa-location-arrow"></i>${escapeHtml(shop.distance_label)}</span>` : '';
@@ -381,9 +460,8 @@
         <div class="card-top">
           <div class="card-identity">
             <img class="card-logo" src="${escapeHtml(logo)}" alt="${escapeHtml(shop.business_name || 'Business')} logo" loading="lazy" onerror="this.onerror=null;this.src='/icon.svg';">
-            <div class="card-name-wrap"><div class="card-name" title="${escapeHtml(shop.business_name)}">${escapeHtml(shop.business_name || 'Unnamed business')}</div><div class="card-tagline">${escapeHtml(shop.tagline || shop.category || 'Business on MyShub')}</div></div>
+            <div class="card-name-wrap"><div class="card-name" title="${escapeHtml(shop.business_name)}">${escapeHtml(shop.business_name || 'Unnamed business')}${verification}</div><div class="card-tagline">${escapeHtml(shop.tagline || shop.category || 'Business on MyShub')}</div></div>
           </div>
-          <span class="plan-badge ${plan === 'free' ? '' : plan}">${escapeHtml(shop.plan_label || plan)}</span>
         </div>
         <p class="card-description">${escapeHtml(description)}</p>
         <div class="card-facts"><span class="fact"><i class="fa-solid fa-tag"></i>${escapeHtml(shop.category || 'Business')}</span><span class="fact"><i class="fa-solid fa-location-dot"></i>${escapeHtml(location)}</span>${distance}${views}</div>
@@ -391,11 +469,9 @@
       </article>`;
     }
 
-    function trendingMarkup(shop) {
-      const logo = shop.logo_url || '/icon.svg';
-      const location = shop.location_label || [shop.city, shop.state].filter(Boolean).join(', ') || 'Location not provided';
-      return `<article class="trending-card" data-shop-url="${escapeHtml(shop.shop_url || `/${shop.slug}`)}"><img class="trending-logo" src="${escapeHtml(logo)}" alt="" loading="lazy" onerror="this.onerror=null;this.src='/icon.svg';"><div class="trending-copy"><div class="trending-name">${escapeHtml(shop.business_name || 'Unnamed business')}</div><div class="trending-meta">${escapeHtml(shop.category || 'Business')} · ${escapeHtml(location)}</div><div class="trending-label"><i class="fa-solid fa-arrow-trend-up"></i>${escapeHtml(shop.plan_label || 'Discover')}</div></div></article>`;
-    }
+    // Kept as a compatibility alias for older callers; Trending now uses the same
+    // complete rich card markup as the normal result list.
+    function trendingMarkup(shop) { return cardMarkup(shop); }
 
     function renderEmpty(message, detail, actionText = 'Clear filters') {
       refs.shopsGrid.innerHTML = `<div class="state-box" style="grid-column:1/-1"><div class="state-icon"><i class="fa-solid fa-compass"></i></div><h3>${escapeHtml(message)}</h3><p>${escapeHtml(detail)}</p>${actionText ? `<button class="state-action" id="emptyAction" type="button">${escapeHtml(actionText)}</button>` : ''}</div>`;
@@ -405,12 +481,12 @@
     function renderResults(data) {
       // Support both the new API contract (`results`) and the currently live
       // legacy Trending contract (`trending`) during deployment transition.
-      const results = Array.isArray(data.results) ? data.results : (Array.isArray(data.trending) ? data.trending : []);
+      const rawResults = Array.isArray(data.results) ? data.results : (Array.isArray(data.trending) ? data.trending : []);
+      const results = rawResults.map((shop) => ({ ...(filterData.directoryBySlug[shop.slug] || {}), ...shop }));
       const intent = data.query || {};
       if (state.mode === 'trending') {
         refs.trendingSection.style.display = '';
-        refs.trendingGrid.innerHTML = results.length ? results.map(trendingMarkup).join('') : '<div class="state-box" style="grid-column:1/-1"><div class="state-icon"><i class="fa-solid fa-store-slash"></i></div><h3>Trending is waiting for businesses</h3><p>Be one of the first businesses discovered on MyShub.</p><a class="view-button" href="/app.html" style="display:inline-flex;margin-top:14px">List your business</a></div>';
-        refs.trendingGrid.querySelectorAll('[data-shop-url]').forEach((card) => card.addEventListener('click', () => window.open(card.dataset.shopUrl, '_blank', 'noopener')));
+        refs.trendingGrid.innerHTML = results.length ? results.map(cardMarkup).join('') : '<div class="state-box" style="grid-column:1/-1"><div class="state-icon"><i class="fa-solid fa-store-slash"></i></div><h3>Trending is waiting for businesses</h3><p>Be one of the first businesses discovered on MyShub.</p><a class="view-button" href="/app.html" style="display:inline-flex;margin-top:14px">List your business</a></div>';
         refs.shopsGrid.innerHTML = '';
         refs.resultsTitle.textContent = 'Explore businesses';
         refs.resultsSubtitle.textContent = 'Search or choose a filter to find a business.';
@@ -431,6 +507,7 @@
     async function loadDiscover() {
       state.q = refs.input.value.trim();
       state.mode = hasFilters() ? 'search' : 'trending';
+      document.body.classList.toggle('search-active', state.mode === 'search');
       refs.searchButton.disabled = true;
       refs.searchButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
       renderSkeletons(refs.shopsGrid, 6);
@@ -443,7 +520,7 @@
         if (state.city) params.set('city', state.city);
         if (state.nearMe) { params.set('near_me', 'true'); params.set('lat', state.lat); params.set('lng', state.lng); params.set('radius', state.radius); }
       } else {
-        if (state.q) params.set('q', state.q);
+        if (state.q) params.set('q', normalizeClientQuery(state.q));
         ['category', 'country', 'state', 'city'].forEach((key) => { if (state[key]) params.set(key, state[key]); });
         if (state.nearMe) { params.set('near_me', 'true'); params.set('lat', state.lat); params.set('lng', state.lng); params.set('radius', state.radius); }
       }
@@ -497,7 +574,12 @@
     document.addEventListener('click', (event) => { if (!event.target.closest('.filter-chip') && !event.target.closest('.filter-menu')) closeFilterMenu(); });
 
     updateControls();
-    (async function init() { await loadFilterData(); await loadDiscover(); })();
+    (async function init() {
+      const urlQuery = new URLSearchParams(window.location.search).get('q');
+      if (urlQuery) refs.input.value = urlQuery;
+      await loadFilterData();
+      await loadDiscover();
+    })();
   </script>
 </body>
 </html>
