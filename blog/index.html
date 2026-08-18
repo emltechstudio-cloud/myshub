@@ -3,228 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyShub Blog — Expert Tips & Growth Stories for Small Businesses</title>
-    <meta name="description" content="Explore 50+ in-depth guides, growth stories, and strategies for vendors and small business owners in Africa and beyond.">
-    <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+    <title>MyShub Blog — Expert Tips & Growth Stories</title>
+    <link rel="icon" type="image/svg+xml" href="../icons/icon.svg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --brand: #2563eb;
-            --brand-light: #3b82f6;
-            --brand-dark: #1d4ed8;
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --text: #0f172a;
-            --text2: #475569;
-            --border: #e2e8f0;
-        }
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg: #0f172a;
-                --card: #1e293b;
-                --text: #f1f5f9;
-                --text2: #94a3b8;
-                --border: #334155;
-            }
-        }
+        :root { --brand: #2563eb; --brand-light: #3b82f6; --brand-dark: #1d4ed8; --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --text2: #475569; --border: #e2e8f0; }
+        @media (prefers-color-scheme: dark) { :root { --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --text2: #94a3b8; --border: #334155; } }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.7;
-            -webkit-font-smoothing: antialiased;
-        }
-        .nav {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 100;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-            transition: all 0.3s;
-        }
-        .nav.scrolled { background: rgba(255, 255, 255, 0.98); box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        @media (prefers-color-scheme: dark) {
-            .nav { background: rgba(15, 23, 42, 0.9); }
-            .nav.scrolled { background: rgba(15, 23, 42, 0.98); }
-        }
-        .nav-inner {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 24px;
-            max-width: 1280px;
-            margin: 0 auto;
-        }
-        .nav-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 800;
-            font-size: 1.4rem;
-            color: var(--brand);
-            text-decoration: none;
-        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+        .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); transition: all 0.3s; }
+        .nav-inner { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; max-width: 1280px; margin: 0 auto; }
+        .nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.4rem; color: var(--brand); text-decoration: none; }
         .nav-logo img { width: 32px; height: 32px; }
         .nav-links { display: flex; gap: 32px; align-items: center; }
-        .nav-links a {
-            color: var(--text2);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.95rem;
-            transition: color 0.2s;
-        }
+        .nav-links a { color: var(--text2); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: color 0.2s; }
         .nav-links a:hover { color: var(--brand); }
-        .nav-cta {
-            background: linear-gradient(135deg, var(--brand), var(--brand-light));
-            color: white !important;
-            padding: 10px 24px;
-            border-radius: 40px;
-            font-weight: 700;
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-        .nav-cta-discover {
-            background: transparent;
-            color: var(--brand) !important;
-            padding: 10px 20px;
-            border-radius: 40px;
-            font-weight: 600;
-            text-decoration: none;
-            font-size: 0.9rem;
-            border: 2px solid var(--brand);
-        }
+        .nav-cta { background: linear-gradient(135deg, var(--brand), var(--brand-light)); color: white !important; padding: 10px 24px; border-radius: 40px; font-weight: 700; text-decoration: none; font-size: 0.9rem; }
+        .nav-cta-discover { background: transparent; color: var(--brand) !important; padding: 10px 20px; border-radius: 40px; font-weight: 600; text-decoration: none; font-size: 0.9rem; border: 2px solid var(--brand); }
         .nav-toggle { display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text); }
-        @media(max-width:768px) {
-            .nav-links { display: none; }
-            .nav-toggle { display: block; }
-            .nav-links.active {
-                display: flex;
-                position: absolute;
-                top: 64px; left: 0; right: 0;
-                flex-direction: column;
-                background: var(--card);
-                padding: 24px;
-                gap: 16px;
-                border-bottom: 1px solid var(--border);
-                box-shadow: 0 12px 24px rgba(0,0,0,0.1);
-            }
-        }
-        .hero {
-            background: linear-gradient(135deg, #0ea5e9, #2563eb, #4f46e5, #7c3aed);
-            color: white;
-            padding: 140px 24px 80px;
-            text-align: center;
-        }
+        @media(max-width:768px) { .nav-links { display: none; } .nav-toggle { display: block; } .nav-links.active { display: flex; position: absolute; top: 64px; left: 0; right: 0; flex-direction: column; background: var(--card); padding: 24px; gap: 16px; border-bottom: 1px solid var(--border); box-shadow: 0 12px 24px rgba(0,0,0,0.1); } }
+        .hero { background: linear-gradient(135deg, #0ea5e9, #2563eb, #4f46e5, #7c3aed); color: white; padding: 140px 24px 80px; text-align: center; }
         .hero h1 { font-size: 3.5rem; font-weight: 900; letter-spacing: -2px; margin-bottom: 16px; }
         .hero p { font-size: 1.2rem; opacity: 0.9; max-width: 650px; margin: 0 auto 32px; }
-        .search-container {
-            max-width: 540px;
-            margin: 0 auto;
-        }
-        .search-input {
-            width: 100%;
-            padding: 16px 28px;
-            border-radius: 50px;
-            border: none;
-            font-size: 1rem;
-            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
-            outline: none;
-            font-family: inherit;
-        }
-        .container {
-            max-width: 1280px;
-            margin: 80px auto;
-            padding: 0 24px;
-        }
-        .blog-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-            gap: 32px;
-        }
-        .blog-card {
-            background: var(--card);
-            border-radius: 24px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-            transition: transform 0.3s, box-shadow 0.3s;
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-        }
-        .blog-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(37,99,235,0.1);
-            border-color: var(--brand-light);
-        }
-        .card-image {
-            width: 100%;
-            height: 220px;
-            object-fit: cover;
-        }
+        .search-container { max-width: 540px; margin: 0 auto; }
+        .search-input { width: 100%; padding: 16px 28px; border-radius: 50px; border: none; font-size: 1rem; box-shadow: 0 12px 32px rgba(0,0,0,0.15); outline: none; font-family: inherit; }
+        .container { max-width: 1280px; margin: 80px auto; padding: 0 24px; }
+        .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 32px; }
+        .blog-card { background: var(--card); border-radius: 24px; overflow: hidden; border: 1px solid var(--border); transition: transform 0.3s, box-shadow 0.3s; text-decoration: none; color: inherit; display: flex; flex-direction: column; }
+        .blog-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(37,99,235,0.1); border-color: var(--brand-light); }
+        .card-image { width: 100%; height: 220px; object-fit: cover; }
         .card-content { padding: 28px; flex-grow: 1; display: flex; flex-direction: column; }
-        .card-category {
-            color: var(--brand);
-            font-size: 0.8rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            display: block;
-        }
-        .card-title {
-            font-size: 1.35rem;
-            font-weight: 800;
-            line-height: 1.3;
-            margin-bottom: 12px;
-            color: var(--text);
-        }
-        .card-excerpt {
-            font-size: 0.95rem;
-            color: var(--text2);
-            margin-bottom: 24px;
-            flex-grow: 1;
-        }
-        .card-meta {
-            font-size: 0.85rem;
-            color: var(--text2);
-            display: flex;
-            justify-content: space-between;
-            border-top: 1px solid var(--border);
-            padding-top: 16px;
-        }
-        .footer {
-            text-align: center;
-            padding: 60px 24px;
-            border-top: 1px solid var(--border);
-            background: var(--card);
-        }
+        .card-category { color: var(--brand); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .card-title { font-size: 1.35rem; font-weight: 800; line-height: 1.3; margin-bottom: 12px; color: var(--text); }
+        .card-excerpt { font-size: 0.95rem; color: var(--text2); margin-bottom: 24px; flex-grow: 1; }
+        .card-meta { font-size: 0.85rem; color: var(--text2); display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 16px; }
+        .footer { text-align: center; padding: 60px 24px; border-top: 1px solid var(--border); background: var(--card); }
         .footer-brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.3rem; color: var(--brand); text-decoration: none; margin-bottom: 20px; }
         .footer-brand img { width: 32px; height: 32px; }
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 24px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
+        .footer-links { display: flex; justify-content: center; gap: 24px; margin-bottom: 20px; flex-wrap: wrap; }
         .footer-links a { color: var(--text2); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
         .footer-links a:hover { color: var(--brand); }
         .footer-company p { color: var(--text2); font-size: 0.9rem; }
         .footer-company a { color: var(--brand); text-decoration: none; font-weight: 600; }
-        @media (max-width: 640px) {
-            .hero h1 { font-size: 2.4rem; }
-            .blog-grid { grid-template-columns: 1fr; }
-        }
+        @media (max-width: 640px) { .hero h1 { font-size: 2.4rem; } .blog-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-    
     <nav class="nav" id="navbar">
         <div class="nav-inner">
-            <a href="/" class="nav-logo"><img src="/icons/icon.svg" alt="MyShub" /> MyShub</a>
+            <a href="/" class="nav-logo"><img src="../icons/icon.svg" alt="MyShub" /> MyShub</a>
             <div class="nav-links" id="navLinks">
                 <a href="/">Home</a>
                 <a href="/discover.html" class="nav-cta-discover"><i class="fa-solid fa-magnifying-glass"></i> Discover</a>
@@ -235,12 +63,11 @@
         </div>
     </nav>
 
-
     <header class="hero">
         <h1>MyShub Knowledge Hub</h1>
-        <p>Explore 50+ in-depth guides, growth strategies, and practical advice to help small businesses thrive in the digital economy.</p>
+        <p>Explore 50+ in-depth guides and growth strategies to help your small business thrive.</p>
         <div class="search-container">
-            <input type="text" class="search-input" placeholder="Search articles, guides, tips..." id="blogSearch">
+            <input type="text" class="search-input" placeholder="Search articles..." id="blogSearch">
         </div>
     </header>
 
@@ -248,7 +75,7 @@
         <div class="blog-grid" id="blogGrid">
             
     <a href="sell-on-whatsapp-nigeria.html" class="blog-card">
-        <img src="/images/blog1.jpg" alt="How to Sell on WhatsApp Like a Pro in Nigeria" class="card-image">
+        <img src="../images/blog1.jpg" alt="How to Sell on WhatsApp Like a Pro in Nigeria" class="card-image">
         <div class="card-content">
             <span class="card-category">Selling Tips</span>
             <h2 class="card-title">How to Sell on WhatsApp Like a Pro in Nigeria</h2>
@@ -261,7 +88,7 @@
     </a>
     
     <a href="local-seo-lagos-vendors.html" class="blog-card">
-        <img src="/images/blog2.jpg" alt="Local SEO for Lagos Small Businesses: Be Found First" class="card-image">
+        <img src="../images/blog2.jpg" alt="Local SEO for Lagos Small Businesses: Be Found First" class="card-image">
         <div class="card-content">
             <span class="card-category">SEO</span>
             <h2 class="card-title">Local SEO for Lagos Small Businesses: Be Found First</h2>
@@ -274,7 +101,7 @@
     </a>
     
     <a href="instagram-bio-link-strategy.html" class="blog-card">
-        <img src="/images/blog3.jpg" alt="Why Your Instagram Bio Link is Your Most Valuable Asset" class="card-image">
+        <img src="../images/blog3.jpg" alt="Why Your Instagram Bio Link is Your Most Valuable Asset" class="card-image">
         <div class="card-content">
             <span class="card-category">Marketing</span>
             <h2 class="card-title">Why Your Instagram Bio Link is Your Most Valuable Asset</h2>
@@ -287,7 +114,7 @@
     </a>
     
     <a href="chaos-to-clarity-organized-links.html" class="blog-card">
-        <img src="/images/blog4.jpg" alt="Chaos to Clarity: Organizing Your Business Links for Higher Conversions" class="card-image">
+        <img src="../images/blog4.jpg" alt="Chaos to Clarity: Organizing Your Business Links for Higher Conversions" class="card-image">
         <div class="card-content">
             <span class="card-category">Organization</span>
             <h2 class="card-title">Chaos to Clarity: Organizing Your Business Links for Higher Conversions</h2>
@@ -300,7 +127,7 @@
     </a>
     
     <a href="how-to-get-verified-on-myshub.html" class="blog-card">
-        <img src="/images/blog5.jpg" alt="Building Trust Online: How to Get Verified on MyShub" class="card-image">
+        <img src="../images/blog5.jpg" alt="Building Trust Online: How to Get Verified on MyShub" class="card-image">
         <div class="card-content">
             <span class="card-category">Trust</span>
             <h2 class="card-title">Building Trust Online: How to Get Verified on MyShub</h2>
@@ -313,7 +140,7 @@
     </a>
     
     <a href="future-of-business-discovery.html" class="blog-card">
-        <img src="/images/blog6.jpg" alt="The Future of Business Discovery: Moving Beyond Social Media Chaos" class="card-image">
+        <img src="../images/blog6.jpg" alt="The Future of Business Discovery: Moving Beyond Social Media Chaos" class="card-image">
         <div class="card-content">
             <span class="card-category">Future</span>
             <h2 class="card-title">The Future of Business Discovery: Moving Beyond Social Media Chaos</h2>
@@ -326,7 +153,7 @@
     </a>
     
     <a href="captivating-business-descriptions.html" class="blog-card">
-        <img src="/images/blog7.jpg" alt="Captivating Descriptions: How to Tell Your Business Story in 5 Seconds" class="card-image">
+        <img src="../images/blog7.jpg" alt="Captivating Descriptions: How to Tell Your Business Story in 5 Seconds" class="card-image">
         <div class="card-content">
             <span class="card-category">Writing</span>
             <h2 class="card-title">Captivating Descriptions: How to Tell Your Business Story in 5 Seconds</h2>
@@ -339,7 +166,7 @@
     </a>
     
     <a href="scaling-home-office-to-studio.html" class="blog-card">
-        <img src="/images/blog8.jpg" alt="Scaling Up: Moving from a Home Office to a Professional Studio" class="card-image">
+        <img src="../images/blog8.jpg" alt="Scaling Up: Moving from a Home Office to a Professional Studio" class="card-image">
         <div class="card-content">
             <span class="card-category">Growth</span>
             <h2 class="card-title">Scaling Up: Moving from a Home Office to a Professional Studio</h2>
@@ -352,7 +179,7 @@
     </a>
     
     <a href="power-of-community-engagement.html" class="blog-card">
-        <img src="/images/blog9.jpg" alt="Connecting with Your Audience: The True Power of Business Communities" class="card-image">
+        <img src="../images/blog9.jpg" alt="Connecting with Your Audience: The True Power of Business Communities" class="card-image">
         <div class="card-content">
             <span class="card-category">Community</span>
             <h2 class="card-title">Connecting with Your Audience: The True Power of Business Communities</h2>
@@ -365,7 +192,7 @@
     </a>
     
     <a href="choosing-the-right-plan.html" class="blog-card">
-        <img src="/images/blog10.jpg" alt="Pro vs. Premium: Which MyShub Plan is Right for Your Business?" class="card-image">
+        <img src="../images/blog10.jpg" alt="Pro vs. Premium: Which MyShub Plan is Right for Your Business?" class="card-image">
         <div class="card-content">
             <span class="card-category">Platform</span>
             <h2 class="card-title">Pro vs. Premium: Which MyShub Plan is Right for Your Business?</h2>
@@ -378,7 +205,7 @@
     </a>
     
     <a href="local-artisan-success-stories.html" class="blog-card">
-        <img src="/images/blog11.jpg" alt="Success Story: How Local Artisans are Finding Customers Beyond Their Neighborhood" class="card-image">
+        <img src="../images/blog11.jpg" alt="Success Story: How Local Artisans are Finding Customers Beyond Their Neighborhood" class="card-image">
         <div class="card-content">
             <span class="card-category">Success</span>
             <h2 class="card-title">Success Story: How Local Artisans are Finding Customers Beyond Their Neighborhood</h2>
@@ -391,7 +218,7 @@
     </a>
     
     <a href="7-essential-business-links.html" class="blog-card">
-        <img src="/images/blog12.jpg" alt="7 Essential Links Every Small Business Needs in Their Hub" class="card-image">
+        <img src="../images/blog12.jpg" alt="7 Essential Links Every Small Business Needs in Their Hub" class="card-image">
         <div class="card-content">
             <span class="card-category">Checklist</span>
             <h2 class="card-title">7 Essential Links Every Small Business Needs in Their Hub</h2>
@@ -404,7 +231,7 @@
     </a>
     
     <a href="reaching-customers-on-the-go.html" class="blog-card">
-        <img src="/images/blog13.jpg" alt="Mobile Commerce: Reaching Customers Who Shop on the Go" class="card-image">
+        <img src="../images/blog13.jpg" alt="Mobile Commerce: Reaching Customers Who Shop on the Go" class="card-image">
         <div class="card-content">
             <span class="card-category">Tech</span>
             <h2 class="card-title">Mobile Commerce: Reaching Customers Who Shop on the Go</h2>
@@ -417,7 +244,7 @@
     </a>
     
     <a href="managing-customer-reviews.html" class="blog-card">
-        <img src="/images/blog14.jpg" alt="The Power of Customer Feedback: Managing Reviews to Build Unshakable Trust" class="card-image">
+        <img src="../images/blog14.jpg" alt="The Power of Customer Feedback: Managing Reviews to Build Unshakable Trust" class="card-image">
         <div class="card-content">
             <span class="card-category">Trust</span>
             <h2 class="card-title">The Power of Customer Feedback: Managing Reviews to Build Unshakable Trust</h2>
@@ -430,7 +257,7 @@
     </a>
     
     <a href="networking-for-entrepreneurs.html" class="blog-card">
-        <img src="/images/blog15.jpg" alt="Networking for Entrepreneurs: Why Growing Together Beats Competing Alone" class="card-image">
+        <img src="../images/blog15.jpg" alt="Networking for Entrepreneurs: Why Growing Together Beats Competing Alone" class="card-image">
         <div class="card-content">
             <span class="card-category">Community</span>
             <h2 class="card-title">Networking for Entrepreneurs: Why Growing Together Beats Competing Alone</h2>
@@ -443,7 +270,7 @@
     </a>
     
     <a href="understanding-your-analytics.html" class="blog-card">
-        <img src="/images/blog16.jpg" alt="Understanding Your Analytics: Turning Visitor Data into Real Sales" class="card-image">
+        <img src="../images/blog16.jpg" alt="Understanding Your Analytics: Turning Visitor Data into Real Sales" class="card-image">
         <div class="card-content">
             <span class="card-category">Growth</span>
             <h2 class="card-title">Understanding Your Analytics: Turning Visitor Data into Real Sales</h2>
@@ -456,7 +283,7 @@
     </a>
     
     <a href="branding-basics-logos-colors.html" class="blog-card">
-        <img src="/images/blog17.jpg" alt="Branding Basics: Logos, Colors, and Consistency That Make You Memorable" class="card-image">
+        <img src="../images/blog17.jpg" alt="Branding Basics: Logos, Colors, and Consistency That Make You Memorable" class="card-image">
         <div class="card-content">
             <span class="card-category">Branding</span>
             <h2 class="card-title">Branding Basics: Logos, Colors, and Consistency That Make You Memorable</h2>
@@ -469,7 +296,7 @@
     </a>
     
     <a href="logistics-for-online-vendors.html" class="blog-card">
-        <img src="/images/blog18.jpg" alt="Dealing with Delivery: Logistics and Shipping Tips for Online Vendors" class="card-image">
+        <img src="../images/blog18.jpg" alt="Dealing with Delivery: Logistics and Shipping Tips for Online Vendors" class="card-image">
         <div class="card-content">
             <span class="card-category">Logistics</span>
             <h2 class="card-title">Dealing with Delivery: Logistics and Shipping Tips for Online Vendors</h2>
@@ -482,7 +309,7 @@
     </a>
     
     <a href="staying-safe-online-data-protection.html" class="blog-card">
-        <img src="/images/blog19.jpg" alt="Staying Safe Online: Protecting Your Business Data and Customer Trust" class="card-image">
+        <img src="../images/blog19.jpg" alt="Staying Safe Online: Protecting Your Business Data and Customer Trust" class="card-image">
         <div class="card-content">
             <span class="card-category">Security</span>
             <h2 class="card-title">Staying Safe Online: Protecting Your Business Data and Customer Trust</h2>
@@ -495,7 +322,7 @@
     </a>
     
     <a href="why-we-built-myshub-bridge.html" class="blog-card">
-        <img src="/images/blog20.jpg" alt="Why We Built MyShub: A Bridge for Small Vendors Across Africa" class="card-image">
+        <img src="../images/blog20.jpg" alt="Why We Built MyShub: A Bridge for Small Vendors Across Africa" class="card-image">
         <div class="card-content">
             <span class="card-category">About</span>
             <h2 class="card-title">Why We Built MyShub: A Bridge for Small Vendors Across Africa</h2>
@@ -508,7 +335,7 @@
     </a>
     
     <a href="mastering-social-media-scheduling.html" class="blog-card">
-        <img src="/images/blog21.jpg" alt="Mastering Social Media Scheduling Without Losing Your Authentic Voice" class="card-image">
+        <img src="../images/blog21.jpg" alt="Mastering Social Media Scheduling Without Losing Your Authentic Voice" class="card-image">
         <div class="card-content">
             <span class="card-category">Marketing</span>
             <h2 class="card-title">Mastering Social Media Scheduling Without Losing Your Authentic Voice</h2>
@@ -521,7 +348,7 @@
     </a>
     
     <a href="pricing-strategy-for-retailers.html" class="blog-card">
-        <img src="/images/blog22.jpg" alt="How to Price Your Products Profitably Without Losing Customers" class="card-image">
+        <img src="../images/blog22.jpg" alt="How to Price Your Products Profitably Without Losing Customers" class="card-image">
         <div class="card-content">
             <span class="card-category">Finance</span>
             <h2 class="card-title">How to Price Your Products Profitably Without Losing Customers</h2>
@@ -534,7 +361,7 @@
     </a>
     
     <a href="handling-difficult-customers.html" class="blog-card">
-        <img src="/images/blog23.jpg" alt="Turning Complaints into Loyalty: Handling Difficult Customer Interactions" class="card-image">
+        <img src="../images/blog23.jpg" alt="Turning Complaints into Loyalty: Handling Difficult Customer Interactions" class="card-image">
         <div class="card-content">
             <span class="card-category">Customer Service</span>
             <h2 class="card-title">Turning Complaints into Loyalty: Handling Difficult Customer Interactions</h2>
@@ -547,7 +374,7 @@
     </a>
     
     <a href="the-art-of-product-photography.html" class="blog-card">
-        <img src="/images/blog24.jpg" alt="Smartphone Product Photography: Taking Stunning Photos That Sell" class="card-image">
+        <img src="../images/blog24.jpg" alt="Smartphone Product Photography: Taking Stunning Photos That Sell" class="card-image">
         <div class="card-content">
             <span class="card-category">Design</span>
             <h2 class="card-title">Smartphone Product Photography: Taking Stunning Photos That Sell</h2>
@@ -560,7 +387,7 @@
     </a>
     
     <a href="building-an-email-list-from-scratch.html" class="blog-card">
-        <img src="/images/blog25.jpg" alt="Why Every Vendor Needs an Email List and How to Build One" class="card-image">
+        <img src="../images/blog25.jpg" alt="Why Every Vendor Needs an Email List and How to Build One" class="card-image">
         <div class="card-content">
             <span class="card-category">Marketing</span>
             <h2 class="card-title">Why Every Vendor Needs an Email List and How to Build One</h2>
@@ -573,7 +400,7 @@
     </a>
     
     <a href="collaborating-with-influencers.html" class="blog-card">
-        <img src="/images/blog26.jpg" alt="Micro-Influencer Marketing: How Small Businesses Can Partner for Growth" class="card-image">
+        <img src="../images/blog26.jpg" alt="Micro-Influencer Marketing: How Small Businesses Can Partner for Growth" class="card-image">
         <div class="card-content">
             <span class="card-category">Marketing</span>
             <h2 class="card-title">Micro-Influencer Marketing: How Small Businesses Can Partner for Growth</h2>
@@ -586,7 +413,7 @@
     </a>
     
     <a href="automating-customer-support-whatsapp.html" class="blog-card">
-        <img src="/images/blog27.jpg" alt="Automating Customer Support on WhatsApp Without Sounding Like a Robot" class="card-image">
+        <img src="../images/blog27.jpg" alt="Automating Customer Support on WhatsApp Without Sounding Like a Robot" class="card-image">
         <div class="card-content">
             <span class="card-category">Tech</span>
             <h2 class="card-title">Automating Customer Support on WhatsApp Without Sounding Like a Robot</h2>
@@ -599,7 +426,7 @@
     </a>
     
     <a href="navigating-economic-shifts-as-vendor.html" class="blog-card">
-        <img src="/images/blog28.jpg" alt="Navigating Economic Shifts: Resilience Strategies for Small Business Owners" class="card-image">
+        <img src="../images/blog28.jpg" alt="Navigating Economic Shifts: Resilience Strategies for Small Business Owners" class="card-image">
         <div class="card-content">
             <span class="card-category">Business</span>
             <h2 class="card-title">Navigating Economic Shifts: Resilience Strategies for Small Business Owners</h2>
@@ -612,7 +439,7 @@
     </a>
     
     <a href="creating-high-converting-catalogs.html" class="blog-card">
-        <img src="/images/blog29.jpg" alt="Designing Catalogs That Convert Browsers Into Buyers Instantly" class="card-image">
+        <img src="../images/blog29.jpg" alt="Designing Catalogs That Convert Browsers Into Buyers Instantly" class="card-image">
         <div class="card-content">
             <span class="card-category">Sales</span>
             <h2 class="card-title">Designing Catalogs That Convert Browsers Into Buyers Instantly</h2>
@@ -625,7 +452,7 @@
     </a>
     
     <a href="seo-for-link-in-bio-pages.html" class="blog-card">
-        <img src="/images/blog30.jpg" alt="SEO for Link-in-Bio Pages: Can Search Engines Find Your Shop?" class="card-image">
+        <img src="../images/blog30.jpg" alt="SEO for Link-in-Bio Pages: Can Search Engines Find Your Shop?" class="card-image">
         <div class="card-content">
             <span class="card-category">SEO</span>
             <h2 class="card-title">SEO for Link-in-Bio Pages: Can Search Engines Find Your Shop?</h2>
@@ -638,7 +465,7 @@
     </a>
     
     <a href="the-psychology-of-buyer-trust.html" class="blog-card">
-        <img src="/images/blog31.jpg" alt="The Psychology of Buyer Trust: Why Customers Choose You Over Competitors" class="card-image">
+        <img src="../images/blog31.jpg" alt="The Psychology of Buyer Trust: Why Customers Choose You Over Competitors" class="card-image">
         <div class="card-content">
             <span class="card-category">Psychology</span>
             <h2 class="card-title">The Psychology of Buyer Trust: Why Customers Choose You Over Competitors</h2>
@@ -651,7 +478,7 @@
     </a>
     
     <a href="managing-cash-flow-as-solopreneur.html" class="blog-card">
-        <img src="/images/blog32.jpg" alt="Mastering Cash Flow: Financial Management for Solo Entrepreneurs" class="card-image">
+        <img src="../images/blog32.jpg" alt="Mastering Cash Flow: Financial Management for Solo Entrepreneurs" class="card-image">
         <div class="card-content">
             <span class="card-category">Finance</span>
             <h2 class="card-title">Mastering Cash Flow: Financial Management for Solo Entrepreneurs</h2>
@@ -664,7 +491,7 @@
     </a>
     
     <a href="leveraging-tiktok-for-local-business.html" class="blog-card">
-        <img src="/images/blog33.jpg" alt="TikTok for Local Businesses: How to Go Viral in Your City" class="card-image">
+        <img src="../images/blog33.jpg" alt="TikTok for Local Businesses: How to Go Viral in Your City" class="card-image">
         <div class="card-content">
             <span class="card-category">Social Media</span>
             <h2 class="card-title">TikTok for Local Businesses: How to Go Viral in Your City</h2>
@@ -677,7 +504,7 @@
     </a>
     
     <a href="creating-a-brand-identity-on-budget.html" class="blog-card">
-        <img src="/images/blog34.jpg" alt="Building a Professional Brand Identity on a Bootstrap Budget" class="card-image">
+        <img src="../images/blog34.jpg" alt="Building a Professional Brand Identity on a Bootstrap Budget" class="card-image">
         <div class="card-content">
             <span class="card-category">Branding</span>
             <h2 class="card-title">Building a Professional Brand Identity on a Bootstrap Budget</h2>
@@ -690,7 +517,7 @@
     </a>
     
     <a href="the-importance-of-fast-mobile-loading.html" class="blog-card">
-        <img src="/images/blog35.jpg" alt="Why Speed Matters: How Slow Landing Pages Kill Your Sales" class="card-image">
+        <img src="../images/blog35.jpg" alt="Why Speed Matters: How Slow Landing Pages Kill Your Sales" class="card-image">
         <div class="card-content">
             <span class="card-category">Tech</span>
             <h2 class="card-title">Why Speed Matters: How Slow Landing Pages Kill Your Sales</h2>
@@ -703,7 +530,7 @@
     </a>
     
     <a href="holiday-marketing-calendar-vendors.html" class="blog-card">
-        <img src="/images/blog36.jpg" alt="Planning Your Holiday Sales: A Seasonal Marketing Calendar for Vendors" class="card-image">
+        <img src="../images/blog36.jpg" alt="Planning Your Holiday Sales: A Seasonal Marketing Calendar for Vendors" class="card-image">
         <div class="card-content">
             <span class="card-category">Marketing</span>
             <h2 class="card-title">Planning Your Holiday Sales: A Seasonal Marketing Calendar for Vendors</h2>
@@ -716,7 +543,7 @@
     </a>
     
     <a href="overcoming-imposter-syndrome.html" class="blog-card">
-        <img src="/images/blog37.jpg" alt="Overcoming Imposter Syndrome as a First-Time Business Owner" class="card-image">
+        <img src="../images/blog37.jpg" alt="Overcoming Imposter Syndrome as a First-Time Business Owner" class="card-image">
         <div class="card-content">
             <span class="card-category">Mindset</span>
             <h2 class="card-title">Overcoming Imposter Syndrome as a First-Time Business Owner</h2>
@@ -729,7 +556,7 @@
     </a>
     
     <a href="using-qr-codes-offline-to-online.html" class="blog-card">
-        <img src="/images/blog38.jpg" alt="Bridge the Gap: Using QR Codes to Connect Offline Foot Traffic to Your Hub" class="card-image">
+        <img src="../images/blog38.jpg" alt="Bridge the Gap: Using QR Codes to Connect Offline Foot Traffic to Your Hub" class="card-image">
         <div class="card-content">
             <span class="card-category">Strategy</span>
             <h2 class="card-title">Bridge the Gap: Using QR Codes to Connect Offline Foot Traffic to Your Hub</h2>
@@ -742,7 +569,7 @@
     </a>
     
     <a href="writing-product-descriptions-that-sell.html" class="blog-card">
-        <img src="/images/blog39.jpg" alt="Copywriting 101: Writing Product Descriptions That Make People Say 'Take My Money'" class="card-image">
+        <img src="../images/blog39.jpg" alt="Copywriting 101: Writing Product Descriptions That Make People Say 'Take My Money'" class="card-image">
         <div class="card-content">
             <span class="card-category">Writing</span>
             <h2 class="card-title">Copywriting 101: Writing Product Descriptions That Make People Say 'Take My Money'</h2>
@@ -755,7 +582,7 @@
     </a>
     
     <a href="legal-basics-for-online-stores.html" class="blog-card">
-        <img src="/images/blog40.jpg" alt="Know Your Rights: Basic Legal Protections for E-Commerce Vendors" class="card-image">
+        <img src="../images/blog40.jpg" alt="Know Your Rights: Basic Legal Protections for E-Commerce Vendors" class="card-image">
         <div class="card-content">
             <span class="card-category">Legal</span>
             <h2 class="card-title">Know Your Rights: Basic Legal Protections for E-Commerce Vendors</h2>
@@ -768,7 +595,7 @@
     </a>
     
     <a href="outsourcing-tasks-when-to-hire.html" class="blog-card">
-        <img src="/images/blog41.jpg" alt="When to Outsource: Knowing When Your Business Needs Help" class="card-image">
+        <img src="../images/blog41.jpg" alt="When to Outsource: Knowing When Your Business Needs Help" class="card-image">
         <div class="card-content">
             <span class="card-category">Growth</span>
             <h2 class="card-title">When to Outsource: Knowing When Your Business Needs Help</h2>
@@ -781,7 +608,7 @@
     </a>
     
     <a href="maximizing-referral-programs.html" class="blog-card">
-        <img src="/images/blog42.jpg" alt="Word of Mouth 2.0: Building Viral Referral Loops for Your Business" class="card-image">
+        <img src="../images/blog42.jpg" alt="Word of Mouth 2.0: Building Viral Referral Loops for Your Business" class="card-image">
         <div class="card-content">
             <span class="card-category">Growth</span>
             <h2 class="card-title">Word of Mouth 2.0: Building Viral Referral Loops for Your Business</h2>
@@ -794,7 +621,7 @@
     </a>
     
     <a href="building-a-loyal-customer-base.html" class="blog-card">
-        <img src="/images/blog43.jpg" alt="From First-Time Buyer to Brand Evangelist: Cultivating Loyalty" class="card-image">
+        <img src="../images/blog43.jpg" alt="From First-Time Buyer to Brand Evangelist: Cultivating Loyalty" class="card-image">
         <div class="card-content">
             <span class="card-category">Customer Service</span>
             <h2 class="card-title">From First-Time Buyer to Brand Evangelist: Cultivating Loyalty</h2>
@@ -807,7 +634,7 @@
     </a>
     
     <a href="eco-friendly-packaging-trends.html" class="blog-card">
-        <img src="/images/blog44.jpg" alt="Sustainable Packaging: Why Eco-Friendly Choices Win Modern Customers" class="card-image">
+        <img src="../images/blog44.jpg" alt="Sustainable Packaging: Why Eco-Friendly Choices Win Modern Customers" class="card-image">
         <div class="card-content">
             <span class="card-category">Trends</span>
             <h2 class="card-title">Sustainable Packaging: Why Eco-Friendly Choices Win Modern Customers</h2>
@@ -820,7 +647,7 @@
     </a>
     
     <a href="the-future-of-ecommerce-in-africa.html" class="blog-card">
-        <img src="/images/blog45.jpg" alt="The Future of E-Commerce in Africa: Opportunities for Local Vendors" class="card-image">
+        <img src="../images/blog45.jpg" alt="The Future of E-Commerce in Africa: Opportunities for Local Vendors" class="card-image">
         <div class="card-content">
             <span class="card-category">Future</span>
             <h2 class="card-title">The Future of E-Commerce in Africa: Opportunities for Local Vendors</h2>
@@ -833,7 +660,7 @@
     </a>
     
     <a href="effective-time-management-for-founders.html" class="blog-card">
-        <img src="/images/blog46.jpg" alt="Time Blocking 101: Effective Time Management for Busy Founders" class="card-image">
+        <img src="../images/blog46.jpg" alt="Time Blocking 101: Effective Time Management for Busy Founders" class="card-image">
         <div class="card-content">
             <span class="card-category">Productivity</span>
             <h2 class="card-title">Time Blocking 101: Effective Time Management for Busy Founders</h2>
@@ -846,7 +673,7 @@
     </a>
     
     <a href="avoiding-common-ecommerce-mistakes.html" class="blog-card">
-        <img src="/images/blog47.jpg" alt="5 Common E-Commerce Mistakes That Are Costing You Sales" class="card-image">
+        <img src="../images/blog47.jpg" alt="5 Common E-Commerce Mistakes That Are Costing You Sales" class="card-image">
         <div class="card-content">
             <span class="card-category">Strategy</span>
             <h2 class="card-title">5 Common E-Commerce Mistakes That Are Costing You Sales</h2>
@@ -859,7 +686,7 @@
     </a>
     
     <a href="harnessing-the-power-of-video-content.html" class="blog-card">
-        <img src="/images/blog48.jpg" alt="Video First: Why Video Content is Essential for Modern Product Sales" class="card-image">
+        <img src="../images/blog48.jpg" alt="Video First: Why Video Content is Essential for Modern Product Sales" class="card-image">
         <div class="card-content">
             <span class="card-category">Content</span>
             <h2 class="card-title">Video First: Why Video Content is Essential for Modern Product Sales</h2>
@@ -872,7 +699,7 @@
     </a>
     
     <a href="setting-realistic-business-milestones.html" class="blog-card">
-        <img src="/images/blog49.jpg" alt="Setting Realistic Milestones and Celebrating Small Business Wins" class="card-image">
+        <img src="../images/blog49.jpg" alt="Setting Realistic Milestones and Celebrating Small Business Wins" class="card-image">
         <div class="card-content">
             <span class="card-category">Growth</span>
             <h2 class="card-title">Setting Realistic Milestones and Celebrating Small Business Wins</h2>
@@ -885,7 +712,7 @@
     </a>
     
     <a href="why-centralized-hubs-win.html" class="blog-card">
-        <img src="/images/blog50.jpg" alt="Why Centralized Digital Hubs Are Replacing Traditional Websites for Vendors" class="card-image">
+        <img src="../images/blog50.jpg" alt="Why Centralized Digital Hubs Are Replacing Traditional Websites for Vendors" class="card-image">
         <div class="card-content">
             <span class="card-category">Strategy</span>
             <h2 class="card-title">Why Centralized Digital Hubs Are Replacing Traditional Websites for Vendors</h2>
@@ -900,9 +727,8 @@
         </div>
     </main>
 
-    
     <div class="footer">
-        <a href="/" class="footer-brand"><img src="/icons/icon.svg" alt="MyShub" /> MyShub</a>
+        <a href="/" class="footer-brand"><img src="../icons/icon.svg" alt="MyShub" /> MyShub</a>
         <div class="footer-links">
             <a href="/">Home</a>
             <a href="/discover.html">Discover</a>
@@ -914,36 +740,22 @@
         </div>
         <div class="footer-company">
             <p>Powered by <strong>MyShub</strong> — a product of <a href="https://emltechstudio.site" target="_blank">EML Tech Studio</a></p>
-            <p style="margin-top:8px;font-size:.85rem;">Need help? <a href="mailto:emltechstudio@gmail.com"> Send us an email</a> · Built for businesses worldwide</p>
         </div>
     </div>
-    <script>
-        document.getElementById('menuToggle').addEventListener('click', function() {
-            document.getElementById('navLinks').classList.toggle('active');
-        });
-        window.addEventListener('scroll', () => {
-            const nav = document.getElementById('navbar');
-            if (window.scrollY > 50) nav.classList.add('scrolled');
-            else nav.classList.remove('scrolled');
-        });
-    </script>
-
 
     <script>
         const searchInput = document.getElementById('blogSearch');
         const blogCards = document.querySelectorAll('.blog-card');
-
         searchInput.addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
             blogCards.forEach(card => {
                 const title = card.querySelector('.card-title').innerText.toLowerCase();
-                const excerpt = card.querySelector('.card-excerpt').innerText.toLowerCase();
-                if (title.includes(term) || excerpt.includes(term)) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
+                if (title.includes(term)) { card.style.display = 'flex'; }
+                else { card.style.display = 'none'; }
             });
+        });
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('navLinks').classList.toggle('active');
         });
     </script>
 </body>
