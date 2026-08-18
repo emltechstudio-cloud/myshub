@@ -573,7 +573,8 @@
     }
 
     if (type === 'custom_links') {
-      const customLinks = clicks.custom_links || {};
+      // Live API uses custom_links; retain custom as a safe legacy fallback.
+      const customLinks = clicks.custom_links || clicks.custom || {};
       const entries = Object.entries(customLinks).sort((a, b) => b[1] - a[1]);
       const total = entries.reduce((sum, [, count]) => sum + count, 0);
       if (entries.length === 0) {
@@ -623,8 +624,9 @@
     }
     if (a.clicks) {
       csv += `\nCatalog Clicks,${a.clicks.catalog || 0}`;
-      if (a.clicks.custom_links) {
-        Object.entries(a.clicks.custom_links).forEach(([k, v]) => {
+      const exportedCustomLinks = a.clicks.custom_links || a.clicks.custom || {};
+      if (Object.keys(exportedCustomLinks).length > 0) {
+        Object.entries(exportedCustomLinks).forEach(([k, v]) => {
           csv += `\nCustom Link (${k}),${v}`;
         });
       }

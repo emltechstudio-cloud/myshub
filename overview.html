@@ -198,6 +198,16 @@
     .stat-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
     .stat-item .stat-number { font-size: 24px; font-weight: 800; color: var(--brand); line-height: 1.2; }
     .stat-item .stat-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+    .click-summary { margin-bottom: 16px; }
+    .click-summary-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:12px; }
+    .click-summary-title { font-size:14px; font-weight:800; }
+    .click-summary-sub { font-size:11px; color:var(--text-secondary); margin-top:3px; line-height:1.35; }
+    .click-mini-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; }
+    .click-mini { background:var(--surface-hover); border:1px solid var(--border); border-radius:12px; padding:10px 8px; text-align:center; }
+    .click-mini-number { font-size:18px; font-weight:800; color:var(--brand); }
+    .click-mini-label { font-size:10px; color:var(--text-tertiary); margin-top:3px; }
+    .click-empty { background:var(--surface-hover); border:1px dashed var(--border); border-radius:14px; padding:13px; color:var(--text-secondary); font-size:12px; line-height:1.45; }
+    @media (max-width: 520px) { .click-mini-grid { grid-template-columns:repeat(2, 1fr); } }
 
     .cta-grid {
       display: grid;
@@ -712,6 +722,13 @@
     const today = todayVisits || 0;
     const shopUrl = APP_URL + '/' + session.slug;
     const logo = sj.logo_url || '';
+    const clickData = sj.analytics?.clicks || {};
+    const socialClickCount = Object.values(clickData.socials || {}).reduce((sum, value) => sum + Number(value || 0), 0);
+    const customClickData = clickData.custom_links || clickData.custom || {};
+    const customClickCount = Object.values(customClickData).reduce((sum, value) => sum + Number(value || 0), 0);
+    const catalogClickCount = Number(clickData.catalog || 0);
+    const whatsappClickCount = Number(clickData.whatsapp || 0);
+    const totalClickCount = socialClickCount + customClickCount + catalogClickCount + whatsappClickCount;
 
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
@@ -808,6 +825,22 @@
         <div class="stat-item"><div class="stat-number">${fmt(total)}</div><div class="stat-label">Total visits</div></div>
         <div class="stat-item"><div class="stat-number">${fmt(today)}</div><div class="stat-label">Today</div></div>
         <div class="stat-item"><div class="stat-number">${referralCount}</div><div class="stat-label">Referrals this month</div></div>
+      </div>
+    `;
+
+    // ---- Customer Actions Summary ----
+    html += `
+      <div class="card click-summary">
+        <div class="click-summary-head">
+          <div><div class="click-summary-title">Customer actions</div><div class="click-summary-sub">See how visitors interact with your socials, links, catalogue, and contact buttons.</div></div>
+          <button class="btn btn-ghost btn-sm" onclick="navigate('analytics')"><i class="fa-solid fa-chart-line"></i> Details</button>
+        </div>
+        ${totalClickCount > 0 ? `<div class="click-mini-grid">
+          <div class="click-mini"><div class="click-mini-number">${fmt(totalClickCount)}</div><div class="click-mini-label">Total clicks</div></div>
+          <div class="click-mini"><div class="click-mini-number">${fmt(socialClickCount)}</div><div class="click-mini-label">Socials</div></div>
+          <div class="click-mini"><div class="click-mini-number">${fmt(catalogClickCount)}</div><div class="click-mini-label">Catalog</div></div>
+          <div class="click-mini"><div class="click-mini-number">${fmt(customClickCount + whatsappClickCount)}</div><div class="click-mini-label">Links & contact</div></div>
+        </div>` : `<div class="click-empty"><i class="fa-solid fa-circle-info"></i> No tracked customer actions yet. When visitors tap your social icons, custom links, catalog, or contact buttons, the activity will appear here. <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="navigate('preview')"><i class="fa-solid fa-eye"></i> View your shop</button></div>`}
       </div>
     `;
 

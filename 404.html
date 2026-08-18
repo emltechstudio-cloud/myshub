@@ -1232,30 +1232,64 @@
 
         // CLICK TRACKING (Pro/Premium only)
         const CLICK_TRACKING = {
-            slug: '', plan: 'free', buffer: [], timer: null, INTERVAL: 30000,
+            slug: '', plan: 'free', buffer: [], exitSent: false, flushing: false,
             init(slug, plan) {
-                this.slug = slug; this.plan = plan;
+                this.slug = slug;
+                this.plan = plan;
+                this.exitSent = false;
+                this.flushing = false;
+                this.buffer = [];
                 if (plan === 'free') return;
                 const saved = localStorage.getItem('myshub_clicks_' + slug);
-                if (saved) { try { this.buffer = JSON.parse(saved); } catch(e) {} }
-                this.timer = setInterval(() => this.flush(), this.INTERVAL);
-                window.addEventListener('beforeunload', () => this.flush(true));
-                window.addEventListener('pagehide', () => this.flush(true));
+                if (saved) { try { this.buffer = JSON.parse(saved) || []; } catch(e) { this.buffer = []; } }
+                const sendOnExit = () => {
+                    if (this.exitSent) return;
+                    this.exitSent = true;
+                    this.flush(true);
+                };
+                window.addEventListener('pagehide', sendOnExit, { once: true });
+                window.addEventListener('beforeunload', sendOnExit, { once: true });
             },
             track(type, detail) {
                 if (this.plan === 'free') return;
                 this.buffer.push({ type: type, detail: detail || '', ts: Date.now() });
                 localStorage.setItem('myshub_clicks_' + this.slug, JSON.stringify(this.buffer));
             },
+            clearSaved() {
+                this.buffer = [];
+                localStorage.removeItem('myshub_clicks_' + this.slug);
+            },
             flush(isBeacon) {
-                if (this.plan === 'free' || this.buffer.length === 0) return;
+                if (this.plan === 'free' || this.flushing || this.buffer.length === 0) return false;
                 const agg = {};
-                this.buffer.forEach(c => { const key = c.type + '|' + c.detail; agg[key] = (agg[key] || 0) + 1; });
-                const payload = Object.entries(agg).map(([key, count]) => { const parts = key.split('|'); return { type: parts[0], detail: parts[1] || '', count: count }; });
-                const url = API_BASE + '/shop/click/' + this.slug;
+                this.buffer.forEach(c => {
+                    const key = c.type + '|' + c.detail;
+                    agg[key] = (agg[key] || 0) + 1;
+                });
+                const payload = Object.entries(agg).map(([key, count]) => {
+                    const parts = key.split('|');
+                    return { type: parts[0], detail: parts[1] || '', count: count };
+                });
+                // The deployed router is mounted at /shop and the click route is
+                // /shop/click/{slug}, producing /shop/shop/click/{slug}.
+                const url = API_BASE + '/shop/shop/click/' + encodeURIComponent(this.slug);
                 const body = JSON.stringify({ clicks: payload });
-                if (isBeacon && navigator.sendBeacon) { navigator.sendBeacon(url, body); }
-                else { fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body }).then(() => { this.buffer = []; localStorage.removeItem('myshub_clicks_' + this.slug); }).catch(() => {}); }
+                if (isBeacon && navigator.sendBeacon) {
+                    const blob = new Blob([body], { type: 'application/json' });
+                    const accepted = navigator.sendBeacon(url, blob);
+                    if (accepted) this.clearSaved();
+                    return accepted;
+                }
+                this.flushing = true;
+                fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: body,
+                    keepalive: Boolean(isBeacon)
+                }).then(response => {
+                    if (response.ok) this.clearSaved();
+                }).catch(() => {}).finally(() => { this.flushing = false; });
+                return true;
             }
         };
         function attachClickTracking(plan) {
