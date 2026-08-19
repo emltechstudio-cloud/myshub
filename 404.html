@@ -1242,6 +1242,8 @@
                 if (plan === 'free') return;
                 const saved = localStorage.getItem('myshub_clicks_' + slug);
                 if (saved) { try { this.buffer = JSON.parse(saved) || []; } catch(e) { this.buffer = []; } }
+                // Retry clicks left by a failed request from a previous visit.
+                if (this.buffer.length) setTimeout(() => this.flush(false), 0);
                 const sendOnExit = () => {
                     if (this.exitSent) return;
                     this.exitSent = true;
@@ -1253,42 +1255,61 @@
             track(type, detail) {
                 if (this.plan === 'free') return;
                 this.buffer.push({ type: type, detail: detail || '', ts: Date.now() });
-                localStorage.setItem('myshub_clicks_' + this.slug, JSON.stringify(this.buffer));
+                this.persist();
+                // Send immediately. If another request is active, its completion
+                // automatically drains the queued click(s) without losing them.
+                this.flush(false);
             },
-            clearSaved() {
-                this.buffer = [];
-                localStorage.removeItem('myshub_clicks_' + this.slug);
+            persist() {
+                const key = 'myshub_clicks_' + this.slug;
+                if (this.buffer.length) localStorage.setItem(key, JSON.stringify(this.buffer));
+                else localStorage.removeItem(key);
             },
-            flush(isBeacon) {
-                if (this.plan === 'free' || this.flushing || this.buffer.length === 0) return false;
+            buildBatch(events) {
                 const agg = {};
-                this.buffer.forEach(c => {
+                events.forEach(c => {
                     const key = c.type + '|' + c.detail;
                     agg[key] = (agg[key] || 0) + 1;
                 });
-                const payload = Object.entries(agg).map(([key, count]) => {
+                return Object.entries(agg).map(([key, count]) => {
                     const parts = key.split('|');
                     return { type: parts[0], detail: parts[1] || '', count: count };
                 });
-                // The deployed router is mounted at /shop and the click route is
-                // /shop/click/{slug}, producing /shop/shop/click/{slug}.
+            },
+            flush(isBeacon) {
+                if (this.plan === 'free' || this.buffer.length === 0) return false;
+                if (this.flushing && !isBeacon) return false;
+                // Remove this batch from the retry queue before sending. If the
+                // normal request fails, it is put back in front of newer clicks.
+                const batch = this.buffer.splice(0, this.buffer.length);
+                this.persist();
+                const payload = this.buildBatch(batch);
                 const url = API_BASE + '/shop/shop/click/' + encodeURIComponent(this.slug);
                 const body = JSON.stringify({ clicks: payload });
                 if (isBeacon && navigator.sendBeacon) {
                     const blob = new Blob([body], { type: 'application/json' });
-                    const accepted = navigator.sendBeacon(url, blob);
-                    if (accepted) this.clearSaved();
-                    return accepted;
+                    if (!navigator.sendBeacon(url, blob)) {
+                        this.buffer = batch.concat(this.buffer);
+                        this.persist();
+                        return false;
+                    }
+                    return true;
                 }
                 this.flushing = true;
                 fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: body,
-                    keepalive: Boolean(isBeacon)
+                    keepalive: true
                 }).then(response => {
-                    if (response.ok) this.clearSaved();
-                }).catch(() => {}).finally(() => { this.flushing = false; });
+                    if (!response.ok) throw new Error('Click request failed: ' + response.status);
+                }).catch(() => {
+                    this.buffer = batch.concat(this.buffer);
+                    this.persist();
+                }).finally(() => {
+                    this.flushing = false;
+                    if (this.buffer.length && !this.exitSent) this.flush(false);
+                });
                 return true;
             }
         };
