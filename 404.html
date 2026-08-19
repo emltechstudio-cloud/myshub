@@ -1284,7 +1284,7 @@
                 const batch = this.buffer.splice(0, this.buffer.length);
                 this.persist();
                 const payload = this.buildBatch(batch);
-                const url = API_BASE + '/shop/shop/click/' + encodeURIComponent(this.slug);
+                const url = API_BASE + '/shop/click/' + encodeURIComponent(this.slug);
                 const body = JSON.stringify({ clicks: payload });
                 if (isBeacon && navigator.sendBeacon) {
                     const blob = new Blob([body], { type: 'application/json' });
