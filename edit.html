@@ -94,6 +94,22 @@
         .custom-link-card .link-info { flex: 1; min-width: 0; }
         .custom-link-card .link-info .link-title { font-weight: 700; font-size: 14px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .custom-link-card .link-info .link-url { font-size: 12px; color: var(--text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .custom-link-card .link-order-actions { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
+        .custom-link-card .link-order-actions button {
+            background: none;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .custom-link-card .link-order-actions button:hover:not(:disabled) { background: var(--brand-soft); color: var(--brand); }
+        .custom-link-card .link-order-actions button:disabled { opacity: 0.28; cursor: not-allowed; }
         .custom-link-card .link-actions { display: flex; gap: 4px; flex-shrink: 0; }
         .custom-link-card .link-actions button {
             background: none;
@@ -734,6 +750,18 @@
             return null;
         }
 
+        function persistSessionEmail(nextEmail) {
+            const normalized = String(nextEmail || '').trim().toLowerCase();
+            if (!normalized) return;
+            if (window.S) window.S.email = normalized;
+            try {
+                const raw = localStorage.getItem('myshub_session');
+                const session = raw ? JSON.parse(raw) : {};
+                session.email = normalized;
+                localStorage.setItem('myshub_session', JSON.stringify(session));
+            } catch (e) {}
+        }
+
         // ================================================================
         //  NAVIGATION
         // ================================================================
@@ -772,6 +800,7 @@
             const payload = {
                 email: session.email,
                 password: session.password,
+                new_email: formData.new_email || session.email,
                 business_name: formData.business_name || null,
                 tagline: formData.tagline || null,
                 description: formData.description || null,
@@ -906,6 +935,7 @@
                 phone: contact.phone || '',
                 whatsapp: contact.whatsapp || '',
                 email: contact.email || '',
+                country: nested.country || nested.country_name || '',
                 location: contact.location || '',
                 catalog_url: catalog.url || '',
                 lat: nested.lat,
@@ -943,6 +973,10 @@
                 const displayTitle = link.label || link.title || 'Untitled';
                 return `
                     <div class="custom-link-card">
+                        <div class="link-order-actions" aria-label="Reorder custom link">
+                            <button onclick="moveCustomLink(${idx}, -1)" title="Move up" aria-label="Move ${escapeHtml(displayTitle)} up" ${idx === 0 ? 'disabled' : ''}><i class="fa-solid fa-chevron-up"></i></button>
+                            <button onclick="moveCustomLink(${idx}, 1)" title="Move down" aria-label="Move ${escapeHtml(displayTitle)} down" ${idx === customLinks.length - 1 ? 'disabled' : ''}><i class="fa-solid fa-chevron-down"></i></button>
+                        </div>
                         <div class="link-icon">${iconContent}</div>
                         <div class="link-info">
                             <div class="link-title">${escapeHtml(displayTitle)}</div>
@@ -1180,6 +1214,15 @@
             renderEdit();
         }
 
+        function moveCustomLink(idx, direction) {
+            const nextIndex = idx + direction;
+            if (idx < 0 || idx >= customLinks.length || nextIndex < 0 || nextIndex >= customLinks.length) return;
+            const moved = customLinks.splice(idx, 1)[0];
+            customLinks.splice(nextIndex, 0, moved);
+            setDirty();
+            renderEdit();
+        }
+
         function addCustomLink() {
             const limit = currentPlan === 'premium' ? 999 : (currentPlan === 'pro' ? 5 : 2);
             if (customLinks.length >= limit) {
@@ -1345,7 +1388,17 @@
                     category = customCat;
                 }
 
+                const newEmail = document.getElementById('editEmail').value.trim().toLowerCase();
+                if (!newEmail) {
+                    toast('Email cannot be empty.', 'warning');
+                    btn.disabled = false;
+                    btn.classList.remove('loading');
+                    if (btnText) btnText.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Changes';
+                    return;
+                }
+
                 const formData = {
+                    new_email: newEmail,
                     business_name: document.getElementById('editBusinessName').value.trim(),
                     tagline: document.getElementById('editTagline').value.trim(),
                     description: document.getElementById('editDescription').value.trim(),
@@ -1372,7 +1425,10 @@
                     logo_url: tempLogoUrl || null
                 };
 
+                const previousEmail = (getSession()?.email || '').trim().toLowerCase();
                 const result = await saveShop(formData);
+                const savedEmail = String(result.email || formData.new_email || previousEmail).trim().toLowerCase();
+                if (savedEmail && savedEmail !== previousEmail) persistSessionEmail(savedEmail);
                 if (window.MyShubAnalytics && window.S && window.S.slug) {
                     MyShubAnalytics.profileCompleted(window.S.slug);
                 }
@@ -1383,7 +1439,7 @@
                 if (result.shop_json) {
                     const flat = flattenShopJson(result.shop_json);
                     shopJson = flat;
-                    shopData = { ...(shopData || {}), shop_json: flat, plan: result.plan || currentPlan };
+                    shopData = { ...(shopData || {}), shop_json: flat, country: flat.country || document.getElementById('editCountry').value.trim(), plan: result.plan || currentPlan };
                     currentPlan = result.plan || currentPlan;
                     socials = { ...(flat.socials || {}) };
                     customLinks = Array.isArray(flat.custom_links)
@@ -1401,7 +1457,8 @@
                         const data = await fetchShopData(session);
                         if (data) {
                             shopData = data;
-                            shopJson = data.shop_json || {};
+                            shopJson = { ...(data.shop_json || {}) };
+                            if (!shopJson.country && data.country) shopJson.country = data.country;
                             currentPlan = data.plan || session.plan || 'free';
                             socials = { ...(shopJson.socials || {}) };
                             if (shopJson.custom_links) {
@@ -1565,6 +1622,11 @@
                 <div class="card">
                     <div class="card-title">Basic Information</div>
                     <div class="form-group">
+                        <label>Account Email <span class="required">*</span></label>
+                        <input type="email" id="editEmail" class="form-input" value="${escapeHtml(sj.email || getSession()?.email || '')}" placeholder="you@example.com" autocomplete="email" oninput="markDirty()" />
+                        <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">This updates the email you use to sign in and the contact email shown for your shop.</div>
+                    </div>
+                    <div class="form-group">
                         <label>Business Name <span class="required">*</span></label>
                         <input type="text" id="editBusinessName" class="form-input" value="${escapeHtml(sj.business_name || '')}" placeholder="My Business" oninput="markDirty()" />
                     </div>
@@ -1614,7 +1676,7 @@
                     </div>
                     <div class="form-group">
                         <label>Country</label>
-                        <input type="text" id="editCountry" class="form-input" value="${escapeHtml(sj.country || sj.country_name || '')}" placeholder="e.g. Nigeria" autocomplete="country-name" oninput="markDirty()" />
+                        <input type="text" id="editCountry" class="form-input" value="${escapeHtml(sj.country || sj.country_name || (shopData && shopData.country) || '')}" placeholder="e.g. Nigeria" autocomplete="country-name" oninput="markDirty()" />
                         <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">You can edit this value; leave it blank only if you want the backend fallback.</div>
                     </div>
                     <div class="form-row">
@@ -1804,8 +1866,9 @@
 
                 // Use shell's shop data if already available
                 if (window.S.shopJson && typeof window.S.shopJson === 'object') {
-                    shopJson = window.S.shopJson;
+                    shopJson = { ...(window.S.shopJson || {}) };
                     shopData = window.S.shopData || null;
+                    if (!shopJson.country && shopData && shopData.country) shopJson.country = shopData.country;
                     currentPlan = window.S.plan || session.plan || 'free';
                     socials = { ...(shopJson.socials || {}) };
                     if (shopJson.custom_links) {
@@ -1827,7 +1890,8 @@
                 const data = await fetchShopData(session);
                 if (data) {
                     shopData = data;
-                    shopJson = data.shop_json || {};
+                    shopJson = { ...(data.shop_json || {}) };
+                    if (!shopJson.country && data.country) shopJson.country = data.country;
                     currentPlan = data.plan || session.plan || 'free';
                     window.S.plan = currentPlan;
                     window.S.shopJson = shopJson;
@@ -1869,6 +1933,7 @@
         window.addCustomLink = addCustomLink;
         window.editCustomLink = editCustomLink;
         window.removeCustomLink = removeCustomLink;
+        window.moveCustomLink = moveCustomLink;
         window.handleLogoSelect = handleLogoSelect;
         window.useMyLocation = useMyLocation;
         window.saveEdit = saveEdit;
