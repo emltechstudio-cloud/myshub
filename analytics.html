@@ -5,81 +5,109 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Analytics – MyShub</title>
   <style>
-    .analytics-page { padding: 0; color: var(--text, #0f172a); }
-    .analytics-page * { box-sizing: border-box; }
-    .analytics-header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:18px; }
-    .analytics-header h2 { margin:0; font-size:24px; font-weight:850; letter-spacing:-.02em; }
-    .analytics-header p { margin:5px 0 0; color:var(--text-secondary,#64748b); font-size:13px; }
-    .plan-pill { display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:7px 11px; background:var(--brand-soft,#eff6ff); color:var(--brand,#2563eb); font-size:11px; font-weight:800; white-space:nowrap; }
-    .plan-pill.premium { background:#fff7ed; color:#c2410c; }
-    .period-bar { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; padding:10px; margin-bottom:16px; border:1px solid var(--border,#e2e8f0); border-radius:16px; background:var(--surface,#fff); }
-    .period-buttons { display:flex; gap:6px; flex-wrap:wrap; }
-    .period-button { border:1px solid transparent; background:transparent; color:var(--text-secondary,#64748b); border-radius:10px; padding:8px 12px; font-size:12px; font-weight:750; cursor:pointer; }
-    .period-button:hover { background:var(--surface-hover,#f8fafc); color:var(--text,#0f172a); }
-    .period-button.active { background:var(--brand,#2563eb); color:#fff; }
-    .period-button.locked { opacity:.55; }
-    .updated-note { font-size:11px; color:var(--text-tertiary,#94a3b8); }
-    .summary-grid { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:12px; margin-bottom:16px; }
-    .stat-card, .analytics-card { background:var(--surface,#fff); border:1px solid var(--border,#e2e8f0); border-radius:18px; box-shadow:0 2px 9px rgba(15,23,42,.035); }
-    .stat-card { padding:16px; min-height:116px; }
-    .stat-label { color:var(--text-secondary,#64748b); font-size:11px; font-weight:750; text-transform:uppercase; letter-spacing:.045em; }
-    .stat-value { margin-top:9px; font-size:27px; line-height:1.1; font-weight:900; letter-spacing:-.025em; color:var(--brand,#2563eb); }
-    .stat-help { margin-top:7px; color:var(--text-tertiary,#94a3b8); font-size:11px; }
-    .change-up { color:#15803d; font-weight:800; }
-    .change-down { color:#b91c1c; font-weight:800; }
+    .analytics-page { --a-ink:#0f172a; --a-muted:#64748b; --a-soft:#f8fafc; --a-line:#e2e8f0; --a-brand:#2563eb; --a-brand-2:#7c3aed; --a-orange:#ea580c; --a-green:#059669; --a-card:#fff; color:var(--text,var(--a-ink)); padding:0; }
+    .analytics-page * { box-sizing:border-box; }
+    [data-theme="dark"] .analytics-page { --a-ink:#f8fafc; --a-muted:#94a3b8; --a-soft:#111827; --a-line:#334155; --a-card:#1e293b; }
+    .analytics-hero { position:relative; overflow:hidden; padding:22px; margin-bottom:16px; border-radius:22px; color:#fff; background:linear-gradient(135deg,#172554 0%,#1d4ed8 53%,#7c3aed 100%); box-shadow:0 14px 35px rgba(37,99,235,.18); }
+    .analytics-hero:after { content:""; position:absolute; width:190px; height:190px; right:-55px; top:-75px; border-radius:50%; background:rgba(255,255,255,.12); }
+    .hero-top { position:relative; z-index:1; display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
+    .hero-kicker { margin:0 0 7px; color:rgba(255,255,255,.7); font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    .hero-title { margin:0; font-size:28px; font-weight:900; letter-spacing:-.035em; }
+    .hero-copy { max-width:580px; margin:8px 0 0; color:rgba(255,255,255,.8); font-size:13px; line-height:1.55; }
+    .hero-badge { display:inline-flex; align-items:center; gap:7px; padding:8px 12px; border:1px solid rgba(255,255,255,.24); border-radius:999px; background:rgba(255,255,255,.14); color:#fff; font-size:11px; font-weight:850; white-space:nowrap; }
+    .hero-bottom { position:relative; z-index:1; display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:20px; flex-wrap:wrap; }
+    .period-bar { display:flex; align-items:center; gap:6px; padding:5px; border:1px solid rgba(255,255,255,.2); border-radius:13px; background:rgba(15,23,42,.2); }
+    .period-button { border:0; border-radius:9px; padding:8px 11px; background:transparent; color:rgba(255,255,255,.72); font-size:11px; font-weight:800; cursor:pointer; }
+    .period-button:hover { background:rgba(255,255,255,.12); color:#fff; }
+    .period-button.active { background:#fff; color:#1d4ed8; box-shadow:0 3px 10px rgba(15,23,42,.14); }
+    .period-button.locked { opacity:.48; }
+    .updated-note { color:rgba(255,255,255,.68); font-size:11px; }
+    .summary-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:16px; }
+    .stat-card, .analytics-card { border:1px solid var(--a-line); border-radius:18px; background:var(--a-card); box-shadow:0 3px 12px rgba(15,23,42,.045); }
+    .stat-card { min-height:126px; padding:17px; }
+    .stat-label { display:flex; align-items:center; gap:7px; color:var(--a-muted); font-size:11px; font-weight:850; letter-spacing:.05em; text-transform:uppercase; }
+    .stat-icon { display:inline-flex; width:24px; height:24px; align-items:center; justify-content:center; border-radius:8px; background:#eff6ff; color:var(--a-brand); font-size:12px; }
+    .stat-value { margin-top:12px; color:var(--a-brand); font-size:28px; line-height:1; font-weight:950; letter-spacing:-.04em; font-variant-numeric:tabular-nums; }
+    .stat-help { margin-top:9px; color:var(--a-muted); font-size:11px; }
+    .change-up { color:#15803d!important; }
+    .change-down { color:#b91c1c!important; }
     .analytics-card { padding:18px; margin-bottom:16px; }
-    .card-heading { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:12px; }
-    .card-heading h3 { margin:0; font-size:16px; font-weight:850; }
-    .card-heading p { margin:4px 0 0; color:var(--text-secondary,#64748b); font-size:12px; line-height:1.45; }
-    .card-badge { border-radius:999px; padding:4px 8px; font-size:10px; font-weight:800; white-space:nowrap; background:var(--brand-soft,#eff6ff); color:var(--brand,#2563eb); }
+    .card-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:14px; }
+    .card-heading h3 { margin:0; color:var(--a-ink); font-size:17px; font-weight:900; letter-spacing:-.02em; }
+    .card-heading p { margin:5px 0 0; color:var(--a-muted); font-size:12px; line-height:1.5; }
+    .card-badge { display:inline-flex; padding:5px 9px; border-radius:999px; background:#eff6ff; color:var(--a-brand); font-size:10px; font-weight:850; white-space:nowrap; }
     .card-badge.premium { background:#fff7ed; color:#c2410c; }
-    .trend-chart { display:flex; align-items:flex-end; gap:5px; height:190px; padding:10px 2px 0; overflow-x:auto; }
-    .trend-bar { min-width:24px; flex:1; height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:4px; }
-    .bar-value { font-size:9px; color:var(--text-secondary,#64748b); white-space:nowrap; }
-    .bar-track { width:100%; max-width:32px; height:145px; border-radius:7px 7px 2px 2px; background:var(--border-light,#f1f5f9); display:flex; align-items:flex-end; overflow:hidden; }
-    .bar-stack { width:100%; display:flex; flex-direction:column; justify-content:flex-end; }
-    .bar-visits { background:linear-gradient(180deg,#3b82f6,#2563eb); }
-    .bar-actions { background:linear-gradient(180deg,#f59e0b,#ea580c); }
-    .bar-label { max-width:48px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text-tertiary,#94a3b8); font-size:9px; }
-    .legend { display:flex; gap:14px; flex-wrap:wrap; margin-top:12px; color:var(--text-secondary,#64748b); font-size:11px; }
-    .legend span { display:inline-flex; align-items:center; gap:5px; }
+    .trend-wrap { overflow-x:auto; }
+    .trend-chart { display:flex; align-items:flex-end; gap:5px; min-width:520px; height:214px; padding:16px 4px 4px; }
+    .trend-bar { min-width:25px; flex:1; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:5px; }
+    .trend-value { min-height:13px; color:var(--a-muted); font-size:9px; font-weight:800; }
+    .bar-track { display:flex; align-items:flex-end; width:100%; max-width:32px; height:160px; overflow:hidden; border-radius:8px 8px 3px 3px; background:var(--a-soft); }
+    .bar-stack { display:flex; flex-direction:column; justify-content:flex-end; width:100%; }
+    .bar-visits { background:linear-gradient(180deg,#60a5fa,#2563eb); }
+    .bar-actions { background:linear-gradient(180deg,#fb923c,#ea580c); }
+    .bar-label { max-width:52px; overflow:hidden; color:var(--a-muted); font-size:9px; text-overflow:ellipsis; white-space:nowrap; }
+    .legend { display:flex; flex-wrap:wrap; gap:16px; margin-top:12px; color:var(--a-muted); font-size:11px; }
+    .legend span { display:inline-flex; align-items:center; gap:6px; }
     .legend i { display:inline-block; width:9px; height:9px; border-radius:3px; }
-    .legend .visits-dot { background:#2563eb; }
-    .legend .actions-dot { background:#ea580c; }
+    .visits-dot { background:#2563eb; }
+    .actions-dot { background:#ea580c; }
     .two-col { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
-    .metric-list { display:flex; flex-direction:column; gap:10px; }
-    .metric-row { display:grid; grid-template-columns:minmax(90px,1fr) minmax(70px,1.5fr) auto; gap:10px; align-items:center; font-size:12px; }
-    .metric-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text,#0f172a); }
-    .metric-track { height:8px; border-radius:99px; background:var(--border-light,#f1f5f9); overflow:hidden; }
-    .metric-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,var(--brand,#2563eb),#7c3aed); }
-    .metric-value { min-width:76px; text-align:right; color:var(--text-secondary,#64748b); font-variant-numeric:tabular-nums; }
-    .breakdown-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
-    .breakdown-item { padding:12px; border:1px solid var(--border-light,#f1f5f9); border-radius:13px; background:var(--surface-hover,#f8fafc); }
-    .breakdown-item .name { color:var(--text-secondary,#64748b); font-size:11px; text-transform:capitalize; }
-    .breakdown-item .number { margin-top:6px; font-size:22px; font-weight:850; }
-    .breakdown-item .percent { margin-top:3px; font-size:11px; color:var(--text-tertiary,#94a3b8); }
+    .four-col { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+    .click-tile { min-height:106px; padding:14px; border:1px solid var(--a-line); border-radius:15px; background:var(--a-soft); }
+    .click-tile-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .click-tile-name { color:var(--a-muted); font-size:11px; font-weight:800; }
+    .click-tile-icon { display:inline-flex; width:27px; height:27px; align-items:center; justify-content:center; border-radius:9px; background:#fff; color:var(--a-brand); font-size:12px; }
+    [data-theme="dark"] .click-tile-icon { background:#334155; }
+    .click-tile-number { margin-top:10px; color:var(--a-ink); font-size:25px; font-weight:950; font-variant-numeric:tabular-nums; }
+    .click-tile-percent { margin-top:4px; color:var(--a-muted); font-size:10px; }
+    .metric-list { display:flex; flex-direction:column; gap:12px; }
+    .metric-row { display:grid; grid-template-columns:minmax(115px,1fr) minmax(80px,1.6fr) auto; align-items:center; gap:10px; font-size:12px; }
+    .metric-name { overflow:hidden; color:var(--a-ink); text-overflow:ellipsis; white-space:nowrap; }
+    .metric-track { height:8px; overflow:hidden; border-radius:99px; background:var(--a-soft); }
+    .metric-fill { height:100%; min-width:3px; border-radius:99px; background:linear-gradient(90deg,var(--a-brand),var(--a-brand-2)); }
+    .metric-value { min-width:80px; color:var(--a-muted); text-align:right; font-size:11px; font-variant-numeric:tabular-nums; }
+    .detail-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+    .detail-card { min-width:0; padding:16px; border:1px solid var(--a-line); border-radius:16px; background:var(--a-card); }
+    .detail-card h4 { margin:0; color:var(--a-ink); font-size:14px; font-weight:900; }
+    .detail-card p { margin:4px 0 13px; color:var(--a-muted); font-size:11px; line-height:1.45; }
+    .detail-table-wrap { overflow-x:auto; }
+    .detail-table { width:100%; border-collapse:collapse; font-size:11px; }
+    .detail-table th { padding:8px 0; border-bottom:1px solid var(--a-line); color:var(--a-muted); text-align:left; font-size:10px; font-weight:850; text-transform:uppercase; }
+    .detail-table th:last-child, .detail-table td:last-child { text-align:right; }
+    .detail-table td { max-width:180px; padding:10px 0; border-bottom:1px solid var(--a-line); color:var(--a-ink); vertical-align:middle; }
+    .detail-table tr:last-child td { border-bottom:0; }
+    .detail-table .detail-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .detail-table .detail-bar-cell { width:34%; padding-left:10px; }
+    .mini-track { height:6px; overflow:hidden; border-radius:99px; background:var(--a-soft); }
+    .mini-fill { height:100%; min-width:3px; border-radius:99px; background:linear-gradient(90deg,#8b5cf6,#2563eb); }
+    .daily-wrap { overflow:auto; border:1px solid var(--a-line); border-radius:13px; }
+    .daily-table { width:100%; min-width:690px; border-collapse:collapse; font-size:11px; }
+    .daily-table th { padding:11px 12px; background:var(--a-soft); color:var(--a-muted); text-align:left; font-size:10px; font-weight:850; text-transform:uppercase; white-space:nowrap; }
+    .daily-table td { padding:11px 12px; border-top:1px solid var(--a-line); color:var(--a-ink); white-space:nowrap; }
+    .daily-table td:not(:first-child) { font-variant-numeric:tabular-nums; }
+    .daily-table .total { font-weight:900; color:var(--a-brand); }
     .insight-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
-    .insight { padding:13px; border-left:3px solid var(--brand,#2563eb); border-radius:10px; background:var(--surface-hover,#f8fafc); color:var(--text-secondary,#475569); font-size:12px; line-height:1.5; }
-    .insight strong { color:var(--text,#0f172a); }
-    .locked-box { position:relative; overflow:hidden; min-height:140px; }
-    .locked-content { filter:blur(4px); opacity:.55; pointer-events:none; }
-    .locked-overlay { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; padding:20px; text-align:center; background:rgba(255,255,255,.74); backdrop-filter:blur(2px); color:var(--text-secondary,#64748b); font-size:12px; font-weight:700; }
-    [data-theme="dark"] .locked-overlay { background:rgba(15,23,42,.84); }
-    .upgrade-button, .export-button { border:0; border-radius:10px; padding:8px 13px; color:#fff; background:var(--brand,#2563eb); font-size:12px; font-weight:800; cursor:pointer; }
+    .insight { padding:14px; border-left:3px solid var(--a-brand); border-radius:11px; background:var(--a-soft); color:var(--a-muted); font-size:12px; line-height:1.55; }
+    .insight strong { color:var(--a-ink); }
+    .locked-box { position:relative; min-height:160px; overflow:hidden; }
+    .locked-content { filter:blur(4px); opacity:.48; pointer-events:none; }
+    .locked-overlay { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:20px; border-radius:15px; background:rgba(255,255,255,.8); color:var(--a-muted); text-align:center; font-size:12px; font-weight:800; backdrop-filter:blur(3px); }
+    [data-theme="dark"] .locked-overlay { background:rgba(15,23,42,.86); }
+    .upgrade-button, .export-button, .retry-button { border:0; border-radius:10px; padding:9px 14px; background:var(--a-brand); color:#fff; font-size:11px; font-weight:850; cursor:pointer; }
     .export-row { display:flex; justify-content:flex-end; gap:8px; }
-    .empty { padding:22px 6px; color:var(--text-tertiary,#94a3b8); text-align:center; font-size:12px; }
-    .error-state { padding:55px 20px; text-align:center; color:var(--text-secondary,#64748b); }
-    .error-state h3 { margin:0 0 7px; color:var(--text,#0f172a); }
-    .loading { padding:55px 20px; text-align:center; color:var(--text-secondary,#64748b); }
-    .spinner { width:34px; height:34px; margin:0 auto 12px; border:4px solid var(--border,#e2e8f0); border-top-color:var(--brand,#2563eb); border-radius:50%; animation:spin .9s linear infinite; }
+    .empty { padding:25px 8px; color:var(--a-muted); text-align:center; font-size:12px; }
+    .loading, .error-state { padding:65px 20px; color:var(--a-muted); text-align:center; }
+    .error-state h3 { margin:0 0 8px; color:var(--a-ink); }
+    .spinner { width:34px; height:34px; margin:0 auto 12px; border:4px solid var(--a-line); border-top-color:var(--a-brand); border-radius:50%; animation:spin .9s linear infinite; }
     @keyframes spin { to { transform:rotate(360deg); } }
-    @media (max-width:800px) { .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));} .two-col{grid-template-columns:1fr;} .breakdown-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
-    @media (max-width:520px) { .analytics-header{display:block;} .plan-pill{margin-top:12px;} .summary-grid{gap:8px;} .stat-card{padding:13px;min-height:105px;} .stat-value{font-size:23px;} .analytics-card{padding:14px;} .insight-list{grid-template-columns:1fr;} .metric-row{grid-template-columns:90px minmax(60px,1fr) auto;gap:6px;} }
+    @media (max-width:900px) { .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));} .four-col{grid-template-columns:repeat(2,minmax(0,1fr));} }
+    @media (max-width:700px) { .hero-top{display:block;} .hero-badge{margin-top:14px;} .hero-bottom{display:block;} .period-bar{width:max-content;max-width:100%;overflow:auto;} .updated-note{display:block;margin-top:10px;} .two-col,.detail-grid{grid-template-columns:1fr;} .insight-list{grid-template-columns:1fr;} }
+    @media (max-width:520px) { .analytics-hero{padding:17px;border-radius:17px;} .hero-title{font-size:24px;} .summary-grid{gap:8px;} .stat-card{min-height:110px;padding:13px;} .stat-value{font-size:23px;} .analytics-card{padding:14px;} .metric-row{grid-template-columns:94px minmax(60px,1fr) auto;gap:6px;} .metric-value{min-width:64px;font-size:10px;} .four-col{gap:8px;} .click-tile{padding:11px;} }
   </style>
 </head>
 <body>
   <main class="analytics-page" id="analyticsApp">
-    <div class="loading"><div class="spinner"></div>Loading analytics…</div>
+    <div class="loading"><div class="spinner"></div>Loading your analytics…</div>
   </main>
   <script>
   (function () {
@@ -88,146 +116,225 @@
     const API = window.API || 'https://emltechstudio-myshub-api.hf.space';
     const state = { period: '30d', plan: 'free', data: null, session: null };
 
-    function session() {
+    function getSession() {
       if (window.S && window.S.email) return window.S;
       try { return JSON.parse(localStorage.getItem('myshub_session') || 'null'); } catch (_) { return null; }
     }
     function esc(value) {
-      return String(value == null ? '' : value).replace(/[&<>"']/g, function (m) {
-        return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[m];
-      });
+      return String(value == null ? '' : value).replace(/[&<>"']/g, function (m) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]; });
     }
-    function number(value) { return Number(value || 0).toLocaleString(); }
-    function pct(value) { return (Number(value || 0).toFixed(1)).replace('.0','') + '%'; }
-    function planName(plan) { return plan === 'premium' ? 'Premium analytics' : plan === 'pro' ? 'Pro analytics' : 'Basic analytics'; }
+    function num(value) { return Number(value || 0).toLocaleString(); }
+    function rawNum(value) { return Number(value || 0); }
+    function percent(value) { return rawNum(value).toFixed(1).replace('.0','') + '%'; }
+    function shortDate(value) { try { return new Date(value + 'T00:00:00Z').toLocaleDateString(undefined, { month:'short', day:'numeric' }); } catch (_) { return value; } }
     function navigate(page) { if (typeof window.loadPage === 'function') window.loadPage(page); }
-    function notify(message, type) { if (typeof window.toast === 'function') window.toast(message, type); else alert(message); }
+    function notify(message, type) { if (typeof window.toast === 'function') window.toast(message, type); }
+    function isPro() { return state.plan === 'pro' || state.plan === 'premium'; }
+    function isPremium() { return state.plan === 'premium'; }
+    function planLabel() { return isPremium() ? 'Premium analytics' : isPro() ? 'Pro analytics' : 'Basic analytics'; }
+
+    function emptyClicks() { return { catalog:0, whatsapp:0, socials:{}, custom_links:{} }; }
+    function addMap(target, source) {
+      if (!source || typeof source !== 'object') return;
+      Object.keys(source).forEach(function (key) { target[key] = rawNum(target[key]) + rawNum(source[key]); });
+    }
+    function addClicks(target, source) {
+      if (!source || typeof source !== 'object') return;
+      target.catalog += rawNum(source.catalog);
+      target.whatsapp += rawNum(source.whatsapp);
+      addMap(target.socials, source.socials);
+      addMap(target.custom_links, source.custom_links || source.custom);
+    }
+    function periodClicks(data) {
+      const summaryClicks = data && data.summary && data.summary.clicks;
+      const clicks = emptyClicks();
+      if (summaryClicks && typeof summaryClicks === 'object') addClicks(clicks, summaryClicks);
+      if (clickTotal(clicks) === 0 && data && Array.isArray(data.daily)) data.daily.forEach(function (row) { addClicks(clicks, row.clicks); });
+      return clicks;
+    }
+    function clickTotal(clicks) { return rawNum(clicks.catalog) + rawNum(clicks.whatsapp) + Object.values(clicks.socials || {}).reduce(function(a,b){return a+rawNum(b);},0) + Object.values(clicks.custom_links || {}).reduce(function(a,b){return a+rawNum(b);},0); }
+    function categoryRows(clicks) {
+      const social = Object.values(clicks.socials || {}).reduce(function(a,b){return a+rawNum(b);},0);
+      const custom = Object.values(clicks.custom_links || {}).reduce(function(a,b){return a+rawNum(b);},0);
+      return [
+        { key:'catalog', label:'Catalog', icon:'▣', value:rawNum(clicks.catalog), color:'#2563eb' },
+        { key:'whatsapp', label:'WhatsApp', icon:'◌', value:rawNum(clicks.whatsapp), color:'#059669' },
+        { key:'socials', label:'Socials', icon:'◎', value:social, color:'#7c3aed' },
+        { key:'custom_links', label:'Custom links', icon:'↗', value:custom, color:'#ea580c' }
+      ];
+    }
+    function valueEntries(map) {
+      return Object.entries(map || {}).map(function (entry) {
+        const value = entry[1];
+        return { name:entry[0], count:rawNum(value && typeof value === 'object' ? value.count : value), percentage:rawNum(value && typeof value === 'object' ? value.percentage : 0) };
+      }).sort(function(a,b){return b.count-a.count;});
+    }
+    function ensurePercentages(entries) {
+      const total = entries.reduce(function(a,b){return a+b.count;},0);
+      return entries.map(function(e){ return Object.assign({},e,{percentage:e.percentage || (total ? (e.count/total)*100 : 0)}); });
+    }
+    function topEntry(map) { return ensurePercentages(valueEntries(map))[0] || null; }
 
     async function load(period) {
       const s = state.session;
       if (!s || !s.slug || !s.email || !s.password) throw new Error('Please sign in to view your analytics.');
       const response = await fetch(API + '/shop/analytics/' + encodeURIComponent(s.slug) + '?period=' + encodeURIComponent(period), {
-        headers: { 'email': s.email, 'password': s.password, 'Accept': 'application/json' }
+        headers: { email:s.email, password:s.password, Accept:'application/json' }
       });
       if (!response.ok) throw new Error(response.status === 403 ? 'You are not allowed to view this shop analytics report.' : 'Analytics could not be loaded.');
       return response.json();
     }
 
-    function renderPeriodButtons() {
+    function periodButtons() {
       const items = [
         ['today','Today',false], ['7d','7 days',false], ['30d','30 days',false],
-        ['90d','90 days',state.plan === 'free'], ['365d','12 months',state.plan !== 'premium']
+        ['90d','90 days',!isPro()], ['365d','12 months',!isPro()], ['730d','2 years',!isPremium()]
       ];
-      return items.map(function (item) {
+      return items.map(function(item){
         const locked = item[2];
-        return '<button class="period-button ' + (state.period === item[0] ? 'active ' : '') + (locked ? 'locked' : '') + '" data-period="' + item[0] + '" ' + (locked ? 'title="Available on a higher plan"' : '') + '>' + item[1] + (locked ? ' ·' : '') + '</button>';
+        return '<button class="period-button ' + (state.period === item[0] ? 'active ' : '') + (locked ? 'locked' : '') + '" data-period="' + item[0] + '"' + (locked ? ' title="Available on a higher plan"' : '') + '>' + item[1] + (locked ? ' ·' : '') + '</button>';
       }).join('');
     }
 
-    function metricRows(data, emptyLabel) {
-      const entries = Object.entries(data || {}).map(function (entry) {
-        const key = entry[0], value = entry[1];
-        return [key, Number(value && typeof value === 'object' ? value.count : value) || 0, Number(value && typeof value === 'object' ? value.percentage : 0) || 0];
-      }).sort(function (a,b) { return b[1] - a[1]; });
-      if (!entries.length) return '<div class="empty">' + esc(emptyLabel || 'No data for this period yet.') + '</div>';
-      const max = Math.max.apply(null, entries.map(function (e) { return e[1]; }).concat([1]));
-      return '<div class="metric-list">' + entries.slice(0, 10).map(function (e) {
-        return '<div class="metric-row"><div class="metric-name" title="' + esc(e[0]) + '">' + esc(e[0]) + '</div><div class="metric-track"><div class="metric-fill" style="width:' + Math.max(3, (e[1] / max) * 100) + '%"></div></div><div class="metric-value">' + number(e[1]) + ' · ' + pct(e[2]) + '</div></div>';
+    function trendChart(rows) {
+      if (!rows || !rows.length) return '<div class="empty">No daily trend data is available for this period yet.</div>';
+      const max = Math.max.apply(null, rows.map(function(r){return Math.max(rawNum(r.visits),rawNum(r.actions));}).concat([1]));
+      return '<div class="trend-wrap"><div class="trend-chart">' + rows.map(function(row){
+        const visits=rawNum(row.visits), actions=rawNum(row.actions), height=Math.max(3,(Math.max(visits,actions)/max)*100), actionHeight=actions ? Math.max(4,(actions/Math.max(visits,actions))*100) : 0;
+        return '<div class="trend-bar" title="' + esc(shortDate(row.date) + ': ' + num(visits) + ' visits, ' + num(actions) + ' actions') + '"><div class="trend-value">' + num(visits) + '</div><div class="bar-track"><div class="bar-stack" style="height:' + height + '%"><div class="bar-actions" style="height:' + actionHeight + '%"></div><div class="bar-visits" style="height:' + Math.max(8,100-actionHeight) + '%"></div></div></div><div class="bar-label">' + esc(shortDate(row.date)) + '</div></div>';
+      }).join('') + '</div></div><div class="legend"><span><i class="visits-dot"></i>Visits</span><span><i class="actions-dot"></i>Tracked actions</span></div>';
+    }
+
+    function trimEntries(entries, limit, aggregateOthers) {
+      if (!limit || entries.length <= limit) return entries;
+      const visible = entries.slice(0, limit);
+      if (!aggregateOthers) return visible;
+      const othersCount = entries.slice(limit).reduce(function(total, entry){ return total + entry.count; }, 0);
+      if (othersCount > 0) {
+        const total = entries.reduce(function(sum, entry){ return sum + entry.count; }, 0);
+        visible.push({ name:'Others', count:othersCount, percentage:total ? (othersCount / total) * 100 : 0 });
+      }
+      return visible;
+    }
+
+    function metricList(map, emptyLabel, limit, aggregateOthers) {
+      const entries = trimEntries(ensurePercentages(valueEntries(map)), limit, aggregateOthers);
+      if (!entries.length) return '<div class="empty">' + esc(emptyLabel || 'No data recorded for this period yet.') + '</div>';
+      const max = Math.max.apply(null, entries.map(function(e){return e.count;}).concat([1]));
+      return '<div class="metric-list">' + entries.map(function(e){
+        return '<div class="metric-row"><div class="metric-name" title="' + esc(e.name) + '">' + esc(e.name) + '</div><div class="metric-track"><div class="metric-fill" style="width:' + Math.max(3,(e.count/max)*100) + '%"></div></div><div class="metric-value">' + num(e.count) + ' · ' + percent(e.percentage) + '</div></div>';
       }).join('') + '</div>';
     }
 
-    function breakdown(data) {
-      const entries = Object.entries(data || {});
-      if (!entries.length) return '<div class="empty">No actions recorded for this period yet.</div>';
-      return '<div class="breakdown-grid">' + entries.map(function (entry) {
-        const item = entry[1] || {};
-        return '<div class="breakdown-item"><div class="name">' + esc(entry[0].replace(/_/g,' ')) + '</div><div class="number">' + number(item.count) + '</div><div class="percent">' + pct(item.percentage) + ' of actions</div></div>';
+    function clickTiles(clicks) {
+      const total = clickTotal(clicks);
+      return '<div class="four-col">' + categoryRows(clicks).map(function(item){
+        return '<div class="click-tile"><div class="click-tile-top"><span class="click-tile-name">' + esc(item.label) + '</span><span class="click-tile-icon" style="color:' + item.color + '">' + item.icon + '</span></div><div class="click-tile-number">' + num(item.value) + '</div><div class="click-tile-percent">' + (total ? percent(item.value/total*100) : '0%') + ' of tracked clicks</div></div>';
       }).join('') + '</div>';
     }
 
-    function chart(rows) {
-      if (!rows || !rows.length) return '<div class="empty">No daily trend data yet.</div>';
-      const max = Math.max.apply(null, rows.map(function (r) { return Math.max(Number(r.visits || 0), Number(r.actions || 0)); }).concat([1]));
-      return '<div class="trend-chart">' + rows.map(function (row) {
-        const visits = Number(row.visits || 0), actions = Number(row.actions || 0);
-        const totalHeight = Math.max(3, (Math.max(visits, actions) / max) * 100);
-        const actionsHeight = actions ? Math.max(2, (actions / Math.max(visits, actions)) * 100) : 0;
-        const label = new Date(row.date + 'T00:00:00Z').toLocaleDateString(undefined, {month:'short', day:'numeric'});
-        return '<div class="trend-bar" title="' + esc(label) + ': ' + number(visits) + ' visits, ' + number(actions) + ' actions"><div class="bar-value">' + number(visits) + '</div><div class="bar-track"><div class="bar-stack" style="height:' + totalHeight + '%"><div class="bar-actions" style="height:' + actionsHeight + '%"></div><div class="bar-visits" style="height:' + Math.max(8, 100 - actionsHeight) + '%"></div></div></div><div class="bar-label">' + esc(label) + '</div></div>';
-      }).join('') + '</div><div class="legend"><span><i class="visits-dot"></i>Visits</span><span><i class="actions-dot"></i>Actions</span></div>';
+    function lockedClickPreview() {
+      return '<div class="four-col"><div class="click-tile"><div class="click-tile-top"><span class="click-tile-name">Catalog</span><span class="click-tile-icon">▣</span></div><div class="click-tile-number">—</div><div class="click-tile-percent">Pro detail</div></div><div class="click-tile"><div class="click-tile-top"><span class="click-tile-name">WhatsApp</span><span class="click-tile-icon">◌</span></div><div class="click-tile-number">—</div><div class="click-tile-percent">Pro detail</div></div><div class="click-tile"><div class="click-tile-top"><span class="click-tile-name">Socials</span><span class="click-tile-icon">◎</span></div><div class="click-tile-number">—</div><div class="click-tile-percent">Pro detail</div></div><div class="click-tile"><div class="click-tile-top"><span class="click-tile-name">Custom links</span><span class="click-tile-icon">↗</span></div><div class="click-tile-number">—</div><div class="click-tile-percent">Pro detail</div></div></div>';
     }
 
-    function insights(data) {
-      const summary = data.summary || {}, referrers = data.referrers || {}, countries = data.countries || {}, devices = data.devices || {};
-      const top = function (obj) { return Object.entries(obj).sort(function(a,b){return Number((b[1]||{}).count||b[1]||0)-Number((a[1]||{}).count||a[1]||0);})[0]; };
-      const list = [];
-      const ref = top(referrers), country = top(countries), device = top(devices);
-      if (ref) list.push('<strong>Strongest source:</strong> ' + esc(ref[0]) + ' brought ' + number(ref[1].count || ref[1]) + ' visits in this period.');
-      if (country) list.push('<strong>Top audience location:</strong> ' + esc(country[0]) + ' accounted for ' + pct(country[1].percentage || 0) + ' of recorded visits.');
-      if (device) list.push('<strong>Primary device:</strong> ' + esc(device[0]) + ' represented ' + pct(device[1].percentage || 0) + ' of recorded visitors.');
-      if (summary.actions > 0) list.push('<strong>Engagement:</strong> visitors generated ' + number(summary.actions) + ' tracked actions, an action rate of ' + pct(summary.action_rate) + '.');
-      else if (summary.visits > 0) list.push('<strong>Next opportunity:</strong> visitors are arriving, but no tracked actions were recorded in this period yet.');
-      if (!list.length) list.push('Share your shop and start collecting enough activity for useful insights.');
-      return '<div class="insight-list">' + list.slice(0,4).map(function (x) { return '<div class="insight">' + x + '</div>'; }).join('') + '</div>';
+    function detailTable(title, copy, map, emptyLabel, limit, aggregateOthers) {
+      const entries = trimEntries(ensurePercentages(valueEntries(map)), limit, aggregateOthers);
+      if (!entries.length) return '<div class="detail-card"><h4>' + esc(title) + '</h4><p>' + esc(copy) + '</p><div class="empty">' + esc(emptyLabel) + '</div></div>';
+      const max = Math.max.apply(null, entries.map(function(e){return e.count;}).concat([1]));
+      return '<div class="detail-card"><h4>' + esc(title) + '</h4><p>' + esc(copy) + '</p><div class="detail-table-wrap"><table class="detail-table"><thead><tr><th>Destination</th><th class="detail-bar-cell">Share</th><th>Clicks</th></tr></thead><tbody>' + entries.map(function(e){
+        return '<tr><td class="detail-name" title="' + esc(e.name) + '">' + esc(e.name) + '</td><td class="detail-bar-cell"><div class="mini-track"><div class="mini-fill" style="width:' + Math.max(3,(e.count/max)*100) + '%"></div></div></td><td>' + num(e.count) + ' · ' + percent(e.percentage) + '</td></tr>';
+      }).join('') + '</tbody></table></div></div>';
     }
 
-    function lockedCard(title, plan, description) {
-      return '<section class="analytics-card locked-box"><div class="locked-content"><div class="card-heading"><div><h3>' + esc(title) + '</h3><p>' + esc(description) + '</p></div></div><div style="height:100px;background:var(--border-light,#f1f5f9);border-radius:12px"></div></div><div class="locked-overlay"><div>' + esc(plan) + ' analytics includes this insight.</div><button class="upgrade-button" onclick="window.loadPage && window.loadPage(\'upgrade\')">View plans</button></div></section>';
+    function dailyTable(rows) {
+      if (!rows || !rows.length) return '<div class="empty">No daily records are available yet.</div>';
+      return '<div class="daily-wrap"><table class="daily-table"><thead><tr><th>Date</th><th>Visits</th><th>Catalog</th><th>WhatsApp</th><th>Socials</th><th>Custom links</th><th>Total actions</th></tr></thead><tbody>' + rows.slice().reverse().map(function(row){
+        const c=emptyClicks(); addClicks(c,row.clicks || {}); const socials=Object.values(c.socials).reduce(function(a,b){return a+rawNum(b);},0), custom=Object.values(c.custom_links).reduce(function(a,b){return a+rawNum(b);},0);
+        return '<tr><td>' + esc(shortDate(row.date)) + '</td><td>' + num(row.visits) + '</td><td>' + num(c.catalog) + '</td><td>' + num(c.whatsapp) + '</td><td>' + num(socials) + '</td><td>' + num(custom) + '</td><td class="total">' + num(row.actions) + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+    }
+
+    function dailyAudienceTable(rows) {
+      if (!rows || !rows.length) return '<div class="empty">No daily audience signals are available yet.</div>';
+      return '<div class="daily-wrap"><table class="daily-table"><thead><tr><th>Date</th><th>Top referrer</th><th>Top country</th><th>Top device</th></tr></thead><tbody>' + rows.slice().reverse().map(function(row){
+        const ref=topEntry(row.referrers), country=topEntry(row.countries), device=topEntry(row.devices);
+        const label=function(entry){return entry ? esc(entry.name) + ' · ' + num(entry.count) : 'No data';};
+        return '<tr><td>' + esc(shortDate(row.date)) + '</td><td>' + label(ref) + '</td><td>' + label(country) + '</td><td>' + label(device) + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+    }
+
+    function lockedCard(title, description, plan) {
+      return '<section class="analytics-card locked-box"><div class="locked-content"><div class="card-heading"><div><h3>' + esc(title) + '</h3><p>' + esc(description) + '</p></div></div><div style="height:105px;border-radius:13px;background:var(--a-soft)"></div></div><div class="locked-overlay"><div>' + esc(plan) + ' analytics includes this insight.</div><button class="upgrade-button" data-upgrade="1">View plans</button></div></section>';
+    }
+
+    function yearOverYearCard(data) {
+      const yoy = data && data.year_over_year;
+      if (!yoy || !yoy.current || !yoy.previous) return '<section class="analytics-card"><div class="empty">Year-over-year comparison will appear after enough retained history is available.</div></section>';
+      const current = yoy.current, previous = yoy.previous;
+      const visitChange = yoy.visits_change_percentage == null ? 'No baseline' : ((yoy.visits_change_percentage >= 0 ? '+' : '') + yoy.visits_change_percentage + '%');
+      const actionChange = yoy.actions_change_percentage == null ? 'No baseline' : ((yoy.actions_change_percentage >= 0 ? '+' : '') + yoy.actions_change_percentage + '%');
+      const visitClass = yoy.visits_change_percentage == null ? '' : (yoy.visits_change_percentage >= 0 ? 'change-up' : 'change-down');
+      const actionClass = yoy.actions_change_percentage == null ? '' : (yoy.actions_change_percentage >= 0 ? 'change-up' : 'change-down');
+      return '<section class="analytics-card"><div class="card-heading"><div><h3>Year over year</h3><p>Compare the latest 12 months with the 12 months before them. This uses retained daily measurements, not estimates.</p></div><span class="card-badge premium">Premium</span></div><div class="four-col"><div class="click-tile"><div class="click-tile-name">Current 12 months</div><div class="click-tile-number">' + num(current.visits) + '</div><div class="click-tile-percent">' + esc(yoy.current_from) + ' → ' + esc(yoy.current_to) + ' visits</div></div><div class="click-tile"><div class="click-tile-name">Previous 12 months</div><div class="click-tile-number">' + num(previous.visits) + '</div><div class="click-tile-percent">' + esc(yoy.previous_from) + ' → ' + esc(yoy.previous_to) + ' visits</div></div><div class="click-tile"><div class="click-tile-name">Visit change</div><div class="click-tile-number ' + visitClass + '">' + esc(visitChange) + '</div><div class="click-tile-percent">Current vs previous</div></div><div class="click-tile"><div class="click-tile-name">Action change</div><div class="click-tile-number ' + actionClass + '">' + esc(actionChange) + '</div><div class="click-tile-percent">Tracked actions</div></div></div></section>';
+    }
+
+    function insights(data, clicks) {
+      const summary=data.summary || {}, ref=topEntry(data.referrers), country=topEntry(data.countries), device=topEntry(data.devices), social=topEntry(clicks.socials), custom=topEntry(clicks.custom_links), list=[];
+      if (ref) list.push('<strong>Strongest source:</strong> ' + esc(ref.name) + ' brought ' + num(ref.count) + ' recorded visits in this period.');
+      if (country) list.push('<strong>Top location:</strong> ' + esc(country.name) + ' represented ' + percent(country.percentage) + ' of recorded visitor locations.');
+      if (social) list.push('<strong>Social interest:</strong> ' + esc(social.name) + ' was the most-clicked social destination with ' + num(social.count) + ' clicks.');
+      if (custom) list.push('<strong>Link interest:</strong> “' + esc(custom.name) + '” was the most-clicked custom link with ' + num(custom.count) + ' clicks.');
+      if (device && isPremium()) list.push('<strong>Device focus:</strong> ' + esc(device.name) + ' accounted for ' + percent(device.percentage) + ' of recorded devices.');
+      if (!list.length && summary.visits) list.push('<strong>Early signal:</strong> your hub is receiving visits; keep sharing it so destination patterns become more useful.');
+      if (!list.length) list.push('Share your hub and return when visitors have generated enough activity for useful insights.');
+      return '<div class="insight-list">' + list.slice(0,6).map(function(x){return '<div class="insight">' + x + '</div>';}).join('') + '</div>';
     }
 
     function exportCsv() {
-      const data = state.data || {}, summary = data.summary || {};
-      const rows = [['Metric','Value'], ['Period', state.period], ['From', data.from || ''], ['To', data.to || ''], ['Visits', summary.visits || 0], ['Actions', summary.actions || 0], ['Action rate', summary.action_rate || 0]];
-      Object.entries(data.referrers || {}).forEach(function (e) { rows.push(['Referrer: ' + e[0], e[1].count || 0]); });
-      Object.entries(data.countries || {}).forEach(function (e) { rows.push(['Country: ' + e[0], e[1].count || 0]); });
-      Object.entries(data.devices || {}).forEach(function (e) { rows.push(['Device: ' + e[0], e[1].count || 0]); });
-      (data.daily || []).forEach(function (r) { rows.push(['Visits ' + r.date, r.visits || 0]); rows.push(['Actions ' + r.date, r.actions || 0]); });
-      const csv = rows.map(function (row) { return row.map(function (cell) { return '"' + String(cell == null ? '' : cell).replace(/"/g,'""') + '"'; }).join(','); }).join('\n');
-      const url = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
-      const link = document.createElement('a'); link.href = url; link.download = 'myshub-analytics-' + state.period + '-' + new Date().toISOString().slice(0,10) + '.csv'; link.click(); URL.revokeObjectURL(url); notify('Analytics exported.', 'success');
+      const data=state.data || {}, summary=data.summary || {}, clicks=periodClicks(data), rows=[['MyShub shop analytics'],['Period',state.period],['From',data.from || ''],['To',data.to || ''],[],['Summary','Value'],['Visits',summary.visits || 0],['Tracked actions',summary.actions || 0],['Action rate',summary.action_rate || 0],[],['Click category','Clicks']];
+      categoryRows(clicks).forEach(function(item){rows.push([item.label,item.value]);});
+      rows.push([],['Catalog destination','Clicks']); Object.entries(clicks.catalog_details || {}).forEach(function(e){rows.push([e[0],e[1]]);});
+      rows.push([],['WhatsApp destination','Clicks']); Object.entries(clicks.whatsapp_details || {}).forEach(function(e){rows.push([e[0],e[1]]);});
+      rows.push([],['Social destination','Clicks']); Object.entries(clicks.socials || {}).forEach(function(e){rows.push([e[0],e[1]]);});
+      rows.push([],['Custom link destination','Clicks']); Object.entries(clicks.custom_links || {}).forEach(function(e){rows.push([e[0],e[1]]);});
+      rows.push([],['Date','Visits','Catalog','WhatsApp','Socials','Custom links','Actions']);
+      (data.daily || []).forEach(function(row){const c=emptyClicks();addClicks(c,row.clicks || {});const s=Object.values(c.socials).reduce(function(a,b){return a+rawNum(b);},0),l=Object.values(c.custom_links).reduce(function(a,b){return a+rawNum(b);},0);rows.push([row.date,row.visits || 0,c.catalog,c.whatsapp,s,l,row.actions || 0]);});
+      const csv=rows.map(function(row){return row.map(function(cell){return '"' + String(cell == null ? '' : cell).replace(/"/g,'""') + '"';}).join(',');}).join('\n');
+      const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})), link=document.createElement('a'); link.href=url; link.download='myshub-analytics-' + state.period + '-' + new Date().toISOString().slice(0,10) + '.csv'; link.click(); URL.revokeObjectURL(url); notify('Analytics exported.', 'success');
     }
 
     function render() {
-      const app = document.getElementById('analyticsApp');
-      if (!app) return;
-      const data = state.data || {}, summary = data.summary || {}, plan = state.plan;
-      const isPro = plan === 'pro' || plan === 'premium', isPremium = plan === 'premium';
-      const change = summary.visits_change_percentage;
-      const changeText = change == null ? 'No previous baseline' : ((change >= 0 ? '+' : '') + change + '% vs previous period');
-      const changeClass = change == null ? '' : (change >= 0 ? 'change-up' : 'change-down');
-      const clicks = summary.click_breakdown || {};
-      let html = '<div class="analytics-header"><div><h2>Analytics</h2><p>Understand who visits your hub, where they come from, and what they do.</p></div><span class="plan-pill ' + (isPremium ? 'premium' : '') + '">' + esc(planName(plan)) + '</span></div>';
-      html += '<div class="period-bar"><div class="period-buttons">' + renderPeriodButtons() + '</div><div class="updated-note">' + (data.last_updated ? 'Updated ' + esc(new Date(data.last_updated).toLocaleString()) : 'Live period report') + '</div></div>';
-      html += '<section class="summary-grid"><div class="stat-card"><div class="stat-label">Visits</div><div class="stat-value">' + number(summary.visits) + '</div><div class="stat-help">Selected period</div></div><div class="stat-card"><div class="stat-label">Tracked actions</div><div class="stat-value">' + (isPro ? number(summary.actions) : '—') + '</div><div class="stat-help">Catalog, WhatsApp, socials and links</div></div><div class="stat-card"><div class="stat-label">Action rate</div><div class="stat-value">' + (isPro ? pct(summary.action_rate) : '—') + '</div><div class="stat-help">Actions compared with visits</div></div><div class="stat-card"><div class="stat-label">Period change</div><div class="stat-value ' + changeClass + '" style="font-size:20px">' + (isPro ? esc(changeText) : '—') + '</div><div class="stat-help">Compared with previous period</div></div></section>';
-      html += '<section class="analytics-card"><div class="card-heading"><div><h3>Visits and actions</h3><p>See whether traffic is turning into meaningful engagement.</p></div></div>' + chart(data.daily || []) + '</section>';
-      html += '<section class="analytics-card"><div class="card-heading"><div><h3>Click performance</h3><p>How visitors interacted with the actions available on your hub.</p></div><span class="card-badge">' + (isPro ? 'Raw numbers' : 'Pro') + '</span></div>' + (isPro ? breakdown(clicks) : '<div class="locked-box">' + lockedCard('Click performance','Pro','Review raw clicks and engagement rates.').replace(/^<section class="analytics-card locked-box">|<\/section>$/g,'') + '</div>') + '</section>';
-      html += '<div class="two-col">';
-      if (isPro) html += '<section class="analytics-card"><div class="card-heading"><div><h3>Top referrers</h3><p>Where visitors came from during this period.</p></div></div>' + metricRows(data.referrers, 'No referrer data yet.') + '</section>'; else html += lockedCard('Top referrers','Pro','See which sources send visitors to your hub.');
-      if (isPro) html += '<section class="analytics-card"><div class="card-heading"><div><h3>Audience locations</h3><p>Countries represented in your recorded visits.</p></div></div>' + metricRows(data.countries, 'No country data yet.') + '</section>'; else html += lockedCard('Audience locations','Pro','Understand where your visitors are located.');
-      html += '</div>';
-      if (isPremium) {
-        html += '<div class="two-col"><section class="analytics-card"><div class="card-heading"><div><h3>Devices</h3><p>Optimize your hub for the devices visitors use.</p></div><span class="card-badge premium">Premium</span></div>' + metricRows(data.devices, 'No device data yet.') + '</section><section class="analytics-card"><div class="card-heading"><div><h3>Premium export</h3><p>Download this period’s raw summary for your records.</p></div><span class="card-badge premium">Premium</span></div><div class="export-row"><button class="export-button" id="exportCsv">Export CSV</button></div></section></div>';
-      } else {
-        html += lockedCard('Device intelligence and export','Premium','Get device percentages, longer history, and downloadable analytics.');
-      }
-      html += '<section class="analytics-card"><div class="card-heading"><div><h3>What this means</h3><p>Simple interpretation of the current period—not a promise of completed sales.</p></div></div>' + insights(data) + '</section>';
-      html += '<p style="margin:2px 2px 20px;color:var(--text-tertiary,#94a3b8);font-size:11px;line-height:1.5">Visits are tracked public hub visits; owner previews are excluded. Actions count available tracked buttons and do not guarantee a completed sale. Unique visitors are not presented unless the backend has measured them separately.</p>';
-      app.innerHTML = html;
-      document.querySelectorAll('[data-period]').forEach(function (button) { button.addEventListener('click', function () { if (button.classList.contains('locked')) { navigate('upgrade'); return; } state.period = button.dataset.period; refresh(); }); });
-      const exportButton = document.getElementById('exportCsv'); if (exportButton) exportButton.addEventListener('click', exportCsv);
+      const app=document.getElementById('analyticsApp'); if (!app) return;
+      const data=state.data || {}, summary=data.summary || {}, clicks=periodClicks(data), plan=state.plan, change=summary.visits_change_percentage;
+      const changeText=change == null ? 'No baseline' : ((change >= 0 ? '+' : '') + change + '%');
+      const changeClass=change == null ? '' : (change >= 0 ? 'change-up' : 'change-down');
+      let html='<section class="analytics-hero"><div class="hero-top"><div><p class="hero-kicker">MyShub intelligence</p><h1 class="hero-title">See what your hub is doing.</h1><p class="hero-copy">Understand who is discovering your business, where visitors come from, and which destinations they actually click.</p></div><span class="hero-badge">● ' + esc(planLabel()) + '</span></div><div class="hero-bottom"><div class="period-bar">' + periodButtons() + '</div><span class="updated-note">' + (data.last_updated ? 'Last activity ' + esc(new Date(data.last_updated).toLocaleString()) : 'Waiting for activity') + '</span></div></section>';
+      html+='<section class="summary-grid"><div class="stat-card"><div class="stat-label"><span class="stat-icon">◉</span>Visits</div><div class="stat-value">' + num(summary.visits) + '</div><div class="stat-help">Recorded in selected period</div></div><div class="stat-card"><div class="stat-label"><span class="stat-icon">↗</span>Tracked actions</div><div class="stat-value">' + (isPro() ? num(summary.actions) : '—') + '</div><div class="stat-help">Clicks on available destinations</div></div><div class="stat-card"><div class="stat-label"><span class="stat-icon">%</span>Action rate</div><div class="stat-value">' + (isPro() ? percent(summary.action_rate) : '—') + '</div><div class="stat-help">Actions compared with visits</div></div><div class="stat-card"><div class="stat-label"><span class="stat-icon">↕</span>Period change</div><div class="stat-value ' + changeClass + '" style="font-size:22px">' + (isPro() ? esc(changeText) : '—') + '</div><div class="stat-help">Visits vs previous period</div></div></section>';
+      html+='<section class="analytics-card"><div class="card-heading"><div><h3>Traffic and engagement trend</h3><p>Visits and tracked actions are shown together for each day in the selected period.</p></div><span class="card-badge">' + esc(data.from || '') + ' → ' + esc(data.to || '') + '</span></div>' + trendChart(data.daily || []) + '</section>';
+      html+=(isPremium() ? yearOverYearCard(data) : lockedCard('Year-over-year comparison','Premium compares the latest 12 months with the 12 months before them.','Premium'));
+      html+='<section class="analytics-card"><div class="card-heading"><div><h3>What visitors clicked</h3><p>This is the destination-level view: catalog, WhatsApp, individual socials, and individual custom links.</p></div><span class="card-badge">' + (isPro() ? 'Detailed' : 'Pro') + '</span></div>' + (isPro() ? clickTiles(clicks) : '<div class="locked-box"><div class="locked-content">' + lockedClickPreview() + '</div><div class="locked-overlay"><div>Pro analytics shows exactly what visitors clicked.</div><button class="upgrade-button" data-upgrade="1">View plans</button></div></div>') + '</section>';
+      const destinationLimit = isPremium() ? 0 : 6;
+      html+='<div class="detail-grid">' + (isPro() ? detailTable('Social destinations','Pro shows the leading destinations and groups the rest; Premium shows every recorded destination.',clicks.socials,'No social clicks recorded for this period.',destinationLimit,!isPremium()) : lockedCard('Social destination clicks','See the exact social platforms visitors selected.','Pro')) + (isPro() ? detailTable('Custom-link destinations','Pro shows the leading links and groups the rest; Premium shows every recorded link.',clicks.custom_links,'No custom-link clicks recorded for this period.',destinationLimit,!isPremium()) : lockedCard('Custom-link destination clicks','See which named links received attention.','Pro')) + '</div>';
+      html+='<div class="detail-grid">' + (isPro() ? detailTable('Catalog destinations','See whether clicks came from the main catalog button or a specific catalog call-to-action.',clicks.catalog_details,'No labeled catalog detail is available for this period.',destinationLimit,!isPremium()) : lockedCard('Catalog destination detail','See which catalog call-to-action visitors selected.','Pro')) + (isPro() ? detailTable('WhatsApp destinations','See whether visitors used the floating button, hero call-to-action, or another WhatsApp entry point.',clicks.whatsapp_details,'No labeled WhatsApp detail is available for this period.',destinationLimit,!isPremium()) : lockedCard('WhatsApp destination detail','See which WhatsApp entry point visitors selected.','Pro')) + '</div>';
+      html+='<section class="analytics-card"><div class="card-heading"><div><h3>Daily destination activity</h3><p>Clicks are shown beside visits instead of being hidden in a single total.</p></div></div>' + (isPro() ? dailyTable(data.daily || []) : lockedCard('Daily click activity','See catalog, WhatsApp, social, and custom-link clicks by day.','Pro')) + '</section>';
+      html+='<section class="analytics-card"><div class="card-heading"><div><h3>Daily audience signals</h3><p>See the leading source, country, and device on each day where the backend has recorded them.</p></div><span class="card-badge' + (isPremium() ? ' premium' : '') + '">' + (isPremium() ? 'Premium detail' : isPro() ? 'Pro detail' : 'Pro') + '</span></div>' + (isPro() ? dailyAudienceTable(data.daily || []) : lockedCard('Daily audience signals','See how referrers, countries, and devices change day by day.','Pro')) + '</section>';
+      html+='<div class="two-col">' + (isPro() ? '<section class="analytics-card"><div class="card-heading"><div><h3>Where visitors came from</h3><p>Pro shows the leading sources plus Others; Premium shows every recorded source.</p></div></div>' + metricList(data.referrers,'No referrer data recorded yet.',isPremium() ? 0 : 5,!isPremium()) + '</section>' : lockedCard('Referrer intelligence','See which sources send visitors to your hub.','Pro')) + (isPro() ? '<section class="analytics-card"><div class="card-heading"><div><h3>Visitor locations</h3><p>Pro shows up to four leading countries plus Others; Premium shows every recorded country.</p></div></div>' + metricList(data.countries,'No country data recorded yet.',isPremium() ? 0 : 4,!isPremium()) + '</section>' : lockedCard('Visitor locations','Understand where your visitors are coming from.','Pro')) + '</div>';
+      html+='<div class="two-col">' + (isPro() ? '<section class="analytics-card"><div class="card-heading"><div><h3>Devices</h3><p>Pro gets the practical device mix; Premium gets the complete device detail.</p></div><span class="card-badge' + (isPremium() ? ' premium' : '') + '">' + (isPremium() ? 'Premium' : 'Pro') + '</span></div>' + metricList(data.devices,'No device data recorded yet.',0,false) + '</section>' : lockedCard('Device intelligence','See whether visitors use mobile, desktop, or tablet.','Pro')) + (isPremium() ? '<section class="analytics-card"><div class="card-heading"><div><h3>Export this report</h3><p>Download the selected period, including every destination and daily detail.</p></div><span class="card-badge premium">Premium</span></div><div class="export-row"><button class="export-button" id="exportCsv">Export CSV</button></div></section>' : lockedCard('Complete history and export','Premium reveals the complete measured picture and downloadable detail.','Premium')) + '</div>';
+      html+='<section class="analytics-card"><div class="card-heading"><div><h3>What this means</h3><p>Useful signals from measured activity—not a promise of completed sales.</p></div></div>' + insights(data,clicks) + '</section>';
+      html+='<p style="margin:2px 2px 20px;color:var(--a-muted);font-size:11px;line-height:1.5">Visits are recorded public hub visits; owner previews are excluded. Actions represent tracked destination clicks and do not guarantee a completed sale. Unique visitors are not reported unless separately measured by the backend.</p>';
+      app.innerHTML=html;
+      document.querySelectorAll('[data-period]').forEach(function(button){button.addEventListener('click',function(){if(button.classList.contains('locked')){navigate('upgrade');return;}state.period=button.dataset.period;refresh();});});
+      document.querySelectorAll('[data-upgrade]').forEach(function(button){button.addEventListener('click',function(){navigate('upgrade');});});
+      const exportButton=document.getElementById('exportCsv'); if(exportButton) exportButton.addEventListener('click',exportCsv);
     }
 
     async function refresh() {
-      const app = document.getElementById('analyticsApp');
-      if (app && !state.data) app.innerHTML = '<div class="loading"><div class="spinner"></div>Loading analytics…</div>';
-      try { state.data = await load(state.period); state.plan = state.data.plan || state.session.plan || 'free'; render(); }
-      catch (error) { if (app) app.innerHTML = '<div class="error-state"><h3>Analytics unavailable</h3><p>' + esc(error.message || 'Please try again.') + '</p><button class="upgrade-button" id="retryAnalytics">Try again</button></div>'; const retry = document.getElementById('retryAnalytics'); if (retry) retry.addEventListener('click', refresh); }
+      const app=document.getElementById('analyticsApp'); if(app && !state.data) app.innerHTML='<div class="loading"><div class="spinner"></div>Loading your analytics…</div>';
+      try { state.data=await load(state.period); state.plan=String(state.data.plan || (state.session && state.session.plan) || 'free').toLowerCase(); render(); }
+      catch(error){ if(app) app.innerHTML='<div class="error-state"><h3>Analytics unavailable</h3><p>' + esc(error.message || 'Please try again.') + '</p><button class="retry-button" id="retryAnalytics">Try again</button></div>'; const retry=document.getElementById('retryAnalytics'); if(retry) retry.addEventListener('click',refresh); }
     }
 
-    state.session = session();
-    state.plan = (state.session && state.session.plan) || 'free';
-    window.exportShopAnalytics = exportCsv;
-    refresh();
+    state.session=getSession(); state.plan=String((state.session && state.session.plan) || 'free').toLowerCase(); window.exportShopAnalytics=exportCsv; refresh();
   })();
   </script>
 </body>
