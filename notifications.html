@@ -96,6 +96,8 @@
     .notif-title { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
     .notif-msg { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
     .notif-time { font-size: 11px; color: var(--text-tertiary); margin-top: 4px; }
+    .notif-delete { border: 0; background: transparent; color: var(--text-tertiary); width: 30px; height: 30px; border-radius: 8px; cursor: pointer; flex-shrink: 0; margin-top: 5px; }
+    .notif-delete:hover { color: var(--danger, #dc2626); background: var(--surface-hover); }
 
     .empty {
       text-align: center;
@@ -171,6 +173,7 @@
   // ================================================================
   let notifications = [];
   let unreadCount = 0;
+  let deletedIds = new Set();
   let currentFilter = 'all';
   let shopData = null;
   let shopJson = null;
@@ -425,21 +428,55 @@
     return 'myshub_notifs_' + (session?.slug || 'guest');
   }
 
+  function getDeletedStorageKey() {
+    const session = getSession();
+    return 'myshub_deleted_notifs_' + (session?.slug || 'guest');
+  }
+
+  function loadDeletedIds() {
+    try {
+      const raw = localStorage.getItem(getDeletedStorageKey());
+      const parsed = raw ? JSON.parse(raw) : [];
+      return new Set(Array.isArray(parsed) ? parsed.filter(Boolean).map(String) : []);
+    } catch (e) {
+      return new Set();
+    }
+  }
+
+  function saveDeletedIds() {
+    try {
+      localStorage.setItem(getDeletedStorageKey(), JSON.stringify(Array.from(deletedIds)));
+    } catch (e) {}
+  }
+
+  function sortNewestFirst() {
+    notifications.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  }
+
+  function recalculateUnread() {
+    unreadCount = notifications.filter(n => n && !n.read && !deletedIds.has(String(n.id))).length;
+  }
+
   function loadFromCache() {
     try {
+      deletedIds = loadDeletedIds();
       const raw = localStorage.getItem(getStorageKey());
       if (raw) {
         const parsed = JSON.parse(raw);
-        notifications = parsed;
-        unreadCount = parsed.filter(n => !n.read).length;
+        notifications = Array.isArray(parsed) ? parsed.filter(n => n && n.id && !deletedIds.has(String(n.id))) : [];
+        sortNewestFirst();
+        recalculateUnread();
         return true;
       }
     } catch (e) {}
+    notifications = [];
+    recalculateUnread();
     return false;
   }
 
   function saveToCache() {
     try {
+      sortNewestFirst();
       localStorage.setItem(getStorageKey(), JSON.stringify(notifications));
     } catch (e) {}
   }
@@ -473,30 +510,37 @@
       const res = await fetch(API + '/notifications/', { headers });
       if (!res.ok) return;
       const data = await res.json();
-      const remote = data.notifications || [];
-      
+      const remote = (data.notifications || []).filter(r => r && r.id && !deletedIds.has(String(r.id)));
       const localMap = {};
-      notifications.forEach(n => localMap[n.id] = n);
+      notifications.forEach(n => { if (n && n.id && !deletedIds.has(String(n.id))) localMap[n.id] = n; });
       let changed = false;
 
       remote.forEach(r => {
-        if (!localMap[r.id]) {
-          notifications.push(r);
+        const local = localMap[r.id];
+        if (!local) {
+          localMap[r.id] = { ...r };
           changed = true;
         } else {
-          // Sync read status from remote if it changed
-          if (r.read !== localMap[r.id].read) {
-            localMap[r.id].read = r.read;
-            changed = true;
-          }
+          const merged = {
+            ...local,
+            ...r,
+            read: Boolean(local.read || r.read),
+            created_at: r.created_at || local.created_at
+          };
+          if (JSON.stringify(merged) !== JSON.stringify(local)) changed = true;
+          localMap[r.id] = merged;
         }
       });
 
+      notifications = Object.values(localMap).filter(n => !deletedIds.has(String(n.id)));
+      sortNewestFirst();
+      recalculateUnread();
       if (changed) {
-        unreadCount = notifications.filter(n => !n.read).length;
         saveToCache();
         updateBadge();
         renderNotifications();
+      } else {
+        updateBadge();
       }
     } catch (e) {
       console.warn('Could not fetch notifications from backend:', e);
@@ -512,7 +556,7 @@
     
     // 1. Immediate local update
     n.read = true;
-    unreadCount = Math.max(0, unreadCount - 1);
+    recalculateUnread();
     saveToCache();
     updateBadge();
     renderNotifications();
@@ -540,8 +584,8 @@
 
   function markAllRead() {
     if (unreadCount === 0) return;
-    notifications.forEach(n => n.read = true);
-    unreadCount = 0;
+    notifications.forEach(n => { if (n) n.read = true; });
+    recalculateUnread();
     saveToCache();
     updateBadge();
     renderNotifications();
@@ -560,10 +604,54 @@
     toast('All marked read', 'success');
   }
 
+  async function deleteNotification(encodedId, event) {
+    if (event) event.stopPropagation();
+    const id = decodeURIComponent(String(encodedId || ''));
+    const index = notifications.findIndex(n => String(n.id) === id);
+    if (index < 0) return;
+    const removed = notifications[index];
+    notifications.splice(index, 1);
+    deletedIds.add(id);
+    recalculateUnread();
+    saveDeletedIds();
+    saveToCache();
+    updateBadge();
+    renderNotifications();
+
+    const session = getSession();
+    if (!session || !removed.email || removed.email === 'local') {
+      toast('Notification deleted.', 'success');
+      return;
+    }
+    try {
+      const response = await fetch(API + '/notifications/' + encodeURIComponent(id), {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'email': session.email,
+          'password': session.password
+        }
+      });
+      if (!response.ok) throw new Error('Delete request failed');
+      toast('Notification deleted.', 'success');
+    } catch (e) {
+      deletedIds.delete(id);
+      notifications.push(removed);
+      sortNewestFirst();
+      recalculateUnread();
+      saveDeletedIds();
+      saveToCache();
+      updateBadge();
+      renderNotifications();
+      toast('The notification could not be deleted. Please try again.', 'error');
+    }
+  }
+
   // ================================================================
   //  HANDLE CLICK
   // ================================================================
-  function handleNotifClick(id) {
+  function handleNotifClick(encodedId) {
+    const id = decodeURIComponent(String(encodedId || ''));
     const n = notifications.find(x => x.id === id);
     if (!n) return;
     markAsRead(id);
@@ -705,7 +793,7 @@
         const isUnread = !n.read;
 
         html += `
-          <div class="notif-item ${isUnread ? 'unread' : ''}" data-id="${n.id}" onclick="handleNotifClick('${n.id}')">
+          <div class="notif-item ${isUnread ? 'unread' : ''}" data-id="${escapeHtml(n.id)}" onclick="handleNotifClick('${encodeURIComponent(n.id)}')">
             <div class="notif-icon" style="background:${color}20;color:${color}"><i class="fa-solid ${icon}"></i></div>
             <div class="notif-body">
               <div class="notif-title">
@@ -716,6 +804,7 @@
               <div class="notif-time">${timeAgo(n.created_at)}</div>
             </div>
             ${isUnread ? `<div style="width:8px;height:8px;border-radius:50%;background:var(--brand);flex-shrink:0;margin-top:16px;"></div>` : ''}
+            <button class="notif-delete" type="button" aria-label="Delete notification" title="Delete notification" onclick="deleteNotification('${encodeURIComponent(n.id)}', event)"><i class="fa-solid fa-trash-can"></i></button>
           </div>
         `;
       });
@@ -794,6 +883,7 @@
   // Expose globally
   window.setFilter = setFilter;
   window.markAllRead = markAllRead;
+  window.deleteNotification = deleteNotification;
   window.handleNotifClick = handleNotifClick;
   window.claimReward = claimReward;
   window.toast = toast;

@@ -120,6 +120,14 @@
       0%, 100% { transform: scale(1); opacity: 0.8; }
       50% { transform: scale(1.06); opacity: 1; }
     }
+    .onboarding-welcome { position:fixed; inset:0; z-index:80; display:flex; align-items:center; justify-content:center; padding:20px; background:rgba(15,23,42,.48); backdrop-filter:blur(5px); }
+    .onboarding-card { width:min(440px,100%); background:var(--surface); color:var(--text); border:1px solid var(--border); border-radius:24px; padding:28px; box-shadow:var(--shadow-lg); animation:scaleIn .22s ease-out; }
+    .onboarding-icon { width:54px; height:54px; border-radius:16px; display:flex; align-items:center; justify-content:center; background:var(--brand-soft); color:var(--brand); font-size:24px; margin-bottom:16px; }
+    .onboarding-card h2 { margin:0 0 8px; font-size:22px; }
+    .onboarding-card p { margin:0 0 18px; color:var(--text-secondary); font-size:14px; line-height:1.55; }
+    .onboarding-next { display:flex; gap:10px; margin-top:18px; }
+    .onboarding-next .btn { flex:1; }
+    .field-hint { font-size:11px; color:var(--text-tertiary); line-height:1.4; margin-top:5px; }
 
     /* ===== AUTH PAGES ===== */
     .auth-container { flex:1; display:flex; align-items:center; justify-content:center; padding:20px; background:var(--bg); overflow-y:auto; }
@@ -194,7 +202,7 @@
   <section id="sec-login" class="sec"><div class="auth-container"><div class="auth-card"><div class="brand"><div style="width:48px;height:48px;background:var(--brand);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:#fff;font-weight:800;font-size:20px">M</div><h2>Welcome back</h2><p>Sign in to manage your hub</p></div><div id="loginError" class="auth-error"></div><div class="form-group"><label>Email</label><input id="loginEmail" class="form-input" type="email" placeholder="you@business.com" autocomplete="email"></div><div class="form-group"><label>Password</label><div class="input-wrap"><input id="loginPassword" class="form-input" type="password" placeholder="Enter your password" autocomplete="current-password"><button type="button" class="pw-toggle" onclick="togglePw('loginPassword', this)" aria-label="Show password"><i class="fa-regular fa-eye"></i></button></div></div><button id="loginBtn" class="btn btn-primary btn-block btn-lg" onclick="doLogin()"><span class="spinner"></span><span class="btn-text">Sign In</span></button><div style="font-size:13px;text-align:center;margin-top:16px;color:var(--text-secondary)">No account? <a onclick="showAuth('register')" style="color:var(--brand);font-weight:600;cursor:pointer">Create free account</a></div><div style="font-size:13px;text-align:center;margin-top:8px"><a onclick="showAuth('recover')" style="color:var(--text-secondary);cursor:pointer">Forgot password?</a></div><div style="font-size:13px;text-align:center;margin-top:8px"><a onclick="showAuth('landing')" style="color:var(--text-tertiary);cursor:pointer">Back to home</a></div></div></div></section>
 
   <!-- Register -->
-  <section id="sec-register" class="sec"><div class="auth-container"><div class="auth-card" style="max-width:480px"><h2 style="font-size:20px;font-weight:800;text-align:center;margin-bottom:6px">Create your hub</h2><p style="font-size:13px;color:var(--text-secondary);text-align:center;margin-bottom:16px">Step <span id="regStepNum">1</span> of 3</p><div style="display:flex;justify-content:center;gap:8px;margin-bottom:20px"><div class="wizard-dot active" id="dot0"></div><div class="wizard-dot" id="dot1"></div><div class="wizard-dot" id="dot2"></div></div><div id="registerError" class="auth-error"></div><div id="regStep0" class="wizard-step active"><div class="form-group"><label>Email *</label><input id="regEmail" class="form-input" type="email" placeholder="you@business.com" autocomplete="email"></div><div class="form-group"><label>Password *</label><div class="input-wrap"><input id="regPassword" class="form-input" type="password" placeholder="Min 6 characters" autocomplete="new-password"><button type="button" class="pw-toggle" onclick="togglePw('regPassword', this)" aria-label="Show password"><i class="fa-regular fa-eye"></i></button></div></div><div class="form-group"><label>Confirm Password *</label><div class="input-wrap"><input id="regConfirmPw" class="form-input" type="password" placeholder="Repeat password" autocomplete="new-password"><button type="button" class="pw-toggle" onclick="togglePw('regConfirmPw', this)" aria-label="Show password"><i class="fa-regular fa-eye"></i></button></div></div><div class="form-group"><label>Security Question 1 *</label><input id="regQ1" class="form-input" placeholder="e.g. What city were you born?"></div><div class="form-group"><label>Answer 1 *</label><input id="regA1" class="form-input" placeholder="Your answer"></div><div class="form-group"><label>Security Question 2 *</label><input id="regQ2" class="form-input" placeholder="e.g. What was your first pet's name?"></div><div class="form-group"><label>Answer 2 *</label><input id="regA2" class="form-input" placeholder="Your answer"></div><button class="btn btn-primary btn-block btn-lg" onclick="nextRegStep()"><span class="spinner"></span><span class="btn-text">Continue</span></button></div><div id="regStep1" class="wizard-step"><div class="form-group"><label>Business Name *</label><input id="regBusiness" class="form-input" placeholder="Emel's Fashion" oninput="autoSlug()"></div><div class="form-group"><label>Preferred Link *</label><input id="regSlug" class="form-input" placeholder="emelsfashion" oninput="checkSlugDebounced()"><div id="slugStatus" class="slug-check"></div></div><div class="form-group"><label>Category *</label><select id="regCategory" class="form-input" onchange="toggleOtherCategory()"><option value="">Select category</option></select></div><div class="form-group" id="otherCategoryWrap" style="display:none"><label>Specify Category</label><input id="regCategoryOther" class="form-input" placeholder="Your specific category"></div><div class="form-group"><label>Country</label><select id="regCountry" class="form-input"><option value="">Select country</option></select></div><div class="form-group"><label>Phone</label><input id="regPhone" class="form-input" placeholder="+234..."></div><div style="display:flex;gap:10px"><button class="btn btn-ghost btn-block" onclick="prevRegStep()">Back</button><button class="btn btn-primary btn-block btn-lg" onclick="nextRegStep()"><span class="spinner"></span><span class="btn-text">Continue</span></button></div></div><div id="regStep2" class="wizard-step"><div style="background:var(--surface-hover);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px"><div style="font-size:13px;color:var(--text-secondary);margin-bottom:4px">Business</div><div id="confirmBusiness" style="font-weight:700;font-size:15px;margin-bottom:10px"></div><div style="font-size:13px;color:var(--text-secondary);margin-bottom:4px">Your Link</div><div id="confirmLink" style="font-weight:700;font-size:15px;color:var(--brand);margin-bottom:10px"></div><div style="font-size:13px;color:var(--text-secondary);margin-bottom:4px">Email</div><div id="confirmEmail" style="font-size:14px"></div></div><button id="registerBtn" class="btn btn-primary btn-block btn-lg" onclick="doRegister()"><span class="spinner"></span><span class="btn-text">Create My Hub</span></button><button class="btn btn-ghost btn-block" style="margin-top:8px" onclick="prevRegStep()">Back</button></div><div style="font-size:13px;text-align:center;margin-top:16px;color:var(--text-secondary)">Already have account? <a onclick="showAuth('login')" style="color:var(--brand);font-weight:600;cursor:pointer">Sign in</a></div></div></div></section>
+  <section id="sec-register" class="sec"><div class="auth-container"><div class="auth-card" style="max-width:480px"><h2 style="font-size:20px;font-weight:800;text-align:center;margin-bottom:6px">Create your hub</h2><p style="font-size:13px;color:var(--text-secondary);text-align:center;margin-bottom:16px">Step <span id="regStepNum">1</span> of 3</p><div style="display:flex;justify-content:center;gap:8px;margin-bottom:20px"><div class="wizard-dot active" id="dot0"></div><div class="wizard-dot" id="dot1"></div><div class="wizard-dot" id="dot2"></div></div><div id="registerError" class="auth-error"></div><div id="regStep0" class="wizard-step active"><div class="form-group"><label>Email *</label><input id="regEmail" class="form-input" type="email" placeholder="you@business.com" autocomplete="email"></div><div class="form-group"><label>Password *</label><div class="input-wrap"><input id="regPassword" class="form-input" type="password" placeholder="Min 6 characters" autocomplete="new-password"><button type="button" class="pw-toggle" onclick="togglePw('regPassword', this)" aria-label="Show password"><i class="fa-regular fa-eye"></i></button></div></div><div class="form-group"><label>Confirm Password *</label><div class="input-wrap"><input id="regConfirmPw" class="form-input" type="password" placeholder="Repeat password" autocomplete="new-password"><button type="button" class="pw-toggle" onclick="togglePw('regConfirmPw', this)" aria-label="Show password"><i class="fa-regular fa-eye"></i></button></div></div><div class="form-group"><label>Security Question 1 *</label><input id="regQ1" class="form-input" placeholder="e.g. What city were you born?"></div><div class="form-group"><label>Answer 1 *</label><input id="regA1" class="form-input" placeholder="Your answer"></div><div class="form-group"><label>Security Question 2 *</label><input id="regQ2" class="form-input" placeholder="e.g. What was your first pet's name?"></div><div class="form-group"><label>Answer 2 *</label><input id="regA2" class="form-input" placeholder="Your answer"></div><button class="btn btn-primary btn-block btn-lg" onclick="nextRegStep()"><span class="spinner"></span><span class="btn-text">Continue</span></button></div><div id="regStep1" class="wizard-step"><div class="form-group"><label>Business Name *</label><input id="regBusiness" class="form-input" placeholder="Emel's Fashion" oninput="autoSlug()"></div>    <div class="form-group"><label>Claim your public link *</label><input id="regSlug" class="form-input" placeholder="emelsfashion" oninput="markSlugManual();checkSlugDebounced()"><div id="slugStatus" class="slug-check"></div><div class="field-hint">This becomes the link you can share with customers. You can refine your profile after entering the dashboard.</div></div><div class="form-group"><label>Category *</label><select id="regCategory" class="form-input" onchange="toggleOtherCategory()"><option value="">Select category</option></select></div><div class="form-group" id="otherCategoryWrap" style="display:none"><label>Specify Category</label><input id="regCategoryOther" class="form-input" placeholder="Your specific category"></div>    <div class="form-group"><label>Country</label><select id="regCountry" class="form-input"><option value="">Select country</option></select><div class="field-hint">Choose your country so people can find your business more easily in Discover. You can leave this blank and update it later.</div></div><div class="form-group"><label>Phone</label><input id="regPhone" class="form-input" placeholder="+234..."></div><div style="display:flex;gap:10px"><button class="btn btn-ghost btn-block" onclick="prevRegStep()">Back</button><button class="btn btn-primary btn-block btn-lg" onclick="nextRegStep()"><span class="spinner"></span><span class="btn-text">Continue</span></button></div></div><div id="regStep2" class="wizard-step"><div style="background:var(--surface-hover);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px"><div style="font-size:13px;color:var(--text-secondary);margin-bottom:4px">Business</div><div id="confirmBusiness" style="font-weight:700;font-size:15px;margin-bottom:10px"></div><div style="font-size:13px;color:var(--text-secondary);margin-bottom:4px">Your Link</div><div id="confirmLink" style="font-weight:700;font-size:15px;color:var(--brand);margin-bottom:10px"></div><div style="font-size:13px;color:var(--text-secondary);margin-bottom:4px">Email</div><div id="confirmEmail" style="font-size:14px"></div></div><button id="registerBtn" class="btn btn-primary btn-block btn-lg" onclick="doRegister()"><span class="spinner"></span><span class="btn-text">Create My Hub</span></button><button class="btn btn-ghost btn-block" style="margin-top:8px" onclick="prevRegStep()">Back</button></div><div style="font-size:13px;text-align:center;margin-top:16px;color:var(--text-secondary)">Already have account? <a onclick="showAuth('login')" style="color:var(--brand);font-weight:600;cursor:pointer">Sign in</a></div></div></div></section>
 
   <!-- Recover -->
   <section id="sec-recover" class="sec"><div class="auth-container"><div class="auth-card"><h2 style="font-size:20px;font-weight:800;text-align:center;margin-bottom:16px">Reset password</h2><div id="recoverError" class="auth-error"></div><div id="recoverStep1"><div class="form-group"><label>Email</label><input id="recoverEmail" class="form-input" type="email" placeholder="Enter your registered email" autocomplete="email"></div><button id="recoverBtn1" class="btn btn-primary btn-block" onclick="fetchRecoveryQuestions()"><span class="spinner"></span><span class="btn-text">Get Security Questions</span></button></div><div id="recoverStep2" style="display:none"><div id="recoverQuestionsBox"></div><div class="form-group"><label>New Password</label><div class="input-wrap"><input id="recoverNewPw" class="form-input" type="password" placeholder="New password" autocomplete="new-password"><button type="button" class="pw-toggle" onclick="togglePw('recoverNewPw', this)" aria-label="Show password"><i class="fa-regular fa-eye"></i></button></div></div><button id="recoverBtn2" class="btn btn-primary btn-block" onclick="submitRecovery()"><span class="spinner"></span><span class="btn-text">Reset Password</span></button></div><div style="text-align:center;margin-top:12px"><a onclick="showAuth('login')" style="font-size:13px;color:var(--text-secondary);cursor:pointer">Back to login</a></div></div></div></section>
@@ -248,6 +256,15 @@
       <button class="bot-item" data-page="preview" onclick="loadPage('preview')"><i class="fa-solid fa-eye"></i><span>Preview</span></button>
       <button class="bot-item" data-page="settings" onclick="loadPage('settings')"><i class="fa-solid fa-gear"></i><span>Settings</span></button>
     </nav>
+    <div id="onboardingWelcome" class="onboarding-welcome" style="display:none" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
+      <div class="onboarding-card">
+        <div class="onboarding-icon"><i class="fa-solid fa-sparkles"></i></div>
+        <h2 id="onboardingTitle">Your hub is ready.</h2>
+        <p id="onboardingMessage">You have claimed your public business link. You are now inside MyShub—your next step is simply to make your profile look like you.</p>
+        <div style="background:var(--surface-hover);border:1px solid var(--border);border-radius:14px;padding:12px;font-size:13px;color:var(--text-secondary)"><strong style="color:var(--text)">Recommended next step:</strong><br>Add your logo, tagline, socials, and contact details. You can save and return whenever you want.</div>
+        <div class="onboarding-next"><button class="btn btn-primary" onclick="startProfileOnboarding()">Complete profile</button><button class="btn btn-ghost" onclick="dismissOnboardingWelcome()">Go to dashboard</button></div>
+      </div>
+    </div>
   </section>
 
   <div id="toastWrap" class="toast-wrap"></div>
@@ -274,8 +291,11 @@ let S = {
   notifications: [],
   unreadCount: 0,
   darkMode: false,
-  currentPage: 'overview'
+  currentPage: 'overview',
+  firstSession: false,
+  regSlugAvailable: null
 };
+let navigationToken = 0;
 
 // Expose S to child pages (edit, etc.)
 window.S = S;
@@ -293,22 +313,42 @@ function hideLoading() {
   if (loadingOverlay) loadingOverlay.classList.remove('on');
 }
 
+function showOnboardingWelcome() {
+  const modal = document.getElementById('onboardingWelcome');
+  if (!modal) return;
+  modal.style.display = 'flex';
+  const firstName = (S.shopJson?.business_name || S.slug || 'there').split(' ')[0];
+  const message = document.getElementById('onboardingMessage');
+  if (message) message.textContent = `Welcome, ${firstName}. Your public hub is ready. You are now inside MyShub—your next step is simply to make your profile look like you.`;
+}
+function dismissOnboardingWelcome() {
+  const modal = document.getElementById('onboardingWelcome');
+  if (modal) modal.style.display = 'none';
+  if (S.slug) localStorage.setItem('myshub_onboarding_seen_' + S.slug, '1');
+  loadPage('overview');
+}
+function startProfileOnboarding() {
+  const modal = document.getElementById('onboardingWelcome');
+  if (modal) modal.style.display = 'none';
+  if (S.slug) localStorage.setItem('myshub_onboarding_started_' + S.slug, '1');
+  loadPage('edit');
+}
+
 // ================================================================
 //  GLOBAL NOTIFICATION FUNCTIONS
 // ================================================================
 window.updateNotifBadge = function() {
   const badge = document.getElementById('notifBadge');
-  if (!badge) return;
-  const count = S.notifications.filter(n => !n.read).length;
+  const notifications = Array.isArray(S.notifications) ? S.notifications : [];
+  const count = notifications.filter(n => n && !n.read).length;
   S.unreadCount = count;
-  if (count > 0) {
-    badge.textContent = count > 9 ? '9+' : count;
-    badge.style.display = 'flex';
-  } else {
-    badge.style.display = 'none';
+  if (badge) {
+    badge.textContent = count > 9 ? '9+' : (count > 0 ? String(count) : '');
+    badge.style.display = count > 0 ? 'flex' : 'none';
+    badge.setAttribute('aria-hidden', count > 0 ? 'false' : 'true');
   }
   try {
-    localStorage.setItem('myshub_notifs_' + S.slug, JSON.stringify(S.notifications));
+    localStorage.setItem('myshub_notifs_' + S.slug, JSON.stringify(notifications));
   } catch (e) {}
 };
 
@@ -500,7 +540,17 @@ function readCachedNotifications(slug) {
   }
 }
 
-function mergeNotifications(generated, remote, cached) {
+function readDeletedNotificationIds(slug) {
+  try {
+    const raw = localStorage.getItem('myshub_deleted_notifs_' + slug);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return new Set(Array.isArray(parsed) ? parsed.filter(Boolean).map(String) : []);
+  } catch (e) {
+    return new Set();
+  }
+}
+
+function mergeNotifications(generated, remote, cached, deletedIds) {
   const map = {};
   (cached || []).forEach(n => { if (n && n.id) map[n.id] = { ...n }; });
   (generated || []).forEach(n => {
@@ -522,7 +572,9 @@ function mergeNotifications(generated, remote, cached) {
       created_at: r.created_at || previous?.created_at || new Date().toISOString()
     };
   });
-  return Object.values(map).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  return Object.values(map)
+    .filter(n => n && n.id && !(deletedIds && deletedIds.has(String(n.id))))
+    .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
 }
 
 async function refreshNotifications() {
@@ -534,14 +586,15 @@ async function refreshNotifications() {
     S.plan = shop.plan || S.plan;
     window.S = S; // keep global reference updated
     const cachedNotifs = readCachedNotifications(S.slug);
-    S.notifications = cachedNotifs;
+    const deletedIds = readDeletedNotificationIds(S.slug);
+    S.notifications = cachedNotifs.filter(n => n && n.id && !deletedIds.has(String(n.id)));
     const localNotifs = generateLocalNotifications(S.shopJson, S.plan);
     let remoteNotifs = [];
     try {
       const data = await api('/notifications/', 'GET');
       remoteNotifs = data.notifications || [];
     } catch (e) {}
-    S.notifications = mergeNotifications(localNotifs, remoteNotifs, cachedNotifs);
+    S.notifications = mergeNotifications(localNotifs, remoteNotifs, cachedNotifs, deletedIds);
     window.updateNotifBadge();
     try {
       localStorage.setItem('myshub_notifs_' + S.slug, JSON.stringify(S.notifications));
@@ -674,22 +727,43 @@ function toggleOtherCategory() {
   wrap.style.display = $('regCategory').value === 'Other' ? 'block' : 'none';
 }
 function autoSlug() {
-  const name = $('regBusiness').value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '').substring(0,20);
-  if (!$('regSlug').value) $('regSlug').value = name;
+  const name = $('regBusiness').value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').substring(0,50);
+  if (!$('regSlug').value || $('regSlug').dataset.autofilled === 'true') {
+    $('regSlug').value = name;
+    $('regSlug').dataset.autofilled = 'true';
+    S.regSlugAvailable = null;
+    checkSlugDebounced();
+  }
+}
+function markSlugManual() {
+  const field = $('regSlug');
+  if (field) field.dataset.autofilled = 'false';
+  S.regSlugAvailable = null;
+  const status = $('slugStatus');
+  if (status) { status.textContent = ''; status.className = 'slug-check'; }
 }
 let slugCheckTimer = null;
 function checkSlugDebounced() { clearTimeout(slugCheckTimer); slugCheckTimer = setTimeout(checkSlugAvail, 600); }
 async function checkSlugAvail() {
-  const slug = $('regSlug').value.trim(); if (!slug) { $('slugStatus').textContent = ''; return; }
-  $('slugStatus').textContent = 'Checking...'; $('slugStatus').className = 'slug-check';
+  const slug = $('regSlug').value.trim().toLowerCase();
+  S.regSlugAvailable = null;
+  if (!slug) { $('slugStatus').textContent = ''; return; }
+  if (!/^[a-z0-9-]{2,50}$/.test(slug)) {
+    $('slugStatus').textContent = 'Use 2–50 lowercase letters, numbers, or hyphens.';
+    $('slugStatus').className = 'slug-check bad';
+    S.regSlugAvailable = false;
+    return;
+  }
+  $('slugStatus').textContent = 'Checking your public link…'; $('slugStatus').className = 'slug-check';
   try {
     const d = await apiPub('/auth/check-slug?slug=' + encodeURIComponent(slug));
-    if (d.available) { $('slugStatus').textContent = 'Available'; $('slugStatus').className = 'slug-check ok'; }
-    else { $('slugStatus').textContent = 'Taken. Try: ' + (d.suggestions || []).join(', '); $('slugStatus').className = 'slug-check bad'; }
-  } catch { $('slugStatus').textContent = ''; }
+    S.regSlugAvailable = Boolean(d.available);
+    if (d.available) { $('slugStatus').textContent = '✓ This public link is available'; $('slugStatus').className = 'slug-check ok'; }
+    else { $('slugStatus').textContent = 'That link is taken. Try: ' + (d.suggestions || []).join(', '); $('slugStatus').className = 'slug-check bad'; }
+  } catch { $('slugStatus').textContent = 'We could not check that link yet. Try again.'; $('slugStatus').className = 'slug-check bad'; }
 }
 let regStep = 0;
-function nextRegStep() {
+async function nextRegStep() {
   const err = $('registerError'); err.style.display = 'none';
   if (regStep === 0) {
     const em = $('regEmail').value.trim(), pw = $('regPassword').value, cpw = $('regConfirmPw').value,
@@ -701,7 +775,11 @@ function nextRegStep() {
   }
   if (regStep === 1) {
     const bus = $('regBusiness').value.trim(), slug = $('regSlug').value.trim(), cat = $('regCategory').value;
-    if (!bus || !slug || !cat) { err.textContent = 'Business name, link and category are required'; err.style.display = 'block'; return; }
+    if (!bus || !slug || !cat) { err.textContent = 'Business name, public link, and category are required.'; err.style.display = 'block'; return; }
+    if (!/^[a-z0-9-]{2,50}$/.test(slug.toLowerCase())) { err.textContent = 'Your public link needs 2–50 lowercase letters, numbers, or hyphens.'; err.style.display = 'block'; return; }
+    if (S.regSlugAvailable === false || $('slugStatus').classList.contains('bad')) { err.textContent = 'Choose an available public link before continuing.'; err.style.display = 'block'; return; }
+    if (S.regSlugAvailable === null) await checkSlugAvail();
+    if (S.regSlugAvailable !== true) { err.textContent = 'Choose an available public link before continuing.'; err.style.display = 'block'; return; }
     $('confirmBusiness').textContent = bus;
     $('confirmLink').textContent = APP_URL + '/' + slug;
     $('confirmEmail').textContent = $('regEmail').value;
@@ -741,13 +819,21 @@ async function doRegister() {
   showLoading();
   const btn = $('registerBtn'); setLoading(btn, true, 'Creating...');
   try {
-    await apiPub('/auth/register', 'POST', body);
+    const registered = await apiPub('/auth/register', 'POST', body);
     if (window.MyShubAnalytics) MyShubAnalytics.signupCompleted('app');
     localStorage.removeItem('myshub_temp_reg');
-    toast('Account created! Sign in now', 'success');
+    const session = {
+      email: body.email,
+      password: body.password,
+      slug: registered.slug || body.preferred_slug,
+      plan: 'free'
+    };
+    S.email = session.email; S.password = session.password; S.slug = session.slug; S.plan = session.plan; S.firstSession = true;
+    localStorage.setItem('myshub_session', JSON.stringify(session));
+    window.S = S;
     hideLoading();
-    showAuth('login');
-    $('loginEmail').value = body.email;
+    toast('Your hub is ready. Welcome to MyShub!', 'success');
+    enterApp(true);
   } catch (e) {
     hideLoading();
     err.textContent = e.message || 'Registration failed. Please try again.';
@@ -867,6 +953,7 @@ function loadPage(page) {
 function fetchPage(page) {
   const content = $('pageContent');
   const area = $('contentArea');
+  const requestToken = ++navigationToken;
 
   showLoading();
   area.classList.remove('iframe-page');
@@ -882,7 +969,7 @@ function fetchPage(page) {
       return res.text();
     })
     .then(html => {
-      hideLoading();
+      if (requestToken !== navigationToken) return;
       content.innerHTML = html;
       const scripts = content.querySelectorAll('script');
       scripts.forEach(oldScript => {
@@ -890,13 +977,15 @@ function fetchPage(page) {
         newScript.textContent = oldScript.textContent;
         oldScript.parentNode.replaceChild(newScript, oldScript);
       });
+      hideLoading();
       if (pageMap[page]) document.title = pageMap[page].title + ' – MyShub';
       if (page === 'overview') updateDrawerInfo();
       window.updateNotifBadge();
     })
     .catch(err => {
+      if (requestToken !== navigationToken) return;
       hideLoading();
-      content.innerHTML = `<div class="empty"><i class="fa-regular fa-circle-exclamation"></i><div>Could not load ${page}</div><p style="font-size:12px;color:var(--text-tertiary)">${err.message}</p></div>`;
+      content.innerHTML = `<div class="empty"><i class="fa-regular fa-circle-exclamation"></i><div>Could not load ${page}</div><p style="font-size:12px;color:var(--text-tertiary)">${err.message}</p><button class="btn btn-primary" style="margin-top:12px" onclick="loadPage('${page}')">Try again</button></div>`;
     });
 }
 
@@ -947,11 +1036,14 @@ function updateDrawerInfo() {
 // ================================================================
 //  ENTER APP
 // ================================================================
-function enterApp() {
+function enterApp(firstSession = false) {
   document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
   $('sec-app').classList.add('active');
-  loadShopData();
+  S.firstSession = Boolean(firstSession);
   loadPage('overview');
+  loadShopData().finally(() => {
+    if (S.firstSession && !localStorage.getItem('myshub_onboarding_seen_' + S.slug)) showOnboardingWelcome();
+  });
 }
 
 async function loadShopData() {
