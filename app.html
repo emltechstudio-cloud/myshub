@@ -8,6 +8,7 @@
   <link rel="icon" href="/icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/icon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="/analytics-collector.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
@@ -329,7 +330,7 @@ function generateLocalNotifications(shopJson, plan) {
   if (todayVal > 0) {
     const spike = todayVal > yesterdayVal && yesterdayVal > 0 ? ` 🔥 ${Math.round((todayVal / yesterdayVal) * 100)}% more than yesterday` : '';
     newNotifs.push({
-      id: 'visits-today',
+      id: 'visits-today-' + todayKey,
       title: `📊 ${todayVal} visits today`,
       message: `You got ${todayVal} visit${todayVal !== 1 ? 's' : ''} today${spike}`,
       type: 'info',
@@ -359,7 +360,7 @@ function generateLocalNotifications(shopJson, plan) {
     }).join(', ');
     const title = plan === 'free' ? `🌍 Top country` : `🌍 Top ${limit} countries`;
     newNotifs.push({
-      id: 'countries-' + (plan === 'free' ? 'free' : 'pro'),
+        id: 'countries-' + (plan === 'free' ? 'free' : plan) + '-' + todayKey,
       title: title,
       message: `${countryMsg}` + (plan !== 'premium' ? ' — upgrade for more' : ''),
       type: plan === 'free' ? 'upgrade' : 'info',
@@ -378,7 +379,7 @@ function generateLocalNotifications(shopJson, plan) {
         return `${name || 'Direct'} (${pct}%)`;
       }).join(', ');
       newNotifs.push({
-        id: 'referrers-top',
+        id: 'referrers-top-' + todayKey,
         title: '🔗 Top referrers',
         message: refMsg,
         type: 'info',
@@ -398,7 +399,7 @@ function generateLocalNotifications(shopJson, plan) {
         return `${name} (${pct}%)`;
       }).join(', ');
       newNotifs.push({
-        id: 'socials-top',
+        id: 'socials-top-' + todayKey,
         title: '📱 Top platforms',
         message: socialMsg,
         type: 'info',
@@ -412,7 +413,7 @@ function generateLocalNotifications(shopJson, plan) {
     const catalogClicks = (analytics.clicks || {}).catalog || 0;
     if (catalogClicks > 0) {
       newNotifs.push({
-        id: 'catalog-clicks',
+        id: 'catalog-clicks-' + todayKey,
         title: '🛒 Catalog clicks',
         message: `Your catalog got ${catalogClicks} click${catalogClicks !== 1 ? 's' : ''}`,
         type: 'info',
@@ -432,7 +433,7 @@ function generateLocalNotifications(shopJson, plan) {
         return `${name} (${pct}%)`;
       }).join(', ');
       newNotifs.push({
-        id: 'custom-links-premium',
+        id: 'custom-links-premium-' + todayKey,
         title: '🔗 Custom link performance',
         message: customMsg,
         type: 'info',
@@ -489,19 +490,39 @@ function generateLocalNotifications(shopJson, plan) {
   return newNotifs;
 }
 
-function mergeNotifications(local, remote) {
+function readCachedNotifications(slug) {
+  try {
+    const raw = localStorage.getItem('myshub_notifs_' + slug);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function mergeNotifications(generated, remote, cached) {
   const map = {};
-  local.forEach(n => map[n.id] = n);
-  remote.forEach(r => {
-    if (!map[r.id]) {
-      map[r.id] = { ...r, read: r.read || false };
-    } else {
-      if (r.read && !map[r.id].read) {
-        map[r.id].read = true;
-      }
-    }
+  (cached || []).forEach(n => { if (n && n.id) map[n.id] = { ...n }; });
+  (generated || []).forEach(n => {
+    if (!n || !n.id) return;
+    const previous = map[n.id];
+    map[n.id] = {
+      ...n,
+      read: previous ? Boolean(previous.read) : Boolean(n.read),
+      created_at: previous?.created_at || n.created_at
+    };
   });
-  return Object.values(map);
+  (remote || []).forEach(r => {
+    if (!r || !r.id) return;
+    const previous = map[r.id];
+    map[r.id] = {
+      ...(previous || {}),
+      ...r,
+      read: Boolean(r.read || previous?.read),
+      created_at: r.created_at || previous?.created_at || new Date().toISOString()
+    };
+  });
+  return Object.values(map).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
 }
 
 async function refreshNotifications() {
@@ -512,13 +533,15 @@ async function refreshNotifications() {
     S.shopJson = shop.shop_json || {};
     S.plan = shop.plan || S.plan;
     window.S = S; // keep global reference updated
+    const cachedNotifs = readCachedNotifications(S.slug);
+    S.notifications = cachedNotifs;
     const localNotifs = generateLocalNotifications(S.shopJson, S.plan);
     let remoteNotifs = [];
     try {
       const data = await api('/notifications/', 'GET');
       remoteNotifs = data.notifications || [];
     } catch (e) {}
-    S.notifications = mergeNotifications(localNotifs, remoteNotifs);
+    S.notifications = mergeNotifications(localNotifs, remoteNotifs, cachedNotifs);
     window.updateNotifBadge();
     try {
       localStorage.setItem('myshub_notifs_' + S.slug, JSON.stringify(S.notifications));
@@ -603,6 +626,7 @@ function showAuth(t) {
   document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
   const el = t === 'landing' ? $('sec-landing') : t === 'login' ? $('sec-login') : t === 'register' ? $('sec-register') : t === 'recover' ? $('sec-recover') : null;
   if (el) el.classList.add('active');
+  if (t === 'register' && window.MyShubAnalytics) MyShubAnalytics.signupStarted('app');
 }
 function populateCategories() {
   const sel = $('regCategory');
@@ -718,6 +742,7 @@ async function doRegister() {
   const btn = $('registerBtn'); setLoading(btn, true, 'Creating...');
   try {
     await apiPub('/auth/register', 'POST', body);
+    if (window.MyShubAnalytics) MyShubAnalytics.signupCompleted('app');
     localStorage.removeItem('myshub_temp_reg');
     toast('Account created! Sign in now', 'success');
     hideLoading();
@@ -998,6 +1023,11 @@ function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    if (window.MyShubAnalytics) MyShubAnalytics.init({ surface: 'app' });
+  });
 </script>
 </body>
 </html>

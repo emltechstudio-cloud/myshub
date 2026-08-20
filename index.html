@@ -108,6 +108,7 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <script src="/analytics-collector.js"></script>
 
     <style>
         /* ===== ALL STYLES (same as previous) ===== */
@@ -2400,5 +2401,15 @@
         }
     </script>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (!window.MyShubAnalytics) return;
+            MyShubAnalytics.init({ surface: 'site' });
+            document.addEventListener('click', function (event) {
+                const link = event.target.closest('a[href*="/app.html"]');
+                if (link) MyShubAnalytics.signupStarted('site-cta');
+            });
+        });
+    </script>
 </body>
 </html>

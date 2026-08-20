@@ -779,6 +779,7 @@
                 location: formData.location || null,
                 state: formData.state || null,
                 city: formData.city || null,
+                country: formData.country || null,
                 category: formData.category || null,
                 logo_url: formData.logo_url || null,
                 catalog_url: formData.catalog_url || null,
@@ -1352,6 +1353,7 @@
                     location: document.getElementById('editLocation').value.trim(),
                     state: document.getElementById('editState').value.trim(),
                     city: document.getElementById('editCity').value.trim(),
+                    country: document.getElementById('editCountry').value.trim(),
                     category: category,
                     catalog_url: document.getElementById('editCatalog').value.trim(),
                     socials: socials,
@@ -1371,6 +1373,9 @@
                 };
 
                 const result = await saveShop(formData);
+                if (window.MyShubAnalytics && window.S && window.S.slug) {
+                    MyShubAnalytics.profileCompleted(window.S.slug);
+                }
                 toast(result.message || 'Shop updated successfully!', 'success');
                 resetDirty();
 
@@ -1435,6 +1440,40 @@
             } finally {
                 btn.disabled = false;
                 btn.classList.remove('loading');
+            }
+        }
+
+        // ================================================================
+        //  LIVE FONT PREVIEW
+        // ================================================================
+        function updateFontPreview() {
+            const headingSelect = document.getElementById('editHeadingFont');
+            const bodySelect = document.getElementById('editBodyFont');
+            const previewHeading = document.getElementById('previewHeading');
+            const previewBody = document.getElementById('previewBody');
+            const headingFont = headingSelect ? headingSelect.value : 'Inter';
+            const bodyFont = bodySelect ? bodySelect.value : 'Inter';
+            const fontLinkId = 'myshub-edit-preview-fonts';
+            if (!document.getElementById(fontLinkId)) {
+                const families = ['Inter', 'Poppins', 'Playfair Display', 'Open Sans', 'DM Sans', 'Space Grotesk', 'Montserrat', 'Lato', 'Oswald', 'Raleway', 'Roboto', 'Nunito', 'Outfit', 'Sora', 'Manrope'];
+                const link = document.createElement('link');
+                link.id = fontLinkId;
+                link.rel = 'stylesheet';
+                link.href = 'https://fonts.googleapis.com/css2?' + families.map(f => 'family=' + encodeURIComponent(f).replace(/%20/g, '+') + ':wght@400;500;600;700;800').join('&') + '&display=swap';
+                document.head.appendChild(link);
+            }
+            const headingFamily = headingFont === 'Playfair Display' ? "'Playfair Display', serif" : `'${headingFont}', sans-serif`;
+            const bodyFamily = `'${bodyFont}', sans-serif`;
+            const apply = () => {
+                if (previewHeading) previewHeading.style.fontFamily = headingFamily;
+                if (previewBody) previewBody.style.fontFamily = bodyFamily;
+            };
+            apply();
+            if (document.fonts && document.fonts.load) {
+                Promise.all([
+                    document.fonts.load(`16px "${headingFont}"`),
+                    document.fonts.load(`16px "${bodyFont}"`)
+                ]).then(apply).catch(() => {});
             }
         }
 
@@ -1571,7 +1610,12 @@
                     <div class="form-group">
                         <label>Location (Address)</label>
                         <input type="text" id="editLocation" class="form-input" value="${escapeHtml(sj.location || '')}" placeholder="Full address or area" oninput="markDirty()" />
-                        <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">Your country is automatically detected from your IP address.</div>
+                        <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">Enter only the address here. Country, state, and city are stored separately.</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Country</label>
+                        <input type="text" id="editCountry" class="form-input" value="${escapeHtml(sj.country || sj.country_name || '')}" placeholder="e.g. Nigeria" autocomplete="country-name" oninput="markDirty()" />
+                        <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">You can edit this value; leave it blank only if you want the backend fallback.</div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
@@ -1671,15 +1715,20 @@
                     </div>
                     <div class="form-group ${!isPro ? 'locked-overlay' : ''}">
                         <label>Heading Font</label>
-                        <select id="editHeadingFont" class="form-input" ${!isPro ? 'disabled' : ''} onchange="markDirty()">
+                        <select id="editHeadingFont" class="form-input" ${!isPro ? 'disabled' : ''} onchange="markDirty(); updateFontPreview();">
                             ${getFontOptions(typography.heading_font || 'Inter')}
                         </select>
                     </div>
                     <div class="form-group ${!isPro ? 'locked-overlay' : ''}">
                         <label>Body Font</label>
-                        <select id="editBodyFont" class="form-input" ${!isPro ? 'disabled' : ''} onchange="markDirty()">
+                        <select id="editBodyFont" class="form-input" ${!isPro ? 'disabled' : ''} onchange="markDirty(); updateFontPreview();">
                             ${getFontOptions(typography.body_font || 'Inter')}
                         </select>
+                    </div>
+                    <div class="form-group" style="padding:14px 16px;border:1px solid var(--border);border-radius:14px;background:var(--surface-hover);">
+                        <label style="margin-bottom:8px;">Live Font Preview</label>
+                        <h4 id="previewHeading" style="margin:0 0 6px;font-size:20px;">Brand Heading</h4>
+                        <p id="previewBody" style="margin:0;color:var(--text-secondary);line-height:1.5;">This is how your shop typography will look to visitors.</p>
                     </div>
                     <div class="form-group">
                         <label>Logo</label>
@@ -1705,6 +1754,7 @@
             app.innerHTML = html;
 
             toggleCategoryOther();
+            updateFontPreview();
 
             const dirtyEl = document.getElementById('dirtyIndicator');
             if (dirtyEl) {
@@ -1843,6 +1893,7 @@
         window.selectIconFromPicker = selectIconFromPicker;
         window.openIconPickerForModal = openIconPickerForModal;
         window.updateLinkPreview = updateLinkPreview;
+        window.updateFontPreview = updateFontPreview;
 
         init();
     })();

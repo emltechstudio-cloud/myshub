@@ -5,926 +5,230 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Analytics – MyShub</title>
   <style>
-    /* ===== ANALYTICS PAGE STYLES ===== */
-    .analytics-page { padding: 0; }
-
-    .page-header { margin-bottom: 24px; }
-    .page-header h2 { font-size: 22px; font-weight: 800; }
-    .page-header .sub { color: var(--text-secondary); font-size: 14px; margin-top: 4px; }
-
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 16px;
-    }
-    .card .card-title {
-      font-size: 16px;
-      font-weight: 700;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .card .card-title .badge {
-      font-size: 10px;
-      background: var(--brand-soft);
-      color: var(--brand);
-      padding: 2px 10px;
-      border-radius: 30px;
-      font-weight: 600;
-    }
-    .card .card-title .badge.pro { background: var(--brand-soft); color: var(--brand); }
-    .card .card-title .badge.premium { background: var(--purple-soft); color: var(--purple); }
-
-    /* Mini Stats */
-    .analytics-mini {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .mini-stat {
-      background: var(--surface);
-      border: 1.5px solid var(--border);
-      border-radius: 16px;
-      padding: 14px;
-      text-align: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-    }
-    .mini-stat .stat-number { font-size: 24px; font-weight: 800; color: var(--brand); line-height: 1.2; }
-    .mini-stat .stat-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
-
-    /* Charts */
-    .chart-container {
-      display: flex;
-      align-items: flex-end;
-      gap: 6px;
-      height: 120px;
-      padding-top: 12px;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      padding-bottom: 4px;
-    }
-    .chart-bar-wrap {
-      flex: 1;
-      min-width: 28px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      height: 100%;
-      justify-content: flex-end;
-    }
-    .chart-bar-bg {
-      width: 100%;
-      max-width: 32px;
-      height: 100%;
-      background: var(--border-light);
-      border-radius: 4px 4px 0 0;
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      align-items: flex-end;
-    }
-    .chart-bar-fill {
-      width: 100%;
-      background: linear-gradient(180deg, var(--brand), var(--purple));
-      border-radius: 4px 4px 0 0;
-      transition: height 0.6s ease;
-      min-height: 4px;
-    }
-    .chart-bar-label {
-      font-size: 9px;
-      color: var(--text-tertiary);
-      text-align: center;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      width: 100%;
-      max-width: 50px;
-    }
-    .chart-bar-value {
-      font-size: 9px;
-      font-weight: 600;
-      color: var(--text-secondary);
-    }
-
-    .chart-container .chart-bar-wrap:first-child .chart-bar-label,
-    .chart-container .chart-bar-wrap:last-child .chart-bar-label {
-      max-width: none;
-    }
-
-    /* Horizontal Rankings */
-    .rank-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 6px 0;
-      border-bottom: 1px solid var(--border-light);
-      font-size: 13px;
-    }
-    .rank-item:last-child { border-bottom: none; }
-    .rank-item .rank-name {
-      width: 100px;
-      flex-shrink: 0;
-      font-weight: 500;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .rank-item .rank-bar-bg {
-      flex: 1;
-      height: 6px;
-      background: var(--border-light);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    .rank-item .rank-bar-fill {
-      height: 100%;
-      background: var(--brand);
-      border-radius: 3px;
-      transition: width 0.6s ease;
-    }
-    .rank-item .rank-value {
-      width: 50px;
-      text-align: right;
-      font-weight: 600;
-      color: var(--text-secondary);
-      flex-shrink: 0;
-    }
-
-    /* Locked Overlay */
-    .locked-container {
-      position: relative;
-      min-height: 100px;
-    }
-    .locked-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(255,255,255,0.7);
-      backdrop-filter: blur(2px);
-      border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      color: var(--text-secondary);
-      font-size: 13px;
-      font-weight: 600;
-      z-index: 2;
-    }
-    .locked-overlay i { font-size: 24px; color: var(--text-tertiary); }
-    .locked-overlay .btn-upgrade {
-      margin-top: 6px;
-      background: var(--brand);
-      color: #fff;
-      border: none;
-      padding: 6px 16px;
-      border-radius: 30px;
-      font-weight: 700;
-      font-size: 12px;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-    .locked-overlay .btn-upgrade:hover { background: var(--brand-dark); transform: scale(1.02); }
-    [data-theme="dark"] .locked-overlay { background: rgba(15,23,42,0.8); }
-
-    /* Device Breakdown */
-    .device-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 12px;
-      margin-top: 8px;
-    }
-    .device-item {
-      text-align: center;
-      padding: 12px;
-      background: var(--surface-hover);
-      border-radius: 12px;
-      border: 1px solid var(--border-light);
-    }
-    .device-item i { font-size: 24px; display: block; margin-bottom: 4px; color: var(--brand); }
-    .device-item .device-value { font-size: 22px; font-weight: 800; color: var(--text); }
-    .device-item .device-label { font-size: 11px; color: var(--text-tertiary); }
-
-    /* Export */
-    .export-section { margin-top: 8px; display: flex; gap: 8px; justify-content: flex-end; }
-    .btn {
-      border: none;
-      cursor: pointer;
-      font-family: inherit;
-      font-weight: 600;
-      transition: var(--transition);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      border-radius: 12px;
-      padding: 8px 16px;
-      font-size: 13px;
-    }
-    .btn-primary {
-      background: var(--brand);
-      color: #fff;
-    }
-    .btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); }
-    .btn-ghost {
-      background: var(--surface);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-    .btn-ghost:hover { background: var(--surface-hover); }
-
-    .loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; gap: 16px; color: var(--text-secondary); }
-    .loading-state .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--brand); border-radius: 50%; animation: spin 1s linear infinite; }
-    .error-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
-    .error-state i { font-size: 48px; color: var(--text-tertiary); margin-bottom: 16px; display: block; }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    @media(max-width: 640px) {
-      .analytics-mini { grid-template-columns: 1fr 1fr; }
-      .device-grid { grid-template-columns: 1fr; }
-      .rank-item .rank-name { width: 70px; font-size: 12px; }
-      .chart-bar-wrap { min-width: 22px; }
-      .chart-bar-label { font-size: 8px; max-width: 36px; }
-    }
+    .analytics-page { padding: 0; color: var(--text, #0f172a); }
+    .analytics-page * { box-sizing: border-box; }
+    .analytics-header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:18px; }
+    .analytics-header h2 { margin:0; font-size:24px; font-weight:850; letter-spacing:-.02em; }
+    .analytics-header p { margin:5px 0 0; color:var(--text-secondary,#64748b); font-size:13px; }
+    .plan-pill { display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:7px 11px; background:var(--brand-soft,#eff6ff); color:var(--brand,#2563eb); font-size:11px; font-weight:800; white-space:nowrap; }
+    .plan-pill.premium { background:#fff7ed; color:#c2410c; }
+    .period-bar { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; padding:10px; margin-bottom:16px; border:1px solid var(--border,#e2e8f0); border-radius:16px; background:var(--surface,#fff); }
+    .period-buttons { display:flex; gap:6px; flex-wrap:wrap; }
+    .period-button { border:1px solid transparent; background:transparent; color:var(--text-secondary,#64748b); border-radius:10px; padding:8px 12px; font-size:12px; font-weight:750; cursor:pointer; }
+    .period-button:hover { background:var(--surface-hover,#f8fafc); color:var(--text,#0f172a); }
+    .period-button.active { background:var(--brand,#2563eb); color:#fff; }
+    .period-button.locked { opacity:.55; }
+    .updated-note { font-size:11px; color:var(--text-tertiary,#94a3b8); }
+    .summary-grid { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:12px; margin-bottom:16px; }
+    .stat-card, .analytics-card { background:var(--surface,#fff); border:1px solid var(--border,#e2e8f0); border-radius:18px; box-shadow:0 2px 9px rgba(15,23,42,.035); }
+    .stat-card { padding:16px; min-height:116px; }
+    .stat-label { color:var(--text-secondary,#64748b); font-size:11px; font-weight:750; text-transform:uppercase; letter-spacing:.045em; }
+    .stat-value { margin-top:9px; font-size:27px; line-height:1.1; font-weight:900; letter-spacing:-.025em; color:var(--brand,#2563eb); }
+    .stat-help { margin-top:7px; color:var(--text-tertiary,#94a3b8); font-size:11px; }
+    .change-up { color:#15803d; font-weight:800; }
+    .change-down { color:#b91c1c; font-weight:800; }
+    .analytics-card { padding:18px; margin-bottom:16px; }
+    .card-heading { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:12px; }
+    .card-heading h3 { margin:0; font-size:16px; font-weight:850; }
+    .card-heading p { margin:4px 0 0; color:var(--text-secondary,#64748b); font-size:12px; line-height:1.45; }
+    .card-badge { border-radius:999px; padding:4px 8px; font-size:10px; font-weight:800; white-space:nowrap; background:var(--brand-soft,#eff6ff); color:var(--brand,#2563eb); }
+    .card-badge.premium { background:#fff7ed; color:#c2410c; }
+    .trend-chart { display:flex; align-items:flex-end; gap:5px; height:190px; padding:10px 2px 0; overflow-x:auto; }
+    .trend-bar { min-width:24px; flex:1; height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:4px; }
+    .bar-value { font-size:9px; color:var(--text-secondary,#64748b); white-space:nowrap; }
+    .bar-track { width:100%; max-width:32px; height:145px; border-radius:7px 7px 2px 2px; background:var(--border-light,#f1f5f9); display:flex; align-items:flex-end; overflow:hidden; }
+    .bar-stack { width:100%; display:flex; flex-direction:column; justify-content:flex-end; }
+    .bar-visits { background:linear-gradient(180deg,#3b82f6,#2563eb); }
+    .bar-actions { background:linear-gradient(180deg,#f59e0b,#ea580c); }
+    .bar-label { max-width:48px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text-tertiary,#94a3b8); font-size:9px; }
+    .legend { display:flex; gap:14px; flex-wrap:wrap; margin-top:12px; color:var(--text-secondary,#64748b); font-size:11px; }
+    .legend span { display:inline-flex; align-items:center; gap:5px; }
+    .legend i { display:inline-block; width:9px; height:9px; border-radius:3px; }
+    .legend .visits-dot { background:#2563eb; }
+    .legend .actions-dot { background:#ea580c; }
+    .two-col { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+    .metric-list { display:flex; flex-direction:column; gap:10px; }
+    .metric-row { display:grid; grid-template-columns:minmax(90px,1fr) minmax(70px,1.5fr) auto; gap:10px; align-items:center; font-size:12px; }
+    .metric-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text,#0f172a); }
+    .metric-track { height:8px; border-radius:99px; background:var(--border-light,#f1f5f9); overflow:hidden; }
+    .metric-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,var(--brand,#2563eb),#7c3aed); }
+    .metric-value { min-width:76px; text-align:right; color:var(--text-secondary,#64748b); font-variant-numeric:tabular-nums; }
+    .breakdown-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+    .breakdown-item { padding:12px; border:1px solid var(--border-light,#f1f5f9); border-radius:13px; background:var(--surface-hover,#f8fafc); }
+    .breakdown-item .name { color:var(--text-secondary,#64748b); font-size:11px; text-transform:capitalize; }
+    .breakdown-item .number { margin-top:6px; font-size:22px; font-weight:850; }
+    .breakdown-item .percent { margin-top:3px; font-size:11px; color:var(--text-tertiary,#94a3b8); }
+    .insight-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+    .insight { padding:13px; border-left:3px solid var(--brand,#2563eb); border-radius:10px; background:var(--surface-hover,#f8fafc); color:var(--text-secondary,#475569); font-size:12px; line-height:1.5; }
+    .insight strong { color:var(--text,#0f172a); }
+    .locked-box { position:relative; overflow:hidden; min-height:140px; }
+    .locked-content { filter:blur(4px); opacity:.55; pointer-events:none; }
+    .locked-overlay { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; padding:20px; text-align:center; background:rgba(255,255,255,.74); backdrop-filter:blur(2px); color:var(--text-secondary,#64748b); font-size:12px; font-weight:700; }
+    [data-theme="dark"] .locked-overlay { background:rgba(15,23,42,.84); }
+    .upgrade-button, .export-button { border:0; border-radius:10px; padding:8px 13px; color:#fff; background:var(--brand,#2563eb); font-size:12px; font-weight:800; cursor:pointer; }
+    .export-row { display:flex; justify-content:flex-end; gap:8px; }
+    .empty { padding:22px 6px; color:var(--text-tertiary,#94a3b8); text-align:center; font-size:12px; }
+    .error-state { padding:55px 20px; text-align:center; color:var(--text-secondary,#64748b); }
+    .error-state h3 { margin:0 0 7px; color:var(--text,#0f172a); }
+    .loading { padding:55px 20px; text-align:center; color:var(--text-secondary,#64748b); }
+    .spinner { width:34px; height:34px; margin:0 auto 12px; border:4px solid var(--border,#e2e8f0); border-top-color:var(--brand,#2563eb); border-radius:50%; animation:spin .9s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    @media (max-width:800px) { .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));} .two-col{grid-template-columns:1fr;} .breakdown-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+    @media (max-width:520px) { .analytics-header{display:block;} .plan-pill{margin-top:12px;} .summary-grid{gap:8px;} .stat-card{padding:13px;min-height:105px;} .stat-value{font-size:23px;} .analytics-card{padding:14px;} .insight-list{grid-template-columns:1fr;} .metric-row{grid-template-columns:90px minmax(60px,1fr) auto;gap:6px;} }
   </style>
 </head>
 <body>
-<div class="analytics-page" id="analyticsApp">
-  <!-- Dynamic content -->
-</div>
+  <main class="analytics-page" id="analyticsApp">
+    <div class="loading"><div class="spinner"></div>Loading analytics…</div>
+  </main>
+  <script>
+  (function () {
+    'use strict';
 
-<script>
-// ================================================================
-//  ANALYTICS PAGE — CORRECTED (no recursion)
-// ================================================================
+    const API = window.API || 'https://emltechstudio-myshub-api.hf.space';
+    const state = { period: '30d', plan: 'free', data: null, session: null };
 
-(function() {
-  'use strict';
-
-  // ================================================================
-  //  CONFIG
-  // ================================================================
-  const API = window.API || 'https://emltechstudio-myshub-api.hf.space';
-  const APP_URL = window.APP_URL || 'https://myshub.site';
-
-  // ================================================================
-  //  STATE
-  // ================================================================
-  let shopData = null;
-  let shopJson = null;
-  let analytics = {};
-  let isLoading = true;
-  let loadError = null;
-  let currentPlan = 'free';
-  let totalVisits = 0;
-
-  // ================================================================
-  //  GET SESSION
-  // ================================================================
-  function getSession() {
-    if (window.S && window.S.email) {
-      return {
-        email: window.S.email,
-        password: window.S.password || '',
-        slug: window.S.slug || '',
-        plan: window.S.plan || 'free'
-      };
+    function session() {
+      if (window.S && window.S.email) return window.S;
+      try { return JSON.parse(localStorage.getItem('myshub_session') || 'null'); } catch (_) { return null; }
     }
-    try {
-      const raw = localStorage.getItem('myshub_session');
-      if (raw) {
-        const s = JSON.parse(raw);
-        if (s.email) {
-          return {
-            email: s.email,
-            password: s.password || '',
-            slug: s.slug || '',
-            plan: s.plan || 'free'
-          };
-        }
-      }
-    } catch (e) {}
-    return null;
-  }
-
-  // ================================================================
-  //  FETCH SHOP DATA
-  // ================================================================
-  async function fetchShopData(session) {
-    if (!session || !session.slug) return null;
-    try {
-      const headers = {
-        'Content-Type': 'application/json',
-        'email': session.email,
-        'password': session.password
-      };
-      const res = await fetch(API + '/shop/preview/' + session.slug, { headers });
-      if (!res.ok) return null;
-      const data = await res.json();
-      return data;
-    } catch (e) {
-      console.warn('fetchShopData error:', e);
-      return null;
-    }
-  }
-
-  // ================================================================
-  //  TOAST (fallback)
-  // ================================================================
-  function toast(msg, type) {
-    if (window.toast) { window.toast(msg, type); return; }
-    alert(msg);
-  }
-
-  // ================================================================
-  //  SAFE NAVIGATION (no recursion)
-  // ================================================================
-  function navigate(page) {
-    if (typeof window.loadPage === 'function') {
-      window.loadPage(page);
-    } else {
-      alert('Navigate to: ' + page);
-    }
-  }
-
-  // ================================================================
-  //  RENDER HELPERS
-  // ================================================================
-  function escapeHtml(s) {
-    if (!s) return '';
-    return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
-  }
-
-  function fmt(n) {
-    n = Number(n) || 0;
-    if (n >= 1000000) return (n/1000000).toFixed(1).replace(/\.0$/,'') + 'M';
-    if (n >= 1000) return (n/1000).toFixed(1).replace(/\.0$/,'') + 'K';
-    return String(n);
-  }
-
-  // ================================================================
-  //  BUILD DAILY VISITS WITH ZERO FILL FOR MISSING DAYS
-  // ================================================================
-  function buildDailyVisitsWithZeros(rawData, days) {
-    const result = {};
-    const now = new Date();
-    for (let i = days - 1; i >= 0; i--) {
-      const d = new Date(now);
-      d.setDate(d.getDate() - i);
-      const key = d.toISOString().split('T')[0];
-      result[key] = rawData[key] || 0;
-    }
-    return result;
-  }
-
-  // ================================================================
-  //  RENDER CHARTS
-  // ================================================================
-  function renderChart(container, rawData, days, label) {
-    if (!container) return;
-    const data = buildDailyVisitsWithZeros(rawData, days);
-    const entries = Object.entries(data);
-    const maxVal = Math.max(...entries.map(d => d[1]), 1);
-
-    if (entries.length === 0) {
-      container.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-tertiary);font-size:13px;">No data for ${label}</div>`;
-      return;
-    }
-
-    // Show dates for 14+ days, weekdays for less
-    const useFullDate = days >= 14;
-    let html = `<div class="chart-container">`;
-    entries.forEach(([date, count]) => {
-      const height = Math.max((count / maxVal) * 100, 4);
-      let labelText;
-      if (useFullDate) {
-        const d = new Date(date);
-        labelText = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-      } else {
-        labelText = new Date(date).toLocaleDateString(undefined, { weekday: 'short' });
-      }
-      html += `
-        <div class="chart-bar-wrap">
-          <div class="chart-bar-value">${count}</div>
-          <div class="chart-bar-bg">
-            <div class="chart-bar-fill" style="height:${height}%;"></div>
-          </div>
-          <div class="chart-bar-label" title="${labelText}">${labelText}</div>
-        </div>
-      `;
-    });
-    html += `</div>`;
-    container.innerHTML = html;
-  }
-
-  // ================================================================
-  //  RENDER YEARLY CHART (grouped by month)
-  // ================================================================
-  function renderYearlyChart(container, rawData) {
-    if (!container) return;
-    const data = buildDailyVisitsWithZeros(rawData, 365);
-    const entries = Object.entries(data);
-
-    if (entries.length === 0) {
-      container.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-tertiary);font-size:13px;">No yearly data available</div>`;
-      return;
-    }
-
-    // Group by month
-    const monthlyData = {};
-    entries.forEach(([date, count]) => {
-      const d = new Date(date);
-      const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-      monthlyData[key] = (monthlyData[key] || 0) + count;
-    });
-
-    const sortedMonths = Object.keys(monthlyData).sort();
-    const maxVal = Math.max(...Object.values(monthlyData), 1);
-
-    let html = `<div class="chart-container">`;
-    sortedMonths.slice(-12).forEach(key => {
-      const count = monthlyData[key];
-      const height = Math.max((count / maxVal) * 100, 4);
-      const d = new Date(key + '-01');
-      const labelText = d.toLocaleDateString(undefined, { month: 'short', year: '2-digit' });
-      html += `
-        <div class="chart-bar-wrap">
-          <div class="chart-bar-value">${count}</div>
-          <div class="chart-bar-bg">
-            <div class="chart-bar-fill" style="height:${height}%;"></div>
-          </div>
-          <div class="chart-bar-label" title="${labelText}">${labelText}</div>
-        </div>
-      `;
-    });
-    html += `</div>`;
-    container.innerHTML = html;
-  }
-
-  // ================================================================
-  //  RENDER RANKINGS
-  // ================================================================
-  function renderRankings(container, data, limit, label, showPercentage = true) {
-    if (!container) return;
-    const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
-    const sliced = entries.slice(0, limit);
-    const total = entries.reduce((sum, [, count]) => sum + count, 0);
-
-    if (sliced.length === 0) {
-      container.innerHTML = `<div style="padding:10px 0;color:var(--text-tertiary);font-size:13px;">No ${label} data yet</div>`;
-      return;
-    }
-
-    let html = '';
-    sliced.forEach(([name, count]) => {
-      const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-      html += `
-        <div class="rank-item">
-          <div class="rank-name" title="${escapeHtml(name)}">${escapeHtml(name)}</div>
-          <div class="rank-bar-bg">
-            <div class="rank-bar-fill" style="width:${Math.min(pct * 2, 100)}%;"></div>
-          </div>
-          <div class="rank-value">${showPercentage ? pct + '%' : fmt(count)}</div>
-        </div>
-      `;
-    });
-    container.innerHTML = html;
-  }
-
-  // ================================================================
-  //  RENDER DEVICES
-  // ================================================================
-  function renderDevices(container, devices) {
-    if (!container) return;
-    const total = (devices.mobile || 0) + (devices.desktop || 0) + (devices.tablet || 0);
-    if (total === 0) {
-      container.innerHTML = `<div style="padding:10px 0;color:var(--text-tertiary);font-size:13px;">No device data yet</div>`;
-      return;
-    }
-
-    const mobilePct = Math.round(((devices.mobile || 0) / total) * 100);
-    const desktopPct = Math.round(((devices.desktop || 0) / total) * 100);
-    const tabletPct = Math.round(((devices.tablet || 0) / total) * 100);
-
-    container.innerHTML = `
-      <div class="device-grid">
-        <div class="device-item">
-          <i class="fa-solid fa-mobile-screen"></i>
-          <div class="device-value">${mobilePct}%</div>
-          <div class="device-label">Mobile</div>
-        </div>
-        <div class="device-item">
-          <i class="fa-solid fa-desktop"></i>
-          <div class="device-value">${desktopPct}%</div>
-          <div class="device-label">Desktop</div>
-        </div>
-        <div class="device-item">
-          <i class="fa-solid fa-tablet-screen"></i>
-          <div class="device-value">${tabletPct}%</div>
-          <div class="device-label">Tablet</div>
-        </div>
-      </div>
-    `;
-  }
-
-  // ================================================================
-  //  RENDER CLICKS
-  // ================================================================
-  function renderClicks(container, clicks, type, plan) {
-    if (!container) return;
-
-    if (type === 'catalog') {
-      const total = clicks.catalog || 0;
-      if (plan === 'pro') {
-        container.innerHTML = `<div style="font-size:26px;font-weight:800;margin:8px 0;color:var(--brand);">${fmt(total)}</div>`;
-        return;
-      }
-      // Premium breakdown
-      let html = `<div style="font-size:26px;font-weight:800;margin:8px 0;color:var(--brand);">${fmt(total)}</div>`;
-      const socials = clicks.socials || {};
-      const socialEntries = Object.entries(socials).sort((a, b) => b[1] - a[1]);
-      const totalSocial = socialEntries.reduce((sum, [, count]) => sum + count, 0);
-      if (socialEntries.length > 0) {
-        html += `<div style="margin-top:12px;font-weight:600;font-size:13px;">Social platforms</div>`;
-        socialEntries.forEach(([name, count]) => {
-          const pct = totalSocial > 0 ? Math.round((count / totalSocial) * 100) : 0;
-          html += `
-            <div class="rank-item">
-              <div class="rank-name">${escapeHtml(name)}</div>
-              <div class="rank-bar-bg">
-                <div class="rank-bar-fill" style="width:${Math.min(pct * 2, 100)}%;"></div>
-              </div>
-              <div class="rank-value">${count} (${pct}%)</div>
-            </div>
-          `;
-        });
-      } else {
-        html += `<div style="margin-top:8px;color:var(--text-tertiary);font-size:13px;">No social clicks yet</div>`;
-      }
-      container.innerHTML = html;
-      return;
-    }
-
-    if (type === 'custom_links') {
-      // Live API uses custom_links; retain custom as a safe legacy fallback.
-      const customLinks = clicks.custom_links || clicks.custom || {};
-      const entries = Object.entries(customLinks).sort((a, b) => b[1] - a[1]);
-      const total = entries.reduce((sum, [, count]) => sum + count, 0);
-      if (entries.length === 0) {
-        container.innerHTML = `<div style="padding:10px 0;color:var(--text-tertiary);font-size:13px;">No custom link clicks yet</div>`;
-        return;
-      }
-      let html = `<div style="font-size:26px;font-weight:800;margin:8px 0;color:var(--brand);">${fmt(total)}</div>`;
-      entries.forEach(([name, count]) => {
-        const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-        html += `
-          <div class="rank-item">
-            <div class="rank-name">${escapeHtml(name)}</div>
-            <div class="rank-bar-bg">
-              <div class="rank-bar-fill" style="width:${Math.min(pct * 2, 100)}%;"></div>
-            </div>
-            <div class="rank-value">${count} (${pct}%)</div>
-          </div>
-        `;
+    function esc(value) {
+      return String(value == null ? '' : value).replace(/[&<>"']/g, function (m) {
+        return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[m];
       });
-      container.innerHTML = html;
-      return;
     }
-  }
+    function number(value) { return Number(value || 0).toLocaleString(); }
+    function pct(value) { return (Number(value || 0).toFixed(1)).replace('.0','') + '%'; }
+    function planName(plan) { return plan === 'premium' ? 'Premium analytics' : plan === 'pro' ? 'Pro analytics' : 'Basic analytics'; }
+    function navigate(page) { if (typeof window.loadPage === 'function') window.loadPage(page); }
+    function notify(message, type) { if (typeof window.toast === 'function') window.toast(message, type); else alert(message); }
 
-  // ================================================================
-  //  EXPORT CSV (Premium)
-  // ================================================================
-  function exportCSV() {
-    const a = analytics;
-    let csv = 'Metric,Value\n';
-    csv += `Total Visits,${a.visit_count || 0}\n`;
-    const todayKey = new Date().toISOString().split('T')[0];
-    csv += `Today,${a.daily_visits?.[todayKey] || 0}\n`;
-    csv += 'Top Countries,';
-    if (a.countries) {
-      const entries = Object.entries(a.countries).sort((x, y) => y[1] - x[1]);
-      csv += entries.map(([k, v]) => `${k} (${v})`).join('; ');
-    }
-    csv += '\nTop Referrers,';
-    if (a.referrers) {
-      const entries = Object.entries(a.referrers).sort((x, y) => y[1] - x[1]);
-      csv += entries.map(([k, v]) => `${k} (${v})`).join('; ');
-    }
-    csv += '\nDevices,';
-    if (a.devices) {
-      csv += `Mobile ${a.devices.mobile || 0}, Desktop ${a.devices.desktop || 0}, Tablet ${a.devices.tablet || 0}`;
-    }
-    if (a.clicks) {
-      csv += `\nCatalog Clicks,${a.clicks.catalog || 0}`;
-      const exportedCustomLinks = a.clicks.custom_links || a.clicks.custom || {};
-      if (Object.keys(exportedCustomLinks).length > 0) {
-        Object.entries(exportedCustomLinks).forEach(([k, v]) => {
-          csv += `\nCustom Link (${k}),${v}`;
-        });
-      }
+    async function load(period) {
+      const s = state.session;
+      if (!s || !s.slug || !s.email || !s.password) throw new Error('Please sign in to view your analytics.');
+      const response = await fetch(API + '/shop/analytics/' + encodeURIComponent(s.slug) + '?period=' + encodeURIComponent(period), {
+        headers: { 'email': s.email, 'password': s.password, 'Accept': 'application/json' }
+      });
+      if (!response.ok) throw new Error(response.status === 403 ? 'You are not allowed to view this shop analytics report.' : 'Analytics could not be loaded.');
+      return response.json();
     }
 
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const aEl = document.createElement('a');
-    aEl.href = url;
-    aEl.download = 'analytics-' + new Date().toISOString().split('T')[0] + '.csv';
-    aEl.click();
-    URL.revokeObjectURL(url);
-    toast('Analytics exported!', 'success');
-  }
-
-  // ================================================================
-  //  MAIN RENDER
-  // ================================================================
-  function renderAnalytics() {
-    const app = document.getElementById('analyticsApp');
-    if (!app) return;
-
-    if (isLoading) {
-      app.innerHTML = `
-        <div class="loading-state">
-          <div class="spinner"></div>
-          <span>Loading analytics...</span>
-        </div>
-      `;
-      return;
+    function renderPeriodButtons() {
+      const items = [
+        ['today','Today',false], ['7d','7 days',false], ['30d','30 days',false],
+        ['90d','90 days',state.plan === 'free'], ['365d','12 months',state.plan !== 'premium']
+      ];
+      return items.map(function (item) {
+        const locked = item[2];
+        return '<button class="period-button ' + (state.period === item[0] ? 'active ' : '') + (locked ? 'locked' : '') + '" data-period="' + item[0] + '" ' + (locked ? 'title="Available on a higher plan"' : '') + '>' + item[1] + (locked ? ' ·' : '') + '</button>';
+      }).join('');
     }
 
-    if (loadError) {
-      app.innerHTML = `
-        <div class="error-state">
-          <i class="fa-regular fa-circle-exclamation"></i>
-          <div style="font-weight:600;margin-bottom:8px;">Could not load analytics</div>
-          <p style="font-size:13px;color:var(--text-secondary);">${loadError}</p>
-          <button class="btn btn-primary btn-sm" style="margin-top:16px;" onclick="location.reload()">Try Again</button>
-        </div>
-      `;
-      return;
+    function metricRows(data, emptyLabel) {
+      const entries = Object.entries(data || {}).map(function (entry) {
+        const key = entry[0], value = entry[1];
+        return [key, Number(value && typeof value === 'object' ? value.count : value) || 0, Number(value && typeof value === 'object' ? value.percentage : 0) || 0];
+      }).sort(function (a,b) { return b[1] - a[1]; });
+      if (!entries.length) return '<div class="empty">' + esc(emptyLabel || 'No data for this period yet.') + '</div>';
+      const max = Math.max.apply(null, entries.map(function (e) { return e[1]; }).concat([1]));
+      return '<div class="metric-list">' + entries.slice(0, 10).map(function (e) {
+        return '<div class="metric-row"><div class="metric-name" title="' + esc(e[0]) + '">' + esc(e[0]) + '</div><div class="metric-track"><div class="metric-fill" style="width:' + Math.max(3, (e[1] / max) * 100) + '%"></div></div><div class="metric-value">' + number(e[1]) + ' · ' + pct(e[2]) + '</div></div>';
+      }).join('') + '</div>';
     }
 
-    if (!shopJson || !analytics) {
-      app.innerHTML = `
-        <div class="error-state">
-          <i class="fa-regular fa-chart-line"></i>
-          <div style="font-weight:600;margin-bottom:8px;">No analytics data yet</div>
-          <p style="font-size:13px;color:var(--text-secondary);">Start sharing your shop to see insights here.</p>
-        </div>
-      `;
-      return;
+    function breakdown(data) {
+      const entries = Object.entries(data || {});
+      if (!entries.length) return '<div class="empty">No actions recorded for this period yet.</div>';
+      return '<div class="breakdown-grid">' + entries.map(function (entry) {
+        const item = entry[1] || {};
+        return '<div class="breakdown-item"><div class="name">' + esc(entry[0].replace(/_/g,' ')) + '</div><div class="number">' + number(item.count) + '</div><div class="percent">' + pct(item.percentage) + ' of actions</div></div>';
+      }).join('') + '</div>';
     }
 
-    const plan = currentPlan || 'free';
-    const dailyVisits = analytics.daily_visits || {};
-    const countries = analytics.countries || {};
-    const referrers = analytics.referrers || {};
-    const devices = analytics.devices || {};
-    const clicks = analytics.clicks || {};
-    const totalVisits = analytics.visit_count || 0;
-
-    // Today's visits: check today's date key, default to 0
-    const todayKey = new Date().toISOString().split('T')[0];
-    const todayVisits = dailyVisits[todayKey] || 0;
-
-    const weekKeys = Object.keys(dailyVisits).sort().slice(-7);
-    const weekTotal = weekKeys.reduce((sum, k) => sum + dailyVisits[k], 0);
-    const monthKeys = Object.keys(dailyVisits).sort().slice(-30);
-    const monthTotal = monthKeys.reduce((sum, k) => sum + dailyVisits[k], 0);
-
-    const isPro = plan === 'pro' || plan === 'premium';
-    const isPremium = plan === 'premium';
-
-    let html = '';
-
-    // ---- Header ----
-    html += `
-      <div class="page-header">
-        <h2>Analytics</h2>
-        <div class="sub">Track your growth and engagement.</div>
-      </div>
-    `;
-
-    // ---- Mini Stats ----
-    html += `
-      <div class="analytics-mini">
-        <div class="mini-stat"><div class="stat-number">${fmt(totalVisits)}</div><div class="stat-label">Total visits</div></div>
-        <div class="mini-stat"><div class="stat-number">${fmt(todayVisits)}</div><div class="stat-label">Today</div></div>
-        <div class="mini-stat"><div class="stat-number">${fmt(weekTotal)}</div><div class="stat-label">This week</div></div>
-        <div class="mini-stat"><div class="stat-number">${fmt(monthTotal)}</div><div class="stat-label">This month</div></div>
-      </div>
-    `;
-
-    // ---- 7-Day Chart ----
-    html += `<div class="card"><div class="card-title">Last 7 days</div><div id="chart7d"></div></div>`;
-
-    // ---- 30-Day Chart ----
-    html += `<div class="card"><div class="card-title">Last 30 days</div><div id="chart30d"></div></div>`;
-
-    // ---- Yearly Chart (Premium) ----
-    if (isPremium) {
-      html += `<div class="card"><div class="card-title">Yearly overview <span class="badge premium">Premium</span></div><div id="chartYearly"></div></div>`;
-    } else {
-      html += `
-        <div class="card locked-container">
-          <div class="card-title">Yearly overview <span class="badge premium">Premium</span></div>
-          <div style="height:100px;filter:blur(4px);background:var(--surface-hover);border-radius:12px;"></div>
-          <div class="locked-overlay">
-            <i class="fa-solid fa-lock"></i>
-            <span>Upgrade to Premium for yearly insights</span>
-            <button class="btn-upgrade" onclick="navigate('upgrade')">Upgrade</button>
-          </div>
-        </div>
-      `;
+    function chart(rows) {
+      if (!rows || !rows.length) return '<div class="empty">No daily trend data yet.</div>';
+      const max = Math.max.apply(null, rows.map(function (r) { return Math.max(Number(r.visits || 0), Number(r.actions || 0)); }).concat([1]));
+      return '<div class="trend-chart">' + rows.map(function (row) {
+        const visits = Number(row.visits || 0), actions = Number(row.actions || 0);
+        const totalHeight = Math.max(3, (Math.max(visits, actions) / max) * 100);
+        const actionsHeight = actions ? Math.max(2, (actions / Math.max(visits, actions)) * 100) : 0;
+        const label = new Date(row.date + 'T00:00:00Z').toLocaleDateString(undefined, {month:'short', day:'numeric'});
+        return '<div class="trend-bar" title="' + esc(label) + ': ' + number(visits) + ' visits, ' + number(actions) + ' actions"><div class="bar-value">' + number(visits) + '</div><div class="bar-track"><div class="bar-stack" style="height:' + totalHeight + '%"><div class="bar-actions" style="height:' + actionsHeight + '%"></div><div class="bar-visits" style="height:' + Math.max(8, 100 - actionsHeight) + '%"></div></div></div><div class="bar-label">' + esc(label) + '</div></div>';
+      }).join('') + '</div><div class="legend"><span><i class="visits-dot"></i>Visits</span><span><i class="actions-dot"></i>Actions</span></div>';
     }
 
-    // ---- Top Countries ----
-    const countryLimit = plan === 'free' ? 1 : 3;
-    html += `<div class="card"><div class="card-title">Top countries</div><div id="rankCountries"></div></div>`;
-
-    // ---- Top Socials (Pro & Premium) ----
-    if (isPro) {
-      html += `<div class="card"><div class="card-title">Top social platforms</div><div id="rankSocials"></div></div>`;
-    } else {
-      html += `
-        <div class="card locked-container">
-          <div class="card-title">Top social platforms <span class="badge pro">Pro</span></div>
-          <div style="height:80px;filter:blur(4px);background:var(--surface-hover);border-radius:12px;"></div>
-          <div class="locked-overlay">
-            <i class="fa-solid fa-lock"></i>
-            <span>Upgrade to Pro for social insights</span>
-            <button class="btn-upgrade" onclick="navigate('upgrade')">Upgrade</button>
-          </div>
-        </div>
-      `;
+    function insights(data) {
+      const summary = data.summary || {}, referrers = data.referrers || {}, countries = data.countries || {}, devices = data.devices || {};
+      const top = function (obj) { return Object.entries(obj).sort(function(a,b){return Number((b[1]||{}).count||b[1]||0)-Number((a[1]||{}).count||a[1]||0);})[0]; };
+      const list = [];
+      const ref = top(referrers), country = top(countries), device = top(devices);
+      if (ref) list.push('<strong>Strongest source:</strong> ' + esc(ref[0]) + ' brought ' + number(ref[1].count || ref[1]) + ' visits in this period.');
+      if (country) list.push('<strong>Top audience location:</strong> ' + esc(country[0]) + ' accounted for ' + pct(country[1].percentage || 0) + ' of recorded visits.');
+      if (device) list.push('<strong>Primary device:</strong> ' + esc(device[0]) + ' represented ' + pct(device[1].percentage || 0) + ' of recorded visitors.');
+      if (summary.actions > 0) list.push('<strong>Engagement:</strong> visitors generated ' + number(summary.actions) + ' tracked actions, an action rate of ' + pct(summary.action_rate) + '.');
+      else if (summary.visits > 0) list.push('<strong>Next opportunity:</strong> visitors are arriving, but no tracked actions were recorded in this period yet.');
+      if (!list.length) list.push('Share your shop and start collecting enough activity for useful insights.');
+      return '<div class="insight-list">' + list.slice(0,4).map(function (x) { return '<div class="insight">' + x + '</div>'; }).join('') + '</div>';
     }
 
-    // ---- Top Referrers (Pro & Premium) ----
-    if (isPro) {
-      html += `<div class="card"><div class="card-title">Top referrers</div><div id="rankReferrers"></div></div>`;
-    } else {
-      html += `
-        <div class="card locked-container">
-          <div class="card-title">Top referrers <span class="badge pro">Pro</span></div>
-          <div style="height:80px;filter:blur(4px);background:var(--surface-hover);border-radius:12px;"></div>
-          <div class="locked-overlay">
-            <i class="fa-solid fa-lock"></i>
-            <span>Upgrade to Pro for referrer insights</span>
-            <button class="btn-upgrade" onclick="navigate('upgrade')">Upgrade</button>
-          </div>
-        </div>
-      `;
+    function lockedCard(title, plan, description) {
+      return '<section class="analytics-card locked-box"><div class="locked-content"><div class="card-heading"><div><h3>' + esc(title) + '</h3><p>' + esc(description) + '</p></div></div><div style="height:100px;background:var(--border-light,#f1f5f9);border-radius:12px"></div></div><div class="locked-overlay"><div>' + esc(plan) + ' analytics includes this insight.</div><button class="upgrade-button" onclick="window.loadPage && window.loadPage(\'upgrade\')">View plans</button></div></section>';
     }
 
-    // ---- Catalog Clicks (Pro & Premium) ----
-    if (isPro) {
-      html += `<div class="card"><div class="card-title">Catalog clicks</div><div id="catalogClicks"></div></div>`;
-    } else {
-      html += `
-        <div class="card locked-container">
-          <div class="card-title">Catalog clicks <span class="badge pro">Pro</span></div>
-          <div style="height:60px;filter:blur(4px);background:var(--surface-hover);border-radius:12px;"></div>
-          <div class="locked-overlay">
-            <i class="fa-solid fa-lock"></i>
-            <span>Upgrade to Pro to see catalog clicks</span>
-            <button class="btn-upgrade" onclick="navigate('upgrade')">Upgrade</button>
-          </div>
-        </div>
-      `;
+    function exportCsv() {
+      const data = state.data || {}, summary = data.summary || {};
+      const rows = [['Metric','Value'], ['Period', state.period], ['From', data.from || ''], ['To', data.to || ''], ['Visits', summary.visits || 0], ['Actions', summary.actions || 0], ['Action rate', summary.action_rate || 0]];
+      Object.entries(data.referrers || {}).forEach(function (e) { rows.push(['Referrer: ' + e[0], e[1].count || 0]); });
+      Object.entries(data.countries || {}).forEach(function (e) { rows.push(['Country: ' + e[0], e[1].count || 0]); });
+      Object.entries(data.devices || {}).forEach(function (e) { rows.push(['Device: ' + e[0], e[1].count || 0]); });
+      (data.daily || []).forEach(function (r) { rows.push(['Visits ' + r.date, r.visits || 0]); rows.push(['Actions ' + r.date, r.actions || 0]); });
+      const csv = rows.map(function (row) { return row.map(function (cell) { return '"' + String(cell == null ? '' : cell).replace(/"/g,'""') + '"'; }).join(','); }).join('\n');
+      const url = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
+      const link = document.createElement('a'); link.href = url; link.download = 'myshub-analytics-' + state.period + '-' + new Date().toISOString().slice(0,10) + '.csv'; link.click(); URL.revokeObjectURL(url); notify('Analytics exported.', 'success');
     }
 
-    // ---- Custom Link Clicks (Premium) ----
-    if (isPremium) {
-      html += `<div class="card"><div class="card-title">Custom link clicks <span class="badge premium">Premium</span></div><div id="customLinkClicks"></div></div>`;
-    } else {
-      html += `
-        <div class="card locked-container">
-          <div class="card-title">Custom link clicks <span class="badge premium">Premium</span></div>
-          <div style="height:60px;filter:blur(4px);background:var(--surface-hover);border-radius:12px;"></div>
-          <div class="locked-overlay">
-            <i class="fa-solid fa-lock"></i>
-            <span>Upgrade to Premium for custom link insights</span>
-            <button class="btn-upgrade" onclick="navigate('upgrade')">Upgrade</button>
-          </div>
-        </div>
-      `;
-    }
-
-    // ---- Device Breakdown (Premium) ----
-    if (isPremium) {
-      html += `<div class="card"><div class="card-title">Device breakdown <span class="badge premium">Premium</span></div><div id="deviceBreakdown"></div></div>`;
-    } else {
-      html += `
-        <div class="card locked-container">
-          <div class="card-title">Device breakdown <span class="badge premium">Premium</span></div>
-          <div style="height:60px;filter:blur(4px);background:var(--surface-hover);border-radius:12px;"></div>
-          <div class="locked-overlay">
-            <i class="fa-solid fa-lock"></i>
-            <span>Upgrade to Premium for device insights</span>
-            <button class="btn-upgrade" onclick="navigate('upgrade')">Upgrade</button>
-          </div>
-        </div>
-      `;
-    }
-
-    // ---- Export (Premium) ----
-    if (isPremium) {
-      html += `
-        <div class="card">
-          <div class="card-title">Export data <span class="badge premium">Premium</span></div>
-          <div class="export-section">
-            <button class="btn btn-primary" onclick="exportCSV()"><i class="fa-solid fa-download"></i> Export CSV</button>
-          </div>
-        </div>
-      `;
-    }
-
-    app.innerHTML = html;
-
-    // ---- Populate charts and rankings after rendering ----
-    renderChart(document.getElementById('chart7d'), dailyVisits, 7, 'last 7 days');
-    renderChart(document.getElementById('chart30d'), dailyVisits, 30, 'last 30 days');
-    if (isPremium) {
-      renderYearlyChart(document.getElementById('chartYearly'), dailyVisits);
-    }
-
-    renderRankings(document.getElementById('rankCountries'), countries, countryLimit, 'countries');
-
-    if (isPro) {
-      const socialClicks = clicks.socials || {};
-      renderRankings(document.getElementById('rankSocials'), socialClicks, 3, 'social platforms');
-      renderRankings(document.getElementById('rankReferrers'), referrers, 3, 'referrers');
-      renderClicks(document.getElementById('catalogClicks'), clicks, 'catalog', plan);
-    }
-
-    if (isPremium) {
-      renderClicks(document.getElementById('customLinkClicks'), clicks, 'custom_links', plan);
-      renderDevices(document.getElementById('deviceBreakdown'), devices);
-    }
-  }
-
-  // ================================================================
-  //  INIT
-  // ================================================================
-  async function init() {
-    const app = document.getElementById('analyticsApp');
-
-    try {
-      const session = getSession();
-      if (!session) {
-        isLoading = false;
-        renderAnalytics();
-        return;
-      }
-
-      // Update S if needed
-      if (!window.S) window.S = {};
-      window.S.email = session.email;
-      window.S.password = session.password;
-      window.S.slug = session.slug;
-      window.S.plan = session.plan;
-
-      const data = await fetchShopData(session);
-      if (data) {
-        shopData = data;
-        shopJson = data.shop_json || {};
-        analytics = shopJson.analytics || {};
-        currentPlan = data.plan || session.plan || 'free';
-        window.S.plan = currentPlan;
-        window.S.shopJson = shopJson;
-        window.S.shopData = data;
+    function render() {
+      const app = document.getElementById('analyticsApp');
+      if (!app) return;
+      const data = state.data || {}, summary = data.summary || {}, plan = state.plan;
+      const isPro = plan === 'pro' || plan === 'premium', isPremium = plan === 'premium';
+      const change = summary.visits_change_percentage;
+      const changeText = change == null ? 'No previous baseline' : ((change >= 0 ? '+' : '') + change + '% vs previous period');
+      const changeClass = change == null ? '' : (change >= 0 ? 'change-up' : 'change-down');
+      const clicks = summary.click_breakdown || {};
+      let html = '<div class="analytics-header"><div><h2>Analytics</h2><p>Understand who visits your hub, where they come from, and what they do.</p></div><span class="plan-pill ' + (isPremium ? 'premium' : '') + '">' + esc(planName(plan)) + '</span></div>';
+      html += '<div class="period-bar"><div class="period-buttons">' + renderPeriodButtons() + '</div><div class="updated-note">' + (data.last_updated ? 'Updated ' + esc(new Date(data.last_updated).toLocaleString()) : 'Live period report') + '</div></div>';
+      html += '<section class="summary-grid"><div class="stat-card"><div class="stat-label">Visits</div><div class="stat-value">' + number(summary.visits) + '</div><div class="stat-help">Selected period</div></div><div class="stat-card"><div class="stat-label">Tracked actions</div><div class="stat-value">' + (isPro ? number(summary.actions) : '—') + '</div><div class="stat-help">Catalog, WhatsApp, socials and links</div></div><div class="stat-card"><div class="stat-label">Action rate</div><div class="stat-value">' + (isPro ? pct(summary.action_rate) : '—') + '</div><div class="stat-help">Actions compared with visits</div></div><div class="stat-card"><div class="stat-label">Period change</div><div class="stat-value ' + changeClass + '" style="font-size:20px">' + (isPro ? esc(changeText) : '—') + '</div><div class="stat-help">Compared with previous period</div></div></section>';
+      html += '<section class="analytics-card"><div class="card-heading"><div><h3>Visits and actions</h3><p>See whether traffic is turning into meaningful engagement.</p></div></div>' + chart(data.daily || []) + '</section>';
+      html += '<section class="analytics-card"><div class="card-heading"><div><h3>Click performance</h3><p>How visitors interacted with the actions available on your hub.</p></div><span class="card-badge">' + (isPro ? 'Raw numbers' : 'Pro') + '</span></div>' + (isPro ? breakdown(clicks) : '<div class="locked-box">' + lockedCard('Click performance','Pro','Review raw clicks and engagement rates.').replace(/^<section class="analytics-card locked-box">|<\/section>$/g,'') + '</div>') + '</section>';
+      html += '<div class="two-col">';
+      if (isPro) html += '<section class="analytics-card"><div class="card-heading"><div><h3>Top referrers</h3><p>Where visitors came from during this period.</p></div></div>' + metricRows(data.referrers, 'No referrer data yet.') + '</section>'; else html += lockedCard('Top referrers','Pro','See which sources send visitors to your hub.');
+      if (isPro) html += '<section class="analytics-card"><div class="card-heading"><div><h3>Audience locations</h3><p>Countries represented in your recorded visits.</p></div></div>' + metricRows(data.countries, 'No country data yet.') + '</section>'; else html += lockedCard('Audience locations','Pro','Understand where your visitors are located.');
+      html += '</div>';
+      if (isPremium) {
+        html += '<div class="two-col"><section class="analytics-card"><div class="card-heading"><div><h3>Devices</h3><p>Optimize your hub for the devices visitors use.</p></div><span class="card-badge premium">Premium</span></div>' + metricRows(data.devices, 'No device data yet.') + '</section><section class="analytics-card"><div class="card-heading"><div><h3>Premium export</h3><p>Download this period’s raw summary for your records.</p></div><span class="card-badge premium">Premium</span></div><div class="export-row"><button class="export-button" id="exportCsv">Export CSV</button></div></section></div>';
       } else {
-        // If failed, still show the page with empty state
-        analytics = {};
-        shopJson = {};
-        currentPlan = session.plan || 'free';
+        html += lockedCard('Device intelligence and export','Premium','Get device percentages, longer history, and downloadable analytics.');
       }
-
-      isLoading = false;
-      renderAnalytics();
-    } catch (error) {
-      console.error('Analytics init error:', error);
-      loadError = error.message || 'Failed to load analytics.';
-      isLoading = false;
-      renderAnalytics();
+      html += '<section class="analytics-card"><div class="card-heading"><div><h3>What this means</h3><p>Simple interpretation of the current period—not a promise of completed sales.</p></div></div>' + insights(data) + '</section>';
+      html += '<p style="margin:2px 2px 20px;color:var(--text-tertiary,#94a3b8);font-size:11px;line-height:1.5">Visits are tracked public hub visits; owner previews are excluded. Actions count available tracked buttons and do not guarantee a completed sale. Unique visitors are not presented unless the backend has measured them separately.</p>';
+      app.innerHTML = html;
+      document.querySelectorAll('[data-period]').forEach(function (button) { button.addEventListener('click', function () { if (button.classList.contains('locked')) { navigate('upgrade'); return; } state.period = button.dataset.period; refresh(); }); });
+      const exportButton = document.getElementById('exportCsv'); if (exportButton) exportButton.addEventListener('click', exportCsv);
     }
-  }
 
-  // Expose functions globally (do NOT override window.loadPage)
-  window.exportCSV = exportCSV;
-  window.navigate = navigate;  // safe navigation
-  window.toast = toast;
+    async function refresh() {
+      const app = document.getElementById('analyticsApp');
+      if (app && !state.data) app.innerHTML = '<div class="loading"><div class="spinner"></div>Loading analytics…</div>';
+      try { state.data = await load(state.period); state.plan = state.data.plan || state.session.plan || 'free'; render(); }
+      catch (error) { if (app) app.innerHTML = '<div class="error-state"><h3>Analytics unavailable</h3><p>' + esc(error.message || 'Please try again.') + '</p><button class="upgrade-button" id="retryAnalytics">Try again</button></div>'; const retry = document.getElementById('retryAnalytics'); if (retry) retry.addEventListener('click', refresh); }
+    }
 
-  // Start
-  init();
-})();
-</script>
+    state.session = session();
+    state.plan = (state.session && state.session.plan) || 'free';
+    window.exportShopAnalytics = exportCsv;
+    refresh();
+  })();
+  </script>
 </body>
 </html>

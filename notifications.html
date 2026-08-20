@@ -247,7 +247,7 @@
     if (todayVal > 0) {
       const spike = todayVal > yesterdayVal && yesterdayVal > 0 ? ` 🔥 ${Math.round((todayVal / yesterdayVal) * 100)}% more than yesterday` : '';
       newNotifs.push({
-        id: 'visits-today',
+        id: 'visits-today-' + todayKey,
         title: `📊 ${todayVal} visits today`,
         message: `You got ${todayVal} visit${todayVal !== 1 ? 's' : ''} today${spike}`,
         type: 'info',
@@ -279,7 +279,7 @@
       }).join(', ');
       const title = plan === 'free' ? `🌍 Top country` : `🌍 Top ${limit} countries`;
       newNotifs.push({
-        id: 'countries-' + (plan === 'free' ? 'free' : 'pro'),
+        id: 'countries-' + (plan === 'free' ? 'free' : plan) + '-' + todayKey,
         title: title,
         message: `${countryMsg}` + (plan !== 'premium' ? ' — upgrade for more' : ''),
         type: plan === 'free' ? 'upgrade' : 'info',
@@ -299,7 +299,7 @@
           return `${name || 'Direct'} (${pct}%)`;
         }).join(', ');
         newNotifs.push({
-          id: 'referrers-top',
+          id: 'referrers-top-' + todayKey,
           title: '🔗 Top referrers',
           message: refMsg,
           type: 'info',
@@ -320,7 +320,7 @@
           return `${name} (${pct}%)`;
         }).join(', ');
         newNotifs.push({
-          id: 'socials-top',
+          id: 'socials-top-' + todayKey,
           title: '📱 Top platforms',
           message: socialMsg,
           type: 'info',
@@ -335,7 +335,7 @@
       const catalogClicks = (analytics.clicks || {}).catalog || 0;
       if (catalogClicks > 0) {
         newNotifs.push({
-          id: 'catalog-clicks',
+          id: 'catalog-clicks-' + todayKey,
           title: '🛒 Catalog clicks',
           message: `Your catalog got ${catalogClicks} click${catalogClicks !== 1 ? 's' : ''}`,
           type: 'info',
@@ -356,7 +356,7 @@
           return `${name} (${pct}%)`;
         }).join(', ');
         newNotifs.push({
-          id: 'custom-links-premium',
+          id: 'custom-links-premium-' + todayKey,
           title: '🔗 Custom link performance',
           message: customMsg,
           type: 'info',
@@ -572,10 +572,12 @@
     if (n.type === 'upgrade' && n.id.includes('referral-campaign')) {
       // Claim referral reward
       claimReward();
-    } else if (n.type === 'upgrade' || n.id === 'countries-free' || n.id === 'visits-empty') {
+    } else if (n.type === 'upgrade' || n.id.startsWith('countries-free-') || n.id.startsWith('countries-pro-') || n.id.startsWith('countries-premium-') || n.id === 'visits-empty') {
       if (window.loadPage) window.loadPage('upgrade');
     } else if (n.type === 'action' && n.message.includes('share')) {
       if (window.openPreviewShare) window.openPreviewShare();
+    } else if (n.id.startsWith('visits-today-') || n.id.startsWith('referrers-top-') || n.id.startsWith('socials-top-') || n.id.startsWith('catalog-clicks-') || n.id.startsWith('custom-links-premium-') || n.id.startsWith('milestone-')) {
+      if (window.loadPage) window.loadPage('analytics');
     } else if (n.type === 'tutorial') {
       // Mark tutorial as completed
       const completed = JSON.parse(localStorage.getItem('myshub_tutorial_completed_' + (getSession()?.slug || '')) || '[]');
@@ -584,8 +586,6 @@
         localStorage.setItem('myshub_tutorial_completed_' + (getSession()?.slug || ''), JSON.stringify(completed));
       }
       if (window.loadPage) window.loadPage('tutorials');
-    } else if (n.type === 'action' && n.id === 'milestone') {
-      if (window.loadPage) window.loadPage('analytics');
     } else {
       // Default: go to overview
       if (window.loadPage) window.loadPage('overview');

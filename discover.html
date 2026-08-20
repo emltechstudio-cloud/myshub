@@ -37,6 +37,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <script src="/analytics-collector.js"></script>
   <style>
     :root {
       --blue: #2563eb;
@@ -459,7 +460,7 @@
       const distance = shop.distance_label ? `<span class="fact"><i class="fa-solid fa-location-arrow"></i>${escapeHtml(shop.distance_label)}</span>` : '';
       const views = Number(shop.visit_count || 0) ? `<span class="fact"><i class="fa-solid fa-eye"></i>${escapeHtml(formatViews(shop.visit_count))}</span>` : '';
       const memberSince = cleanDate(shop.member_since);
-      return `<article class="shop-card">
+      return `<article class="shop-card" data-shop-slug="${escapeHtml(shop.slug || '')}">
         <div class="card-top">
           <div class="card-identity">
             <img class="card-logo" src="${escapeHtml(logo)}" alt="${escapeHtml(shop.business_name || 'Business')} logo" loading="lazy" onerror="this.onerror=null;this.src='/icon.svg';">
@@ -468,7 +469,7 @@
         </div>
         <p class="card-description">${escapeHtml(description)}</p>
         <div class="card-facts"><span class="fact"><i class="fa-solid fa-tag"></i>${escapeHtml(shop.category || 'Business')}</span><span class="fact"><i class="fa-solid fa-location-dot"></i>${escapeHtml(location)}</span>${distance}${views}</div>
-        <div class="card-bottom"><span class="member-note">${memberSince ? `Member since ${escapeHtml(memberSince)}` : 'MyShub member'}</span><a class="view-button" href="${escapeHtml(shop.shop_url || `/${shop.slug}`)}" target="_blank" rel="noopener">View business <i class="fa-solid fa-arrow-up-right-from-square"></i></a></div>
+        <div class="card-bottom"><span class="member-note">${memberSince ? `Member since ${escapeHtml(memberSince)}` : 'MyShub member'}</span><a class="view-button discover-shop-link" href="${escapeHtml(shop.shop_url || `/${shop.slug}`)}" target="_blank" rel="noopener">View business <i class="fa-solid fa-arrow-up-right-from-square"></i></a></div>
       </article>`;
     }
 
@@ -510,6 +511,9 @@
     async function loadDiscover() {
       state.q = refs.input.value.trim();
       state.mode = hasFilters() ? 'search' : 'trending';
+      if (state.mode === 'search' && window.MyShubAnalytics) {
+        MyShubAnalytics.discoverSearch({ category: state.category, country: state.country, state: state.state, city: state.city, query: state.q });
+      }
       document.body.classList.toggle('search-active', state.mode === 'search');
       refs.searchButton.disabled = true;
       refs.searchButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
@@ -574,7 +578,18 @@
     refs.searchButton.addEventListener('click', loadDiscover);
     refs.input.addEventListener('keydown', (event) => { if (event.key === 'Enter') loadDiscover(); });
     $('refreshTrending').addEventListener('click', loadDiscover);
-    document.addEventListener('click', (event) => { if (!event.target.closest('.filter-chip') && !event.target.closest('.filter-menu')) closeFilterMenu(); });
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('.filter-chip') && !event.target.closest('.filter-menu')) closeFilterMenu();
+      const link = event.target.closest('.discover-shop-link');
+      if (!link || !window.MyShubAnalytics) return;
+      const card = link.closest('[data-shop-slug]');
+      const slug = card?.dataset.shopSlug;
+      if (!slug) return;
+      const container = card.closest('#shopsGrid, #trendingGrid') || document;
+      const cards = Array.from(container.querySelectorAll('[data-shop-slug]'));
+      MyShubAnalytics.discoverResultOpen(slug, cards.indexOf(card) + 1);
+      MyShubAnalytics.discoverShopClick(slug, 'shop');
+    });
 
     updateControls();
     (async function init() {
@@ -583,6 +598,11 @@
       await loadFilterData();
       await loadDiscover();
     })();
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.MyShubAnalytics) MyShubAnalytics.init({ surface: 'discover' });
+    });
   </script>
 </body>
 </html>

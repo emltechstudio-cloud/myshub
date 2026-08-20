@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MyShub Admin Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -192,7 +191,7 @@
 <div id="loading-overlay" class="loading-overlay hidden"><div class="spinner"></div></div>
 
 <!-- Login Screen -->
-<div id="login-screen" class="login-screen">
+<div id="login-screen" class="login-screen hidden">
     <div class="card">
         <div style="text-align:center;margin-bottom:24px;">
             <div style="width:64px;height:64px;background:linear-gradient(135deg,var(--brand),var(--brand-light));border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
@@ -235,7 +234,7 @@
             <h1>Staff Registration</h1>
             <p class="sub">Use your staff key or admin key to create an account</p>
         </div>
-        <div id="staff-msg" class="msg"></div>
+        <div id="staff-msg" class="msg msg-success">Account created! Logging you in...</div>
         <div class="form-group">
             <label>Staff Key <span style="color:var(--text2);font-weight:400;">(or leave blank if using Admin Key)</span></label>
             <input type="text" id="staff-key" placeholder="XXXX-XXXX-XXXX" onkeydown="if(event.key==='Enter')staffRegister()">
@@ -265,7 +264,7 @@
 </div>
 
 <!-- Dashboard -->
-<div id="dashboard" class="hidden">
+<div id="dashboard" class="">
     <div class="container">
         <div class="header">
             <div style="display:flex;align-items:center;gap:12px;">
@@ -275,26 +274,70 @@
                 <h1><i class="fa-solid fa-shield-halved"></i> MyShub Admin</h1>
             </div>
             <div class="header-right">
-                <span class="role-badge" id="admin-role">VIEWER</span>
-                <span id="admin-email-display" style="font-size:.85rem;color:var(--text2);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
-                <button class="btn btn-outline btn-sm" onclick="logout()">
+                <span class="role-badge" id="admin-role">EDITOR</span>
+                <span id="admin-email-display" style="font-size:.85rem;color:var(--text2);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">manus@myshub.site</span>
+                <button class="btn btn-outline btn-sm" onclick="logout()" data-manus_clickable="true" data-manus_click_id="1">
                     <i class="fa-solid fa-right-from-bracket"></i> Sign Out
                 </button>
             </div>
         </div>
         <div class="sidebar-layout">
             <div class="sidebar" id="sidebar">
-                <div class="nav-item active" onclick="switchSection('overview', this)"><i class="fa-solid fa-chart-pie"></i> Overview</div>
-                <div class="nav-item" onclick="switchSection('shops', this)"><i class="fa-solid fa-store"></i> All Shops</div>
-                <div class="nav-item" onclick="switchSection('search', this)"><i class="fa-solid fa-magnifying-glass"></i> Search</div>
-                <div class="nav-item" onclick="switchSection('analytics', this)"><i class="fa-solid fa-chart-line"></i> Analytics</div>
-                <div class="nav-item" onclick="switchSection('referrals', this)"><i class="fa-solid fa-gift"></i> Referrals</div>
-                <div class="nav-item" onclick="switchSection('feedback', this)"><i class="fa-solid fa-comment-dots"></i> Feedback</div>
-                <div class="nav-item" onclick="switchSection('notifications', this)"><i class="fa-solid fa-bell"></i> Notifications</div>
+                <div class="nav-item active" onclick="switchSection('overview', this)" data-manus_clickable="true" data-manus_click_id="2"><i class="fa-solid fa-chart-pie"></i> Overview</div>
+                <div class="nav-item" onclick="switchSection('shops', this)" data-manus_clickable="true" data-manus_click_id="3"><i class="fa-solid fa-store"></i> All Shops</div>
+                <div class="nav-item" onclick="switchSection('search', this)" data-manus_clickable="true" data-manus_click_id="4"><i class="fa-solid fa-magnifying-glass"></i> Search</div>
+                <div class="nav-item" onclick="switchSection('analytics', this)" data-manus_clickable="true" data-manus_click_id="5"><i class="fa-solid fa-chart-line"></i> Analytics</div>
+                <div class="nav-item" onclick="switchSection('referrals', this)" data-manus_clickable="true" data-manus_click_id="6"><i class="fa-solid fa-gift"></i> Referrals</div>
+                <div class="nav-item" onclick="switchSection('feedback', this)" data-manus_clickable="true" data-manus_click_id="7"><i class="fa-solid fa-comment-dots"></i> Feedback</div>
+                <div class="nav-item" onclick="switchSection('notifications', this)" data-manus_clickable="true" data-manus_click_id="8"><i class="fa-solid fa-bell"></i> Notifications</div>
                 <div class="nav-item admin-only hidden" onclick="switchSection('admins', this)"><i class="fa-solid fa-users-gear"></i> Admins</div>
                 <div class="nav-item admin-only hidden" onclick="switchSection('staff-keys', this)"><i class="fa-solid fa-key"></i> Staff Keys</div>
             </div>
-            <div class="main-content" id="main-content"></div>
+            <div class="main-content" id="main-content">
+            <div class="stats-grid">
+                <div class="stat-card"><h3>7</h3><p>Total Shops</p></div>
+                <div class="stat-card success"><h3>7</h3><p>Active</p></div>
+                <div class="stat-card danger"><h3>0</h3><p>Expired</p></div>
+                <div class="stat-card warning"><h3>0</h3><p>Flagged</p></div>
+                <div class="stat-card info"><h3>4</h3><p>Pro Plans</p></div>
+                <div class="stat-card" style="background:linear-gradient(135deg,#7c3aed,#a855f7);"><h3>1</h3><p>Premium Plans</p></div>
+            </div>
+            <div class="card"><h2><i class="fa-solid fa-chart-line"></i> Revenue Estimate</h2>
+                <div style="font-size:2rem;font-weight:800;color:var(--brand);">N9,500</div>
+                <p class="sub">Estimated monthly revenue based on active paid plans</p>
+            </div>
+            <div class="card"><h2><i class="fa-solid fa-globe"></i> Top Countries</h2>
+                
+                    <div class="country-item"><span>Nigeria</span><span style="font-weight:700;">5</span></div>
+                
+                    <div class="country-item"><span>Germany</span><span style="font-weight:700;">1</span></div>
+                
+                    <div class="country-item"><span>United States</span><span style="font-weight:700;">1</span></div>
+                
+            </div>
+            <div class="card"><h2><i class="fa-solid fa-arrow-trend-up"></i> Top Shops by Visits</h2>
+                <div class="table-wrap"><table><thead><tr><th>Shop</th><th>Visits</th><th>Plan</th></tr></thead><tbody>
+                    
+                        <tr><td><strong>emmanuel-olusanya-oluwasemilore</strong></td><td>50</td><td><span class="plan-badge plan-premium">PREMIUM</span></td></tr>
+                    
+                        <tr><td><strong>capemworldwide</strong></td><td>32</td><td><span class="plan-badge plan-pro">PRO</span></td></tr>
+                    
+                        <tr><td><strong>emltechstudio</strong></td><td>19</td><td><span class="plan-badge plan-free">FREE</span></td></tr>
+                    
+                        <tr><td><strong>manus-ai</strong></td><td>13</td><td><span class="plan-badge plan-pro">PRO</span></td></tr>
+                    
+                        <tr><td><strong>anuoluwadesigns</strong></td><td>12</td><td><span class="plan-badge plan-pro">PRO</span></td></tr>
+                    
+                        <tr><td><strong>enave-campus-lodges</strong></td><td>7</td><td><span class="plan-badge plan-pro">PRO</span></td></tr>
+                    
+                </tbody></table></div>
+            </div>
+            <div class="card"><h2><i class="fa-solid fa-users"></i> Referral Stats</h2>
+                <div class="stats-grid" style="grid-template-columns:repeat(2,1fr);">
+                    <div class="stat-card" style="background:linear-gradient(135deg,#0d9488,#14b8a6);"><h3>7</h3><p>Referral Codes</p></div>
+                    <div class="stat-card" style="background:linear-gradient(135deg,#0891b2,#06b6d4);"><h3>0</h3><p>Total Referred</p></div>
+                </div>
+            </div></div>
         </div>
     </div>
 </div>
@@ -305,7 +348,7 @@
 <!-- Shop Details Modal -->
 <div id="shop-modal" class="modal-overlay" onclick="if(event.target===this)closeModal()">
     <div class="modal">
-        <div class="modal-header"><h3><i class="fa-solid fa-store"></i> Shop Details</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+        <div class="modal-header"><h3><i class="fa-solid fa-store"></i> Shop Details</h3><button class="modal-close" onclick="closeModal()">×</button></div>
         <div class="modal-body" id="shop-modal-body"></div>
         <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal()">Close</button></div>
     </div>
@@ -314,10 +357,10 @@
 <!-- Upgrade Modal -->
 <div id="upgrade-modal" class="modal-overlay" onclick="if(event.target===this)closeUpgradeModal()">
     <div class="modal">
-        <div class="modal-header"><h3><i class="fa-solid fa-crown"></i> Upgrade/Downgrade Shop</h3><button class="modal-close" onclick="closeUpgradeModal()">&times;</button></div>
+        <div class="modal-header"><h3><i class="fa-solid fa-crown"></i> Upgrade/Downgrade Shop</h3><button class="modal-close" onclick="closeUpgradeModal()">×</button></div>
         <div class="modal-body">
-            <div class="form-group"><label>Shop</label><input type="text" id="upgrade-shop-id" readonly></div>
-            <div class="form-group"><label>Current Plan</label><input type="text" id="upgrade-current-plan" readonly></div>
+            <div class="form-group"><label>Shop</label><input type="text" id="upgrade-shop-id" readonly=""></div>
+            <div class="form-group"><label>Current Plan</label><input type="text" id="upgrade-current-plan" readonly=""></div>
             <div class="form-group"><label>New Plan</label><select id="upgrade-new-plan"><option value="free">Free</option><option value="pro">Pro (N1,500 / 31 days)</option><option value="premium">Premium (N3,500 / 31 days)</option></select></div>
             <div class="form-group"><label>Duration (days)</label><input type="number" id="upgrade-days" value="31" min="1" max="365"></div>
         </div>
@@ -328,9 +371,9 @@
 <!-- Status Modal -->
 <div id="status-modal" class="modal-overlay" onclick="if(event.target===this)closeStatusModal()">
     <div class="modal">
-        <div class="modal-header"><h3><i class="fa-solid fa-toggle-on"></i> Change Shop Status</h3><button class="modal-close" onclick="closeStatusModal()">&times;</button></div>
+        <div class="modal-header"><h3><i class="fa-solid fa-toggle-on"></i> Change Shop Status</h3><button class="modal-close" onclick="closeStatusModal()">×</button></div>
         <div class="modal-body">
-            <div class="form-group"><label>Shop</label><input type="text" id="status-shop-id" readonly></div>
+            <div class="form-group"><label>Shop</label><input type="text" id="status-shop-id" readonly=""></div>
             <div class="form-group"><label>New Status</label><select id="status-new-status"><option value="active">Active</option><option value="expired">Expired</option><option value="flagged">Flagged</option></select></div>
         </div>
         <div class="modal-footer"><button class="btn btn-outline" onclick="closeStatusModal()">Cancel</button><button class="btn" onclick="confirmStatusChange()">Apply</button></div>
@@ -340,7 +383,7 @@
 <!-- Feedback Modal -->
 <div id="feedback-modal" class="modal-overlay" onclick="if(event.target===this)closeFeedbackModal()">
     <div class="modal">
-        <div class="modal-header"><h3><i class="fa-solid fa-comment"></i> Feedback Details</h3><button class="modal-close" onclick="closeFeedbackModal()">&times;</button></div>
+        <div class="modal-header"><h3><i class="fa-solid fa-comment"></i> Feedback Details</h3><button class="modal-close" onclick="closeFeedbackModal()">×</button></div>
         <div class="modal-body" id="feedback-modal-body"></div>
         <div class="modal-footer">
             <button class="btn btn-outline" onclick="closeFeedbackModal()">Close</button>
@@ -693,147 +736,87 @@ async function performSearch() {
 async function loadAnalyticsSection() {
     showLoading(true);
     try {
-        const data = await apiGet('/admin/analytics');
-        const dailyVisits = data.daily_visits || {};
-        const weeklyVisits = data.weekly_visits || {};
-        const monthlyVisits = data.monthly_visits || {};
-        const yearlyVisits = data.yearly_visits || {};
-        const dailySignups = data.daily_signups || {};
-        const deviceBreakdown = data.device_breakdown || { mobile: 0, desktop: 0, tablet: 0 };
+        const period = window.adminAnalyticsPeriod || '30d';
+        const data = await apiGet('/admin/analytics?period=' + encodeURIComponent(period));
+        const discover = data.discover || {};
+        const summary = data.summary || {};
+        const discoverSummary = discover.summary || {};
+        const daily = Array.isArray(data.daily) ? data.daily : [];
         const referrers = data.referrers || {};
-        const topShopsByVisits = data.top_shops_by_visits || [];
-        const topShopsByReferrals = data.top_shops_by_referrals || [];
-        const totalVisits = data.total_visits || 0;
+        const surfaces = data.surfaces || {};
+        const events = data.events || {};
+        const devices = data.devices || {};
+        const countries = data.visitor_countries || data.countries || {};
+        const topShops = data.top_shops || data.top_shops_by_visits || {};
+        const discoverShops = discover.top_shops || {};
+        const planBreakdown = data.plan_breakdown || {};
+        const statusBreakdown = data.status_breakdown || {};
 
-        const sortedDailyVisits = Object.entries(dailyVisits).sort((a,b) => a[0].localeCompare(b[0])).slice(-30);
-        const maxDaily = Math.max(...sortedDailyVisits.map(d => d[1]), 1);
+        const esc = value => String(value == null ? '' : value).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+        const num = value => Number(value || 0).toLocaleString();
+        const percent = value => Number(value || 0).toFixed(1).replace('.0','') + '%';
+        const countOf = value => Number(value && typeof value === 'object' ? value.count : value) || 0;
+        const pctOf = value => Number(value && typeof value === 'object' ? value.percentage : 0) || 0;
+        const entries = object => Object.entries(object || {}).sort((a,b) => countOf(b[1]) - countOf(a[1]));
+        const maxOf = values => Math.max(...values.map(v => countOf(v)), 1);
 
-        const sortedWeeklyVisits = Object.entries(weeklyVisits).sort((a,b) => a[0].localeCompare(b[0])).slice(-12);
-        const maxWeekly = Math.max(...sortedWeeklyVisits.map(d => d[1]), 1);
+        const metricList = (object, empty = 'No data recorded for this period.') => {
+            const rows = entries(object).slice(0, 10);
+            if (!rows.length) return `<div class="empty-state" style="padding:24px 8px;">${empty}</div>`;
+            const max = maxOf(rows.map(row => row[1]));
+            return rows.map(([name, value]) => `<div class="referrer-bar"><div class="referrer-name" title="${esc(name)}">${esc(name)}</div><div class="referrer-track"><div class="referrer-fill" style="width:${Math.max(3, countOf(value) / max * 100)}%;"></div></div><div class="referrer-count">${num(countOf(value))}<small style="display:block;color:var(--text2);font-weight:400;">${percent(pctOf(value))}</small></div></div>`).join('');
+        };
 
-        const sortedMonthlyVisits = Object.entries(monthlyVisits).sort((a,b) => a[0].localeCompare(b[0])).slice(-12);
-        const maxMonthly = Math.max(...sortedMonthlyVisits.map(d => d[1]), 1);
+        const trendChart = (rows, label = 'Page views') => {
+            if (!rows.length) return '<div class="empty-state" style="padding:36px 8px;">No trend data recorded for this period.</div>';
+            const max = Math.max(...rows.map(row => Math.max(Number(row.page_views || 0), Number(row.actions || 0))), 1);
+            return `<div class="chart-container" style="height:250px;"><div class="chart-bar">${rows.map(row => `<div class="bar" title="${esc(row.date)}: ${num(row.page_views)} views, ${num(row.actions)} actions" style="height:${Math.max(2, Number(row.page_views || 0) / max * 100)}%;"><div class="bar-value">${num(row.page_views)}</div><div class="bar-label">${esc(String(row.date || '').slice(5))}</div></div>`).join('')}</div></div><div style="font-size:.78rem;color:var(--text2);margin-top:4px;">${esc(label)} · Actions are tracked searches, result opens, shop clicks, signups, and profile completions.</div>`;
+        };
 
-        const sortedYearlyVisits = Object.entries(yearlyVisits).sort((a,b) => a[0].localeCompare(b[0]));
+        const stat = (value, label, className = '') => `<div class="stat-card ${className}"><h3>${num(value)}</h3><p>${label}</p></div>`;
+        const periodOptions = [['today','Today'],['7d','7 days'],['30d','30 days'],['90d','90 days'],['365d','12 months']];
+        const periodBar = `<div class="card" style="padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;"><div><strong>Analytics period</strong><div style="font-size:.8rem;color:var(--text2);margin-top:3px;">All platform surfaces and Discover data use the same period.</div></div><div style="display:flex;gap:6px;flex-wrap:wrap;">${periodOptions.map(([value,label]) => `<button class="page-btn ${period === value ? 'active' : ''}" onclick="window.adminAnalyticsPeriod='${value}';loadAnalyticsSection();">${label}</button>`).join('')}</div></div>`;
 
-        const sortedSignups = Object.entries(dailySignups).sort((a,b) => a[0].localeCompare(b[0])).slice(-30);
-        const maxSignups = Math.max(...sortedSignups.map(d => d[1]), 1);
-
-        const deviceTotal = (deviceBreakdown.mobile || 0) + (deviceBreakdown.desktop || 0) + (deviceBreakdown.tablet || 0) || 1;
-        const deviceColors = { mobile: '#2563eb', desktop: '#10b981', tablet: '#f59e0b' };
-        let deviceGradient = '';
-        let deg = 0;
-        Object.entries(deviceBreakdown).forEach(([device, count]) => {
-            const angle = (count / deviceTotal) * 360;
-            deviceGradient += `${deviceColors[device] || '#94a3b8'} ${deg}deg ${deg + angle}deg, `;
-            deg += angle;
-        });
-        deviceGradient = deviceGradient.slice(0, -2);
-
-        const sortedReferrers = Object.entries(referrers).sort((a,b) => b[1]-a[1]).slice(0,10);
-        const maxReferrer = Math.max(...sortedReferrers.map(r => r[1]), 1);
+        const discoverEvents = entries(discover.events);
+        const topDiscoverShops = entries(discoverShops).slice(0, 8);
+        const topPlatformShops = Array.isArray(topShops) ? topShops.slice(0, 8).map(shop => [shop.slug || 'Unknown', shop.visits || 0]) : entries(topShops).slice(0, 8);
+        const shopTable = topPlatformShops.length ? topPlatformShops.map(([name,value], index) => `<tr><td><strong>#${index + 1}</strong></td><td>${esc(name)}</td><td>${num(countOf(value))}</td></tr>`).join('') : '<tr><td colspan="3">No shop activity recorded.</td></tr>';
+        const discoverShopTable = topDiscoverShops.length ? topDiscoverShops.map(([name,value], index) => `<tr><td><strong>#${index + 1}</strong></td><td>${esc(name)}</td><td>${num(countOf(value))}</td><td>${percent(pctOf(value))}</td></tr>`).join('') : '<tr><td colspan="4">No Discover-to-shop activity recorded.</td></tr>';
 
         document.getElementById('main-content').innerHTML = `
+            ${periodBar}
             <div class="stats-grid">
-                <div class="stat-card"><h3>${data.total_shops || 0}</h3><p>Total Shops</p></div>
-                <div class="stat-card success"><h3>${data.status_breakdown?.active || 0}</h3><p>Active</p></div>
-                <div class="stat-card info"><h3>${totalVisits.toLocaleString()}</h3><p>Total Visits</p></div>
-                <div class="stat-card warning"><h3>${data.status_breakdown?.flagged || 0}</h3><p>Flagged</p></div>
+                ${stat(summary.page_views, 'Platform page and shop views', 'info')}
+                ${stat(summary.actions, 'Platform tracked actions', 'success')}
+                ${stat(summary.action_rate, 'Action rate (%)', 'warning')}
+                ${stat(data.total_shops, 'Businesses in directory', '')}
+                ${stat(statusBreakdown.active, 'Active listings', 'success')}
+                ${stat(discoverSummary.page_views, 'Discover views', 'info')}
+                ${stat(discoverSummary.actions, 'Discover actions', 'warning')}
+                ${stat(planBreakdown.pro || 0, 'Pro listings', '')}
             </div>
             <div class="platform-visits-grid">
-                <div class="card"><h2><i class="fa-solid fa-chart-column"></i> Daily Visits (Last 30 Days)</h2>
-                    <div class="chart-container"><div class="chart-bar">
-                        ${sortedDailyVisits.map(([day, count]) => `
-                            <div class="bar" style="height:${(count/maxDaily)*100}%;">
-                                <div class="bar-value">${count}</div>
-                                <div class="bar-label">${day.slice(5)}</div>
-                            </div>
-                        `).join('') || '<div style="text-align:center;color:var(--text2);width:100%;">No visit data</div>'}
-                    </div></div>
-                </div>
-                <div class="card"><h2><i class="fa-solid fa-mobile-screen"></i> Device Breakdown</h2>
-                    ${deviceTotal > 1 ? `
-                    <div class="donut-chart" style="background:conic-gradient(${deviceGradient});">
-                        <div class="donut-hole">
-                            <h4>${totalVisits.toLocaleString()}</h4>
-                            <p>Total Visits</p>
-                        </div>
-                    </div>
-                    <div class="donut-legend">
-                        ${Object.entries(deviceBreakdown).map(([device, count]) => `
-                            <div class="legend-item">
-                                <div class="legend-dot" style="background:${deviceColors[device] || '#94a3b8'};"></div>
-                                <span>${device.charAt(0).toUpperCase() + device.slice(1)}: ${count} (${Math.round((count/deviceTotal)*100)}%)</span>
-                            </div>
-                        `).join('')}
-                    </div>` : '<p class="sub" style="text-align:center;padding:40px;">No device data yet</p>'}
-                </div>
+                <div class="card"><h2><i class="fa-solid fa-chart-column"></i> Platform traffic</h2>${trendChart(daily, 'Platform daily traffic')}</div>
+                <div class="card"><h2><i class="fa-solid fa-layer-group"></i> Traffic by surface</h2>${metricList(surfaces, 'No surface traffic recorded.')}</div>
             </div>
-            <div class="card"><h2><i class="fa-solid fa-calendar-week"></i> Weekly Visits (Last 12 Weeks)</h2>
-                <div class="chart-container"><div class="chart-bar">
-                    ${sortedWeeklyVisits.map(([week, count]) => `
-                        <div class="bar" style="height:${(count/maxWeekly)*100}%;">
-                            <div class="bar-value">${count}</div>
-                            <div class="bar-label">${week}</div>
-                        </div>
-                    `).join('') || '<div style="text-align:center;color:var(--text2);width:100%;">No data</div>'}
-                </div></div>
+            <div class="platform-visits-grid">
+                <div class="card"><h2><i class="fa-solid fa-compass"></i> Discover activity</h2><div class="stats-grid" style="margin-bottom:12px;grid-template-columns:repeat(3,1fr);">${stat(discoverSummary.page_views, 'Discover views', 'info')}${stat(discoverSummary.events, 'Discover events', '')}${stat(discoverSummary.actions, 'Discover actions', 'success')}</div>${metricList(discoverEvents.reduce((acc, [key,value]) => (acc[key] = value, acc), {}), 'No Discover events recorded.')}</div>
+                <div class="card"><h2><i class="fa-solid fa-arrow-trend-up"></i> Discover-to-shop traffic</h2><div class="table-wrap"><table><thead><tr><th>Rank</th><th>Shop</th><th>Activity</th><th>Share</th></tr></thead><tbody>${discoverShopTable}</tbody></table></div></div>
             </div>
-            <div class="card"><h2><i class="fa-solid fa-chart-line"></i> Monthly Visits (Last 12 Months)</h2>
-                <div class="chart-container"><div class="chart-bar">
-                    ${sortedMonthlyVisits.map(([month, count]) => `
-                        <div class="bar" style="height:${(count/maxMonthly)*100}%;">
-                            <div class="bar-value">${count}</div>
-                            <div class="bar-label">${month}</div>
-                        </div>
-                    `).join('') || '<div style="text-align:center;color:var(--text2);width:100%;">No data</div>'}
-                </div></div>
+            <div class="platform-visits-grid">
+                <div class="card"><h2><i class="fa-solid fa-arrow-right-to-bracket"></i> Top referrers</h2>${metricList(referrers, 'No referrer data recorded.')}</div>
+                <div class="card"><h2><i class="fa-solid fa-mobile-screen"></i> Devices</h2>${metricList(devices, 'No device data recorded.')}</div>
             </div>
-            <div class="card"><h2><i class="fa-solid fa-calendar"></i> Yearly Visits</h2>
-                <div class="table-wrap"><table><thead><tr><th>Year</th><th>Visits</th></tr></thead><tbody>
-                    ${sortedYearlyVisits.map(([year, count]) => `<tr><td>${year}</td><td>${count}</td></tr>`).join('') || '<tr><td colspan="2">No data</td></tr>'}
-                </tbody></table></div>
+            <div class="platform-visits-grid">
+                <div class="card"><h2><i class="fa-solid fa-globe"></i> Visitor countries</h2>${metricList(countries, 'No country data recorded.')}</div>
+                <div class="card"><h2><i class="fa-solid fa-chart-pie"></i> Event mix</h2>${metricList(events, 'No event data recorded.')}</div>
             </div>
-            <div class="card"><h2><i class="fa-solid fa-user-plus"></i> Daily Signups (Last 30 Days)</h2>
-                <div class="chart-container"><div class="chart-bar">
-                    ${sortedSignups.map(([day, count]) => `
-                        <div class="bar" style="height:${(count/maxSignups)*100}%;background:linear-gradient(to top,#059669,#10b981);">
-                            <div class="bar-value">${count}</div>
-                            <div class="bar-label">${day.slice(5)}</div>
-                        </div>
-                    `).join('') || '<div style="text-align:center;color:var(--text2);width:100%;">No signup data</div>'}
-                </div></div>
+            <div class="card"><h2><i class="fa-solid fa-store"></i> Shops receiving activity</h2><div class="table-wrap"><table><thead><tr><th>Rank</th><th>Shop</th><th>Activity</th></tr></thead><tbody>${shopTable}</tbody></table></div></div>
+            <div class="platform-visits-grid">
+                <div class="card"><h2><i class="fa-solid fa-user-plus"></i> Signup and activation</h2><div class="detail-grid"><div class="detail-item"><label>Signups in period</label><value>${num(countOf(events.signup_completed))}</value></div><div class="detail-item"><label>Signup starts</label><value>${num(countOf(events.signup_started))}</value></div><div class="detail-item"><label>Profiles completed</label><value>${num(countOf(events.profile_completed))}</value></div><div class="detail-item"><label>Activation rate</label><value>${percent(countOf(events.signup_completed) ? countOf(events.profile_completed) / countOf(events.signup_completed) * 100 : 0)}</value></div></div></div>
+                <div class="card"><h2><i class="fa-solid fa-chart-simple"></i> Listing mix</h2>${metricList(planBreakdown, 'No plan data available.')}</div>
             </div>
-            <div class="card"><h2><i class="fa-solid fa-arrow-trend-up"></i> Top Referrers</h2>
-                ${sortedReferrers.length ? sortedReferrers.map(([name, count]) => `
-                    <div class="referrer-bar">
-                        <div class="referrer-name">${name}</div>
-                        <div class="referrer-track"><div class="referrer-fill" style="width:${(count/maxReferrer)*100}%;"></div></div>
-                        <div class="referrer-count">${count}</div>
-                    </div>
-                `).join('') : '<p class="sub">No referrer data yet</p>'}
-            </div>
-            <div class="card"><h2><i class="fa-solid fa-crown"></i> Top Shops by Visits</h2>
-                <div class="table-wrap"><table><thead><tr><th>Rank</th><th>Shop</th><th>Visits</th><th>Plan</th></tr></thead><tbody>
-                    ${topShopsByVisits.map((s, i) => `
-                        <tr><td><strong>#${i+1}</strong></td><td>${s.slug}</td><td>${s.visits}</td><td><span class="plan-badge plan-${s.plan}">${s.plan.toUpperCase()}</span></td></tr>
-                    `).join('') || '<tr><td colspan="4">No data</td></tr>'}
-                </tbody></table></div>
-            </div>
-            <div class="card"><h2><i class="fa-solid fa-gift"></i> Top Shops by Referrals</h2>
-                <div class="table-wrap"><table><thead><tr><th>Rank</th><th>Shop</th><th>Referral Code</th><th>Referrals</th></tr></thead><tbody>
-                    ${topShopsByReferrals.map((s, i) => `
-                        <tr><td><strong>#${i+1}</strong></td><td>${s.slug}</td><td>${s.referral_code}</td><td>${s.referrals}</td></tr>
-                    `).join('') || '<tr><td colspan="4">No referrals yet</td></tr>'}
-                </tbody></table></div>
-            </div>
-            <div class="card"><h2><i class="fa-solid fa-globe"></i> Countries</h2>
-                <div class="country-list">
-                    ${Object.entries(data.countries || {}).sort((a,b) => b[1]-a[1]).map(([c,v]) => `
-                        <div class="country-item"><span>${c}</span><span style="font-weight:700;">${v} shops</span></div>
-                    `).join('') || '<p class="sub">No data</p>'}
-                </div>
-            </div>`;
+            <div class="card"><p style="margin:0;color:var(--text2);font-size:.82rem;line-height:1.6;"><strong>Interpretation:</strong> platform views include recorded page and public shop views. Discover activity is shown separately so you can measure whether Discover is sending attention to listed businesses. Counts are recorded events, not guaranteed unique people or completed sales.</p></div>`;
     } catch (e) {
         document.getElementById('main-content').innerHTML = `<div class="card"><div class="msg msg-error show">${e.message || 'Failed to load Analytics'}</div></div>`;
         showToast(e.message || 'Failed to load Analytics', 'error');
