@@ -814,12 +814,12 @@
                 catalog_url: formData.catalog_url || null,
                 socials: formData.socials || {},
                 custom_links: formData.custom_links || [],
-                brand_primary: formData.brand_primary || null,
-                brand_secondary: formData.brand_secondary || null,
-                gradient: formData.gradient,
-                gradient_colors: formData.gradient_colors || null,
-                heading_font: formData.heading_font || null,
-                body_font: formData.body_font || null,
+                brand_primary: currentPlan !== 'free' ? (formData.brand_primary || null) : null,
+                brand_secondary: currentPlan !== 'free' ? (formData.brand_secondary || null) : null,
+                gradient: currentPlan === 'premium' ? formData.gradient : null,
+                gradient_colors: currentPlan === 'premium' ? (formData.gradient_colors || null) : null,
+                heading_font: currentPlan !== 'free' ? (formData.heading_font || null) : null,
+                body_font: currentPlan !== 'free' ? (formData.body_font || null) : null,
                 latitude: formData.latitude !== undefined ? formData.latitude : null,
                 longitude: formData.longitude !== undefined ? formData.longitude : null,
                 qr_code_url: null
@@ -1869,7 +1869,7 @@
                     shopJson = { ...(window.S.shopJson || {}) };
                     shopData = window.S.shopData || null;
                     if (!shopJson.country && shopData && shopData.country) shopJson.country = shopData.country;
-                    currentPlan = window.S.plan || session.plan || 'free';
+                    currentPlan = (shopData && shopData.plan) || window.S.plan || session.plan || 'free';
                     socials = { ...(shopJson.socials || {}) };
                     if (shopJson.custom_links) {
                         customLinks = shopJson.custom_links.map(l => ({
