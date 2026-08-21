@@ -345,12 +345,12 @@
 <!-- Mobile sidebar overlay -->
 <div id="mobile-sidebar-overlay" class="mobile-sidebar-overlay" onclick="closeSidebarMobile()"></div>
 
-<!-- Shop Details Modal -->
+<!-- Shop Preview Modal -->
 <div id="shop-modal" class="modal-overlay" onclick="if(event.target===this)closeModal()">
-    <div class="modal">
-        <div class="modal-header"><h3><i class="fa-solid fa-store"></i> Shop Details</h3><button class="modal-close" onclick="closeModal()">×</button></div>
-        <div class="modal-body" id="shop-modal-body"></div>
-        <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal()">Close</button></div>
+    <div class="modal" style="max-width:1100px;width:96vw;height:90vh;">
+        <div class="modal-header"><h3><i class="fa-solid fa-store"></i> Shop Preview <span style="font-size:.75rem;color:var(--text2);font-weight:500;">(stays inside admin; normal public preview)</span></h3><button class="modal-close" onclick="closeModal()">×</button></div>
+        <div class="modal-body" id="shop-modal-body" style="padding:0;height:calc(90vh - 80px);background:#f8fafc;"><iframe id="shop-preview-frame" title="MyShub shop preview" style="width:100%;height:100%;border:0;"></iframe></div>
+        <div class="modal-footer"><span class="sub" style="margin-right:auto;">This uses the normal public shop route and may count as a visit.</span><button class="btn btn-outline" onclick="closeModal()">Close</button></div>
     </div>
 </div>
 
@@ -394,6 +394,7 @@
 
 <script>
 const API = 'https://emltechstudio-myshub-api.hf.space';
+const APP_URL = 'https://myshub.site';
 let adminToken = localStorage.getItem('myshub_admin_token');
 let adminRole = localStorage.getItem('myshub_admin_role');
 let adminEmail = localStorage.getItem('myshub_admin_email');
@@ -659,9 +660,10 @@ async function loadShops(page = 1) {
                             <td>${s.created_at ? s.created_at.slice(0,10) : '-'}</td>
                             <td><div class="action-btns">
                                 <button class="action-btn view" onclick="viewShop('${s.email}')"><i class="fa-solid fa-eye"></i></button>
+                                <button class="action-btn view" onclick="openShopPreview('${s.slug}')" title="Preview inside admin"><i class="fa-solid fa-display"></i></button>
                                 <button class="action-btn upgrade" onclick="openUpgrade('${s.email}', '${s.plan}')"><i class="fa-solid fa-crown"></i></button>
                                 <button class="action-btn edit" onclick="openStatusModal('${s.email}', '${s.status}')"><i class="fa-solid fa-toggle-on"></i></button>
-                                <a href="https://myshub.afric.site/${s.slug}" target="_blank" class="action-btn view" style="text-decoration:none;"><i class="fa-solid fa-external-link-alt"></i></a>
+                                <a href="https://myshub.site/${s.slug}" target="_blank" class="action-btn view" style="text-decoration:none;"><i class="fa-solid fa-external-link-alt"></i></a>
                             </div></td>
                         </tr>
                     `).join('') || '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text2);">No shops found</td></tr>'}
@@ -695,6 +697,8 @@ async function performSearch() {
     try {
         const shop = await apiGet('/admin/shop/' + encodeURIComponent(query));
         const shopJson = typeof shop.shop_json === 'string' ? JSON.parse(shop.shop_json) : (shop.shop_json || {});
+        const analytics = shopJson.analytics || {};
+        const visitCount = Number(shop.visit_count || analytics.visit_count || 0);
         document.getElementById('search-results').innerHTML = `
             <div class="card" style="animation:fadeIn 0.3s ease;">
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
@@ -709,7 +713,7 @@ async function performSearch() {
                     <div class="detail-item"><label>Email</label><value>${shop.email}</value></div>
                     <div class="detail-item"><label>Plan</label><value>${shop.plan}</value></div>
                     <div class="detail-item"><label>Status</label><value>${shop.status}</value></div>
-                    <div class="detail-item"><label>Visits</label><value>${shop.visit_count || 0}</value></div>
+                    <div class="detail-item"><label>Visits</label><value>${visitCount}</value></div>
                     <div class="detail-item"><label>Country</label><value>${shop.country || '-'}</value></div>
                     <div class="detail-item"><label>Referral Code</label><value>${shop.referral_code || '-'}</value></div>
                     <div class="detail-item"><label>Referred By</label><value>${shop.referred_by || '-'}</value></div>
@@ -719,12 +723,14 @@ async function performSearch() {
                     <div class="detail-item"><label>Phone</label><value>${shopJson.phone || shopJson.contact?.phone || '-'}</value></div>
                 </div>
                 <div style="margin-top:20px;"><h4 style="margin-bottom:10px;">Security Questions</h4>
-                    ${(shopJson.security_questions || []).map(q => `<div class="detail-item"><label>${q.question}</label><value>${q.answer}</value></div>`).join('') || '<p>No security questions stored.</p>'}
+                    <div class="detail-item"><label>Recovery questions</label><value>Not returned by the admin API</value></div>
+                    <p class="sub" style="margin-top:10px;">Security answers are intentionally not displayed. The current backend’s reset action can generate a reset link, but it does not provide a temporary-password workflow.</p>
                 </div>
                 <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
+                    <button class="btn" onclick="openShopPreview('${shop.slug}')"><i class="fa-solid fa-display"></i> Preview Inside Admin</button>
                     <button class="btn" onclick="openUpgrade('${shop.email}', '${shop.plan}')"><i class="fa-solid fa-crown"></i> Upgrade/Downgrade</button>
                     <button class="btn btn-outline" onclick="openStatusModal('${shop.email}', '${shop.status}')"><i class="fa-solid fa-toggle-on"></i> Change Status</button>
-                    <a href="https://myshub.afric.site/${shop.slug}" target="_blank" class="btn btn-outline" style="text-decoration:none;"><i class="fa-solid fa-external-link-alt"></i> View Live</a>
+                    <a href="https://myshub.site/${shop.slug}" target="_blank" class="btn btn-outline" style="text-decoration:none;"><i class="fa-solid fa-external-link-alt"></i> View Live</a>
                     <button class="btn btn-danger" onclick="resetShopPassword('${shop.email}')"><i class="fa-solid fa-key"></i> Reset Password</button>
                 </div>
             </div>`;
@@ -1056,6 +1062,12 @@ function generateStaffKey() {
         .catch(e => showToast(e.message, 'error'))
         .finally(() => showLoading(false));
 }
+function openShopPreview(slug) {
+    const frame = document.getElementById('shop-preview-frame');
+    if (!frame || !slug) return;
+    frame.src = APP_URL + '/shop.html?slug=' + encodeURIComponent(slug);
+    document.getElementById('shop-modal').classList.add('active');
+}
 function viewShop(email) {
     switchSection('search', document.querySelectorAll('.nav-item')[2]);
     setTimeout(() => {
@@ -1123,7 +1135,11 @@ async function resetShopPassword(email) {
     } catch (e) { showToast(e.message, 'error'); }
     finally { showLoading(false); }
 }
-function closeModal() { document.getElementById('shop-modal').classList.remove('active'); }
+function closeModal() {
+    const frame = document.getElementById('shop-preview-frame');
+    if (frame) frame.src = 'about:blank';
+    document.getElementById('shop-modal').classList.remove('active');
+}
 function togglePassword(inputId, btn) {
     const input = document.getElementById(inputId);
     const icon = btn.querySelector('i');
