@@ -276,7 +276,7 @@
   <!-- Login -->
   <section id="sec-login" class="sec"><div class="auth-container"><div class="auth-card"><div class="brand"><div style="width:48px;height:48px;background:var(--brand);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:#fff;font-weight:800;font-size:20px">M</div><h2>Welcome back</h2><p>Sign in to manage your hub</p></div><div id="loginError" class="auth-error"></div><div class="form-group"><label>Email</label><input id="loginEmail" class="form-input" type="email" placeholder="you@business.com" autocomplete="email"></div><div class="form-group"><label>Password</label><div class="input-wrap"><input id="loginPassword" class="form-input" type="password" placeholder="Enter your password" autocomplete="current-password"><button type="button" class="pw-toggle" onclick="togglePw('loginPassword', this)" aria-label="Show password"><i class="fa-regular fa-eye"></i></button></div></div><button id="loginBtn" class="btn btn-primary btn-block btn-lg" onclick="doLogin()"><span class="spinner"></span><span class="btn-text">Sign In</span></button><div style="font-size:13px;text-align:center;margin-top:16px;color:var(--text-secondary)">No account? <a onclick="showAuth('register')" style="color:var(--brand);font-weight:600;cursor:pointer">Create free account</a></div><div style="font-size:13px;text-align:center;margin-top:8px"><a onclick="showAuth('recover')" style="color:var(--text-secondary);cursor:pointer">Forgot password?</a></div><div style="font-size:13px;text-align:center;margin-top:8px"><a onclick="showAuth('landing')" style="color:var(--text-tertiary);cursor:pointer">Back to home</a></div></div></div></section>
 
-  <!-- Register (NEW OTP flow) -->
+  <!-- Register (OTP flow) -->
   <section id="sec-register" class="sec">
     <div class="auth-container">
       <div class="auth-card" style="max-width:480px">
@@ -380,7 +380,7 @@
     </div>
   </section>
 
-  <!-- Recover (NEW OTP flow) -->
+  <!-- Recover (OTP flow) -->
   <section id="sec-recover" class="sec">
     <div class="auth-container">
       <div class="auth-card">
@@ -539,7 +539,6 @@ let S = {
   currentPage: 'overview',
   firstSession: false,
   regSlugAvailable: null,
-  // new auth flow state
   pendingRegEmail: null,
   registrationToken: null,
   pendingResetEmail: null,
@@ -547,7 +546,6 @@ let S = {
 };
 let navigationToken = 0;
 
-// Expose S to child pages (edit, etc.)
 window.S = S;
 
 // ================================================================
@@ -603,7 +601,7 @@ window.updateNotifBadge = function() {
 };
 
 // ================================================================
-//  NOTIFICATION ENGINE (local analytics + backend messages)
+//  NOTIFICATION ENGINE
 // ================================================================
 function generateLocalNotifications(shopJson, plan) {
   const analytics = shopJson?.analytics || {};
@@ -650,7 +648,7 @@ function generateLocalNotifications(shopJson, plan) {
     }).join(', ');
     const title = plan === 'free' ? `🌍 Top country` : `🌍 Top ${limit} countries`;
     newNotifs.push({
-        id: 'countries-' + (plan === 'free' ? 'free' : plan) + '-' + todayKey,
+      id: 'countries-' + (plan === 'free' ? 'free' : plan) + '-' + todayKey,
       title: title,
       message: `${countryMsg}` + (plan !== 'premium' ? ' — upgrade for more' : ''),
       type: plan === 'free' ? 'upgrade' : 'info',
@@ -834,7 +832,7 @@ async function refreshNotifications() {
     S.shopData = shop;
     S.shopJson = shop.shop_json || {};
     S.plan = shop.plan || S.plan;
-    window.S = S; // keep global reference updated
+    window.S = S;
     const cachedNotifs = readCachedNotifications(S.slug);
     const deletedIds = readDeletedNotificationIds(S.slug);
     S.notifications = cachedNotifs.filter(n => n && n.id && !deletedIds.has(String(n.id)));
@@ -943,7 +941,6 @@ function showAuth(t) {
     S.pendingRegEmail = null;
     showRegStep(0);
     const err = $('registerError'); if (err) err.style.display = 'none';
-    // Ensure OTP digit boxes are wired (once)
     setupOtpInputs('regOtpInputs');
   }
   if (t === 'recover') {
@@ -957,7 +954,7 @@ function showAuth(t) {
 }
 
 // ================================================================
-//  REGISTRATION — NEW OTP FLOW
+//  REGISTRATION — OTP FLOW
 // ================================================================
 let regStep = 0;
 let recStep = 0;
@@ -1063,7 +1060,6 @@ async function registerStart() {
   if (pw.length < 6) { err.textContent = 'Password must be at least 6 characters.'; err.style.display = 'block'; return; }
   if (pw !== cpw) { err.textContent = 'Passwords do not match.'; err.style.display = 'block'; return; }
 
-  // Email may have changed — clear any prior verification token
   S.registrationToken = null;
 
   showLoading();
@@ -1091,7 +1087,6 @@ async function registerVerify() {
   const err = $('registerError');
   err.style.display = 'none';
 
-  // Already verified — just advance
   if (S.registrationToken) { showRegStep(2); return; }
 
   const otp = getOtpValue('regOtpInputs');
@@ -1104,7 +1099,6 @@ async function registerVerify() {
     const data = await apiPub('/auth/register/verify', 'POST', { email: S.pendingRegEmail, otp });
     S.registrationToken = data.registration_token;
     showRegStep(2);
-    // Focus business name for smooth flow
     setTimeout(() => { const b = $('regBusiness'); if (b) b.focus(); }, 100);
   } catch (e) {
     err.textContent = e.message || 'Verification failed.';
@@ -1163,7 +1157,7 @@ async function registerComplete() {
 
     const session = {
       email: S.pendingRegEmail,
-      password: $('regPassword').value, // still in the DOM at this point
+      password: $('regPassword').value,
       slug: data.slug || slug,
       plan: 'free'
     };
@@ -1173,6 +1167,16 @@ async function registerComplete() {
     S.plan = session.plan;
     S.firstSession = true;
     S.registrationToken = null;
+
+    // Seed dashboard state with what the user just typed, so the
+    // dashboard has something to render even if /shop/preview
+    // hasn't caught up yet on the backend.
+    S.shopJson = {
+      business_name: business,
+      contact: { phone: phone, email: session.email }
+    };
+    S.shopData = { slug: session.slug, plan: session.plan, shop_json: S.shopJson };
+
     localStorage.setItem('myshub_session', JSON.stringify(session));
     window.S = S;
     hideLoading();
@@ -1187,7 +1191,7 @@ async function registerComplete() {
   }
 }
 
-// ---------- Slug helpers (unchanged behaviour) ----------
+// ---------- Slug helpers ----------
 function autoSlug() {
   const name = $('regBusiness').value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').substring(0,50);
   if (!$('regSlug').value || $('regSlug').dataset.autofilled === 'true') {
@@ -1361,8 +1365,6 @@ function updatePhoneHint() {
   }
 }
 
-// Build the full international phone for the backend.
-// Strips a leading 0, then prefixes the dial code with "+".
 function getFullPhone() {
   const phoneEl = $('regPhone');
   let raw = (phoneEl ? phoneEl.value : '').trim().replace(/\D/g, '');
@@ -1373,7 +1375,6 @@ function getFullPhone() {
   return '+' + dial + raw;
 }
 
-// Close the country-code dropdown when clicking outside
 document.addEventListener('click', e => {
   const dd = $('ccDropdown');
   const btn = $('ccBtn');
@@ -1409,7 +1410,7 @@ async function doLogin() {
 }
 
 // ================================================================
-//  RECOVERY — NEW OTP FLOW
+//  RECOVERY — OTP FLOW
 // ================================================================
 async function forgotPasswordStart() {
   const err = $('recoverError');
@@ -1498,7 +1499,6 @@ async function resetPasswordFinal() {
     S.resetToken = null;
     S.pendingResetEmail = null;
     toast('Password reset! Please sign in.', 'success');
-    // Reset the recovery wizard for next time
     showRecStep(0);
     $('recoverNewPw').value = '';
     $('recoverConfirmPw').value = '';
@@ -1656,14 +1656,20 @@ function updateDrawerInfo() {
 // ================================================================
 //  ENTER APP
 // ================================================================
-function enterApp(firstSession = false) {
+// FIX: now async and awaits loadShopData() BEFORE loadPage('overview')
+// so the dashboard has business_name / plan / slug to render.
+async function enterApp(firstSession = false) {
   document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
   $('sec-app').classList.add('active');
   S.firstSession = Boolean(firstSession);
+
+  await loadShopData();
+
   loadPage('overview');
-  loadShopData().finally(() => {
-    if (S.firstSession && !localStorage.getItem('myshub_onboarding_seen_' + S.slug)) showOnboardingWelcome();
-  });
+
+  if (S.firstSession && !localStorage.getItem('myshub_onboarding_seen_' + S.slug)) {
+    showOnboardingWelcome();
+  }
 }
 
 async function loadShopData() {
@@ -1676,7 +1682,10 @@ async function loadShopData() {
     window.S = S;
     updateDrawerInfo();
     await refreshNotifications();
-  } catch(e) {}
+  } catch(e) {
+    // If the fetch fails (e.g. fresh signup where backend hasn't
+    // caught up yet), keep whatever S.shopJson was already seeded.
+  }
 }
 
 // ================================================================
@@ -1710,7 +1719,6 @@ function doLogout() {
   toast('Logged out successfully', 'info');
 }
 
-// Make loadPage accessible to all child pages
 window.loadPage = loadPage;
 
 // ================================================================
@@ -1719,7 +1727,6 @@ window.loadPage = loadPage;
 function init() {
   initDarkMode();
 
-  // Wire OTP digit inputs once on load (idempotent)
   setupOtpInputs('regOtpInputs');
   setupOtpInputs('recOtpInputs');
   updatePhoneHint();
@@ -1757,4 +1764,4 @@ document.addEventListener('DOMContentLoaded', init);
   });
 </script>
 </body>
-</html>
+        </html>
