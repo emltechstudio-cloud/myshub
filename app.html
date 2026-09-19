@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#2563eb" />
+  <title>MyShub – Dashboard</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/icon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="/analytics-collector.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    /* ===== RESET & VARIABLES ===== */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --brand: #2563eb; --brand-dark: #1d4ed8; --brand-soft: #eff6ff;
+      --bg: #f8fafc; --surface: #ffffff; --surface-hover: #f1f5f9;
+      --text: #0f172a; --text-secondary: #475569; --text-tertiary: #94a3b8;
+      --border: #e2e8f0; --border-light: #f1f5f9;
+      --success: #10b981; --success-soft: #d1fae5; --danger: #ef4444; --danger-soft: #fee2e2;
+      --warning: #f59e0b; --warning-soft: #fef3c7; --purple: #8b5cf6; --purple-soft: #ede9fe;
+      --radius: 20px; --radius-sm: 12px; --radius-lg: 24px;
+      --shadow: 0 4px 24px rgba(0,0,0,0.06); --shadow-lg: 0 12px 40px rgba(0,0,0,0.10);
+      --transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+    }
+    [data-theme="dark"] {
+      --bg: #0f172a; --surface: #1e293b; --surface-hover: #334155;
+      --text: #f8fafc; --text-secondary: #94a3b8; --text-tertiary: #64748b;
+      --border: #334155; --border-light: #1e293b;
+    }
+    html, body { height:100%; font-family:Inter,sans-serif; background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased; transition:background .3s,color .3s; }
+    #app { display:flex; flex-direction:column; height:100vh; height:100dvh; overflow:hidden; }
+    .sec { display:none; flex-direction:column; height:100%; overflow:hidden; width:100%; }
+    .sec.active { display:flex; }
+
+    /* ===== HEADER ===== */
+    .app-head { height:64px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; background:var(--surface); border-bottom:1px solid var(--border); flex-shrink:0; position:sticky; top:0; z-index:10; transition:background .3s; }
+    .head-left { display:flex; align-items:center; gap:12px; }
+    .hamburger { width:40px; height:40px; border-radius:10px; border:1px solid var(--border); background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-secondary); }
+    .head-brand { display:flex; align-items:center; gap:10px; font-weight:800; font-size:18px; }
+    .head-brand-icon { width:36px; height:36px; background:var(--brand); border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; }
+    .head-actions { display:flex; align-items:center; gap:8px; }
+    .icon-btn { width:40px; height:40px; border-radius:10px; border:1px solid var(--border); background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-secondary); position:relative; transition:var(--transition); }
+    .icon-btn:hover { background:var(--surface-hover); }
+    .badge { position:absolute; top:-4px; right:-4px; background:var(--danger); color:#fff; font-size:10px; font-weight:700; min-width:18px; height:18px; border-radius:9px; display:flex; align-items:center; justify-content:center; padding:0 4px; border:2px solid var(--surface); animation:scaleIn .2s; }
+
+    /* ===== DRAWER ===== */
+    .drawer-overlay { position:fixed; inset:0; background:rgba(15,23,42,.45); backdrop-filter:blur(4px); z-index:50; display:none; }
+    .drawer-overlay.on { display:block; animation:fadeIn .2s; }
+    .drawer { position:fixed; top:0; left:0; bottom:0; width:300px; max-width:85vw; background:var(--surface); z-index:60; transform:translateX(-100%); transition:transform .3s cubic-bezier(0.4,0,0.2,1); display:flex; flex-direction:column; box-shadow:var(--shadow-lg); }
+    .drawer.on { transform:translateX(0); }
+    .drawer-head { padding:20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
+    .drawer-avatar { width:48px; height:48px; border-radius:14px; background:linear-gradient(135deg,var(--brand),var(--purple)); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:20px; }
+    .drawer-menu { flex:1; overflow-y:auto; padding:12px; }
+    .drawer-item { width:100%; display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:12px; border:none; background:none; font-family:inherit; font-size:14px; font-weight:500; color:var(--text-secondary); cursor:pointer; text-align:left; transition:var(--transition); }
+    .drawer-item:hover { background:var(--surface-hover); color:var(--text); }
+    .drawer-item.active { background:var(--brand-soft); color:var(--brand); }
+    .drawer-item i { width:20px; text-align:center; }
+    .drawer-footer { padding:12px; border-top:1px solid var(--border); }
+
+    /* ===== BOTTOM NAV ===== */
+    .bot-nav { position:fixed; bottom:0; left:0; right:0; background:var(--surface); border-top:1px solid var(--border); display:flex; justify-content:space-around; padding:8px 0 max(8px, env(safe-area-inset-bottom)); z-index:20; transition:background .3s; }
+    .bot-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px; cursor:pointer; color:var(--text-tertiary); border:none; background:none; font-family:inherit; transition:var(--transition); }
+    .bot-item.on { color:var(--brand); }
+    .bot-item i { font-size:20px; }
+    .bot-item span { font-size:10px; font-weight:600; }
+
+    /* ===== CONTENT AREA ===== */
+    .content-area { flex:1; overflow-y:auto; padding:20px 16px 100px; -webkit-overflow-scrolling:touch; position:relative; }
+    .content-area.iframe-page { padding:0; overflow:hidden; }
+    .content-area .iframe-wrap { width:100%; height:100%; position:absolute; top:0; left:0; }
+    .content-area .iframe-wrap iframe { width:100%; height:100%; border:none; background:var(--bg); }
+    .iframe-back-btn { position:fixed; top:16px; left:16px; z-index:30; width:40px; height:40px; border-radius:50%; background:rgba(15,23,42,.6); backdrop-filter:blur(8px); color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; border:none; font-size:16px; transition:var(--transition); }
+    .iframe-back-btn:hover { background:rgba(15,23,42,.8); }
+
+    /* ===== LOADING OVERLAY ===== */
+    .loading-overlay {
+      position:fixed;
+      inset:0;
+      background:var(--bg);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      gap:20px;
+      z-index:9999;
+      transition:opacity 0.3s ease;
+      opacity:0;
+      pointer-events:none;
+    }
+    .loading-overlay.on {
+      display:flex;
+      opacity:1;
+      pointer-events:auto;
+    }
+    .loading-overlay .loader-logo {
+      width:64px;
+      height:64px;
+      border-radius:18px;
+      animation: pulse-logo 1.8s ease-in-out infinite;
+      will-change: transform, opacity;
+    }
+    .loading-overlay .loader-fallback {
+      font-size:48px;
+      font-weight:800;
+      color:var(--brand);
+      animation: pulse-logo 1.8s ease-in-out infinite;
+    }
+    .loading-overlay .loader-text {
+      font-size:14px;
+      color:var(--text-secondary);
+      animation: pulse-logo 1.8s ease-in-out infinite;
+      animation-delay: 0.2s;
+      font-weight:500;
+    }
+
+    @keyframes pulse-logo {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.06); opacity: 1; }
+    }
+    .onboarding-welcome { position:fixed; inset:0; z-index:80; display:flex; align-items:center; justify-content:center; padding:20px; background:rgba(15,23,42,.48); backdrop-filter:blur(5px); }
+    .onboarding-card { width:min(440px,100%); background:var(--surface); color:var(--text); border:1px solid var(--border); border-radius:24px; padding:28px; box-shadow:var(--shadow-lg); animation:scaleIn .22s ease-out; }
+    .onboarding-icon { width:54px; height:54px; border-radius:16px; display:flex; align-items:center; justify-content:center; background:var(--brand-soft); color:var(--brand); font-size:24px; margin-bottom:16px; }
+    .onboarding-card h2 { margin:0 0 8px; font-size:22px; }
+    .onboarding-card p { margin:0 0 18px; color:var(--text-secondary); font-size:14px; line-height:1.55; }
+    .onboarding-next { display:flex; gap:10px; margin-top:18px; }
+    .onboarding-next .btn { flex:1; }
+    .field-hint { font-size:11px; color:var(--text-tertiary); line-height:1.4; margin-top:5px; }
+
+    /* ===== AUTH PAGES ===== */
+    .auth-container { flex:1; display:flex; align-items:center; justify-content:center; padding:20px; background:var(--bg); overflow-y:auto; }
+    .auth-card { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:32px 28px; max-width:480px; width:100%; box-shadow:var(--shadow); }
+    .auth-card .brand { text-align:center; margin-bottom:24px; }
+    .auth-card .brand img { width:48px; height:48px; border-radius:12px; }
+    .auth-card .brand h1 { font-size:1.6rem; font-weight:800; color:var(--brand); margin-top:8px; }
+    .auth-card .brand p { color:var(--text-secondary); font-size:0.9rem; }
+    .auth-error { background:var(--danger-soft); color:var(--danger); padding:10px 12px; border-radius:10px; font-size:13px; display:none; margin-bottom:14px; border:1px solid #fecaca; }
+    .auth-error.show { display:block; }
+    .form-group { margin-bottom:14px; }
+    .form-group label { font-size:13px; font-weight:600; margin-bottom:6px; display:block; color:var(--text-secondary); }
+    .form-input { width:100%; padding:12px 14px; border:1.5px solid var(--border); border-radius:12px; font-size:14px; font-family:inherit; background:var(--surface); color:var(--text); transition:var(--transition); outline:none; }
+    .form-input:focus { border-color:var(--brand); box-shadow:0 0 0 3px var(--brand-soft); }
+    .input-wrap { position:relative; }
+    .input-wrap .form-input { padding-right:44px; }
+    .pw-toggle { position:absolute; right:10px; top:50%; transform:translateY(-50%); width:32px; height:32px; border-radius:8px; border:none; background:transparent; display:flex; align-items:center; justify-content:center; color:var(--text-tertiary); cursor:pointer; transition:var(--transition); }
+    .pw-toggle:hover { background:var(--surface-hover); color:var(--text-secondary); }
+    .pw-toggle i { font-size:14px; }
+    .btn { border:none; cursor:pointer; font-family:inherit; font-weight:600; transition:var(--transition); display:inline-flex; align-items:center; justify-content:center; gap:8px; border-radius:12px; padding:12px 20px; font-size:14px; position:relative; }
+    .btn-primary { background:var(--brand); color:#fff; box-shadow:0 2px 8px rgba(37,99,235,.25); }
+    .btn-primary:hover { background:var(--brand-dark); transform:translateY(-1px); }
+    .btn-block { width:100%; }
+    .btn-lg { padding:14px 24px; font-size:15px; border-radius:16px; }
+    .btn-ghost { background:var(--surface); color:var(--text); border:1px solid var(--border); }
+    .btn-ghost:hover { background:var(--surface-hover); }
+    .btn:disabled { opacity:.6; cursor:not-allowed; transform:none !important; }
+    .spinner { width:16px; height:16px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:spin .6s linear infinite; display:none; flex-shrink:0; }
+    .btn.loading .spinner { display:inline-block; }
+    .btn.loading .btn-text { opacity:.8; }
+    .wizard-step { display:none; }
+    .wizard-step.active { display:block; }
+    .wizard-dot { width:8px; height:8px; border-radius:50%; background:var(--border); transition:var(--transition); }
+    .wizard-dot.active { background:var(--brand); }
+    .slug-check { font-size:12px; margin-top:6px; font-weight:600; }
+    .slug-check.ok { color:var(--success); }
+    .slug-check.bad { color:var(--danger); }
+
+    /* ===== OTP INPUT ===== */
+    .otp-inputs { display:flex; gap:8px; justify-content:center; margin:8px 0 4px; }
+    .otp-input {
+      width:100%;
+      max-width:52px;
+      height:56px;
+      text-align:center;
+      font-size:22px;
+      font-weight:700;
+      border:1.5px solid var(--border);
+      border-radius:12px;
+      background:var(--surface);
+      color:var(--text);
+      outline:none;
+      font-family:inherit;
+      transition:var(--transition);
+    }
+    .otp-input:focus { border-color:var(--brand); box-shadow:0 0 0 3px var(--brand-soft); }
+
+    /* ===== PHONE GROUP / COUNTRY CODE ===== */
+    .phone-group { display:flex; gap:8px; position:relative; }
+    .cc-btn {
+      flex-shrink:0;
+      padding:0 12px;
+      height:44px;
+      border:1.5px solid var(--border);
+      border-radius:12px;
+      background:var(--surface);
+      color:var(--text);
+      font-family:inherit;
+      font-size:14px;
+      font-weight:600;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      transition:var(--transition);
+    }
+    .cc-btn:hover { background:var(--surface-hover); }
+    .cc-btn .cc-flag { font-size:18px; line-height:1; }
+    .cc-dropdown {
+      position:absolute;
+      top:calc(100% + 6px);
+      left:0;
+      width:100%;
+      max-height:280px;
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:14px;
+      box-shadow:var(--shadow-lg);
+      z-index:100;
+      display:none;
+      flex-direction:column;
+      overflow:hidden;
+    }
+    .cc-dropdown.on { display:flex; }
+    .cc-search {
+      padding:10px 14px;
+      border:none;
+      border-bottom:1px solid var(--border);
+      font-family:inherit;
+      font-size:14px;
+      background:transparent;
+      color:var(--text);
+      outline:none;
+    }
+    .cc-list { overflow-y:auto; max-height:220px; }
+    .cc-item { padding:10px 14px; cursor:pointer; display:flex; align-items:center; gap:10px; font-size:14px; transition:background .15s; }
+    .cc-item:hover { background:var(--surface-hover); }
+    .cc-item .cc-flag { font-size:18px; line-height:1; }
+    .cc-item .cc-name { flex:1; }
+    .cc-item .cc-dial { color:var(--text-tertiary); font-weight:600; }
+    .cc-empty { padding:16px; text-align:center; font-size:13px; color:var(--text-tertiary); }
+
+    /* ===== TOAST ===== */
+    .toast-wrap { position:fixed; top:16px; right:16px; left:16px; z-index:100; display:flex; flex-direction:column; gap:8px; pointer-events:none; max-width:380px; margin-left:auto; }
+    .toast { pointer-events:auto; background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-lg); border-radius:14px; padding:12px 14px; display:flex; gap:10px; align-items:flex-start; animation:slideInRight .3s; cursor:pointer; }
+    .toast.success { border-left:4px solid var(--success); }
+    .toast.info { border-left:4px solid var(--brand); }
+    .toast.warning { border-left:4px solid var(--warning); }
+    .toast.error { border-left:4px solid var(--danger); }
+
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes scaleIn { from{opacity:0;transform:scale(.96)} to{opacity:1;transform:scale(1)} }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    @keyframes slideInRight { from{opacity:0;transform:translateX(24px)} to{opacity:1;transform:translateX(0)} }
+    @media(max-width:640px){ .auth-card { padding:24px 20px; } .otp-input { height:50px; font-size:20px; } }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ===== AUTH SECTIONS ===== -->
+  <!-- Landing -->
+  <section id="sec-landing" class="sec active" style="background:linear-gradient(135deg,#2563eb 0%,#7c3aed 50%,#2563eb 100%);color:#fff;align-items:center;justify-content:center;text-align:center;padding:32px 20px;overflow-y:auto">
+    <div style="max-width:520px;width:100%">
+      <div style="width:64px;height:64px;background:#fff;border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;color:#2563eb;font-weight:800">M</div>
+      <h1 style="font-size:36px;font-weight:800;line-height:1.1;margin-bottom:12px">Build your business hub, get discovered, grow faster</h1>
+      <p style="opacity:.9;margin-bottom:28px">One professional link for everything — socials, catalog, custom links, analytics and more.</p>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:32px">
+        <button id="landingGetStarted" class="btn btn-primary btn-lg btn-block" style="background:#fff;color:#2563eb">Get Started Free</button>
+        <button id="landingSignIn" class="btn btn-lg btn-block" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.25)">Sign In</button>
+      </div>
+      <p style="font-size:13px;opacity:.7"><a href="/discover.html" style="color:#fff;text-decoration:underline">Discover businesses</a> without signing in</p>
+    </div>
+  </section>
+
+  <!-- Login -->
+  <section id="sec-login" class="sec"><div class="auth-container"><div class="auth-card"><div class="brand"><div style="width:48px;height:48px;background:var(--brand);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:#fff;font-weight:800;font-size:20px">M</div><h2>Welcome back</h2><p>Sign in to manage your hub</p></div><div id="loginError" class="auth-error"></div><div class="form-group"><label>Email</label><input id="loginEmail" class="form-input" type="email" placeholder="you@business.com" autocomplete="email"></div><div class="form-group"><label>Password</label><div class="input-wrap"><input id="loginPassword" class="form-input" type="password" placeholder="Enter your password" autocomplete="current-password"><button type="button" class="pw-toggle" onclick="togglePw('loginPassword', this)" aria-label="Show password"><i class="fa-regular fa-eye"></i></button></div></div><button id="loginBtn" class="btn btn-primary btn-block btn-lg" onclick="doLogin()"><span class="spinner"></span><span class="btn-text">Sign In</span></button><div style="font-size:13px;text-align:center;margin-top:16px;color:var(--text-secondary)">No account? <a onclick="showAuth('register')" style="color:var(--brand);font-weight:600;cursor:pointer">Create free account</a></div><div style="font-size:13px;text-align:center;margin-top:8px"><a onclick="showAuth('recover')" style="color:var(--text-secondary);cursor:pointer">Forgot password?</a></div><div style="font-size:13px;text-align:center;margin-top:8px"><a onclick="showAuth('landing')" style="color:var(--text-tertiary);cursor:pointer">Back to home</a></div></div></div></section>
+
+  <!-- Register (NEW OTP flow) -->
+  <section id="sec-register" class="sec">
+    <div class="auth-container">
+      <div class="auth-card" style="max-width:480px">
+        <h2 style="font-size:20px;font-weight:800;text-align:center;margin-bottom:6px">Create your hub</h2>
+        <p style="font-size:13px;color:var(--text-secondary);text-align:center;margin-bottom:16px">Step <span id="regStepNum">1</span> of 3</p>
+        <div style="display:flex;justify-content:center;gap:8px;margin-bottom:20px">
+          <div class="wizard-dot active" id="regDot0"></div>
+          <div class="wizard-dot" id="regDot1"></div>
+          <div class="wizard-dot" id="regDot2"></div>
+        </div>
+        <div id="registerError" class="auth-error"></div>
+
+        <!-- Step 0: email + password -->
+        <div id="regStep0" class="wizard-step active">
+          <div class="form-group">
+            <label>Email *</label>
+            <input id="regEmail" class="form-input" type="email" placeholder="you@business.com" autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label>Password *</label>
+            <div class="input-wrap">
+              <input id="regPassword" class="form-input" type="password" placeholder="Min 6 characters" autocomplete="new-password">
+              <button type="button" class="pw-toggle" onclick="togglePw('regPassword', this)" aria-label="Show password"><i class="fa-regular fa-eye"></i></button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Confirm Password *</label>
+            <div class="input-wrap">
+              <input id="regConfirmPw" class="form-input" type="password" placeholder="Repeat password" autocomplete="new-password">
+              <button type="button" class="pw-toggle" onclick="togglePw('regConfirmPw', this)" aria-label="Show password"><i class="fa-regular fa-eye"></i></button>
+            </div>
+          </div>
+          <button id="regBtnStart" class="btn btn-primary btn-block btn-lg" onclick="registerStart()">
+            <span class="spinner"></span><span class="btn-text">Continue</span>
+          </button>
+        </div>
+
+        <!-- Step 1: OTP -->
+        <div id="regStep1" class="wizard-step">
+          <p style="font-size:13px;color:var(--text-secondary);text-align:center;margin-bottom:16px">
+            We sent a 6-digit code to <strong id="regOtpEmail" style="color:var(--text)">your email</strong>
+          </p>
+          <div class="otp-inputs" id="regOtpInputs">
+            <input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="1" class="otp-input">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input">
+          </div>
+          <div style="text-align:center;margin:12px 0 16px">
+            <button type="button" id="regResendBtn" class="btn btn-ghost" style="font-size:12px;padding:8px 14px" onclick="registerResend()">Resend code</button>
+            <span id="regResendTimer" style="font-size:12px;color:var(--text-tertiary);margin-left:6px"></span>
+          </div>
+          <button id="regBtnVerify" class="btn btn-primary btn-block btn-lg" onclick="registerVerify()">
+            <span class="spinner"></span><span class="btn-text">Verify &amp; Continue</span>
+          </button>
+          <button class="btn btn-ghost btn-block" style="margin-top:8px" onclick="prevRegStep()">Back</button>
+        </div>
+
+        <!-- Step 2: business info -->
+        <div id="regStep2" class="wizard-step">
+          <div class="form-group">
+            <label>Business Name *</label>
+            <input id="regBusiness" class="form-input" placeholder="Emel's Fashion" oninput="autoSlug()">
+          </div>
+          <div class="form-group">
+            <label>Your public link *</label>
+            <input id="regSlug" class="form-input" placeholder="emelsfashion" oninput="markSlugManual();checkSlugDebounced()">
+            <div id="slugStatus" class="slug-check"></div>
+            <div class="field-hint">This becomes the link you share with customers.</div>
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <div class="phone-group">
+              <button type="button" class="cc-btn" id="ccBtn" onclick="toggleCcDropdown(event)">
+                <span class="cc-flag" id="ccFlag">🇳🇬</span>
+                <span id="ccDial">+234</span>
+                <i class="fa-solid fa-chevron-down" style="font-size:10px"></i>
+              </button>
+              <input id="regPhone" class="form-input" type="tel" placeholder="8012345678" inputmode="numeric" maxlength="15" style="flex:1">
+            </div>
+            <div class="cc-dropdown" id="ccDropdown">
+              <input type="text" class="cc-search" id="ccSearch" placeholder="Search country..." oninput="filterCcList()" autocomplete="off">
+              <div class="cc-list" id="ccList"></div>
+            </div>
+            <div class="field-hint" id="phoneHint">Enter your 10-digit number without the leading 0.</div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:16px">
+            <button class="btn btn-ghost btn-block" onclick="prevRegStep()">Back</button>
+            <button id="regBtnComplete" class="btn btn-primary btn-block btn-lg" onclick="registerComplete()">
+              <span class="spinner"></span><span class="btn-text">Create My Hub</span>
+            </button>
+          </div>
+        </div>
+
+        <div style="font-size:13px;text-align:center;margin-top:16px;color:var(--text-secondary)">
+          Already have account? <a onclick="showAuth('login')" style="color:var(--brand);font-weight:600;cursor:pointer">Sign in</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recover (NEW OTP flow) -->
+  <section id="sec-recover" class="sec">
+    <div class="auth-container">
+      <div class="auth-card">
+        <h2 style="font-size:20px;font-weight:800;text-align:center;margin-bottom:6px">Reset password</h2>
+        <p style="font-size:13px;color:var(--text-secondary);text-align:center;margin-bottom:16px">Step <span id="recStepNum">1</span> of 3</p>
+        <div style="display:flex;justify-content:center;gap:8px;margin-bottom:20px">
+          <div class="wizard-dot active" id="recDot0"></div>
+          <div class="wizard-dot" id="recDot1"></div>
+          <div class="wizard-dot" id="recDot2"></div>
+        </div>
+        <div id="recoverError" class="auth-error"></div>
+
+        <div id="recStep0" class="wizard-step active">
+          <div class="form-group">
+            <label>Email</label>
+            <input id="recoverEmail" class="form-input" type="email" placeholder="Enter your registered email" autocomplete="email">
+          </div>
+          <button id="recoverBtn1" class="btn btn-primary btn-block btn-lg" onclick="forgotPasswordStart()">
+            <span class="spinner"></span><span class="btn-text">Send Reset Code</span>
+          </button>
+        </div>
+
+        <div id="recStep1" class="wizard-step">
+          <p style="font-size:13px;color:var(--text-secondary);text-align:center;margin-bottom:16px">
+            We sent a 6-digit code to <strong id="recOtpEmail" style="color:var(--text)">your email</strong>
+          </p>
+          <div class="otp-inputs" id="recOtpInputs">
+            <input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="1" class="otp-input">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input">
+          </div>
+          <div style="text-align:center;margin:12px 0 16px">
+            <button type="button" id="recResendBtn" class="btn btn-ghost" style="font-size:12px;padding:8px 14px" onclick="forgotPasswordResend()">Resend code</button>
+            <span id="recResendTimer" style="font-size:12px;color:var(--text-tertiary);margin-left:6px"></span>
+          </div>
+          <button id="recoverBtn2" class="btn btn-primary btn-block btn-lg" onclick="verifyResetOtp()">
+            <span class="spinner"></span><span class="btn-text">Verify Code</span>
+          </button>
+          <button class="btn btn-ghost btn-block" style="margin-top:8px" onclick="prevRecStep()">Back</button>
+        </div>
+
+        <div id="recStep2" class="wizard-step">
+          <div class="form-group">
+            <label>New Password</label>
+            <div class="input-wrap">
+              <input id="recoverNewPw" class="form-input" type="password" placeholder="Min 6 characters" autocomplete="new-password">
+              <button type="button" class="pw-toggle" onclick="togglePw('recoverNewPw', this)" aria-label="Show password"><i class="fa-regular fa-eye"></i></button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Confirm New Password</label>
+            <div class="input-wrap">
+              <input id="recoverConfirmPw" class="form-input" type="password" placeholder="Repeat password" autocomplete="new-password">
+              <button type="button" class="pw-toggle" onclick="togglePw('recoverConfirmPw', this)" aria-label="Show password"><i class="fa-regular fa-eye"></i></button>
+            </div>
+          </div>
+          <button id="recoverBtn3" class="btn btn-primary btn-block btn-lg" onclick="resetPasswordFinal()">
+            <span class="spinner"></span><span class="btn-text">Reset Password</span>
+          </button>
+        </div>
+
+        <div style="text-align:center;margin-top:12px">
+          <a onclick="showAuth('login')" style="font-size:13px;color:var(--text-secondary);cursor:pointer">Back to login</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SHELL ===== -->
+  <section id="sec-app" class="sec">
+    <header id="appHead" class="app-head">
+      <div class="head-left">
+        <button class="hamburger" onclick="openDrawer()"><i class="fa-solid fa-bars"></i></button>
+        <div class="head-brand"><div class="head-brand-icon">M</div><span>MyShub</span></div>
+      </div>
+      <div class="head-actions">
+        <button class="icon-btn" onclick="loadPage('notifications')"><i class="fa-regular fa-bell"></i><span id="notifBadge" class="badge" style="display:none">0</span></button>
+        <button class="icon-btn" onclick="loadPage('upgrade')" style="color:var(--warning)"><i class="fa-solid fa-crown"></i></button>
+      </div>
+    </header>
+    <div id="drawerOverlay" class="drawer-overlay" onclick="closeDrawer()"></div>
+    <div id="drawer" class="drawer">
+      <div class="drawer-head">
+        <div id="drawerAvatar" class="drawer-avatar">M</div>
+        <div style="flex:1;min-width:0"><div id="drawerName" style="font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">My Shop</div><div id="drawerPlan" style="font-size:11px;color:var(--text-secondary);text-transform:uppercase">Free plan</div></div>
+        <button class="icon-btn" style="width:32px;height:32px" onclick="closeDrawer()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="drawer-menu">
+        <button class="drawer-item active" data-page="overview" onclick="loadPage('overview');closeDrawer()"><i class="fa-solid fa-house"></i> Home Dashboard</button>
+        <button class="drawer-item" data-page="edit" onclick="loadPage('edit');closeDrawer()"><i class="fa-solid fa-pen"></i> Edit Shop</button>
+        <button class="drawer-item" data-page="preview" onclick="loadPage('preview');closeDrawer()"><i class="fa-solid fa-eye"></i> Shop Preview</button>
+        <button class="drawer-item" data-page="analytics" onclick="loadPage('analytics');closeDrawer()"><i class="fa-solid fa-chart-line"></i> Analytics</button>
+        <button class="drawer-item" data-page="upgrade" onclick="loadPage('upgrade');closeDrawer()"><i class="fa-solid fa-crown"></i> Upgrade Plan</button>
+        <button class="drawer-item" data-page="discover" onclick="loadPage('discover');closeDrawer()"><i class="fa-solid fa-compass"></i> Discover</button>
+        <button class="drawer-item" data-page="referrals" onclick="loadPage('referrals');closeDrawer()"><i class="fa-solid fa-gift"></i> Referrals</button>
+        <button class="drawer-item" data-page="settings" onclick="loadPage('settings');closeDrawer()"><i class="fa-solid fa-gear"></i> Settings</button>
+        <div style="height:1px;background:var(--border);margin:12px 0"></div>
+        <button class="drawer-item" onclick="loadPage('support')"><i class="fa-solid fa-headset"></i> Support</button>
+        <button class="drawer-item" onclick="loadPage('tutorials')"><i class="fa-solid fa-graduation-cap"></i> Tutorials</button>
+        <button class="drawer-item" onclick="window.open('https://myshub.site/','_blank')"><i class="fa-solid fa-bolt"></i> What's New</button>
+        <button class="drawer-item" onclick="window.open('https://myshub.site/install.html','_blank')"><i class="fa-solid fa-download"></i> Install App</button>
+      </div>
+      <div class="drawer-footer">
+        <button class="drawer-item" onclick="doLogout()" style="color:var(--danger)"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+      </div>
+    </div>
+
+    <div class="content-area" id="contentArea">
+      <div id="pageContent"></div>
+    </div>
+
+    <nav id="bottomNav" class="bot-nav">
+      <button class="bot-item on" data-page="overview" onclick="loadPage('overview')"><i class="fa-solid fa-house"></i><span>Home</span></button>
+      <button class="bot-item" data-page="discover" onclick="loadPage('discover')"><i class="fa-solid fa-compass"></i><span>Discover</span></button>
+      <button class="bot-item" data-page="preview" onclick="loadPage('preview')"><i class="fa-solid fa-eye"></i><span>Preview</span></button>
+      <button class="bot-item" data-page="settings" onclick="loadPage('settings')"><i class="fa-solid fa-gear"></i><span>Settings</span></button>
+    </nav>
+    <div id="onboardingWelcome" class="onboarding-welcome" style="display:none" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
+      <div class="onboarding-card">
+        <div class="onboarding-icon"><i class="fa-solid fa-sparkles"></i></div>
+        <h2 id="onboardingTitle">Your hub is ready.</h2>
+        <p id="onboardingMessage">You have claimed your public business link. You are now inside MyShub—your next step is simply to make your profile look like you.</p>
+        <div style="background:var(--surface-hover);border:1px solid var(--border);border-radius:14px;padding:12px;font-size:13px;color:var(--text-secondary)"><strong style="color:var(--text)">Recommended next step:</strong><br>Add your logo, tagline, socials, and contact details. You can save and return whenever you want.</div>
+        <div class="onboarding-next"><button class="btn btn-primary" onclick="startProfileOnboarding()">Complete profile</button><button class="btn btn-ghost" onclick="dismissOnboardingWelcome()">Go to dashboard</button></div>
+      </div>
+    </div>
+  </section>
+
+  <div id="toastWrap" class="toast-wrap"></div>
+</div>
+
+<!-- Global Loading Overlay -->
+<div class="loading-overlay" id="globalLoadingOverlay">
+  <img src="/icon.svg" alt="MyShub" class="loader-logo" onerror="this.style.display='none'; document.getElementById('loaderFallbackGlobal').style.display='block';" />
+  <div id="loaderFallbackGlobal" class="loader-fallback" style="display:none;">M</div>
+  <div class="loader-text">Loading...</div>
+</div>
+
+<script>
+// ================================================================
+//  CONFIG & STATE
+// ================================================================
+const API = 'https://emltechstudio-myshub-api.hf.space';
+const APP_URL = 'https://myshub.site';
+const FETCH_TIMEOUT = 8000;
+
+let S = {
+  email: '', password: '', slug: '', plan: 'free',
+  shopData: null, shopJson: null,
+  notifications: [],
+  unreadCount: 0,
+  darkMode: false,
+  currentPage: 'overview',
+  firstSession: false,
+  regSlugAvailable: null,
+  // new auth flow state
+  pendingRegEmail: null,
+  registrationToken: null,
+  pendingResetEmail: null,
+  resetToken: null
+};
+let navigationToken = 0;
+
+// Expose S to child pages (edit, etc.)
+window.S = S;
+
+// ================================================================
+//  GLOBAL LOADING OVERLAY CONTROLS
+// ================================================================
+const loadingOverlay = document.getElementById('globalLoadingOverlay');
+
+function showLoading() {
+  if (loadingOverlay) loadingOverlay.classList.add('on');
+}
+
+function hideLoading() {
+  if (loadingOverlay) loadingOverlay.classList.remove('on');
+}
+
+function showOnboardingWelcome() {
+  const modal = document.getElementById('onboardingWelcome');
+  if (!modal) return;
+  modal.style.display = 'flex';
+  const firstName = (S.shopJson?.business_name || S.slug || 'there').split(' ')[0];
+  const message = document.getElementById('onboardingMessage');
+  if (message) message.textContent = `Welcome, ${firstName}. Your public hub is ready. You are now inside MyShub—your next step is simply to make your profile look like you.`;
+}
+function dismissOnboardingWelcome() {
+  const modal = document.getElementById('onboardingWelcome');
+  if (modal) modal.style.display = 'none';
+  if (S.slug) localStorage.setItem('myshub_onboarding_seen_' + S.slug, '1');
+  loadPage('overview');
+}
+function startProfileOnboarding() {
+  const modal = document.getElementById('onboardingWelcome');
+  if (modal) modal.style.display = 'none';
+  if (S.slug) localStorage.setItem('myshub_onboarding_started_' + S.slug, '1');
+  loadPage('edit');
+}
+
+// ================================================================
+//  GLOBAL NOTIFICATION FUNCTIONS
+// ================================================================
+window.updateNotifBadge = function() {
+  const badge = document.getElementById('notifBadge');
+  const notifications = Array.isArray(S.notifications) ? S.notifications : [];
+  const count = notifications.filter(n => n && !n.read).length;
+  S.unreadCount = count;
+  if (badge) {
+    badge.textContent = count > 9 ? '9+' : (count > 0 ? String(count) : '');
+    badge.style.display = count > 0 ? 'flex' : 'none';
+    badge.setAttribute('aria-hidden', count > 0 ? 'false' : 'true');
+  }
+  try {
+    localStorage.setItem('myshub_notifs_' + S.slug, JSON.stringify(notifications));
+  } catch (e) {}
+};
+
+// ================================================================
+//  NOTIFICATION ENGINE (local analytics + backend messages)
+// ================================================================
+function generateLocalNotifications(shopJson, plan) {
+  const analytics = shopJson?.analytics || {};
+  const newNotifs = [];
+  const now = new Date();
+  const todayKey = now.toISOString().split('T')[0];
+  const total = analytics.visit_count || 0;
+  const daily = analytics.daily_visits || {};
+  const todayVal = daily[todayKey] || 0;
+  const yesterdayKey = new Date(now);
+  yesterdayKey.setDate(yesterdayKey.getDate() - 1);
+  const yesterdayVal = daily[yesterdayKey.toISOString().split('T')[0]] || 0;
+
+  if (todayVal > 0) {
+    const spike = todayVal > yesterdayVal && yesterdayVal > 0 ? ` 🔥 ${Math.round((todayVal / yesterdayVal) * 100)}% more than yesterday` : '';
+    newNotifs.push({
+      id: 'visits-today-' + todayKey,
+      title: `📊 ${todayVal} visits today`,
+      message: `You got ${todayVal} visit${todayVal !== 1 ? 's' : ''} today${spike}`,
+      type: 'info',
+      created_at: new Date().toISOString(),
+      read: false
+    });
+  } else if (total === 0) {
+    newNotifs.push({
+      id: 'visits-empty',
+      title: '📢 Share your shop',
+      message: 'You have no visits yet. Share your link to get discovered!',
+      type: 'action',
+      created_at: new Date().toISOString(),
+      read: false
+    });
+  }
+
+  const countries = analytics.countries || {};
+  const countryEntries = Object.entries(countries).sort((a, b) => b[1] - a[1]);
+  if (countryEntries.length > 0) {
+    const limit = plan === 'free' ? 1 : 3;
+    const top = countryEntries.slice(0, limit);
+    const totalVisits = countryEntries.reduce((sum, [, count]) => sum + count, 0);
+    const countryMsg = top.map(([name, count]) => {
+      const pct = totalVisits > 0 ? Math.round((count / totalVisits) * 100) : 0;
+      return `${name} (${pct}%)`;
+    }).join(', ');
+    const title = plan === 'free' ? `🌍 Top country` : `🌍 Top ${limit} countries`;
+    newNotifs.push({
+        id: 'countries-' + (plan === 'free' ? 'free' : plan) + '-' + todayKey,
+      title: title,
+      message: `${countryMsg}` + (plan !== 'premium' ? ' — upgrade for more' : ''),
+      type: plan === 'free' ? 'upgrade' : 'info',
+      created_at: new Date().toISOString(),
+      read: false
+    });
+  }
+
+  if (plan !== 'free') {
+    const referrers = analytics.referrers || {};
+    const refEntries = Object.entries(referrers).sort((a, b) => b[1] - a[1]).slice(0, 3);
+    if (refEntries.length > 0) {
+      const totalRefs = refEntries.reduce((sum, [, count]) => sum + count, 0);
+      const refMsg = refEntries.map(([name, count]) => {
+        const pct = totalRefs > 0 ? Math.round((count / totalRefs) * 100) : 0;
+        return `${name || 'Direct'} (${pct}%)`;
+      }).join(', ');
+      newNotifs.push({
+        id: 'referrers-top-' + todayKey,
+        title: '🔗 Top referrers',
+        message: refMsg,
+        type: 'info',
+        created_at: new Date().toISOString(),
+        read: false
+      });
+    }
+  }
+
+  if (plan !== 'free') {
+    const socialClicks = (analytics.clicks || {}).socials || {};
+    const socialEntries = Object.entries(socialClicks).sort((a, b) => b[1] - a[1]).slice(0, 3);
+    if (socialEntries.length > 0) {
+      const totalSocial = socialEntries.reduce((sum, [, count]) => sum + count, 0);
+      const socialMsg = socialEntries.map(([name, count]) => {
+        const pct = totalSocial > 0 ? Math.round((count / totalSocial) * 100) : 0;
+        return `${name} (${pct}%)`;
+      }).join(', ');
+      newNotifs.push({
+        id: 'socials-top-' + todayKey,
+        title: '📱 Top platforms',
+        message: socialMsg,
+        type: 'info',
+        created_at: new Date().toISOString(),
+        read: false
+      });
+    }
+  }
+
+  if (plan !== 'free') {
+    const catalogClicks = (analytics.clicks || {}).catalog || 0;
+    if (catalogClicks > 0) {
+      newNotifs.push({
+        id: 'catalog-clicks-' + todayKey,
+        title: '🛒 Catalog clicks',
+        message: `Your catalog got ${catalogClicks} click${catalogClicks !== 1 ? 's' : ''}`,
+        type: 'info',
+        created_at: new Date().toISOString(),
+        read: false
+      });
+    }
+  }
+
+  if (plan === 'premium') {
+    const customClicks = (analytics.clicks || {}).custom_links || {};
+    const customEntries = Object.entries(customClicks).sort((a, b) => b[1] - a[1]).slice(0, 3);
+    if (customEntries.length > 0) {
+      const totalCustom = customEntries.reduce((sum, [, count]) => sum + count, 0);
+      const customMsg = customEntries.map(([name, count]) => {
+        const pct = totalCustom > 0 ? Math.round((count / totalCustom) * 100) : 0;
+        return `${name} (${pct}%)`;
+      }).join(', ');
+      newNotifs.push({
+        id: 'custom-links-premium-' + todayKey,
+        title: '🔗 Custom link performance',
+        message: customMsg,
+        type: 'info',
+        created_at: new Date().toISOString(),
+        read: false
+      });
+    }
+  }
+
+  const milestones = [100, 500, 1000, 5000, 10000];
+  const lastMilestone = parseInt(localStorage.getItem('myshub_last_milestone_' + S.slug) || '0');
+  for (const m of milestones) {
+    if (total >= m && total > lastMilestone) {
+      newNotifs.push({
+        id: 'milestone-' + m,
+        title: `🎉 ${m} visits!`,
+        message: `Your shop has reached ${m} total visits. Keep going!`,
+        type: 'action',
+        created_at: new Date().toISOString(),
+        read: false
+      });
+      localStorage.setItem('myshub_last_milestone_' + S.slug, String(total));
+      break;
+    }
+  }
+
+  const referralsCount = (analytics.referrals || {}).total || 0;
+  if (referralsCount >= 5 && plan === 'free') {
+    const claimed = localStorage.getItem('myshub_referral_claimed_' + S.slug);
+    if (!claimed) {
+      newNotifs.push({
+        id: 'referral-campaign-claim',
+        title: '🎁 You referred 5 people!',
+        message: 'Claim your free Pro plan for 1 month. Tap to claim now!',
+        type: 'upgrade',
+        created_at: new Date().toISOString(),
+        read: false
+      });
+    }
+  }
+
+  const tutorialPrompts = [
+    { id: 'tutorial-profile', title: '📚 Complete your profile', message: 'Add a logo and tagline to make your shop stand out.', type: 'tutorial' },
+    { id: 'tutorial-socials', title: '📚 Add socials', message: 'Connect Instagram, WhatsApp and more to your hub.', type: 'tutorial' },
+    { id: 'tutorial-custom-links', title: '📚 Use custom links', message: 'Add any special link you want with a custom icon.', type: 'tutorial' }
+  ];
+  const completedTutorials = JSON.parse(localStorage.getItem('myshub_tutorial_completed_' + S.slug) || '[]');
+  tutorialPrompts.forEach(t => {
+    if (!completedTutorials.includes(t.id) && !S.notifications.some(n => n.id === t.id)) {
+      newNotifs.push(t);
+    }
+  });
+
+  return newNotifs;
+}
+
+function readCachedNotifications(slug) {
+  try {
+    const raw = localStorage.getItem('myshub_notifs_' + slug);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function readDeletedNotificationIds(slug) {
+  try {
+    const raw = localStorage.getItem('myshub_deleted_notifs_' + slug);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return new Set(Array.isArray(parsed) ? parsed.filter(Boolean).map(String) : []);
+  } catch (e) {
+    return new Set();
+  }
+}
+
+function mergeNotifications(generated, remote, cached, deletedIds) {
+  const map = {};
+  (cached || []).forEach(n => { if (n && n.id) map[n.id] = { ...n }; });
+  (generated || []).forEach(n => {
+    if (!n || !n.id) return;
+    const previous = map[n.id];
+    map[n.id] = {
+      ...n,
+      read: previous ? Boolean(previous.read) : Boolean(n.read),
+      created_at: previous?.created_at || n.created_at
+    };
+  });
+  (remote || []).forEach(r => {
+    if (!r || !r.id) return;
+    const previous = map[r.id];
+    map[r.id] = {
+      ...(previous || {}),
+      ...r,
+      read: Boolean(r.read || previous?.read),
+      created_at: r.created_at || previous?.created_at || new Date().toISOString()
+    };
+  });
+  return Object.values(map)
+    .filter(n => n && n.id && !(deletedIds && deletedIds.has(String(n.id))))
+    .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+}
+
+async function refreshNotifications() {
+  if (!S.email || !S.password) return;
+  const shop = await fetchShopData({ email: S.email, password: S.password, slug: S.slug });
+  if (shop) {
+    S.shopData = shop;
+    S.shopJson = shop.shop_json || {};
+    S.plan = shop.plan || S.plan;
+    window.S = S; // keep global reference updated
+    const cachedNotifs = readCachedNotifications(S.slug);
+    const deletedIds = readDeletedNotificationIds(S.slug);
+    S.notifications = cachedNotifs.filter(n => n && n.id && !deletedIds.has(String(n.id)));
+    const localNotifs = generateLocalNotifications(S.shopJson, S.plan);
+    let remoteNotifs = [];
+    try {
+      const data = await api('/notifications/', 'GET');
+      remoteNotifs = data.notifications || [];
+    } catch (e) {}
+    S.notifications = mergeNotifications(localNotifs, remoteNotifs, cachedNotifs, deletedIds);
+    window.updateNotifBadge();
+    try {
+      localStorage.setItem('myshub_notifs_' + S.slug, JSON.stringify(S.notifications));
+    } catch (e) {}
+  }
+}
+
+// ================================================================
+//  UTILITY FUNCTIONS
+// ================================================================
+function $(id) { return document.getElementById(id); }
+function escapeHtml(s) { if (!s) return ''; return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
+function toast(msg, type='info') {
+  const w = $('toastWrap'); if (!w) return;
+  const d = document.createElement('div'); d.className = 'toast ' + type;
+  const iconClass = type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-circle-xmark' : type === 'warning' ? 'fa-triangle-exclamation' : 'fa-circle-info';
+  d.innerHTML = '<i class="fa-solid ' + iconClass + '" style="margin-top:2px"></i><div style="flex:1"><div style="font-size:13px;line-height:1.3">' + escapeHtml(msg) + '</div></div>';
+  d.onclick = () => d.remove();
+  w.appendChild(d);
+  setTimeout(() => { d.style.opacity = '0'; d.style.transform = 'translateX(20px)'; setTimeout(() => d.remove(), 300); }, 4500);
+}
+function togglePw(id, btn) {
+  const inp = document.getElementById(id); if (!inp) return;
+  const isPw = inp.type === 'password'; inp.type = isPw ? 'text' : 'password';
+  const ic = btn.querySelector('i'); if (ic) ic.className = isPw ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+}
+function setLoading(btn, loading, text) { if (!btn) return; btn.disabled = loading; if (loading) btn.classList.add('loading'); else btn.classList.remove('loading'); const txt = btn.querySelector('.btn-text'); if (txt) txt.textContent = loading ? (text || 'Please wait...') : text; }
+
+// ================================================================
+//  API HELPERS
+// ================================================================
+async function fetchWithTimeout(url, options={}, timeout=FETCH_TIMEOUT) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try { const response = await fetch(url, { ...options, signal: controller.signal }); clearTimeout(timer); return response; }
+  catch (err) { clearTimeout(timer); if (err.name === 'AbortError') throw new Error('Request timed out. Please check your connection.'); throw new Error('Network error. Please check your internet connection.'); }
+}
+async function safeJson(r) { try { const t = await r.text(); try { return JSON.parse(t); } catch { return { detail: t }; } } catch { return { detail: 'Network error' }; } }
+async function apiPub(endpoint, method='GET', body=null) {
+  const opts = { method, headers: { 'Content-Type':'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const response = await fetchWithTimeout(API + endpoint, opts);
+  const data = await safeJson(response);
+  if (!response.ok) {
+    let msg = 'Server error (' + response.status + ')';
+    if (data && data.detail) {
+      if (typeof data.detail === 'string') msg = data.detail;
+      else if (data.detail.message) msg = data.detail.message;
+      else msg = JSON.stringify(data.detail);
+    } else if (data && data.message) msg = data.message;
+    throw new Error(msg);
+  }
+  return data;
+}
+async function api(endpoint, method='GET', body=null, extraHeaders={}) {
+  const headers = { 'Content-Type':'application/json', 'email': S.email || '', 'password': S.password || '', ...extraHeaders };
+  const opts = { method, headers };
+  if (body && !(body instanceof FormData)) opts.body = JSON.stringify(body);
+  else if (body instanceof FormData) { delete opts.headers['Content-Type']; opts.body = body; }
+  const response = await fetchWithTimeout(API + endpoint, opts);
+  const data = await safeJson(response);
+  if (!response.ok) throw new Error(data.detail || data.message || 'Server error (' + response.status + ')');
+  return data;
+}
+
+// ================================================================
+//  FETCH SHOP DATA
+// ================================================================
+async function fetchShopData(session) {
+  if (!session || !session.slug) return null;
+  try {
+    const headers = {
+      'Content-Type': 'application/json',
+      'email': session.email,
+      'password': session.password
+    };
+    const res = await fetch(API + '/shop/preview/' + session.slug, { headers });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data;
+  } catch (e) {
+    return null;
+  }
+}
+
+// ================================================================
+//  AUTH SECTION SWITCHER
+// ================================================================
+function showAuth(t) {
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+  const el = t === 'landing' ? $('sec-landing') : t === 'login' ? $('sec-login') : t === 'register' ? $('sec-register') : t === 'recover' ? $('sec-recover') : null;
+  if (el) el.classList.add('active');
+
+  if (t === 'register') {
+    S.registrationToken = null;
+    S.pendingRegEmail = null;
+    showRegStep(0);
+    const err = $('registerError'); if (err) err.style.display = 'none';
+    // Ensure OTP digit boxes are wired (once)
+    setupOtpInputs('regOtpInputs');
+  }
+  if (t === 'recover') {
+    S.resetToken = null;
+    S.pendingResetEmail = null;
+    showRecStep(0);
+    const err = $('recoverError'); if (err) err.style.display = 'none';
+    setupOtpInputs('recOtpInputs');
+  }
+  if (t === 'register' && window.MyShubAnalytics) MyShubAnalytics.signupStarted('app');
+}
+
+// ================================================================
+//  REGISTRATION — NEW OTP FLOW
+// ================================================================
+let regStep = 0;
+let recStep = 0;
+
+function showRegStep(n) {
+  regStep = n;
+  document.querySelectorAll('#sec-register .wizard-step').forEach((el, i) => {
+    el.classList.toggle('active', i === n);
+  });
+  const numEl = $('regStepNum'); if (numEl) numEl.textContent = n + 1;
+  ['regDot0','regDot1','regDot2'].forEach((id, i) => {
+    const d = $(id); if (d) d.className = i <= n ? 'wizard-dot active' : 'wizard-dot';
+  });
+}
+function prevRegStep() {
+  if (regStep > 0) showRegStep(regStep - 1);
+}
+
+function showRecStep(n) {
+  recStep = n;
+  document.querySelectorAll('#sec-recover .wizard-step').forEach((el, i) => {
+    el.classList.toggle('active', i === n);
+  });
+  const numEl = $('recStepNum'); if (numEl) numEl.textContent = n + 1;
+  ['recDot0','recDot1','recDot2'].forEach((id, i) => {
+    const d = $(id); if (d) d.className = i <= n ? 'wizard-dot active' : 'wizard-dot';
+  });
+}
+function prevRecStep() {
+  if (recStep > 0) showRecStep(recStep - 1);
+}
+
+// ---------- OTP input behaviour ----------
+function setupOtpInputs(containerId) {
+  const container = $(containerId);
+  if (!container || container.dataset.wired === '1') return;
+  container.dataset.wired = '1';
+  const inputs = container.querySelectorAll('.otp-input');
+  inputs.forEach((inp, i) => {
+    inp.addEventListener('input', e => {
+      const v = e.target.value.replace(/\D/g, '');
+      e.target.value = v.slice(-1);
+      if (e.target.value && i < inputs.length - 1) inputs[i + 1].focus();
+    });
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !e.target.value && i > 0) inputs[i - 1].focus();
+      else if (e.key === 'ArrowLeft' && i > 0) inputs[i - 1].focus();
+      else if (e.key === 'ArrowRight' && i < inputs.length - 1) inputs[i + 1].focus();
+    });
+    inp.addEventListener('paste', e => {
+      e.preventDefault();
+      const paste = ((e.clipboardData || window.clipboardData).getData('text') || '').replace(/\D/g, '').slice(0, 6);
+      paste.split('').forEach((ch, j) => {
+        if (i + j < inputs.length) inputs[i + j].value = ch;
+      });
+      const next = Math.min(i + paste.length, inputs.length - 1);
+      inputs[next].focus();
+    });
+  });
+}
+function getOtpValue(containerId) {
+  const container = $(containerId);
+  if (!container) return '';
+  return Array.from(container.querySelectorAll('.otp-input')).map(i => i.value).join('');
+}
+function clearOtpInputs(containerId) {
+  const container = $(containerId);
+  if (!container) return;
+  container.querySelectorAll('.otp-input').forEach(i => i.value = '');
+  const first = container.querySelector('.otp-input');
+  if (first) first.focus();
+}
+
+// ---------- Resend timer ----------
+function startResendTimer(timerId, seconds, btnId) {
+  const timerEl = $(timerId);
+  const btn = $(btnId);
+  let remaining = parseInt(seconds) || 60;
+  if (btn) btn.disabled = true;
+  if (timerEl) timerEl.textContent = 'in ' + remaining + 's';
+  const interval = setInterval(() => {
+    remaining--;
+    if (remaining <= 0) {
+      clearInterval(interval);
+      if (timerEl) timerEl.textContent = '';
+      if (btn) btn.disabled = false;
+    } else {
+      if (timerEl) timerEl.textContent = 'in ' + remaining + 's';
+    }
+  }, 1000);
+}
+
+// ---------- Register step 0 → 1 ----------
+async function registerStart() {
+  const err = $('registerError');
+  err.style.display = 'none';
+  const email = $('regEmail').value.trim().toLowerCase();
+  const pw = $('regPassword').value;
+  const cpw = $('regConfirmPw').value;
+
+  if (!email || !pw) { err.textContent = 'Email and password are required.'; err.style.display = 'block'; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'Enter a valid email.'; err.style.display = 'block'; return; }
+  if (pw.length < 6) { err.textContent = 'Password must be at least 6 characters.'; err.style.display = 'block'; return; }
+  if (pw !== cpw) { err.textContent = 'Passwords do not match.'; err.style.display = 'block'; return; }
+
+  // Email may have changed — clear any prior verification token
+  S.registrationToken = null;
+
+  showLoading();
+  const btn = $('regBtnStart');
+  setLoading(btn, true, 'Sending code...');
+  try {
+    const data = await apiPub('/auth/register/start', 'POST', { email, password: pw });
+    S.pendingRegEmail = email;
+    const emailEl = $('regOtpEmail'); if (emailEl) emailEl.textContent = data.masked_email || email;
+    clearOtpInputs('regOtpInputs');
+    showRegStep(1);
+    startResendTimer('regResendTimer', data.resend_after || 60, 'regResendBtn');
+    toast('Verification code sent', 'success');
+  } catch (e) {
+    err.textContent = e.message || 'Could not start registration.';
+    err.style.display = 'block';
+  } finally {
+    hideLoading();
+    setLoading(btn, false, 'Continue');
+  }
+}
+
+// ---------- Register step 1 → 2 ----------
+async function registerVerify() {
+  const err = $('registerError');
+  err.style.display = 'none';
+
+  // Already verified — just advance
+  if (S.registrationToken) { showRegStep(2); return; }
+
+  const otp = getOtpValue('regOtpInputs');
+  if (otp.length !== 6) { err.textContent = 'Enter the 6-digit code.'; err.style.display = 'block'; return; }
+
+  showLoading();
+  const btn = $('regBtnVerify');
+  setLoading(btn, true, 'Verifying...');
+  try {
+    const data = await apiPub('/auth/register/verify', 'POST', { email: S.pendingRegEmail, otp });
+    S.registrationToken = data.registration_token;
+    showRegStep(2);
+    // Focus business name for smooth flow
+    setTimeout(() => { const b = $('regBusiness'); if (b) b.focus(); }, 100);
+  } catch (e) {
+    err.textContent = e.message || 'Verification failed.';
+    err.style.display = 'block';
+    clearOtpInputs('regOtpInputs');
+  } finally {
+    hideLoading();
+    setLoading(btn, false, 'Verify & Continue');
+  }
+}
+
+async function registerResend() {
+  const err = $('registerError');
+  err.style.display = 'none';
+  if (!S.pendingRegEmail) { err.textContent = 'Please restart registration.'; err.style.display = 'block'; return; }
+  const btn = $('regResendBtn');
+  if (btn) btn.disabled = true;
+  try {
+    const data = await apiPub('/auth/register/resend-otp', 'POST', { email: S.pendingRegEmail });
+    toast('New code sent', 'success');
+    startResendTimer('regResendTimer', data.resend_after || 60, 'regResendBtn');
+  } catch (e) {
+    err.textContent = e.message || 'Could not resend code.';
+    err.style.display = 'block';
+    if (btn) btn.disabled = false;
+  }
+}
+
+// ---------- Register step 2 → done ----------
+async function registerComplete() {
+  const err = $('registerError');
+  err.style.display = 'none';
+  const business = $('regBusiness').value.trim();
+  const slug = $('regSlug').value.trim().toLowerCase();
+  const phone = getFullPhone();
+
+  if (!business) { err.textContent = 'Business name is required.'; err.style.display = 'block'; return; }
+  if (!slug || !/^[a-z0-9-]{2,50}$/.test(slug)) { err.textContent = 'Choose a valid public link.'; err.style.display = 'block'; return; }
+  if (S.regSlugAvailable === false) { err.textContent = 'That link is taken. Choose another.'; err.style.display = 'block'; return; }
+  if (S.regSlugAvailable === null) {
+    await checkSlugAvail();
+    if (S.regSlugAvailable !== true) { err.textContent = 'Check your public link availability first.'; err.style.display = 'block'; return; }
+  }
+
+  showLoading();
+  const btn = $('regBtnComplete');
+  setLoading(btn, true, 'Creating...');
+  try {
+    const data = await apiPub('/auth/register/complete', 'POST', {
+      registration_token: S.registrationToken,
+      business_name: business,
+      preferred_slug: slug,
+      phone
+    });
+    if (window.MyShubAnalytics) MyShubAnalytics.signupCompleted('app');
+
+    const session = {
+      email: S.pendingRegEmail,
+      password: $('regPassword').value, // still in the DOM at this point
+      slug: data.slug || slug,
+      plan: 'free'
+    };
+    S.email = session.email;
+    S.password = session.password;
+    S.slug = session.slug;
+    S.plan = session.plan;
+    S.firstSession = true;
+    S.registrationToken = null;
+    localStorage.setItem('myshub_session', JSON.stringify(session));
+    window.S = S;
+    hideLoading();
+    toast('Your hub is ready. Welcome to MyShub!', 'success');
+    enterApp(true);
+  } catch (e) {
+    hideLoading();
+    err.textContent = e.message || 'Registration failed.';
+    err.style.display = 'block';
+  } finally {
+    setLoading(btn, false, 'Create My Hub');
+  }
+}
+
+// ---------- Slug helpers (unchanged behaviour) ----------
+function autoSlug() {
+  const name = $('regBusiness').value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').substring(0,50);
+  if (!$('regSlug').value || $('regSlug').dataset.autofilled === 'true') {
+    $('regSlug').value = name;
+    $('regSlug').dataset.autofilled = 'true';
+    S.regSlugAvailable = null;
+    checkSlugDebounced();
+  }
+}
+function markSlugManual() {
+  const field = $('regSlug');
+  if (field) field.dataset.autofilled = 'false';
+  S.regSlugAvailable = null;
+  const status = $('slugStatus');
+  if (status) { status.textContent = ''; status.className = 'slug-check'; }
+}
+let slugCheckTimer = null;
+function checkSlugDebounced() { clearTimeout(slugCheckTimer); slugCheckTimer = setTimeout(checkSlugAvail, 600); }
+async function checkSlugAvail() {
+  const slug = $('regSlug').value.trim().toLowerCase();
+  S.regSlugAvailable = null;
+  if (!slug) { $('slugStatus').textContent = ''; return; }
+  if (!/^[a-z0-9-]{2,50}$/.test(slug)) {
+    $('slugStatus').textContent = 'Use 2–50 lowercase letters, numbers, or hyphens.';
+    $('slugStatus').className = 'slug-check bad';
+    S.regSlugAvailable = false;
+    return;
+  }
+  $('slugStatus').textContent = 'Checking your public link…'; $('slugStatus').className = 'slug-check';
+  try {
+    const d = await apiPub('/auth/check-slug?slug=' + encodeURIComponent(slug));
+    S.regSlugAvailable = Boolean(d.available);
+    if (d.available) { $('slugStatus').textContent = '✓ This public link is available'; $('slugStatus').className = 'slug-check ok'; }
+    else { $('slugStatus').textContent = 'That link is taken. Try: ' + (d.suggestions || []).join(', '); $('slugStatus').className = 'slug-check bad'; }
+  } catch { $('slugStatus').textContent = 'We could not check that link yet. Try again.'; $('slugStatus').className = 'slug-check bad'; }
+}
+
+// ---------- Phone & country-code picker ----------
+const PHONE_COUNTRIES = [
+  {iso:'NG', name:'Nigeria', dial:'234', flag:'🇳🇬'},
+  {iso:'GH', name:'Ghana', dial:'233', flag:'🇬🇭'},
+  {iso:'KE', name:'Kenya', dial:'254', flag:'🇰🇪'},
+  {iso:'ZA', name:'South Africa', dial:'27', flag:'🇿🇦'},
+  {iso:'EG', name:'Egypt', dial:'20', flag:'🇪🇬'},
+  {iso:'MA', name:'Morocco', dial:'212', flag:'🇲🇦'},
+  {iso:'DZ', name:'Algeria', dial:'213', flag:'🇩🇿'},
+  {iso:'TN', name:'Tunisia', dial:'216', flag:'🇹🇳'},
+  {iso:'LY', name:'Libya', dial:'218', flag:'🇱🇾'},
+  {iso:'SN', name:'Senegal', dial:'221', flag:'🇸🇳'},
+  {iso:'CI', name:"Côte d'Ivoire", dial:'225', flag:'🇨🇮'},
+  {iso:'CM', name:'Cameroon', dial:'237', flag:'🇨🇲'},
+  {iso:'UG', name:'Uganda', dial:'256', flag:'🇺🇬'},
+  {iso:'TZ', name:'Tanzania', dial:'255', flag:'🇹🇿'},
+  {iso:'RW', name:'Rwanda', dial:'250', flag:'🇷🇼'},
+  {iso:'ET', name:'Ethiopia', dial:'251', flag:'🇪🇹'},
+  {iso:'ZM', name:'Zambia', dial:'260', flag:'🇿🇲'},
+  {iso:'ZW', name:'Zimbabwe', dial:'263', flag:'🇿🇼'},
+  {iso:'BW', name:'Botswana', dial:'267', flag:'🇧🇼'},
+  {iso:'NA', name:'Namibia', dial:'264', flag:'🇳🇦'},
+  {iso:'MZ', name:'Mozambique', dial:'258', flag:'🇲🇿'},
+  {iso:'AO', name:'Angola', dial:'244', flag:'🇦🇴'},
+  {iso:'US', name:'United States', dial:'1', flag:'🇺🇸'},
+  {iso:'CA', name:'Canada', dial:'1', flag:'🇨🇦'},
+  {iso:'GB', name:'United Kingdom', dial:'44', flag:'🇬🇧'},
+  {iso:'IE', name:'Ireland', dial:'353', flag:'🇮🇪'},
+  {iso:'FR', name:'France', dial:'33', flag:'🇫🇷'},
+  {iso:'DE', name:'Germany', dial:'49', flag:'🇩🇪'},
+  {iso:'IT', name:'Italy', dial:'39', flag:'🇮🇹'},
+  {iso:'ES', name:'Spain', dial:'34', flag:'🇪🇸'},
+  {iso:'PT', name:'Portugal', dial:'351', flag:'🇵🇹'},
+  {iso:'NL', name:'Netherlands', dial:'31', flag:'🇳🇱'},
+  {iso:'BE', name:'Belgium', dial:'32', flag:'🇧🇪'},
+  {iso:'CH', name:'Switzerland', dial:'41', flag:'🇨🇭'},
+  {iso:'AT', name:'Austria', dial:'43', flag:'🇦🇹'},
+  {iso:'SE', name:'Sweden', dial:'46', flag:'🇸🇪'},
+  {iso:'NO', name:'Norway', dial:'47', flag:'🇳🇴'},
+  {iso:'DK', name:'Denmark', dial:'45', flag:'🇩🇰'},
+  {iso:'FI', name:'Finland', dial:'358', flag:'🇫🇮'},
+  {iso:'PL', name:'Poland', dial:'48', flag:'🇵🇱'},
+  {iso:'RU', name:'Russia', dial:'7', flag:'🇷🇺'},
+  {iso:'UA', name:'Ukraine', dial:'380', flag:'🇺🇦'},
+  {iso:'TR', name:'Turkey', dial:'90', flag:'🇹🇷'},
+  {iso:'IL', name:'Israel', dial:'972', flag:'🇮🇱'},
+  {iso:'SA', name:'Saudi Arabia', dial:'966', flag:'🇸🇦'},
+  {iso:'AE', name:'United Arab Emirates', dial:'971', flag:'🇦🇪'},
+  {iso:'QA', name:'Qatar', dial:'974', flag:'🇶🇦'},
+  {iso:'KW', name:'Kuwait', dial:'965', flag:'🇰🇼'},
+  {iso:'IN', name:'India', dial:'91', flag:'🇮🇳'},
+  {iso:'PK', name:'Pakistan', dial:'92', flag:'🇵🇰'},
+  {iso:'BD', name:'Bangladesh', dial:'880', flag:'🇧🇩'},
+  {iso:'CN', name:'China', dial:'86', flag:'🇨🇳'},
+  {iso:'JP', name:'Japan', dial:'81', flag:'🇯🇵'},
+  {iso:'KR', name:'South Korea', dial:'82', flag:'🇰🇷'},
+  {iso:'ID', name:'Indonesia', dial:'62', flag:'🇮🇩'},
+  {iso:'MY', name:'Malaysia', dial:'60', flag:'🇲🇾'},
+  {iso:'SG', name:'Singapore', dial:'65', flag:'🇸🇬'},
+  {iso:'PH', name:'Philippines', dial:'63', flag:'🇵🇭'},
+  {iso:'TH', name:'Thailand', dial:'66', flag:'🇹🇭'},
+  {iso:'VN', name:'Vietnam', dial:'84', flag:'🇻🇳'},
+  {iso:'AU', name:'Australia', dial:'61', flag:'🇦🇺'},
+  {iso:'NZ', name:'New Zealand', dial:'64', flag:'🇳🇿'},
+  {iso:'BR', name:'Brazil', dial:'55', flag:'🇧🇷'},
+  {iso:'AR', name:'Argentina', dial:'54', flag:'🇦🇷'},
+  {iso:'MX', name:'Mexico', dial:'52', flag:'🇲🇽'},
+  {iso:'CO', name:'Colombia', dial:'57', flag:'🇨🇴'},
+  {iso:'CL', name:'Chile', dial:'56', flag:'🇨🇱'},
+  {iso:'PE', name:'Peru', dial:'51', flag:'🇵🇪'}
+];
+let selectedPhoneCountry = PHONE_COUNTRIES.find(c => c.iso === 'NG') || PHONE_COUNTRIES[0];
+
+function renderCcList(filter) {
+  const list = $('ccList');
+  if (!list) return;
+  const f = (filter || '').toLowerCase().trim();
+  const filtered = PHONE_COUNTRIES.filter(c =>
+    !f || c.name.toLowerCase().includes(f) || c.dial.includes(f) || c.iso.toLowerCase().includes(f)
+  );
+  if (!filtered.length) {
+    list.innerHTML = '<div class="cc-empty">No countries found</div>';
+    return;
+  }
+  list.innerHTML = filtered.map(c =>
+    `<div class="cc-item" onclick="selectPhoneCountry('${c.iso}')">
+      <span class="cc-flag">${c.flag}</span>
+      <span class="cc-name">${escapeHtml(c.name)}</span>
+      <span class="cc-dial">+${c.dial}</span>
+    </div>`
+  ).join('');
+}
+
+function toggleCcDropdown(e) {
+  if (e) e.stopPropagation();
+  const dd = $('ccDropdown');
+  if (!dd) return;
+  const isOpen = dd.classList.toggle('on');
+  if (isOpen) {
+    renderCcList('');
+    const search = $('ccSearch'); if (search) search.value = '';
+    setTimeout(() => { if (search) search.focus(); }, 50);
+  }
+}
+
+function closeCcDropdown() {
+  const dd = $('ccDropdown');
+  if (dd) dd.classList.remove('on');
+}
+
+function selectPhoneCountry(iso) {
+  const c = PHONE_COUNTRIES.find(x => x.iso === iso);
+  if (!c) return;
+  selectedPhoneCountry = c;
+  const flagEl = $('ccFlag'); if (flagEl) flagEl.textContent = c.flag;
+  const dialEl = $('ccDial'); if (dialEl) dialEl.textContent = '+' + c.dial;
+  closeCcDropdown();
+  updatePhoneHint();
+  const phoneEl = $('regPhone'); if (phoneEl) phoneEl.focus();
+}
+
+function filterCcList() {
+  const search = $('ccSearch');
+  renderCcList(search ? search.value : '');
+}
+
+function updatePhoneHint() {
+  const hint = $('phoneHint');
+  if (!hint) return;
+  if (selectedPhoneCountry && selectedPhoneCountry.iso === 'NG') {
+    hint.textContent = 'Enter your 10-digit number without the leading 0. Example: 8012345678';
+  } else {
+    hint.textContent = 'Enter your number without the country code or leading 0.';
+  }
+}
+
+// Build the full international phone for the backend.
+// Strips a leading 0, then prefixes the dial code with "+".
+function getFullPhone() {
+  const phoneEl = $('regPhone');
+  let raw = (phoneEl ? phoneEl.value : '').trim().replace(/\D/g, '');
+  if (!raw) return '';
+  if (raw.startsWith('0')) raw = raw.slice(1);
+  const dial = selectedPhoneCountry ? selectedPhoneCountry.dial : '';
+  if (!dial) return raw;
+  return '+' + dial + raw;
+}
+
+// Close the country-code dropdown when clicking outside
+document.addEventListener('click', e => {
+  const dd = $('ccDropdown');
+  const btn = $('ccBtn');
+  if (!dd || !dd.classList.contains('on')) return;
+  if (dd.contains(e.target)) return;
+  if (btn && (btn === e.target || btn.contains(e.target))) return;
+  closeCcDropdown();
+});
+
+// ================================================================
+//  LOGIN
+// ================================================================
+async function doLogin() {
+  const email = $('loginEmail').value.trim(), pw = $('loginPassword').value, err = $('loginError');
+  err.style.display = 'none';
+  if (!email || !pw) { err.textContent = 'Email and password required'; err.style.display = 'block'; return; }
+
+  showLoading();
+  const btn = $('loginBtn'); setLoading(btn, true, 'Signing in...');
+  try {
+    const data = await apiPub('/auth/login', 'POST', { email, password: pw });
+    S.email = email; S.password = pw; S.slug = data.slug || ''; S.plan = data.plan || 'free';
+    localStorage.setItem('myshub_session', JSON.stringify({ email, password: pw, slug: S.slug, plan: S.plan }));
+    window.S = S;
+    toast('Welcome back!', 'success');
+    enterApp();
+  } catch (e) {
+    hideLoading();
+    err.textContent = e.message || 'Login failed. Please check your credentials.';
+    err.style.display = 'block';
+  }
+  finally { setLoading(btn, false, 'Sign In'); }
+}
+
+// ================================================================
+//  RECOVERY — NEW OTP FLOW
+// ================================================================
+async function forgotPasswordStart() {
+  const err = $('recoverError');
+  err.style.display = 'none';
+  const email = $('recoverEmail').value.trim().toLowerCase();
+  if (!email) { err.textContent = 'Enter your email.'; err.style.display = 'block'; return; }
+
+  showLoading();
+  const btn = $('recoverBtn1');
+  setLoading(btn, true, 'Sending...');
+  try {
+    const data = await apiPub('/auth/forgot-password', 'POST', { email });
+    S.pendingResetEmail = email;
+    const emailEl = $('recOtpEmail'); if (emailEl) emailEl.textContent = data.masked_email || email;
+    clearOtpInputs('recOtpInputs');
+    showRecStep(1);
+    startResendTimer('recResendTimer', data.resend_after || 60, 'recResendBtn');
+    toast('If that email exists, a code was sent.', 'info');
+  } catch (e) {
+    err.textContent = e.message || 'Could not send code.';
+    err.style.display = 'block';
+  } finally {
+    hideLoading();
+    setLoading(btn, false, 'Send Reset Code');
+  }
+}
+
+async function forgotPasswordResend() {
+  const err = $('recoverError');
+  err.style.display = 'none';
+  if (!S.pendingResetEmail) { err.textContent = 'Enter your email again.'; err.style.display = 'block'; return; }
+  const btn = $('recResendBtn');
+  if (btn) btn.disabled = true;
+  try {
+    const data = await apiPub('/auth/forgot-password/resend-otp', 'POST', { email: S.pendingResetEmail });
+    toast('New code sent', 'success');
+    startResendTimer('recResendTimer', data.resend_after || 60, 'recResendBtn');
+  } catch (e) {
+    err.textContent = e.message || 'Could not resend.';
+    err.style.display = 'block';
+    if (btn) btn.disabled = false;
+  }
+}
+
+async function verifyResetOtp() {
+  const err = $('recoverError');
+  err.style.display = 'none';
+  const otp = getOtpValue('recOtpInputs');
+  if (otp.length !== 6) { err.textContent = 'Enter the 6-digit code.'; err.style.display = 'block'; return; }
+
+  showLoading();
+  const btn = $('recoverBtn2');
+  setLoading(btn, true, 'Verifying...');
+  try {
+    const data = await apiPub('/auth/verify-reset-otp', 'POST', { email: S.pendingResetEmail, otp });
+    S.resetToken = data.reset_token;
+    showRecStep(2);
+    setTimeout(() => { const p = $('recoverNewPw'); if (p) p.focus(); }, 100);
+  } catch (e) {
+    err.textContent = e.message || 'Verification failed.';
+    err.style.display = 'block';
+    clearOtpInputs('recOtpInputs');
+  } finally {
+    hideLoading();
+    setLoading(btn, false, 'Verify Code');
+  }
+}
+
+async function resetPasswordFinal() {
+  const err = $('recoverError');
+  err.style.display = 'none';
+  const pw = $('recoverNewPw').value;
+  const cpw = $('recoverConfirmPw').value;
+  if (!pw || pw.length < 6) { err.textContent = 'Password must be at least 6 characters.'; err.style.display = 'block'; return; }
+  if (pw !== cpw) { err.textContent = 'Passwords do not match.'; err.style.display = 'block'; return; }
+
+  showLoading();
+  const btn = $('recoverBtn3');
+  setLoading(btn, true, 'Resetting...');
+  try {
+    await apiPub('/auth/reset-password-otp', 'POST', {
+      email: S.pendingResetEmail,
+      reset_token: S.resetToken,
+      new_password: pw
+    });
+    S.resetToken = null;
+    S.pendingResetEmail = null;
+    toast('Password reset! Please sign in.', 'success');
+    // Reset the recovery wizard for next time
+    showRecStep(0);
+    $('recoverNewPw').value = '';
+    $('recoverConfirmPw').value = '';
+    showAuth('login');
+  } catch (e) {
+    err.textContent = e.message || 'Reset failed.';
+    err.style.display = 'block';
+  } finally {
+    hideLoading();
+    setLoading(btn, false, 'Reset Password');
+  }
+}
+
+// ================================================================
+//  DARK MODE
+// ================================================================
+function toggleDarkMode() {
+  S.darkMode = !S.darkMode;
+  document.documentElement.setAttribute('data-theme', S.darkMode ? 'dark' : 'light');
+  localStorage.setItem('myshub_dark', S.darkMode ? '1' : '0');
+}
+function initDarkMode() {
+  const saved = localStorage.getItem('myshub_dark');
+  if (saved === '1') { S.darkMode = true; document.documentElement.setAttribute('data-theme', 'dark'); }
+  else if (saved === '0') { S.darkMode = false; document.documentElement.setAttribute('data-theme', 'light'); }
+  else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { S.darkMode = true; document.documentElement.setAttribute('data-theme', 'dark'); }
+}
+
+// ================================================================
+//  DRAWER
+// ================================================================
+function openDrawer() { $('drawerOverlay').classList.add('on'); $('drawer').classList.add('on'); }
+function closeDrawer() { $('drawerOverlay').classList.remove('on'); $('drawer').classList.remove('on'); }
+
+// ================================================================
+//  PAGE LOADER
+// ================================================================
+const pageMap = {
+  overview: { file: 'overview.html', title: 'Dashboard' },
+  edit: { file: 'edit.html', title: 'Edit Shop' },
+  analytics: { file: 'analytics.html', title: 'Analytics' },
+  upgrade: { file: 'upgrade.html', title: 'Upgrade' },
+  referrals: { file: 'referrals.html', title: 'Referrals' },
+  settings: { file: 'settings.html', title: 'Settings' },
+  support: { file: 'support.html', title: 'Support' },
+  notifications: { file: 'notifications.html', title: 'Notifications' },
+  preview: { file: 'shop.html', title: 'Preview', iframe: true },
+  discover: { file: 'discover.html', title: 'Discover', iframe: true },
+  tutorials: { file: 'tutorial.html', title: 'Tutorials', iframe: true }
+};
+
+let currentPage = null;
+
+function loadPage(page) {
+  if (page === currentPage && page !== 'notifications') return;
+  currentPage = page;
+
+  document.querySelectorAll('.drawer-item').forEach(el => el.classList.toggle('active', el.dataset.page === page));
+  document.querySelectorAll('.bot-item').forEach(el => el.classList.toggle('on', el.dataset.page === page));
+
+  if (pageMap[page] && pageMap[page].iframe) {
+    renderIframePage(page);
+    return;
+  }
+
+  if (page === 'whatsnew') {
+    window.open('https://myshub.site/', '_blank');
+    return;
+  }
+
+  fetchPage(page);
+}
+
+function fetchPage(page) {
+  const content = $('pageContent');
+  const area = $('contentArea');
+  const requestToken = ++navigationToken;
+
+  showLoading();
+  area.classList.remove('iframe-page');
+
+  document.querySelector('.app-head').style.display = '';
+  document.querySelector('.bot-nav').style.display = '';
+
+  const file = pageMap[page]?.file || page + '.html';
+  fetch(file)
+    .then(res => {
+      if (!res.ok) throw new Error('Page not found');
+      return res.text();
+    })
+    .then(html => {
+      if (requestToken !== navigationToken) return;
+      content.innerHTML = html;
+      const scripts = content.querySelectorAll('script');
+      scripts.forEach(oldScript => {
+        const newScript = document.createElement('script');
+        newScript.textContent = oldScript.textContent;
+        oldScript.parentNode.replaceChild(newScript, oldScript);
+      });
+      hideLoading();
+      if (pageMap[page]) document.title = pageMap[page].title + ' – MyShub';
+      if (page === 'overview') updateDrawerInfo();
+      window.updateNotifBadge();
+    })
+    .catch(err => {
+      if (requestToken !== navigationToken) return;
+      hideLoading();
+      content.innerHTML = `<div class="empty"><i class="fa-regular fa-circle-exclamation"></i><div>Could not load ${page}</div><p style="font-size:12px;color:var(--text-tertiary)">${err.message}</p><button class="btn btn-primary" style="margin-top:12px" onclick="loadPage('${page}')">Try again</button></div>`;
+    });
+}
+
+function renderIframePage(page) {
+  const content = $('pageContent');
+  const area = $('contentArea');
+
+  showLoading();
+  area.classList.add('iframe-page');
+
+  document.querySelector('.app-head').style.display = 'none';
+  document.querySelector('.bot-nav').style.display = 'none';
+
+  let src = '', title = '';
+  if (page === 'preview') {
+    src = '/shop.html?slug=' + S.slug + '&preview=1&email=' + encodeURIComponent(S.email) + '&password=' + encodeURIComponent(S.password);
+    title = 'Preview';
+  } else if (page === 'discover') {
+    src = '/discover.html';
+    title = 'Discover';
+  } else if (page === 'tutorials') {
+    src = '/tutorial.html';
+    title = 'Tutorials';
+  }
+
+  content.innerHTML = `
+    <button class="iframe-back-btn" onclick="loadPage('overview')"><i class="fa-solid fa-arrow-left"></i></button>
+    <div class="iframe-wrap"><iframe src="${src}" loading="lazy"></iframe></div>
+  `;
+  document.title = title + ' – MyShub';
+  const iframe = content.querySelector('iframe');
+  if (iframe) {
+    iframe.onload = () => { hideLoading(); };
+    setTimeout(hideLoading, 5000);
+  } else {
+    hideLoading();
+  }
+}
+
+function updateDrawerInfo() {
+  const name = S.shopJson?.business_name || S.slug || 'My Shop';
+  const plan = S.plan || 'free';
+  $('drawerName').textContent = name;
+  $('drawerPlan').textContent = plan.charAt(0).toUpperCase() + plan.slice(1) + ' plan';
+}
+
+// ================================================================
+//  ENTER APP
+// ================================================================
+function enterApp(firstSession = false) {
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+  $('sec-app').classList.add('active');
+  S.firstSession = Boolean(firstSession);
+  loadPage('overview');
+  loadShopData().finally(() => {
+    if (S.firstSession && !localStorage.getItem('myshub_onboarding_seen_' + S.slug)) showOnboardingWelcome();
+  });
+}
+
+async function loadShopData() {
+  if (!S.slug) return;
+  try {
+    const d = await api('/shop/preview/' + S.slug, 'GET');
+    S.shopData = d;
+    S.shopJson = d.shop_json || d;
+    S.plan = d.plan || S.plan;
+    window.S = S;
+    updateDrawerInfo();
+    await refreshNotifications();
+  } catch(e) {}
+}
+
+// ================================================================
+//  LOGOUT
+// ================================================================
+function doLogout() {
+  showLoading();
+
+  localStorage.removeItem('myshub_session');
+  S = {
+    email: '', password: '', slug: '', plan: 'free',
+    shopData: null, shopJson: null,
+    notifications: [],
+    unreadCount: 0,
+    darkMode: S.darkMode,
+    currentPage: 'overview',
+    firstSession: false,
+    regSlugAvailable: null,
+    pendingRegEmail: null,
+    registrationToken: null,
+    pendingResetEmail: null,
+    resetToken: null
+  };
+  window.S = S;
+
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+  $('sec-landing').classList.add('active');
+
+  setTimeout(hideLoading, 400);
+  window.updateNotifBadge();
+  toast('Logged out successfully', 'info');
+}
+
+// Make loadPage accessible to all child pages
+window.loadPage = loadPage;
+
+// ================================================================
+//  INIT
+// ================================================================
+function init() {
+  initDarkMode();
+
+  // Wire OTP digit inputs once on load (idempotent)
+  setupOtpInputs('regOtpInputs');
+  setupOtpInputs('recOtpInputs');
+  updatePhoneHint();
+
+  const session = localStorage.getItem('myshub_session');
+  if (session) {
+    try {
+      const s = JSON.parse(session);
+      S.email = s.email || ''; S.password = s.password || ''; S.slug = s.slug || ''; S.plan = s.plan || 'free';
+      window.S = S;
+      if (S.email && S.password && S.slug) { enterApp(); return; }
+    } catch {}
+  }
+  showAuth('landing');
+
+  const startBtn = $('landingGetStarted');
+  const signInBtn = $('landingSignIn');
+  if (startBtn) startBtn.addEventListener('click', () => showAuth('register'));
+  if (signInBtn) signInBtn.addEventListener('click', () => showAuth('login'));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      closeDrawer();
+      closeCcDropdown();
+    }
+  });
+  if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(() => {}); }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    if (window.MyShubAnalytics) MyShubAnalytics.init({ surface: 'app' });
+  });
+</script>
+</body>
+</html>
