@@ -863,23 +863,13 @@
       </div>
     `;
 
-    // ---- Quick Actions: the four next steps, without duplicating full pages ----
+    // ---- Quick Actions (only Preview & Share) ----
     html += `
       <div class="cta-grid">
-        <div class="cta-card" onclick="navigate('edit')">
-          <div class="cta-card-icon" style="background:var(--brand-soft);color:var(--brand)"><i class="fa-solid fa-pen-to-square"></i></div>
-          <div class="cta-card-title">Edit Shop</div>
-          <div class="cta-card-desc">Add your bio, socials, links, logo, and catalog</div>
-        </div>
         <div class="cta-card" onclick="navigate('preview')">
-          <div class="cta-card-icon" style="background:var(--success-soft);color:var(--success)"><i class="fa-solid fa-eye"></i></div>
-          <div class="cta-card-title">View Public Shop</div>
-          <div class="cta-card-desc">See what customers see</div>
-        </div>
-        <div class="cta-card" onclick="navigate('analytics')">
-          <div class="cta-card-icon" style="background:var(--purple-soft);color:var(--purple)"><i class="fa-solid fa-chart-line"></i></div>
-          <div class="cta-card-title">Analytics</div>
-          <div class="cta-card-desc">See visits and customer actions</div>
+          <div class="cta-card-icon" style="background:var(--brand-soft);color:var(--brand)"><i class="fa-solid fa-eye"></i></div>
+          <div class="cta-card-title">Preview</div>
+          <div class="cta-card-desc">See how your shop looks to customers</div>
         </div>
         <div class="cta-card" onclick="openShareModal()">
           <div class="cta-card-icon" style="background:var(--warning-soft);color:var(--warning)"><i class="fa-solid fa-share-nodes"></i></div>
