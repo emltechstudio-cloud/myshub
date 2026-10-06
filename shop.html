@@ -166,7 +166,8 @@
             text-align: center;
         }
         .hero-logo {
-            width: 80px; height: 80px;
+            width: 120px;                /* Increased from 80px */
+            height: 120px;
             border-radius: 24px;
             object-fit: cover;
             margin: 0 auto 16px;
@@ -304,6 +305,8 @@
         }
         .card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
         .about-text { color: var(--text2); font-size: 0.95rem; line-height: 1.6; }
+        .about-collapsed { max-height: 9.6em; overflow: hidden; position: relative; }
+        .about-read-more { margin-top: 12px; border: 0; background: transparent; color: var(--brand); font: inherit; font-weight: 700; cursor: pointer; padding: 0; }
         .custom-links-grid { display: flex; flex-direction: column; gap: 6px; }
         .custom-link-btn {
             display: flex;
@@ -416,6 +419,9 @@
         .footer-brand img { width: 22px; height: 22px; border-radius: 6px; }
         .footer-text { color: var(--text3); font-size: 0.78rem; }
         .footer-text a { color: var(--brand); text-decoration: none; font-weight: 600; }
+        .footer-referral { margin-top: 8px; font-size: 0.85rem; }
+        .footer-referral a { color: var(--brand); text-decoration: none; font-weight: 600; }
+        .footer-referral a:hover { text-decoration: underline; }
         .fab {
             position: fixed;
             bottom: 24px; right: 24px;
@@ -475,6 +481,17 @@
             transition: background var(--transition);
         }
         .feedback-card button:hover { background: var(--brand-dark); }
+        .review-stars { display:flex; justify-content:center; gap:6px; margin:4px 0 8px; }
+        .review-stars button { width:auto; background:transparent; color:#f59e0b; padding:2px 4px; font-size:1.35rem; }
+        .review-stars button:hover { background:transparent; }
+        .reviews-summary { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+        .reviews-average { font-size:1.6rem; font-weight:800; color:var(--brand); }
+        .review-card { border-top:1px solid var(--border); padding:12px 0 0; margin-top:12px; }
+        .review-card:first-child { border-top:0; padding-top:0; margin-top:0; }
+        .review-card-head { display:flex; justify-content:space-between; gap:10px; font-size:.8rem; }
+        .review-card-stars { color:#f59e0b; letter-spacing:1px; }
+        .review-card-date { color:var(--text3); }
+        .review-card-message { color:var(--text2); font-size:.9rem; margin-top:4px; }
         .feedback-card button:last-of-type {
             background: var(--border);
             color: var(--text);
@@ -493,7 +510,7 @@
             .premium-hero { padding: 100px 20px 50px; }
             .premium-hero .premium-tagline { font-size: 1.8rem; }
             .hero-name { font-size: 1.5rem; }
-            .hero-logo { width: 64px; height: 64px; }
+            .hero-logo { width: 80px; height: 80px; }  /* Slightly smaller on mobile */
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -539,13 +556,21 @@
         </div>
     </div>
 
-    <div id="feedbackModal" class="feedback-modal">
+    <div id="feedbackModal" class="feedback-modal" role="dialog" aria-modal="true" aria-label="Leave a review">
         <div class="feedback-card">
-            <h3 style="font-weight:800;margin-bottom:12px;">Send Feedback</h3>
-            <input type="text"  id="feedbackName"    placeholder="Your name (optional)">
-            <input type="email" id="feedbackEmail"   placeholder="Your email (optional)">
-            <textarea           id="feedbackMessage" rows="4" placeholder="Your message..."></textarea>
-            <button onclick="submitFeedback()">Send Feedback</button>
+            <h3 style="font-weight:800;margin-bottom:4px;">Leave a review</h3>
+            <p style="font-size:.82rem;color:var(--text2);margin-bottom:8px;">Share your experience with this business.</p>
+            <div class="review-stars" aria-label="Choose a rating">
+                <button type="button" data-rating="1" onclick="setReviewRating(1)">★</button>
+                <button type="button" data-rating="2" onclick="setReviewRating(2)">★</button>
+                <button type="button" data-rating="3" onclick="setReviewRating(3)">★</button>
+                <button type="button" data-rating="4" onclick="setReviewRating(4)">★</button>
+                <button type="button" data-rating="5" onclick="setReviewRating(5)">★</button>
+            </div>
+            <input type="text" id="feedbackName" placeholder="Your name (optional)">
+            <input type="email" id="feedbackEmail" placeholder="Your email (optional; private)">
+            <textarea id="feedbackMessage" rows="4" placeholder="What did you think?"></textarea>
+            <button onclick="submitFeedback()">Submit review</button>
             <button onclick="closeFeedbackModal()">Cancel</button>
         </div>
     </div>
@@ -557,8 +582,8 @@
 
         // ─── PLAN CONFIG (MyShub v3) ─────────────────────────────────────
         const PLAN_CONFIG = {
-            free:    { socials:5,        custom_links:2,        brand_colors:false, gradients:false, fonts:false, ads:false, branding:true,  feedback:false },
-            pro:     { socials:10,       custom_links:5,        brand_colors:true,  gradients:false, fonts:true,  ads:false, branding:true,  feedback:false },
+            free:    { socials:5,        custom_links:2,        brand_colors:false, gradients:false, fonts:false, ads:false, branding:true,  feedback:true },
+            pro:     { socials:10,       custom_links:5,        brand_colors:true,  gradients:false, fonts:true,  ads:false, branding:true,  feedback:true },
             premium: { socials:Infinity, custom_links:Infinity, brand_colors:true,  gradients:true,  fonts:true,  ads:false, branding:false, feedback:true  }
         };
 
@@ -612,6 +637,8 @@
             phone: "+2348034567890",
             email: "amaraglowbeauty@gmail.com",
             location: "Lekki, Lagos, Nigeria",
+            city: "Lekki",
+            state: "Lagos",
             catalog_url: "https://selar.co/amaraglowbeauty",
             brand_colors: {
                 primary: "#d946ef",
@@ -709,13 +736,38 @@
             if (l.includes('shopify.com')) return 'shopify';
             return 'generic';
         }
+
+        // ─── SLUG RESOLUTION (FIXED) ─────────────────────────────────────
+        const RESERVED_SLUGS = [
+            '', 'index',
+            'discover', 'discover.html',
+            'app', 'app.html',
+            'privacy', 'privacy.html',
+            'terms', 'terms.html',
+            'support', 'support.html',
+            'install', 'install.html',
+            'admin', 'admin.html',
+            'blog', 'blog/', 'blog/index.html',
+            'icon.svg', 'manifest.json', 'robots.txt', 'sitemap.xml'
+        ];
+
+        function isReserved(slug) {
+            if (!slug) return true;
+            const clean = slug.toLowerCase().replace(/\/+$/, ''); // trim trailing slash
+            return RESERVED_SLUGS.some(r => clean === r.toLowerCase()) ||
+                   clean.startsWith('blog/');
+        }
+
         function resolveSlug() {
             const urlParams = new URLSearchParams(window.location.search);
             const qSlug = urlParams.get('slug');
-            if (qSlug) return qSlug;
+            if (qSlug) return qSlug.toLowerCase();
+
             const parts = window.location.pathname.split('/').filter(Boolean);
-            const reserved = ['index.html','app.html','shop.html','install.html','404.html','admin','suadmin'];
-            if (parts.length && !reserved.includes(parts[0])) return parts[0];
+            if (parts.length) {
+                const candidate = parts[0].toLowerCase();
+                if (!isReserved(candidate)) return candidate;
+            }
             return '';
         }
 
@@ -743,20 +795,19 @@
             const ogImg = hasImg ? logo : `${BASE_URL}/icon.svg`;
             document.title = `${name} | MyShub`;
             setMeta('description', desc);
-            if (plan !== 'free') {
-                setOG('og:title', name);
-                setOG('og:description', desc);
-                setOG('og:type', 'website');
-                setOG('og:url', pageUrl);
-                setOG('og:image', ogImg);
-                setOG('og:image:width', '1200');
-                setOG('og:image:height','630');
-                setOG('og:site_name', 'MyShub');
-                setMeta('twitter:card', 'summary_large_image');
-                setMeta('twitter:title', name);
-                setMeta('twitter:description', desc);
-                setMeta('twitter:image', ogImg);
-            }
+            setOG('og:title', name);
+            setOG('og:description', desc);
+            setOG('og:type', 'website');
+            setOG('og:url', pageUrl);
+            setOG('og:image', ogImg);
+            setOG('og:image:width', '1200');
+            setOG('og:image:height','630');
+            setOG('og:site_name', 'MyShub');
+            setMeta('twitter:card', 'summary_large_image');
+            setMeta('twitter:title', name);
+            setMeta('twitter:description', desc);
+            setMeta('twitter:image', ogImg);
+
             if (plan === 'premium') {
                 let link = document.querySelector('link[rel="canonical"]');
                 if (!link) { link = document.createElement('link'); link.rel = 'canonical'; document.head.appendChild(link); }
@@ -771,7 +822,15 @@
                 if (hasImg) ld.image = logo;
                 if (json.phone) ld.telephone = json.phone;
                 if (json.email) ld.email = json.email;
-                if (json.location) ld.address = { '@type': 'PostalAddress', addressLocality: json.location, addressCountry: 'NG' };
+                if (json.location || json.city || json.state) {
+                    ld.address = {
+                        '@type': 'PostalAddress',
+                        streetAddress: json.location || '',
+                        addressLocality: json.city || '',
+                        addressRegion: json.state || '',
+                        addressCountry: 'NG'
+                    };
+                }
                 if (json.catalog_url) ld.hasOfferCatalog = { '@type': 'OfferCatalog', url: json.catalog_url };
                 const s = document.createElement('script');
                 s.type = 'application/ld+json';
@@ -827,12 +886,11 @@
             const p = getMessagingPlatform(platform);
             if (!p) return;
             let link = p.urlTemplate(identifier);
-            if (platform === 'whatsapp') link += '?text=' + encodeURIComponent('Hi ' + (businessName || 'there') + ', I found your shop on MyShub.');
+            // No extra text; just the link
+            fabEl.href = isDemo ? '#' : link;
             if (isDemo) {
-                fabEl.href = '#';
                 fabEl.onclick = function(e) { e.preventDefault(); showDemoToast(); };
             } else {
-                fabEl.href = link;
                 fabEl.onclick = null;
             }
             fabEl.innerHTML = `<i class="${p.icon}"></i>`;
@@ -860,59 +918,79 @@
             }, 2000);
         }
 
-        // ─── FEEDBACK ────────────────────────────────────────────────────
+        // ─── REVIEWS ───────────────────────────────────────────────────────
+        let reviewRating = 5;
         window.openFeedbackModal = function() {
+            reviewRating = 5;
+            setReviewRating(5);
             document.getElementById('feedbackModal').classList.add('active');
         };
         window.closeFeedbackModal = function() {
             document.getElementById('feedbackModal').classList.remove('active');
         };
-        function formatFeedbackPlainText(shopData, userData) {
-            const shopName = shopData.business_name || 'MyShub Store';
-            const shopEmail = shopData.email || '';
-            const location = shopData.location || '';
-            let text = '';
-            text += '╔════════════════════════════════════════╗\n';
-            text += '║          ✨ NEW FEEDBACK ✨            ║\n';
-            text += '╚════════════════════════════════════════╝\n\n';
-            text += `📦 Shop: ${shopName}\n`;
-            text += `📧 Shop email: ${shopEmail}\n`;
-            if (location) text += `📍 Location: ${location}\n`;
-            text += `\n${'─'.repeat(50)}\n\n`;
-            text += `👤 Customer name: ${userData.name || 'Anonymous'}\n`;
-            text += `📧 Customer email: ${userData.email || 'Not provided'}\n\n`;
-            text += `${'─'.repeat(50)}\n\n`;
-            text += `💬 MESSAGE:\n`;
-            text += `${'─'.repeat(30)}\n`;
-            text += `${userData.message}\n`;
-            text += `${'─'.repeat(30)}\n\n`;
-            text += `${'═'.repeat(50)}\n`;
-            text += `Sent from ${shopName}'s MyShub storefront\n`;
-            text += `MyShub — Create your professional storefront at https://myshub.site\n`;
-            text += `${'═'.repeat(50)}`;
-            return text;
+        window.setReviewRating = function(value) {
+            reviewRating = Math.max(1, Math.min(5, Number(value) || 5));
+            document.querySelectorAll('.review-stars button').forEach(button => {
+                button.style.opacity = Number(button.dataset.rating) <= reviewRating ? '1' : '.35';
+            });
+        };
+        function reviewStars(value) {
+            const rating = Math.max(0, Math.min(5, Number(value) || 0));
+            return '★'.repeat(rating) + '☆'.repeat(5 - rating);
         }
-        window.submitFeedback = function() {
+        function formatReviewDate(value) {
+            if (!value) return '';
+            const date = new Date(value);
+            return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' });
+        }
+        async function loadReviews(shopSlug) {
+            const list = document.getElementById('reviewsList');
+            const summary = document.getElementById('reviewsSummary');
+            if (!list || !summary || !shopSlug) return;
+            if (isDemoMode) {
+                summary.innerHTML = '<span class="reviews-average">— ★</span><span style="color:var(--text2);font-size:.85rem;">Demo review preview</span>';
+                list.innerHTML = '<p style="color:var(--text2);font-size:.88rem;">Real customer reviews will appear here on a live shop.</p>';
+                return;
+            }
+            try {
+                const response = await fetch(`${API_BASE}/feedback/shop/${encodeURIComponent(shopSlug)}`);
+                if (!response.ok) throw new Error('Reviews unavailable');
+                const data = await response.json();
+                summary.innerHTML = `<span class="reviews-average">${data.average_rating ? data.average_rating.toFixed(1) : '—'} ★</span><span style="color:var(--text2);font-size:.85rem;">${data.total || 0} approved review${data.total === 1 ? '' : 's'}</span>`;
+                list.innerHTML = (data.reviews || []).map(review => `<article class="review-card"><div class="review-card-head"><strong>${escapeHtml(review.name || 'Anonymous')}</strong><span class="review-card-stars">${reviewStars(review.rating)}</span><span class="review-card-date">${formatReviewDate(review.created_at)}</span></div><p class="review-card-message">${escapeHtml(review.message || '')}</p></article>`).join('') || '<p style="color:var(--text2);font-size:.88rem;">No reviews yet. Be the first to share your experience.</p>';
+            } catch (_) {
+                list.innerHTML = '<p style="color:var(--text2);font-size:.88rem;">Reviews will appear here soon.</p>';
+            }
+        }
+        window.submitFeedback = async function() {
             const name = document.getElementById('feedbackName').value.trim();
             const email = document.getElementById('feedbackEmail').value.trim();
             const message = document.getElementById('feedbackMessage').value.trim();
-            if (!message) { alert('Please enter a message'); return; }
-            if (!currentShopEmail) { alert('Shop email not available.'); return; }
-            const userData = { name, email, message };
-            const shopData = {
-                business_name: currentShopData?.business_name || 'MyShub Store',
-                email: currentShopEmail,
-                location: currentShopData?.location || ''
-            };
-            const plainBody = formatFeedbackPlainText(shopData, userData);
-            const subject = `✨ Feedback for ${shopData.business_name}`;
-            const mailtoUrl = `mailto:${currentShopEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(plainBody)}`;
-            window.location.href = mailtoUrl;
-            closeFeedbackModal();
-            alert('Your email client will open with a pre‑filled message.\nPlease review and click Send.\n\nThank you for your feedback!');
-            document.getElementById('feedbackName').value = '';
-            document.getElementById('feedbackEmail').value = '';
-            document.getElementById('feedbackMessage').value = '';
+            const slug = resolveSlug();
+            if (!slug) return;
+            if (message.length < 3) { alert('Please write a little more about your experience.'); return; }
+            const button = document.querySelector('#feedbackModal button[onclick="submitFeedback()"]');
+            if (button) { button.disabled = true; button.textContent = 'Submitting…'; }
+            try {
+                const response = await fetch(`${API_BASE}/feedback/shop/${encodeURIComponent(slug)}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ name, email, message, rating: reviewRating }) });
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) throw new Error(data.detail || 'Could not submit review');
+                closeFeedbackModal();
+                document.getElementById('feedbackName').value = '';
+                document.getElementById('feedbackEmail').value = '';
+                document.getElementById('feedbackMessage').value = '';
+                await loadReviews(slug);
+                alert('Thank you for sharing your review.');
+            } catch (error) { alert(error.message || 'Could not submit review.'); }
+            finally { if (button) { button.disabled = false; button.textContent = 'Submit review'; } }
+        };
+        window.toggleAbout = function() {
+            const text = document.getElementById('aboutText');
+            const button = document.getElementById('aboutReadMore');
+            if (!text || !button) return;
+            const expanded = text.classList.toggle('about-expanded');
+            text.classList.toggle('about-collapsed', !expanded);
+            button.textContent = expanded ? 'Read less' : 'Read more';
         };
 
         // ─── RENDER SHOP ──────────────────────────────────────────────────
@@ -934,7 +1012,9 @@
             applyTheme(shop);
 
             const socials = json.socials || {}, phone = json.phone || '', email = json.email || '';
-            const location = json.location || '', catalogUrl = json.catalog_url || '';
+            const location = json.location || '', city = json.city || '', state = json.state || '';
+            const fullAddress = [location, city, state].filter(Boolean).join(', ');
+            const catalogUrl = json.catalog_url || '';
             let socialList = [], messagingList = [];
             for (let [key, url] of Object.entries(socials)) {
                 if (!url) continue;
@@ -972,7 +1052,6 @@
                 const mp = getMessagingPlatform(primaryMsg.platform);
                 if (mp) {
                     let link = mp.urlTemplate(primaryMsg.identifier);
-                    if (primaryMsg.platform === 'whatsapp') link += '?text=' + encodeURIComponent('Hi ' + (json.business_name||'there') + ', I found your shop on MyShub.');
                     const href = isDemoMode ? '#' : link;
                     const onclick = isDemoMode ? 'showDemoToast(); return false;' : '';
                     heroCta += `<a href="${href}" onclick="${onclick}" class="btn-primary"><i class="${mp.icon}"></i> Chat on ${mp.name}</a>`;
@@ -988,7 +1067,7 @@
             if (json.description) {
                 sections += `<section class="section" id="about">
                     <div class="section-title fade-in"><i class="fa-solid fa-circle-info"></i> About</div>
-                    <div class="card fade-in"><p class="about-text">${escapeHtml(json.description)}</p></div>
+                    <div class="card fade-in"><p id="aboutText" class="about-text ${String(json.description).length > 320 ? 'about-collapsed' : ''}">${escapeHtml(json.description)}</p>${String(json.description).length > 320 ? '<button id="aboutReadMore" class="about-read-more" onclick="toggleAbout()">Read more</button>' : ''}</div>
                 </section>`;
             }
             if (canShowCustomLinks) {
@@ -1041,7 +1120,6 @@
                     const mp = getMessagingPlatform(m.platform);
                     if (!mp) return;
                     let link = mp.urlTemplate(m.identifier);
-                    if (m.platform === 'whatsapp') link += '?text=' + encodeURIComponent('Hi, I found your shop on MyShub.');
                     const href = isDemoMode ? '#' : link;
                     const onclick = isDemoMode ? 'showDemoToast(); return false;' : '';
                     sections += `<a href="${href}" onclick="${onclick}" target="_blank" class="msg-btn ${m.platform}">
@@ -1067,22 +1145,44 @@
                 sections += `</div></section>`;
             }
 
+            sections += `<section class="section" id="reviews">
+                <div class="section-title fade-in"><i class="fa-solid fa-star"></i> Reviews</div>
+                <div class="card fade-in">
+                    <div id="reviewsSummary" class="reviews-summary"><span class="reviews-average">— ★</span><span style="color:var(--text2);font-size:.85rem;">Loading reviews…</span></div>
+                    <div id="reviewsList" style="margin-top:12px;"><p style="color:var(--text2);font-size:.88rem;">Loading reviews…</p></div>
+                    <button class="catalog-btn" style="border:0;cursor:pointer;margin-top:14px;" onclick="openFeedbackModal()"><i class="fa-solid fa-pen"></i> Leave a review</button>
+                </div>
+            </section>`;
+
+            // Footer
             let footerHtml = '';
+            const year = new Date().getFullYear();
+            const referralCode = json.referral_code || shop.referral_code || '';
+            const referralUrl = referralCode ? `${BASE_URL}/app.html?ref=${encodeURIComponent(referralCode)}` : `${BASE_URL}/app.html`;
+
             if (cfg.branding) {
                 footerHtml = `<footer class="site-footer">
-                    <a href="index.html" class="footer-brand"><img src="icon.svg" alt="MyShub"> MyShub</a>
-                    <p class="footer-text">Powered by <a href="index.html">MyShub</a> — <a href="https://emltechstudio.site" target="_blank">EML Tech Studio</a></p>
+                    <p class="footer-text">© ${year} ${escapeHtml(json.business_name || 'My Hub')}. All rights reserved. Powered by <a href="index.html">MyShub</a></p>
+                    ${referralCode ? `<p class="footer-referral"><a href="${referralUrl}">Join ${escapeHtml(json.business_name)} on MyShub</a></p>` : ''}
+                </footer>`;
+            } else {
+                footerHtml = `<footer class="site-footer">
+                    <p class="footer-text">© ${year} ${escapeHtml(json.business_name || 'My Hub')}. All rights reserved. <a href="index.html">MyShub</a></p>
+                    ${referralCode ? `<p class="footer-referral"><a href="${referralUrl}">Join ${escapeHtml(json.business_name)} on MyShub</a></p>` : ''}
                 </footer>`;
             }
-            const feedbackBtnHtml = cfg.feedback && currentShopEmail
-                ? `<div style="position:fixed;bottom:100px;right:24px;z-index:998;">
-                    <button onclick="openFeedbackModal()" style="background:#f59e0b;width:56px;height:56px;border-radius:50%;border:none;color:white;font-size:1.5rem;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);">
-                        <i class="fa-solid fa-comment"></i>
-                    </button>
-                   </div>`
-                : '';
 
-            const logoUrl = (isDemoMode && DEMO_UNSPLASH_LOGOS[currentPlan]) ? DEMO_UNSPLASH_LOGOS[currentPlan] : (json.logo_url || 'icon.svg');
+            function normalizeLogoUrl(value) {
+                if (typeof value !== 'string') return '';
+                const candidate = value.trim();
+                if (!candidate || candidate === 'null' || candidate === 'undefined') return '';
+                // Preserve long data URLs exactly; truncating or rewriting them breaks the logo.
+                return candidate;
+            }
+            const logoUrl = (isDemoMode && DEMO_UNSPLASH_LOGOS[currentPlan])
+                ? DEMO_UNSPLASH_LOGOS[currentPlan]
+                : (normalizeLogoUrl(json.logo_url) || normalizeLogoUrl(json.logoUrl) || 'icon.svg');
+            const safeLogoUrl = escapeHtml(logoUrl);
             const businessName = json.business_name || 'My Hub';
             const tagline = json.tagline || '';
 
@@ -1099,7 +1199,7 @@
                 html = `<nav class="navbar" id="navbar">
                     <div class="nav-inner">
                         <a href="#" class="nav-brand" style="color:var(--text);">
-                            <img src="${logoUrl}" onerror="this.src='icon.svg'" style="width:28px;height:28px;border-radius:8px;object-fit:cover;">
+                            <img src="${safeLogoUrl}" onerror="this.onerror=null;this.src='icon.svg'" style="width:36px;height:36px;border-radius:8px;object-fit:cover;">
                             <span>${escapeHtml(businessName)}</span>${verifiedMark}
                         </a>
                         <div class="nav-links" id="navLinks">${navLinks}</div>
@@ -1110,22 +1210,23 @@
 
             if (!isPremium) {
                 html += `<header class="hero">
-                    <img src="${logoUrl}" alt="${escapeHtml(businessName)}" class="hero-logo" onerror="this.src='icon.svg'">
+                    <img src="${safeLogoUrl}" alt="${escapeHtml(businessName)}" class="hero-logo" onerror="this.onerror=null;this.src='icon.svg'">
                     <h1 class="hero-name">${escapeHtml(businessName)}${verifiedMark}</h1>
                     ${tagline ? `<p class="hero-tagline">${escapeHtml(tagline)}</p>` : ''}
-                    <div class="hero-meta">${location ? `<span><i class="fa-solid fa-location-dot"></i> ${escapeHtml(location)}</span>` : ''}</div>
+                    <div class="hero-meta">${fullAddress ? `<span><i class="fa-solid fa-location-dot"></i> ${escapeHtml(fullAddress)}</span>` : ''}</div>
                     ${heroCta}
                 </header>`;
             } else {
                 html += `<header class="premium-hero">
                     <div class="premium-tagline">${escapeHtml(tagline || businessName)}</div>
-                    ${location ? `<div class="premium-location"><i class="fa-solid fa-location-dot"></i> ${escapeHtml(location)}</div>` : ''}
+                    ${fullAddress ? `<div class="premium-location"><i class="fa-solid fa-location-dot"></i> ${escapeHtml(fullAddress)}</div>` : ''}
                     ${heroCta}
                 </header>`;
             }
 
-            html += `<div class="content-wrap">${sections}</div>${footerHtml}${feedbackBtnHtml}`;
+            html += `<div class="content-wrap">${sections}</div>${footerHtml}`;
             document.getElementById('app').innerHTML = html;
+            loadReviews(resolveSlug());
 
             const observer = new IntersectionObserver(entries => {
                 entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
@@ -1141,45 +1242,118 @@
                 const nav = document.getElementById('navbar');
                 if (nav) window.scrollY > 20 ? nav.classList.add('scrolled') : nav.classList.remove('scrolled');
             });
+            const navLinksElement = document.getElementById('navLinks');
             document.getElementById('menuToggle')?.addEventListener('click', () => {
-                document.getElementById('navLinks')?.classList.toggle('active');
+                navLinksElement?.classList.toggle('active');
+            });
+
+            // Scroll inside the already-rendered shop document. A normal hash
+            // navigation can trigger the host fallback and refetch /shop/live/{slug},
+            // which incorrectly increments the visit counter again.
+            navLinksElement?.querySelectorAll('a[href^="#"]').forEach(link => {
+                link.addEventListener('click', event => {
+                    const targetId = link.getAttribute('href')?.slice(1);
+                    const target = targetId ? document.getElementById(targetId) : null;
+                    if (!target) return;
+                    event.preventDefault();
+                    const nav = document.getElementById('navbar');
+                    const offset = (nav?.offsetHeight || 0) + 12;
+                    const top = target.getBoundingClientRect().top + window.scrollY - offset;
+                    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+                    history.replaceState(null, '', `#${targetId}`);
+                    navLinksElement.classList.remove('active');
+                });
             });
         }
 
         // ─── DEMO UNSPLASH LOGOS ─────────────────────────────────────────
         const DEMO_UNSPLASH_LOGOS = {
-        free: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=400&fit=crop&crop=center',
-        pro: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop&crop=face',
-        premium: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&h=400&fit=crop&crop=face'
-    };
-        
+            free: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=400&fit=crop&crop=center',
+            pro: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop&crop=face',
+            premium: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&h=400&fit=crop&crop=face'
+        };
 
         // CLICK TRACKING (Pro/Premium only)
         const CLICK_TRACKING = {
-            slug: '', plan: 'free', buffer: [], timer: null, INTERVAL: 30000,
+            slug: '', plan: 'free', buffer: [], exitSent: false, flushing: false,
             init(slug, plan) {
-                this.slug = slug; this.plan = plan;
+                this.slug = slug;
+                this.plan = plan;
+                this.exitSent = false;
+                this.flushing = false;
+                this.buffer = [];
                 if (plan === 'free') return;
                 const saved = localStorage.getItem('myshub_clicks_' + slug);
-                if (saved) { try { this.buffer = JSON.parse(saved); } catch(e) {} }
-                this.timer = setInterval(() => this.flush(), this.INTERVAL);
-                window.addEventListener('beforeunload', () => this.flush(true));
-                window.addEventListener('pagehide', () => this.flush(true));
+                if (saved) { try { this.buffer = JSON.parse(saved) || []; } catch(e) { this.buffer = []; } }
+                // Retry clicks left by a failed request from a previous visit.
+                if (this.buffer.length) setTimeout(() => this.flush(false), 0);
+                const sendOnExit = () => {
+                    if (this.exitSent) return;
+                    this.exitSent = true;
+                    this.flush(true);
+                };
+                window.addEventListener('pagehide', sendOnExit, { once: true });
+                window.addEventListener('beforeunload', sendOnExit, { once: true });
             },
             track(type, detail) {
                 if (this.plan === 'free') return;
                 this.buffer.push({ type: type, detail: detail || '', ts: Date.now() });
-                localStorage.setItem('myshub_clicks_' + this.slug, JSON.stringify(this.buffer));
+                this.persist();
+                // Send immediately. If another request is active, its completion
+                // automatically drains the queued click(s) without losing them.
+                this.flush(false);
+            },
+            persist() {
+                const key = 'myshub_clicks_' + this.slug;
+                if (this.buffer.length) localStorage.setItem(key, JSON.stringify(this.buffer));
+                else localStorage.removeItem(key);
+            },
+            buildBatch(events) {
+                const agg = {};
+                events.forEach(c => {
+                    const key = c.type + '|' + c.detail;
+                    agg[key] = (agg[key] || 0) + 1;
+                });
+                return Object.entries(agg).map(([key, count]) => {
+                    const parts = key.split('|');
+                    return { type: parts[0], detail: parts[1] || '', count: count };
+                });
             },
             flush(isBeacon) {
-                if (this.plan === 'free' || this.buffer.length === 0) return;
-                const agg = {};
-                this.buffer.forEach(c => { const key = c.type + '|' + c.detail; agg[key] = (agg[key] || 0) + 1; });
-                const payload = Object.entries(agg).map(([key, count]) => { const parts = key.split('|'); return { type: parts[0], detail: parts[1] || '', count: count }; });
-                const url = API_BASE + '/shop/click/' + this.slug;
+                if (this.plan === 'free' || this.buffer.length === 0) return false;
+                if (this.flushing && !isBeacon) return false;
+                // Remove this batch from the retry queue before sending. If the
+                // normal request fails, it is put back in front of newer clicks.
+                const batch = this.buffer.splice(0, this.buffer.length);
+                this.persist();
+                const payload = this.buildBatch(batch);
+                const url = API_BASE + '/shop/click/' + encodeURIComponent(this.slug);
                 const body = JSON.stringify({ clicks: payload });
-                if (isBeacon && navigator.sendBeacon) { navigator.sendBeacon(url, body); }
-                else { fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body }).then(() => { this.buffer = []; localStorage.removeItem('myshub_clicks_' + this.slug); }).catch(() => {}); }
+                if (isBeacon && navigator.sendBeacon) {
+                    const blob = new Blob([body], { type: 'application/json' });
+                    if (!navigator.sendBeacon(url, blob)) {
+                        this.buffer = batch.concat(this.buffer);
+                        this.persist();
+                        return false;
+                    }
+                    return true;
+                }
+                this.flushing = true;
+                fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: body,
+                    keepalive: true
+                }).then(response => {
+                    if (!response.ok) throw new Error('Click request failed: ' + response.status);
+                }).catch(() => {
+                    this.buffer = batch.concat(this.buffer);
+                    this.persist();
+                }).finally(() => {
+                    this.flushing = false;
+                    if (this.buffer.length && !this.exitSent) this.flush(false);
+                });
+                return true;
             }
         };
         function attachClickTracking(plan) {
@@ -1207,9 +1381,12 @@
             CLICK_TRACKING.init(resolveSlug(), DEMO_DATA[demoPlan].plan);
             attachClickTracking(DEMO_DATA[demoPlan].plan);
         } else if (slug) {
-            const apiUrl = isPreview && previewEmail && previewPassword
-                ? `${API_BASE}/shop/preview/${slug}?email=${encodeURIComponent(previewEmail)}&password=${encodeURIComponent(previewPassword)}`
-                : `${API_BASE}/shop/live/${slug}`;
+            const adminToken = urlParams.get('admin_token') || '';
+            const apiUrl = adminToken
+                ? `${API_BASE}/shop/admin-preview/${encodeURIComponent(slug)}?token=${encodeURIComponent(adminToken)}`
+                : (isPreview && previewEmail && previewPassword
+                    ? `${API_BASE}/shop/preview/${slug}?email=${encodeURIComponent(previewEmail)}&password=${encodeURIComponent(previewPassword)}`
+                    : `${API_BASE}/shop/live/${slug}`);
             fetch(apiUrl)
                 .then(res => res.ok ? res.json() : Promise.reject())
                 .then(shop => { renderShop(shop); CLICK_TRACKING.init(slug, shop.plan || 'free'); attachClickTracking(shop.plan || 'free'); })

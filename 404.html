@@ -305,6 +305,8 @@
         }
         .card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
         .about-text { color: var(--text2); font-size: 0.95rem; line-height: 1.6; }
+        .about-collapsed { max-height: 9.6em; overflow: hidden; position: relative; }
+        .about-read-more { margin-top: 12px; border: 0; background: transparent; color: var(--brand); font: inherit; font-weight: 700; cursor: pointer; padding: 0; }
         .custom-links-grid { display: flex; flex-direction: column; gap: 6px; }
         .custom-link-btn {
             display: flex;
@@ -479,6 +481,17 @@
             transition: background var(--transition);
         }
         .feedback-card button:hover { background: var(--brand-dark); }
+        .review-stars { display:flex; justify-content:center; gap:6px; margin:4px 0 8px; }
+        .review-stars button { width:auto; background:transparent; color:#f59e0b; padding:2px 4px; font-size:1.35rem; }
+        .review-stars button:hover { background:transparent; }
+        .reviews-summary { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+        .reviews-average { font-size:1.6rem; font-weight:800; color:var(--brand); }
+        .review-card { border-top:1px solid var(--border); padding:12px 0 0; margin-top:12px; }
+        .review-card:first-child { border-top:0; padding-top:0; margin-top:0; }
+        .review-card-head { display:flex; justify-content:space-between; gap:10px; font-size:.8rem; }
+        .review-card-stars { color:#f59e0b; letter-spacing:1px; }
+        .review-card-date { color:var(--text3); }
+        .review-card-message { color:var(--text2); font-size:.9rem; margin-top:4px; }
         .feedback-card button:last-of-type {
             background: var(--border);
             color: var(--text);
@@ -543,13 +556,21 @@
         </div>
     </div>
 
-    <div id="feedbackModal" class="feedback-modal">
+    <div id="feedbackModal" class="feedback-modal" role="dialog" aria-modal="true" aria-label="Leave a review">
         <div class="feedback-card">
-            <h3 style="font-weight:800;margin-bottom:12px;">Send Feedback</h3>
-            <input type="text"  id="feedbackName"    placeholder="Your name (optional)">
-            <input type="email" id="feedbackEmail"   placeholder="Your email (optional)">
-            <textarea           id="feedbackMessage" rows="4" placeholder="Your message..."></textarea>
-            <button onclick="submitFeedback()">Send Feedback</button>
+            <h3 style="font-weight:800;margin-bottom:4px;">Leave a review</h3>
+            <p style="font-size:.82rem;color:var(--text2);margin-bottom:8px;">Share your experience with this business.</p>
+            <div class="review-stars" aria-label="Choose a rating">
+                <button type="button" data-rating="1" onclick="setReviewRating(1)">★</button>
+                <button type="button" data-rating="2" onclick="setReviewRating(2)">★</button>
+                <button type="button" data-rating="3" onclick="setReviewRating(3)">★</button>
+                <button type="button" data-rating="4" onclick="setReviewRating(4)">★</button>
+                <button type="button" data-rating="5" onclick="setReviewRating(5)">★</button>
+            </div>
+            <input type="text" id="feedbackName" placeholder="Your name (optional)">
+            <input type="email" id="feedbackEmail" placeholder="Your email (optional; private)">
+            <textarea id="feedbackMessage" rows="4" placeholder="What did you think?"></textarea>
+            <button onclick="submitFeedback()">Submit review</button>
             <button onclick="closeFeedbackModal()">Cancel</button>
         </div>
     </div>
@@ -561,8 +582,8 @@
 
         // ─── PLAN CONFIG (MyShub v3) ─────────────────────────────────────
         const PLAN_CONFIG = {
-            free:    { socials:5,        custom_links:2,        brand_colors:false, gradients:false, fonts:false, ads:false, branding:true,  feedback:false },
-            pro:     { socials:10,       custom_links:5,        brand_colors:true,  gradients:false, fonts:true,  ads:false, branding:true,  feedback:false },
+            free:    { socials:5,        custom_links:2,        brand_colors:false, gradients:false, fonts:false, ads:false, branding:true,  feedback:true },
+            pro:     { socials:10,       custom_links:5,        brand_colors:true,  gradients:false, fonts:true,  ads:false, branding:true,  feedback:true },
             premium: { socials:Infinity, custom_links:Infinity, brand_colors:true,  gradients:true,  fonts:true,  ads:false, branding:false, feedback:true  }
         };
 
@@ -897,59 +918,79 @@
             }, 2000);
         }
 
-        // ─── FEEDBACK ────────────────────────────────────────────────────
+        // ─── REVIEWS ───────────────────────────────────────────────────────
+        let reviewRating = 5;
         window.openFeedbackModal = function() {
+            reviewRating = 5;
+            setReviewRating(5);
             document.getElementById('feedbackModal').classList.add('active');
         };
         window.closeFeedbackModal = function() {
             document.getElementById('feedbackModal').classList.remove('active');
         };
-        function formatFeedbackPlainText(shopData, userData) {
-            const shopName = shopData.business_name || 'MyShub Store';
-            const shopEmail = shopData.email || '';
-            const location = shopData.location || '';
-            let text = '';
-            text += '╔════════════════════════════════════════╗\n';
-            text += '║          ✨ NEW FEEDBACK ✨            ║\n';
-            text += '╚════════════════════════════════════════╝\n\n';
-            text += `📦 Shop: ${shopName}\n`;
-            text += `📧 Shop email: ${shopEmail}\n`;
-            if (location) text += `📍 Location: ${location}\n`;
-            text += `\n${'─'.repeat(50)}\n\n`;
-            text += `👤 Customer name: ${userData.name || 'Anonymous'}\n`;
-            text += `📧 Customer email: ${userData.email || 'Not provided'}\n\n`;
-            text += `${'─'.repeat(50)}\n\n`;
-            text += `💬 MESSAGE:\n`;
-            text += `${'─'.repeat(30)}\n`;
-            text += `${userData.message}\n`;
-            text += `${'─'.repeat(30)}\n\n`;
-            text += `${'═'.repeat(50)}\n`;
-            text += `Sent from ${shopName}'s MyShub storefront\n`;
-            text += `MyShub — Create your professional storefront at https://myshub.site\n`;
-            text += `${'═'.repeat(50)}`;
-            return text;
+        window.setReviewRating = function(value) {
+            reviewRating = Math.max(1, Math.min(5, Number(value) || 5));
+            document.querySelectorAll('.review-stars button').forEach(button => {
+                button.style.opacity = Number(button.dataset.rating) <= reviewRating ? '1' : '.35';
+            });
+        };
+        function reviewStars(value) {
+            const rating = Math.max(0, Math.min(5, Number(value) || 0));
+            return '★'.repeat(rating) + '☆'.repeat(5 - rating);
         }
-        window.submitFeedback = function() {
+        function formatReviewDate(value) {
+            if (!value) return '';
+            const date = new Date(value);
+            return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' });
+        }
+        async function loadReviews(shopSlug) {
+            const list = document.getElementById('reviewsList');
+            const summary = document.getElementById('reviewsSummary');
+            if (!list || !summary || !shopSlug) return;
+            if (isDemoMode) {
+                summary.innerHTML = '<span class="reviews-average">— ★</span><span style="color:var(--text2);font-size:.85rem;">Demo review preview</span>';
+                list.innerHTML = '<p style="color:var(--text2);font-size:.88rem;">Real customer reviews will appear here on a live shop.</p>';
+                return;
+            }
+            try {
+                const response = await fetch(`${API_BASE}/feedback/shop/${encodeURIComponent(shopSlug)}`);
+                if (!response.ok) throw new Error('Reviews unavailable');
+                const data = await response.json();
+                summary.innerHTML = `<span class="reviews-average">${data.average_rating ? data.average_rating.toFixed(1) : '—'} ★</span><span style="color:var(--text2);font-size:.85rem;">${data.total || 0} approved review${data.total === 1 ? '' : 's'}</span>`;
+                list.innerHTML = (data.reviews || []).map(review => `<article class="review-card"><div class="review-card-head"><strong>${escapeHtml(review.name || 'Anonymous')}</strong><span class="review-card-stars">${reviewStars(review.rating)}</span><span class="review-card-date">${formatReviewDate(review.created_at)}</span></div><p class="review-card-message">${escapeHtml(review.message || '')}</p></article>`).join('') || '<p style="color:var(--text2);font-size:.88rem;">No reviews yet. Be the first to share your experience.</p>';
+            } catch (_) {
+                list.innerHTML = '<p style="color:var(--text2);font-size:.88rem;">Reviews will appear here soon.</p>';
+            }
+        }
+        window.submitFeedback = async function() {
             const name = document.getElementById('feedbackName').value.trim();
             const email = document.getElementById('feedbackEmail').value.trim();
             const message = document.getElementById('feedbackMessage').value.trim();
-            if (!message) { alert('Please enter a message'); return; }
-            if (!currentShopEmail) { alert('Shop email not available.'); return; }
-            const userData = { name, email, message };
-            const shopData = {
-                business_name: currentShopData?.business_name || 'MyShub Store',
-                email: currentShopEmail,
-                location: currentShopData?.location || ''
-            };
-            const plainBody = formatFeedbackPlainText(shopData, userData);
-            const subject = `✨ Feedback for ${shopData.business_name}`;
-            const mailtoUrl = `mailto:${currentShopEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(plainBody)}`;
-            window.location.href = mailtoUrl;
-            closeFeedbackModal();
-            alert('Your email client will open with a pre‑filled message.\nPlease review and click Send.\n\nThank you for your feedback!');
-            document.getElementById('feedbackName').value = '';
-            document.getElementById('feedbackEmail').value = '';
-            document.getElementById('feedbackMessage').value = '';
+            const slug = resolveSlug();
+            if (!slug) return;
+            if (message.length < 3) { alert('Please write a little more about your experience.'); return; }
+            const button = document.querySelector('#feedbackModal button[onclick="submitFeedback()"]');
+            if (button) { button.disabled = true; button.textContent = 'Submitting…'; }
+            try {
+                const response = await fetch(`${API_BASE}/feedback/shop/${encodeURIComponent(slug)}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ name, email, message, rating: reviewRating }) });
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) throw new Error(data.detail || 'Could not submit review');
+                closeFeedbackModal();
+                document.getElementById('feedbackName').value = '';
+                document.getElementById('feedbackEmail').value = '';
+                document.getElementById('feedbackMessage').value = '';
+                await loadReviews(slug);
+                alert('Thank you for sharing your review.');
+            } catch (error) { alert(error.message || 'Could not submit review.'); }
+            finally { if (button) { button.disabled = false; button.textContent = 'Submit review'; } }
+        };
+        window.toggleAbout = function() {
+            const text = document.getElementById('aboutText');
+            const button = document.getElementById('aboutReadMore');
+            if (!text || !button) return;
+            const expanded = text.classList.toggle('about-expanded');
+            text.classList.toggle('about-collapsed', !expanded);
+            button.textContent = expanded ? 'Read less' : 'Read more';
         };
 
         // ─── RENDER SHOP ──────────────────────────────────────────────────
@@ -1026,7 +1067,7 @@
             if (json.description) {
                 sections += `<section class="section" id="about">
                     <div class="section-title fade-in"><i class="fa-solid fa-circle-info"></i> About</div>
-                    <div class="card fade-in"><p class="about-text">${escapeHtml(json.description)}</p></div>
+                    <div class="card fade-in"><p id="aboutText" class="about-text ${String(json.description).length > 320 ? 'about-collapsed' : ''}">${escapeHtml(json.description)}</p>${String(json.description).length > 320 ? '<button id="aboutReadMore" class="about-read-more" onclick="toggleAbout()">Read more</button>' : ''}</div>
                 </section>`;
             }
             if (canShowCustomLinks) {
@@ -1104,6 +1145,15 @@
                 sections += `</div></section>`;
             }
 
+            sections += `<section class="section" id="reviews">
+                <div class="section-title fade-in"><i class="fa-solid fa-star"></i> Reviews</div>
+                <div class="card fade-in">
+                    <div id="reviewsSummary" class="reviews-summary"><span class="reviews-average">— ★</span><span style="color:var(--text2);font-size:.85rem;">Loading reviews…</span></div>
+                    <div id="reviewsList" style="margin-top:12px;"><p style="color:var(--text2);font-size:.88rem;">Loading reviews…</p></div>
+                    <button class="catalog-btn" style="border:0;cursor:pointer;margin-top:14px;" onclick="openFeedbackModal()"><i class="fa-solid fa-pen"></i> Leave a review</button>
+                </div>
+            </section>`;
+
             // Footer
             let footerHtml = '';
             const year = new Date().getFullYear();
@@ -1121,14 +1171,6 @@
                     ${referralCode ? `<p class="footer-referral"><a href="${referralUrl}">Join ${escapeHtml(json.business_name)} on MyShub</a></p>` : ''}
                 </footer>`;
             }
-
-            const feedbackBtnHtml = cfg.feedback && currentShopEmail
-                ? `<div style="position:fixed;bottom:100px;right:24px;z-index:998;">
-                    <button onclick="openFeedbackModal()" style="background:#f59e0b;width:56px;height:56px;border-radius:50%;border:none;color:white;font-size:1.5rem;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);">
-                        <i class="fa-solid fa-comment"></i>
-                    </button>
-                   </div>`
-                : '';
 
             function normalizeLogoUrl(value) {
                 if (typeof value !== 'string') return '';
@@ -1182,8 +1224,9 @@
                 </header>`;
             }
 
-            html += `<div class="content-wrap">${sections}</div>${footerHtml}${feedbackBtnHtml}`;
+            html += `<div class="content-wrap">${sections}</div>${footerHtml}`;
             document.getElementById('app').innerHTML = html;
+            loadReviews(resolveSlug());
 
             const observer = new IntersectionObserver(entries => {
                 entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
@@ -1338,9 +1381,12 @@
             CLICK_TRACKING.init(resolveSlug(), DEMO_DATA[demoPlan].plan);
             attachClickTracking(DEMO_DATA[demoPlan].plan);
         } else if (slug) {
-            const apiUrl = isPreview && previewEmail && previewPassword
-                ? `${API_BASE}/shop/preview/${slug}?email=${encodeURIComponent(previewEmail)}&password=${encodeURIComponent(previewPassword)}`
-                : `${API_BASE}/shop/live/${slug}`;
+            const adminToken = urlParams.get('admin_token') || '';
+            const apiUrl = adminToken
+                ? `${API_BASE}/shop/admin-preview/${encodeURIComponent(slug)}?token=${encodeURIComponent(adminToken)}`
+                : (isPreview && previewEmail && previewPassword
+                    ? `${API_BASE}/shop/preview/${slug}?email=${encodeURIComponent(previewEmail)}&password=${encodeURIComponent(previewPassword)}`
+                    : `${API_BASE}/shop/live/${slug}`);
             fetch(apiUrl)
                 .then(res => res.ok ? res.json() : Promise.reject())
                 .then(shop => { renderShop(shop); CLICK_TRACKING.init(slug, shop.plan || 'free'); attachClickTracking(shop.plan || 'free'); })
