@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reviews – MyShub</title>
+  <style>
+    .reviews-page { padding: 0; }
+    .reviews-header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:18px; flex-wrap:wrap; }
+    .reviews-header h2 { font-size:22px; font-weight:800; display:flex; align-items:center; gap:8px; }
+    .reviews-header p { color:var(--text-secondary); font-size:13px; margin-top:5px; }
+    .review-stats { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:10px; margin-bottom:18px; }
+    .review-stat { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px; }
+    .review-stat strong { display:block; font-size:20px; margin-bottom:3px; }
+    .review-stat span { color:var(--text-secondary); font-size:11px; }
+    .review-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+    .review-tab { border:1px solid var(--border); background:var(--surface); color:var(--text-secondary); border-radius:999px; padding:7px 13px; cursor:pointer; font:600 12px inherit; }
+    .review-tab.active { background:var(--brand); color:#fff; border-color:var(--brand); }
+    .review-card { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:16px; margin-bottom:12px; }
+    .review-card.pending { border-left:4px solid #f59e0b; }
+    .review-card.approved { border-left:4px solid #22c55e; }
+    .review-card.rejected { border-left:4px solid var(--text-tertiary); opacity:.86; }
+    .review-top { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
+    .review-author { display:flex; gap:10px; align-items:center; min-width:0; }
+    .review-avatar { width:38px; height:38px; border-radius:12px; background:var(--brand-soft); color:var(--brand); display:flex; align-items:center; justify-content:center; font-weight:800; flex-shrink:0; }
+    .review-author strong { display:block; font-size:14px; }
+    .review-author small { display:block; color:var(--text-tertiary); font-size:11px; margin-top:2px; }
+    .review-meta { text-align:right; flex-shrink:0; }
+    .review-stars { color:#f59e0b; letter-spacing:1px; font-size:14px; }
+    .review-status { display:inline-block; margin-top:5px; border-radius:999px; padding:3px 8px; font-size:10px; font-weight:800; text-transform:uppercase; background:var(--surface-hover); color:var(--text-secondary); }
+    .review-status.pending { color:#b45309; background:#fef3c7; }
+    .review-status.approved { color:#15803d; background:#dcfce7; }
+    .review-status.rejected { color:#64748b; background:#e2e8f0; }
+    .review-message { color:var(--text); font-size:14px; line-height:1.55; margin:14px 0 12px 48px; white-space:pre-wrap; }
+    .review-reply { margin:0 0 12px 48px; padding:10px 12px; border-left:3px solid var(--brand); background:var(--surface-hover); border-radius:0 10px 10px 0; font-size:13px; line-height:1.45; }
+    .review-reply b { display:block; font-size:11px; color:var(--brand); margin-bottom:3px; }
+    .review-actions { display:flex; gap:8px; flex-wrap:wrap; margin-left:48px; }
+    .review-actions button { border:1px solid var(--border); background:var(--surface); color:var(--text); border-radius:9px; padding:7px 10px; cursor:pointer; font:600 12px inherit; }
+    .review-actions button.primary { background:var(--brand); border-color:var(--brand); color:#fff; }
+    .review-actions button.danger { color:var(--danger,#dc2626); }
+    .reply-box { display:flex; gap:8px; margin:10px 0 0 48px; }
+    .reply-box textarea { flex:1; min-height:58px; resize:vertical; border:1px solid var(--border); border-radius:10px; padding:9px; background:var(--surface); color:var(--text); font:13px inherit; }
+    .empty-reviews { text-align:center; padding:58px 20px; color:var(--text-secondary); }
+    .empty-reviews i { display:block; font-size:42px; margin-bottom:12px; color:var(--text-tertiary); }
+    .limit-note { color:var(--text-secondary); font-size:12px; background:var(--surface-hover); border-radius:10px; padding:9px 11px; margin-bottom:14px; }
+    @media (max-width:640px) { .review-stats { grid-template-columns:repeat(2,1fr); } .review-message,.review-reply,.review-actions,.reply-box { margin-left:0; } .review-top { flex-direction:column; } .review-meta { text-align:left; } }
+  </style>
+</head>
+<body>
+<div class="reviews-page" id="reviewsApp">
+  <div class="reviews-header">
+    <div><h2><i class="fa-solid fa-star" style="color:#f59e0b"></i> Reviews</h2><p>Review what customers have shared, approve the ones you want to publish, and reply directly.</p></div>
+    <button class="btn btn-ghost btn-sm" onclick="loadReviews()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+  </div>
+  <div id="reviewStats" class="review-stats"></div>
+  <div id="reviewLimit" class="limit-note"></div>
+  <div id="reviewTabs" class="review-tabs"></div>
+  <div id="reviewList"><div class="empty-reviews"><i class="fa-solid fa-spinner fa-spin"></i>Loading reviews…</div></div>
+</div>
+<script>
+(function() {
+  'use strict';
+  const API = window.API || 'https://emltechstudio-myshub-api.hf.space';
+  let state = { reviews: [], counts: {}, plan: 'free', published_limit: 10, filter: 'all' };
+  function session() { try { return JSON.parse(localStorage.getItem('myshub_session') || 'null'); } catch(e) { return null; } }
+  function esc(value) { return String(value == null ? '' : value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function headers(json) { const s=session()||{}; return Object.assign({'email':s.email||'','password':s.password||''}, json ? {'Content-Type':'application/json'} : {}); }
+  function ownerUrl() { const s=session(); return s && s.slug ? API + '/feedback/owner/' + encodeURIComponent(s.slug) : ''; }
+  function stars(n) { n=Number(n)||0; return '★'.repeat(Math.max(0,Math.min(5,n))) + '<span style="color:var(--border)">' + '★'.repeat(Math.max(0,5-n)) + '</span>'; }
+  function formatDate(value) { if (!value) return ''; const d=new Date(value); return isNaN(d) ? '' : d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}); }
+  function toastMsg(message,type) { if (typeof window.toast === 'function') window.toast(message,type||'info'); else alert(message); }
+  function renderStats() {
+    const c=state.counts||{};
+    document.getElementById('reviewStats').innerHTML = [['pending','Pending'],['approved','Published'],['rejected','Rejected'],['all','Total']].map(([key,label])=>`<div class="review-stat"><strong>${key==='all'?state.reviews.length:(c[key]||0)}</strong><span>${label}</span></div>`).join('');
+    document.getElementById('reviewLimit').textContent = `Your ${String(state.plan||'free').replace(/^./,x=>x.toUpperCase())} plan can publish up to ${state.published_limit || 10} reviews. All plans can receive, moderate, and reply to reviews.`;
+  }
+  function renderTabs() {
+    const labels=[['all','All'],['pending','Needs review'],['approved','Published'],['rejected','Rejected']];
+    document.getElementById('reviewTabs').innerHTML=labels.map(([key,label])=>`<button class="review-tab ${state.filter===key?'active':''}" onclick="setReviewFilter('${key}')">${label}${key==='pending'&&state.counts.pending?` <b>(${state.counts.pending})</b>`:''}</button>`).join('');
+  }
+  function renderReviews() {
+    const list=document.getElementById('reviewList');
+    const items=state.filter==='all'?state.reviews:state.reviews.filter(r=>(r.status||'approved')===state.filter);
+    if (!items.length) { list.innerHTML='<div class="empty-reviews"><i class="fa-regular fa-star"></i><div style="font-weight:700;color:var(--text);margin-bottom:5px">No reviews here yet</div><div>New customer reviews will appear in this workspace for your approval.</div></div>'; return; }
+    list.innerHTML=items.map(r=>{
+      const status=r.status||'approved'; const name=r.name||'Anonymous'; const initial=esc(name.trim().charAt(0).toUpperCase()||'?');
+      return `<article class="review-card ${status}">
+        <div class="review-top"><div class="review-author"><div class="review-avatar">${initial}</div><div><strong>${esc(name)}</strong><small>${esc(r.email||'No email shared')} · ${esc(formatDate(r.created_at))}</small></div></div><div class="review-meta"><div class="review-stars" aria-label="${r.rating} out of 5 stars">${stars(r.rating)}</div><span class="review-status ${status}">${esc(status)}</span></div></div>
+        <div class="review-message">${esc(r.message)}</div>
+        ${r.owner_reply?`<div class="review-reply"><b>Your reply</b>${esc(r.owner_reply)}</div>`:''}
+        <div class="review-actions">
+          ${status!=='approved'?`<button class="primary" onclick="reviewAction('${esc(r.id)}','approved')"><i class="fa-solid fa-check"></i> Approve & publish</button>`:''}
+          ${status!=='rejected'?`<button onclick="reviewAction('${esc(r.id)}','rejected')"><i class="fa-solid fa-eye-slash"></i> Reject</button>`:''}
+          <button onclick="toggleReply('${esc(r.id)}')"><i class="fa-solid fa-reply"></i> ${r.owner_reply?'Edit reply':'Reply'}</button>
+          <button class="danger" onclick="removeReview('${esc(r.id)}')"><i class="fa-solid fa-trash"></i> Delete</button>
+        </div>
+        <div class="reply-box" id="reply-${esc(r.id)}" style="display:none"><textarea id="reply-text-${esc(r.id)}" placeholder="Write a helpful reply…">${esc(r.owner_reply||'')}</textarea><button class="primary" onclick="saveReply('${esc(r.id)}')">Save reply</button></div>
+      </article>`;
+    }).join('');
+  }
+  window.setReviewFilter=function(filter){state.filter=filter;renderTabs();renderReviews();};
+  window.toggleReply=function(id){const el=document.getElementById('reply-'+id); if(el) el.style.display=el.style.display==='none'?'flex':'none';};
+  async function update(id, body) {
+    const res=await fetch(ownerUrl()+'/'+encodeURIComponent(id),{method:'PATCH',headers:headers(true),body:JSON.stringify(body)}); const data=await res.json().catch(()=>({})); if(!res.ok) throw new Error(data.detail||'Could not update this review.'); return data;
+  }
+  window.reviewAction=async function(id,status){ try { await update(id,{status}); toastMsg(status==='approved'?'Review published.':'Review rejected.','success'); await loadReviews(); } catch(e){toastMsg(e.message,'error');} };
+  window.saveReply=async function(id){ const box=document.getElementById('reply-text-'+id); if(!box) return; try { await update(id,{reply:box.value}); toastMsg('Reply saved.','success'); await loadReviews(); } catch(e){toastMsg(e.message,'error');} };
+  window.removeReview=async function(id){ if(!confirm('Delete this review permanently?')) return; try { const res=await fetch(ownerUrl()+'/'+encodeURIComponent(id),{method:'DELETE',headers:headers(false)}); const data=await res.json().catch(()=>({})); if(!res.ok) throw new Error(data.detail||'Could not delete this review.'); toastMsg('Review deleted.','success'); await loadReviews(); } catch(e){toastMsg(e.message,'error');} };
+  window.loadReviews=async function(){ const s=session(); if(!s||!s.slug){document.getElementById('reviewList').innerHTML='<div class="empty-reviews">Please sign in to manage reviews.</div>';return;} try { const res=await fetch(ownerUrl(),{headers:headers(false)}); const data=await res.json(); if(!res.ok) throw new Error(data.detail||'Could not load reviews.'); state={...state,...data,reviews:data.reviews||[]}; renderStats();renderTabs();renderReviews(); if(window.updateReviewBadge) window.updateReviewBadge(data.pending_count||0); } catch(e){document.getElementById('reviewList').innerHTML=`<div class="empty-reviews"><i class="fa-solid fa-triangle-exclamation"></i><div>${esc(e.message)}</div><button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="loadReviews()">Try again</button></div>`;} };
+  window.loadReviews();
+})();
+</script>
+</body>
+</html>

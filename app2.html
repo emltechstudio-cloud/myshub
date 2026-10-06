@@ -230,6 +230,7 @@
         <button class="drawer-item active" data-page="overview" onclick="loadPage('overview');closeDrawer()"><i class="fa-solid fa-house"></i> Home Dashboard</button>
         <button class="drawer-item" data-page="edit" onclick="loadPage('edit');closeDrawer()"><i class="fa-solid fa-pen"></i> Edit Shop</button>
         <button class="drawer-item" data-page="preview" onclick="loadPage('preview');closeDrawer()"><i class="fa-solid fa-eye"></i> Shop Preview</button>
+        <button class="drawer-item" data-page="reviews" onclick="loadPage('reviews');closeDrawer()"><i class="fa-solid fa-star"></i> Reviews <span id="reviewBadge" class="badge" style="display:none;position:static;margin-left:auto;border:0">0</span></button>
         <button class="drawer-item" data-page="analytics" onclick="loadPage('analytics');closeDrawer()"><i class="fa-solid fa-chart-line"></i> Analytics</button>
         <button class="drawer-item" data-page="upgrade" onclick="loadPage('upgrade');closeDrawer()"><i class="fa-solid fa-crown"></i> Upgrade Plan</button>
         <button class="drawer-item" data-page="discover" onclick="loadPage('discover');closeDrawer()"><i class="fa-solid fa-compass"></i> Discover</button>
@@ -352,6 +353,22 @@ window.updateNotifBadge = function() {
   } catch (e) {}
 };
 
+window.updateReviewBadge = function(count) {
+  const badge = document.getElementById('reviewBadge');
+  const value = Number(count) || 0;
+  if (badge) {
+    badge.textContent = value > 9 ? '9+' : String(value);
+    badge.style.display = value > 0 ? 'flex' : 'none';
+    badge.setAttribute('aria-hidden', value > 0 ? 'false' : 'true');
+  }
+};
+async function refreshReviewBadge() {
+  if (!S.email || !S.password || !S.slug) return;
+  try {
+    const res = await fetch((window.API || 'https://emltechstudio-myshub-api.hf.space') + '/feedback/owner/' + encodeURIComponent(S.slug), { headers: { email: S.email, password: S.password } });
+    if (res.ok) { const data = await res.json(); window.updateReviewBadge(data.pending_count || 0); }
+  } catch (e) {}
+}
 // ================================================================
 //  NOTIFICATION ENGINE (local analytics + backend messages)
 // ================================================================
@@ -596,6 +613,7 @@ async function refreshNotifications() {
     } catch (e) {}
     S.notifications = mergeNotifications(localNotifs, remoteNotifs, cachedNotifs, deletedIds);
     window.updateNotifBadge();
+    refreshReviewBadge();
     try {
       localStorage.setItem('myshub_notifs_' + S.slug, JSON.stringify(S.notifications));
     } catch (e) {}
@@ -922,6 +940,7 @@ const pageMap = {
   referrals: { file: 'referrals.html', title: 'Referrals' },
   settings: { file: 'settings.html', title: 'Settings' },
   support: { file: 'support.html', title: 'Support' },
+  reviews: { file: 'reviews.html', title: 'Reviews' },
   notifications: { file: 'notifications.html', title: 'Notifications' },
   preview: { file: 'shop.html', title: 'Preview', iframe: true },
   discover: { file: 'discover.html', title: 'Discover', iframe: true },
