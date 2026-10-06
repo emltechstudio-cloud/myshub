@@ -481,6 +481,8 @@
             transition: background var(--transition);
         }
         .feedback-card button:hover { background: var(--brand-dark); }
+        .feedback-card input:focus, .feedback-card textarea:focus { outline: 3px solid rgba(var(--brand-rgb), 0.18); border-color: var(--brand-light); }
+        .feedback-card button:focus-visible, .catalog-btn:focus-visible, .hero-cta a:focus-visible, .hero-cta button:focus-visible { outline: 3px solid rgba(var(--brand-rgb), 0.3); outline-offset: 3px; }
         .review-stars { display:flex; justify-content:center; gap:6px; margin:4px 0 8px; }
         .review-stars button { width:auto; background:transparent; color:#f59e0b; padding:2px 4px; font-size:1.35rem; }
         .review-stars button:hover { background:transparent; }
@@ -559,7 +561,7 @@
     <div id="feedbackModal" class="feedback-modal" role="dialog" aria-modal="true" aria-label="Leave a review">
         <div class="feedback-card">
             <h3 style="font-weight:800;margin-bottom:4px;">Leave a review</h3>
-            <p style="font-size:.82rem;color:var(--text2);margin-bottom:8px;">Share your experience with this business.</p>
+            <p style="font-size:.82rem;color:var(--text2);margin-bottom:8px;">Your thoughts help people discover great businesses.</p>
             <div class="review-stars" aria-label="Choose a rating">
                 <button type="button" data-rating="1" onclick="setReviewRating(1)">★</button>
                 <button type="button" data-rating="2" onclick="setReviewRating(2)">★</button>
@@ -567,9 +569,9 @@
                 <button type="button" data-rating="4" onclick="setReviewRating(4)">★</button>
                 <button type="button" data-rating="5" onclick="setReviewRating(5)">★</button>
             </div>
-            <input type="text" id="feedbackName" placeholder="Your name (optional)">
-            <input type="email" id="feedbackEmail" placeholder="Your email (optional; private)">
-            <textarea id="feedbackMessage" rows="4" placeholder="What did you think?"></textarea>
+            <input type="text" id="feedbackName" placeholder="Name (optional)" autocomplete="name">
+            <input type="email" id="feedbackEmail" placeholder="Email (optional)" autocomplete="email">
+            <textarea id="feedbackMessage" rows="4" placeholder="Tell people about your experience…" maxlength="2000"></textarea>
             <button onclick="submitFeedback()">Submit review</button>
             <button onclick="closeFeedbackModal()">Cancel</button>
         </div>
@@ -956,7 +958,7 @@
                 const response = await fetch(`${API_BASE}/feedback/shop/${encodeURIComponent(shopSlug)}`);
                 if (!response.ok) throw new Error('Reviews unavailable');
                 const data = await response.json();
-                summary.innerHTML = `<span class="reviews-average">${data.average_rating ? data.average_rating.toFixed(1) : '—'} ★</span><span style="color:var(--text2);font-size:.85rem;">${data.total || 0} approved review${data.total === 1 ? '' : 's'}</span>`;
+                summary.innerHTML = `<span class="reviews-average">${data.average_rating ? data.average_rating.toFixed(1) : '—'} ★</span><span style="color:var(--text2);font-size:.85rem;">${data.total || 0} review${data.total === 1 ? '' : 's'}</span>`;
                 list.innerHTML = (data.reviews || []).map(review => `<article class="review-card"><div class="review-card-head"><strong>${escapeHtml(review.name || 'Anonymous')}</strong><span class="review-card-stars">${reviewStars(review.rating)}</span><span class="review-card-date">${formatReviewDate(review.created_at)}</span></div><p class="review-card-message">${escapeHtml(review.message || '')}</p>${review.owner_reply ? `<div style="margin-top:10px;padding:10px 12px;border-left:3px solid var(--brand);background:var(--bg);border-radius:0 10px 10px 0;font-size:.84rem;color:var(--text2);"><strong style="display:block;color:var(--brand);margin-bottom:3px;">Owner reply</strong>${escapeHtml(review.owner_reply)}</div>` : ''}</article>`).join('') || '<p style="color:var(--text2);font-size:.88rem;">No reviews yet. Be the first to share your experience.</p>';
             } catch (_) {
                 list.innerHTML = '<p style="color:var(--text2);font-size:.88rem;">Reviews will appear here soon.</p>';
@@ -980,7 +982,7 @@
                 document.getElementById('feedbackEmail').value = '';
                 document.getElementById('feedbackMessage').value = '';
                 await loadReviews(slug);
-                alert('Thank you for sharing your review. It is now waiting for the shop owner’s approval.');
+                alert('Thanks for sharing your experience.');
             } catch (error) { alert(error.message || 'Could not submit review.'); }
             finally { if (button) { button.disabled = false; button.textContent = 'Submit review'; } }
         };
