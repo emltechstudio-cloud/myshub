@@ -22,9 +22,9 @@
 <style>
 :root{
   --blue:#2563eb; --blue-dark:#1d4ed8; --blue-soft:#eff6ff; --blue-ring:rgba(37,99,235,.14);
-  --ink:#0b1220; --ink-2:#1e293b; --muted:#64748b; --muted-2:#94a3b8;
+  --ink:#0b1220; --muted:#64748b; --muted-2:#94a3b8;
   --line:#e5e9f0; --line-soft:#f1f5f9; --page:#f7f9fc; --white:#fff;
-  --premium:#7c3aed; --success:#059669; --amber:#f59e0b;
+  --success:#059669;
   --sh-sm:0 1px 2px rgba(15,23,42,.04), 0 4px 14px rgba(15,23,42,.05);
   --sh-md:0 10px 30px rgba(15,23,42,.08), 0 2px 8px rgba(15,23,42,.04);
   --sh-lg:0 24px 48px rgba(15,23,42,.12), 0 4px 12px rgba(15,23,42,.06);
@@ -40,7 +40,6 @@ button{cursor:pointer;border:0;background:none}
 a{color:inherit;text-decoration:none}
 img{display:block;max-width:100%}
 .container{width:min(1200px,calc(100% - 40px));margin:0 auto}
-.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 
 /* ===== Header ===== */
 .site-header{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.88);
@@ -63,13 +62,13 @@ img{display:block;max-width:100%}
 body.search-active .hero{padding:22px 0 14px}
 body.search-active .hero .eyebrow,
 body.search-active .hero h1,
-body.search-active .hero > .container > p:not(.search-hint){display:none}
+body.search-active .hero > .container > p{display:none}
 .eyebrow{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;
   border:1px solid #bfdbfe;background:rgba(255,255,255,.75);color:var(--blue);
   font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
 .hero h1{max-width:740px;margin:18px auto 10px;font-size:clamp(1.9rem,5vw,3.4rem);
   line-height:1.05;letter-spacing:-.055em;font-weight:800}
-.hero > .container > p:not(.search-hint){max-width:600px;margin:0 auto;color:var(--muted);font-size:1rem;line-height:1.6}
+.hero > .container > p{max-width:600px;margin:0 auto;color:var(--muted);font-size:1rem;line-height:1.6}
 
 /* ===== Search panel ===== */
 .search-panel{position:relative;z-index:20;margin-top:26px;padding:14px;
@@ -82,7 +81,6 @@ body.search-active .hero > .container > p:not(.search-hint){display:none}
 .search-input-wrap > i{color:var(--blue);font-size:.9rem}
 #searchInput{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--ink);padding:13px 0;font-size:.95rem}
 #searchInput::placeholder{color:var(--muted-2)}
-#searchInput::-webkit-search-cancel-button{cursor:pointer}
 .search-button{min-width:112px;padding:0 20px;border-radius:12px;background:var(--blue);color:#fff;
   font-weight:700;font-size:.9rem;transition:.15s;display:inline-flex;align-items:center;justify-content:center;gap:7px}
 .search-button:hover:not(:disabled){background:var(--blue-dark);transform:translateY(-1px)}
@@ -99,7 +97,7 @@ body.search-active .hero > .container > p:not(.search-hint){display:none}
 .filter-chip > i.fa-chevron-down{font-size:.65rem;opacity:.7;transition:.15s}
 .filter-chip.active > i.fa-chevron-down{opacity:1}
 .filter-chip .chip-value{max-width:130px;overflow:hidden;text-overflow:ellipsis}
-.filter-chip .clear-chip{display:none;font-size:.7rem;opacity:.85;padding:2px;border-radius:50%;width:16px;height:16px;align-items:center;justify-content:center}
+.filter-chip .clear-chip{display:none;font-size:.7rem;opacity:.85;padding:2px;border-radius:50%;width:16px;height:16px;align-items:center;justify-content:center;cursor:pointer}
 .filter-chip.active .clear-chip,.filter-chip.near-active .clear-chip{display:inline-flex}
 .filter-chip .clear-chip:hover{background:rgba(255,255,255,.25)}
 .clear-filters{display:none;margin-left:auto;color:var(--blue);font-size:.78rem;font-weight:700;padding:6px 8px;border-radius:8px}
@@ -109,14 +107,14 @@ body.search-active .hero > .container > p:not(.search-hint){display:none}
 .location-note.error{color:#b91c1c}
 .location-note.success{color:var(--success)}
 
-/* ===== Filter menu (positioned by JS) ===== */
+/* ===== Filter menu ===== */
 .filter-menu{position:fixed;z-index:100;display:none;width:min(320px,calc(100vw - 24px));
   padding:6px;border:1px solid var(--line);border-radius:14px;background:#fff;box-shadow:var(--sh-lg)}
 .filter-menu.open{display:block;animation:menuIn .14s ease}
 @keyframes menuIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 .menu-search{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;outline:0;font-size:.85rem;margin-bottom:4px}
 .menu-search:focus{border-color:#93c5fd;box-shadow:0 0 0 3px var(--blue-ring)}
-.menu-options{max-height:250px;overflow:auto;scrollbar-width:thin}
+.menu-options{max-height:250px;overflow:auto}
 .menu-option{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;
   padding:9px 11px;border-radius:9px;color:var(--ink);font-size:.82rem;text-align:left;transition:.12s}
 .menu-option:hover{background:var(--blue-soft);color:var(--blue)}
@@ -134,16 +132,19 @@ body.search-active .hero > .container > p:not(.search-hint){display:none}
 .trending-section{margin-bottom:32px}
 .discover-section{margin-bottom:32px}
 .discover-section[hidden]{display:none}
+.results-section[hidden]{display:none}
 
-/* ===== Rails & grid ===== */
-.rail{display:grid;grid-auto-flow:column;grid-auto-columns:320px;gap:16px;
+/* ===== Rails (mobile-first) ===== */
+.rail{display:grid;grid-auto-flow:column;grid-auto-columns:300px;gap:16px;
   overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x proximity;
   scroll-padding-left:4px;padding:4px 4px 18px;margin:-4px -4px 0}
 .rail > *{scroll-snap-align:start}
 .rail::-webkit-scrollbar{height:8px}
 .rail::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:99px}
 .rail::-webkit-scrollbar-track{background:transparent}
-.shops-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:stretch}
+
+/* ===== Grids ===== */
+.shops-grid{display:grid;grid-template-columns:1fr;gap:18px;align-items:stretch}
 
 /* ===== Card ===== */
 .shop-card{display:flex;flex-direction:column;padding:18px;border:1px solid var(--line);
@@ -156,7 +157,7 @@ body.search-active .hero > .container > p:not(.search-hint){display:none}
 .card-name-wrap{min-width:0;flex:1}
 .card-name-line{display:flex;align-items:center;min-width:0;gap:6px}
 .card-name{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  font-size:.96rem;font-weight:800;letter-spacing:-.015em;color:var(--ink)}
+  font-size:.96rem;font-weight:800;letter-spacing:-.015em;color:var(--ink);margin:0}
 .card-cat{margin-top:3px;color:var(--muted);font-size:.75rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .verified-mark{display:inline-flex;align-items:center;justify-content:center;
   width:16px;height:16px;flex:0 0 16px;border-radius:50%;color:#fff;font-size:.55rem;
@@ -183,7 +184,7 @@ body.search-active .hero > .container > p:not(.search-hint){display:none}
 .view-button:hover{background:var(--blue-dark)}
 .view-button i{font-size:.6rem}
 
-/* CTA card inside rail */
+/* CTA card inside mobile rail */
 .cta-card{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:12px;
   padding:22px;border-radius:var(--r-lg);
   background:linear-gradient(140deg,#2563eb 0%,#7c3aed 100%);
@@ -210,7 +211,7 @@ body.search-active .hero > .container > p:not(.search-hint){display:none}
 .skeleton{height:230px;border-radius:var(--r-lg);
   background:linear-gradient(90deg,#eef2f7 25%,#e2e8f0 37%,#eef2f7 63%);
   background-size:400% 100%;animation:shimmer 1.3s ease infinite}
-.skeleton.rail-skel{width:320px;flex:0 0 320px}
+.skeleton.rail-skel{width:300px;flex:0 0 300px}
 @keyframes shimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
 
 /* ===== Bottom CTA band ===== */
@@ -237,11 +238,34 @@ body.search-active .hero > .container > p:not(.search-hint){display:none}
   box-shadow:var(--sh-lg);opacity:0;transition:.28s;z-index:200;pointer-events:none}
 .toast.show{transform:translate(-50%,0);opacity:1}
 
-/* ===== Responsive ===== */
-@media (max-width:960px){
-  .shops-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .rail{grid-auto-columns:300px}
+/* ===== Desktop: rails become grids (Option B) ===== */
+@media (min-width: 641px){
+  .rail{
+    grid-auto-flow:row;
+    grid-template-columns:repeat(2, minmax(0,1fr));
+    grid-auto-columns:unset;
+    overflow:visible;
+    scroll-snap-type:none;
+    padding:0;
+    margin:0;
+    scrollbar-width:none;
+  }
+  .rail > *{scroll-snap-align:none}
+  .rail .cta-card{display:none}
+  .skeleton.rail-skel{width:auto;height:230px}
+  .shops-grid{grid-template-columns:repeat(2, minmax(0,1fr))}
+
+  /* cap item counts so desktop isn't a wall of cards */
+  #trendingRail > *:nth-child(n+9){display:none}
+  #newRail > *:nth-child(n+5){display:none}
+  #featuredRail > *:nth-child(n+5){display:none}
 }
+@media (min-width: 960px){
+  .rail{grid-template-columns:repeat(4, minmax(0,1fr))}
+  .shops-grid{grid-template-columns:repeat(3, minmax(0,1fr))}
+}
+
+/* ===== Mobile ===== */
 @media (max-width:640px){
   .container{width:min(100% - 24px,560px)}
   .header-inner{min-height:58px}
@@ -250,7 +274,7 @@ body.search-active .hero > .container > p:not(.search-hint){display:none}
   .header-cta span.label{display:none}
   .hero{padding:36px 0 18px}
   .hero h1{font-size:2rem;margin-top:14px}
-  .hero > .container > p:not(.search-hint){font-size:.88rem}
+  .hero > .container > p{font-size:.88rem}
   .search-panel{margin-top:20px;padding:11px;border-radius:16px}
   .search-row{display:block}
   .search-button{width:100%;min-height:44px;margin-top:8px}
@@ -258,10 +282,6 @@ body.search-active .hero > .container > p:not(.search-hint){display:none}
   .filter-row::-webkit-scrollbar{display:none}
   .filter-chip,.clear-filters{flex:0 0 auto}
   .clear-filters{margin-left:0}
-  .rail{grid-auto-flow:row;grid-auto-columns:unset;grid-template-columns:1fr;
-    overflow:visible;padding-bottom:0;margin-bottom:0}
-  .rail > *{scroll-snap-align:none}
-  .shops-grid{grid-template-columns:1fr}
   .section-heading{align-items:flex-start}
   .footer-inner{flex-direction:column;align-items:flex-start}
   .state-box{padding:36px 18px}
@@ -430,6 +450,7 @@ body.search-active .hero > .container > p:not(.search-hint){display:none}
 'use strict';
 
 const API = 'https://emltechstudio-myshub-api.hf.space';
+const API_BASE = API.replace(/\/+$/,'');
 const $ = (id) => document.getElementById(id);
 
 const refs = {
@@ -448,8 +469,7 @@ const refs = {
   resultsTitle: $('resultsTitle'),
   resultsSubtitle: $('resultsSubtitle'),
   resultCount: $('resultCount'),
-  toast: $('toast'),
-  searchPanel: $('searchPanel')
+  toast: $('toast')
 };
 
 const state = {
@@ -467,11 +487,9 @@ const filterData = {
 let openFilterEl = null;
 let searchAbort = null;
 let trendingAbort = null;
-let ctaDismissed = false;
 
 /* ---------- utils ---------- */
 const esc = (v) => String(v ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-const safeUrl = (u) => { if(!u) return ''; try{ const x=new URL(u, location.origin); return (x.protocol==='http:'||x.protocol==='https:')?x.href:''; }catch{ return ''; } };
 const optName = (o) => typeof o==='string' ? o : (o?.name||'');
 const optCount = (o) => typeof o==='object' ? (o?.count||0) : 0;
 const optCountry = (o) => typeof o==='object' ? (o?.country||o?.country_name||'') : '';
@@ -498,7 +516,64 @@ function normalizeQuery(v){
   return q.trim();
 }
 
-const getLogo = (s) => safeUrl(s?.logo_url||s?.shop_json?.logo_url||s?.logo) || '/icon.svg';
+/* ---------- LOGO + URL helpers (the fix) ---------- */
+function logoSources(shop){
+  const raw = shop?.logo_url || shop?.shop_json?.logo_url || shop?.logo;
+  const out = [];
+  const push = (u) => { if(u && !out.includes(u)) out.push(u); };
+
+  if(raw){
+    const s = String(raw).trim();
+    const unsafe = !s
+      || /^javascript:/i.test(s)
+      || (/^data:/i.test(s) && !/^data:image\//i.test(s));
+
+    if(!unsafe){
+      if(/^data:image\//i.test(s)){
+        push(s);
+      } else if(/^(https?:)?\/\//i.test(s)){
+        push(s);
+      } else if(s.startsWith('/')){
+        // try API host first (uploads live there), then site-relative
+        push(`${API_BASE}${s}`);
+        push(s);
+      } else {
+        // bare filename — try both bases
+        push(`${API_BASE}/${s.replace(/^\/+/,'')}`);
+        push(`/${s.replace(/^\/+/,'')}`);
+      }
+    }
+  }
+  push('/icon.svg');
+  return out;
+}
+
+function getShopHref(shop){
+  const raw = shop?.shop_url;
+  if(raw){
+    const s = String(raw).trim();
+    if(s && !/^javascript:/i.test(s)){
+      if(/^(https?:)?\/\//i.test(s) || s.startsWith('/')) return s;
+      return `${API_BASE}/${s.replace(/^\/+/,'')}`;
+    }
+  }
+  const slug = String(shop?.slug || '').replace(/^\/+/,'');
+  return slug ? `/${encodeURIComponent(slug)}` : '#';
+}
+
+/* Global image fallback walker — every <img data-logo-fallbacks="..."> walks
+   its chain on error and lands on the last entry (always /icon.svg). */
+document.addEventListener('error', (e) => {
+  const img = e.target;
+  if(!img || img.tagName !== 'IMG') return;
+  const chain = img.dataset.logoFallbacks;
+  if(!chain) return;
+  const parts = chain.split('|');
+  const next = parts.shift();
+  img.dataset.logoFallbacks = parts.join('|');
+  if(next) img.src = next;
+}, true);
+
 const cleanDate = (v) => v ? String(v).slice(0,10) : '';
 const fmtViews = (v) => { const n=Number(v||0); if(!n) return ''; return `${n.toLocaleString()} view${n===1?'':'s'}`; };
 
@@ -609,15 +684,9 @@ function openMenu(chip, type){
   searchEl.addEventListener('input', () => render(searchEl.value));
   render();
 
-  // Only autofocus on pointer-fine devices — avoids mobile keyboard jump
   if(window.matchMedia('(pointer:fine)').matches){
     setTimeout(() => searchEl.focus(), 30);
   }
-
-  // Reposition on scroll/resize
-  const reposition = () => { if(openFilterEl) positionMenu(openFilterEl); };
-  window.addEventListener('scroll', reposition, {passive:true, once:true});
-  window.addEventListener('resize', reposition, {passive:true, once:true});
 }
 
 /* ---------- filter data ---------- */
@@ -660,31 +729,50 @@ async function loadFilterData(){
   }
 }
 
-/* ---------- rendering ---------- */
+/* ---------- enrich (no more clobbering) ---------- */
+const PROTECTED_FIELDS = ['logo_url','logo','shop_json','tagline','category','state','city','country',
+  'short_description','description','location_label','plan','visit_count','member_since','shop_url'];
+
+function enrich(rows){
+  return rows.map(s => {
+    const dir = filterData.directoryBySlug[s.slug] || {};
+    const merged = { ...dir, ...s };
+    PROTECTED_FIELDS.forEach(k => {
+      if((merged[k] === null || merged[k] === undefined || merged[k] === '') && dir[k] != null){
+        merged[k] = dir[k];
+      }
+    });
+    return merged;
+  });
+}
+
+/* ---------- card markup ---------- */
 function cardMarkup(shop){
-  const logo = getLogo(shop);
+  const logoSrcs = logoSources(shop);
+  const logoSrc = logoSrcs[0];
+  const logoFallbacks = logoSrcs.slice(1).join('|');
+
   const plan = String(shop.plan||'free').toLowerCase();
   const badge = plan==='premium'
     ? '<span class="verified-mark premium" role="img" aria-label="Premium business"><i class="fa-solid fa-check" aria-hidden="true"></i></span>'
     : plan==='pro'
       ? '<span class="verified-mark pro" role="img" aria-label="Verified business"><i class="fa-solid fa-check" aria-hidden="true"></i></span>'
       : '';
-  const city = shop.city || '';
-  const stateName = shop.state || '';
-  const country = shop.country || '';
-  const location = shop.location_label || [city, stateName, country].filter(Boolean).join(', ') || 'Location not provided';
+
+  const location = shop.location_label || [shop.city, shop.state, shop.country].filter(Boolean).join(', ') || 'Location not provided';
   const description = shop.short_description || shop.description || 'A business on MyShub.';
   const dist = shop.distance_label ? `<span class="fact"><i class="fa-solid fa-location-arrow" aria-hidden="true"></i><span>${esc(shop.distance_label)}</span></span>` : '';
   const views = fmtViews(shop.visit_count) ? `<span class="fact"><i class="fa-solid fa-eye" aria-hidden="true"></i><span>${esc(fmtViews(shop.visit_count))}</span></span>` : '';
   const since = cleanDate(shop.member_since);
-  const shopHref = safeUrl(shop.shop_url) || `/${encodeURIComponent(String(shop.slug||'').replace(/^\/+/,''))}`;
+  const shopHref = getShopHref(shop);
   const name = shop.business_name || 'Unnamed business';
   const slug = shop.slug || '';
 
   return `<article class="shop-card" data-shop-slug="${esc(slug)}">
     <div class="card-top">
-      <img class="card-logo" src="${esc(logo)}" alt="" loading="lazy" decoding="async"
-        onerror="this.onerror=null;this.src='/icon.svg';">
+      <img class="card-logo" src="${esc(logoSrc)}"
+        data-logo-fallbacks="${esc(logoFallbacks)}"
+        alt="" loading="lazy" decoding="async">
       <div class="card-name-wrap">
         <div class="card-name-line">
           <h3 class="card-name" title="${esc(name)}">${esc(name)}</h3>
@@ -743,17 +831,13 @@ function dedupe(rows){
   });
 }
 
-function enrich(rows){
-  return rows.map(s => ({ ...(filterData.directoryBySlug[s.slug]||{}), ...s }));
-}
-
 /* ---------- home sections ---------- */
 async function loadHomeSections(){
   if(trendingAbort) trendingAbort.abort();
   trendingAbort = new AbortController();
   const {signal} = trendingAbort;
 
-  renderSkeletons(refs.trendingRail, 3, true);
+  renderSkeletons(refs.trendingRail, 4, true);
   refs.newSection.hidden = true;
   refs.featuredSection.hidden = true;
 
@@ -775,13 +859,11 @@ async function loadHomeSections(){
   const recent = dedupe(enrich(pick(results[1],'recent')));
   const featured = dedupe(enrich(pick(results[2],'featured')));
 
-  // dedupe across sections so a business only shows once
   const seen = new Set(trending.map(s=>s.slug));
   const recentFiltered = recent.filter(s => !seen.has(s.slug));
   recentFiltered.forEach(s => seen.add(s.slug));
   const featuredFiltered = featured.filter(s => !seen.has(s.slug));
 
-  // Trending rail
   refs.trendingRail.setAttribute('aria-busy','false');
   if(!trending.length){
     refs.trendingRail.innerHTML = `<div class="state-box" style="grid-column:1/-1">
@@ -833,16 +915,12 @@ async function runSearch(){
   state.q = refs.input.value.trim();
   state.mode = hasFilters() ? 'search' : 'trending';
   document.body.classList.toggle('search-active', state.mode==='search');
-
-  // URL always reflects state, regardless of mode
   syncUrl();
 
   if(state.mode === 'trending'){
     refs.resultsSection.hidden = true;
     refs.shopsGrid.innerHTML = '';
     refs.trendingSection.hidden = false;
-    refs.newSection.hidden = true;
-    refs.featuredSection.hidden = true;
     setNote('Search by business name, category, or location.');
     if(trendingAbort) trendingAbort.abort();
     await loadHomeSections();
@@ -942,7 +1020,7 @@ async function handleShare(btn){
   const name = btn.dataset.name || 'Business';
   const url = `${location.origin}/${encodeURIComponent(slug.replace(/^\/+/,''))}`;
 
-  if(window.MyShubAnalytics) MyShubAnalytics.discoverInteraction?.('discover_share', slug, 'native');
+  if(window.MyShubAnalytics) window.MyShubAnalytics.discoverInteraction?.('discover_share', slug, 'native');
 
   try{
     if(navigator.share){
@@ -995,10 +1073,7 @@ refs.input.addEventListener('input', () => {
     runSearch();
   }
 });
-$('refreshTrending').addEventListener('click', () => {
-  // cache-buster so the list actually changes
-  loadHomeSections();
-});
+$('refreshTrending').addEventListener('click', loadHomeSections);
 
 document.addEventListener('click', (e) => {
   if(!e.target.closest('.filter-chip') && !e.target.closest('.filter-menu')) closeMenu();
@@ -1020,9 +1095,7 @@ document.addEventListener('click', (e) => {
 });
 
 document.addEventListener('keydown', (e) => {
-  if(e.key === 'Escape'){
-    if(openFilterEl){ closeMenu(); openFilterEl = null; return; }
-  }
+  if(e.key === 'Escape' && openFilterEl) closeMenu();
 });
 
 window.addEventListener('resize', () => { if(openFilterEl) positionMenu(openFilterEl); }, {passive:true});
@@ -1045,16 +1118,13 @@ window.addEventListener('scroll', () => { if(openFilterEl) positionMenu(openFilt
   refs.input.value = state.q;
   updateControls();
 
-  // Paint skeleton immediately so the page never looks empty
-  renderSkeletons(refs.trendingRail, 3, true);
+  renderSkeletons(refs.trendingRail, 4, true);
 
-  // Kick off filter data and trending in parallel
   const filterPromise = loadFilterData();
   const trendingPromise = loadHomeSections();
 
   await Promise.allSettled([filterPromise, trendingPromise]);
 
-  // If URL had a search, run it after filters are available
   if(hasFilters()){
     state.mode = 'search';
     await runSearch();
