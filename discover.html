@@ -1,729 +1,1076 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#2563eb" />
-  <meta name="description" content="Find local businesses, online shops, services, churches, and trusted brands near you. Discover businesses online and list your own business free on MyShub." />
-  <meta name="robots" content="index,follow,max-image-preview:large" />
-  <meta name="keywords" content="discover businesses online, local business directory, online marketplace, find shops near me, list a business online, Nigerian businesses" />
-  <link rel="canonical" href="https://myshub.site/discover.html" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://myshub.site/discover.html" />
-  <meta property="og:title" content="Discover Businesses, Shops & Services Near You | MyShub" />
-  <meta property="og:description" content="Search businesses by category and location, explore local brands, and list your own business on MyShub." />
-  <meta property="og:image" content="https://myshub.site/icon.svg" />
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Discover Businesses, Shops & Services Near You | MyShub" />
-  <meta name="twitter:description" content="Find local businesses and list your business online with MyShub." />
-  <title>Discover Local Businesses, Shops & Services | MyShub</title>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    "name": "Discover Businesses on MyShub",
-    "url": "https://myshub.site/discover.html",
-    "description": "A searchable directory for discovering local businesses, online shops, services, churches, and brands.",
-    "isPartOf": {"@type": "WebSite", "name": "MyShub", "url": "https://myshub.site/"},
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "https://myshub.site/discover.html?q={search_term_string}",
-      "query-input": "required name=search_term_string"
-    }
-  }
-  </script>
-  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <script src="/analytics-collector.js"></script>
-  <style>
-    :root {
-      --blue: #2563eb;
-      --blue-dark: #1d4ed8;
-      --blue-soft: #eff6ff;
-      --ink: #0f172a;
-      --muted: #64748b;
-      --muted-2: #94a3b8;
-      --line: #e2e8f0;
-      --line-soft: #f1f5f9;
-      --page: #f8fafc;
-      --white: #ffffff;
-      --premium: #7c3aed;
-      --premium-soft: #f5f3ff;
-      --success: #059669;
-      --shadow-sm: 0 4px 16px rgba(15, 23, 42, .06);
-      --shadow-md: 0 14px 36px rgba(15, 23, 42, .10);
-      --radius-lg: 24px;
-      --radius-md: 16px;
-      --radius-sm: 12px;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#2563eb" />
+<meta name="description" content="Find local businesses, online shops, services, churches, and trusted brands near you. Discover businesses online and list your own business free on MyShub." />
+<meta name="robots" content="index,follow,max-image-preview:large" />
+<link rel="canonical" href="https://myshub.site/discover.html" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Discover Businesses, Shops & Services Near You | MyShub" />
+<meta property="og:description" content="Search businesses by category and location, explore local brands, and list your own business on MyShub." />
+<meta property="og:image" content="https://myshub.site/icon.svg" />
+<title>Discover Local Businesses, Shops & Services | MyShub</title>
+<link rel="icon" href="/icon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<script src="/analytics-collector.js" defer></script>
 
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body { margin: 0; min-width: 320px; background: var(--page); color: var(--ink); font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    button, input { font: inherit; }
-    button { cursor: pointer; }
-    a { color: inherit; }
-    .container { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+<style>
+:root{
+  --blue:#2563eb; --blue-dark:#1d4ed8; --blue-soft:#eff6ff; --blue-ring:rgba(37,99,235,.14);
+  --ink:#0b1220; --ink-2:#1e293b; --muted:#64748b; --muted-2:#94a3b8;
+  --line:#e5e9f0; --line-soft:#f1f5f9; --page:#f7f9fc; --white:#fff;
+  --premium:#7c3aed; --success:#059669; --amber:#f59e0b;
+  --sh-sm:0 1px 2px rgba(15,23,42,.04), 0 4px 14px rgba(15,23,42,.05);
+  --sh-md:0 10px 30px rgba(15,23,42,.08), 0 2px 8px rgba(15,23,42,.04);
+  --sh-lg:0 24px 48px rgba(15,23,42,.12), 0 4px 12px rgba(15,23,42,.06);
+  --r-lg:20px; --r-md:14px; --r-sm:10px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;min-width:320px;background:var(--page);color:var(--ink);
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+button,input{font:inherit}
+button{cursor:pointer;border:0;background:none}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+.container{width:min(1200px,calc(100% - 40px));margin:0 auto}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 
-    .site-header { position: sticky; top: 0; z-index: 50; border-bottom: 1px solid rgba(226, 232, 240, .92); background: rgba(255, 255, 255, .94); backdrop-filter: blur(16px); }
-    .header-inner { min-height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
-    .brand { display: inline-flex; align-items: center; gap: 9px; color: var(--blue); font-size: 1.12rem; font-weight: 800; text-decoration: none; letter-spacing: -.02em; }
-    .brand img { width: 31px; height: 31px; border-radius: 9px; }
-    .header-actions { display: flex; align-items: center; gap: 10px; }
-    .header-link { padding: 10px 13px; border-radius: 999px; color: var(--muted); font-size: .86rem; font-weight: 700; text-decoration: none; }
-    .header-link:hover { background: var(--blue-soft); color: var(--blue); }
-    .header-cta { padding: 10px 16px; border-radius: 999px; background: var(--blue); color: white; font-size: .86rem; font-weight: 800; text-decoration: none; box-shadow: 0 7px 18px rgba(37, 99, 235, .22); }
-    .header-cta:hover { background: var(--blue-dark); }
+/* ===== Header ===== */
+.site-header{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.88);
+  backdrop-filter:saturate(180%) blur(14px);-webkit-backdrop-filter:saturate(180%) blur(14px);
+  border-bottom:1px solid rgba(226,232,240,.7)}
+.header-inner{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:inline-flex;align-items:center;gap:9px;font-size:1.05rem;font-weight:800;letter-spacing:-.02em}
+.brand img{width:30px;height:30px;border-radius:9px}
+.brand span{background:linear-gradient(135deg,var(--blue),#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent}
+.header-actions{display:flex;align-items:center;gap:6px}
+.header-link{padding:9px 12px;border-radius:999px;color:var(--muted);font-size:.85rem;font-weight:600;transition:.15s}
+.header-link:hover{background:var(--blue-soft);color:var(--blue)}
+.header-cta{padding:9px 15px;border-radius:999px;background:var(--blue);color:#fff;font-size:.85rem;font-weight:700;
+  box-shadow:0 4px 14px rgba(37,99,235,.28);transition:.18s;display:inline-flex;align-items:center;gap:6px}
+.header-cta:hover{background:var(--blue-dark);transform:translateY(-1px);box-shadow:0 8px 20px rgba(37,99,235,.32)}
 
-    .hero { padding: 64px 0 38px; background: radial-gradient(circle at 50% -15%, #dbeafe 0, #eff6ff 32%, rgba(248,250,252,0) 70%); text-align: center; transition: padding .22s ease; }
-    body.search-active .hero { padding: 22px 0 18px; }
-    body.search-active .hero .eyebrow, body.search-active .hero h1, body.search-active .hero > .container > p { display: none; }
-    body.search-active .search-panel { margin-top: 0; }
-    .eyebrow { display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px; border: 1px solid #bfdbfe; border-radius: 999px; background: rgba(255,255,255,.72); color: var(--blue); font-size: .75rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
-    .hero h1 { max-width: 720px; margin: 17px auto 10px; font-size: clamp(2rem, 5vw, 3.65rem); line-height: 1.05; letter-spacing: -.065em; }
-    .hero p { max-width: 600px; margin: 0 auto; color: var(--muted); font-size: 1rem; line-height: 1.65; }
+/* ===== Hero ===== */
+.hero{padding:56px 0 26px;text-align:center;transition:padding .25s ease;
+  background:radial-gradient(circle at 50% -30%,#dbeafe 0,#eff6ff 34%,rgba(247,249,252,0) 72%)}
+body.search-active .hero{padding:22px 0 14px}
+body.search-active .hero .eyebrow,
+body.search-active .hero h1,
+body.search-active .hero > .container > p:not(.search-hint){display:none}
+.eyebrow{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;
+  border:1px solid #bfdbfe;background:rgba(255,255,255,.75);color:var(--blue);
+  font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.hero h1{max-width:740px;margin:18px auto 10px;font-size:clamp(1.9rem,5vw,3.4rem);
+  line-height:1.05;letter-spacing:-.055em;font-weight:800}
+.hero > .container > p:not(.search-hint){max-width:600px;margin:0 auto;color:var(--muted);font-size:1rem;line-height:1.6}
 
-    .search-panel { position: relative; z-index: 10; margin-top: 28px; padding: 18px; border: 1px solid rgba(191, 219, 254, .9); border-radius: var(--radius-lg); background: rgba(255,255,255,.94); box-shadow: var(--shadow-md); text-align: left; }
-    .search-row { display: flex; align-items: stretch; gap: 10px; }
-    .search-input-wrap { min-width: 0; flex: 1; display: flex; align-items: center; gap: 11px; padding: 0 15px; border: 1.5px solid var(--line); border-radius: 14px; background: var(--page); }
-    .search-input-wrap:focus-within { border-color: #93c5fd; background: white; box-shadow: 0 0 0 4px rgba(37,99,235,.08); }
-    .search-input-wrap i { color: var(--blue); }
-    #searchInput { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink); padding: 14px 0; font-size: .96rem; }
-    #searchInput::placeholder { color: var(--muted-2); }
-    .search-button { min-width: 110px; border: 0; border-radius: 14px; background: var(--blue); color: white; font-weight: 800; transition: .2s ease; }
-    .search-button:hover { background: var(--blue-dark); transform: translateY(-1px); }
-    .search-button:disabled { cursor: wait; opacity: .65; transform: none; }
-    .filter-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-    .filter-chip { position: relative; display: inline-flex; align-items: center; gap: 8px; min-height: 38px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; background: white; color: var(--muted); font-size: .78rem; font-weight: 750; transition: .18s ease; }
-    .filter-chip:hover { border-color: #93c5fd; color: var(--blue); }
-    .filter-chip.active { border-color: var(--blue); background: var(--blue); color: white; box-shadow: 0 5px 12px rgba(37,99,235,.16); }
-    .filter-chip.near-active { border-color: var(--success); background: var(--success); color: white; }
-    .filter-chip .chip-value { max-width: 135px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .filter-chip .clear-chip { display: none; border: 0; padding: 0; background: transparent; color: currentColor; }
-    .filter-chip.active .clear-chip, .filter-chip.near-active .clear-chip { display: inline-flex; }
-    .clear-filters { display: none; margin-left: auto; border: 0; background: transparent; color: var(--blue); font-size: .78rem; font-weight: 800; }
-    .clear-filters.visible { display: inline-flex; }
-    .location-note { display: flex; align-items: center; gap: 7px; min-height: 20px; margin: 10px 2px 0; color: var(--muted); font-size: .76rem; }
-    .location-note.error { color: #b91c1c; }
-    .filter-menu { position: absolute; left: 0; top: calc(100% + 8px); z-index: 30; display: none; width: min(320px, calc(100vw - 42px)); padding: 8px; border: 1px solid var(--line); border-radius: 16px; background: white; box-shadow: var(--shadow-md); }
-    .filter-menu.open { display: block; }
-    .menu-search { width: 100%; margin-bottom: 6px; padding: 10px 11px; border: 1px solid var(--line); border-radius: 10px; outline: 0; color: var(--ink); }
-    .menu-search:focus { border-color: #93c5fd; }
-    .menu-options { max-height: 250px; overflow: auto; }
-    .menu-option { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 11px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); text-align: left; font-size: .82rem; }
-    .menu-option:hover, .menu-option.selected { background: var(--blue-soft); color: var(--blue); }
-    .menu-count { color: var(--muted-2); font-size: .72rem; }
-    .menu-empty { padding: 14px 11px; color: var(--muted); font-size: .8rem; }
+/* ===== Search panel ===== */
+.search-panel{position:relative;z-index:20;margin-top:26px;padding:14px;
+  border:1px solid rgba(191,219,254,.7);border-radius:var(--r-lg);
+  background:rgba(255,255,255,.96);box-shadow:var(--sh-md);text-align:left}
+.search-row{display:flex;gap:10px}
+.search-input-wrap{flex:1;min-width:0;display:flex;align-items:center;gap:11px;padding:0 16px;
+  border:1.5px solid var(--line);border-radius:12px;background:var(--page);transition:.15s}
+.search-input-wrap:focus-within{border-color:#93c5fd;background:#fff;box-shadow:0 0 0 4px var(--blue-ring)}
+.search-input-wrap > i{color:var(--blue);font-size:.9rem}
+#searchInput{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--ink);padding:13px 0;font-size:.95rem}
+#searchInput::placeholder{color:var(--muted-2)}
+#searchInput::-webkit-search-cancel-button{cursor:pointer}
+.search-button{min-width:112px;padding:0 20px;border-radius:12px;background:var(--blue);color:#fff;
+  font-weight:700;font-size:.9rem;transition:.15s;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.search-button:hover:not(:disabled){background:var(--blue-dark);transform:translateY(-1px)}
+.search-button:disabled{opacity:.7;cursor:wait;transform:none}
 
-    .content { padding: 28px 0 72px; }
-    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 15px; margin-bottom: 15px; }
-    .section-heading h2 { margin: 0; font-size: 1.2rem; letter-spacing: -.03em; }
-    .section-heading p { margin: 5px 0 0; color: var(--muted); font-size: .82rem; }
-    .section-heading .heading-action { border: 0; background: transparent; color: var(--blue); font-size: .8rem; font-weight: 800; }
-    .trending-section { margin-bottom: 34px; }
-    .trending-grid, .horizontal-grid { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(285px, 360px); gap: 16px; overflow-x: auto; overscroll-behavior-inline: contain; padding: 3px 2px 14px; scroll-snap-type: x proximity; }
-    .horizontal-grid > * { scroll-snap-align: start; }
-    .trending-card { display: flex; align-items: center; gap: 13px; min-width: 0; padding: 15px; border: 1px solid var(--line); border-radius: var(--radius-md); background: white; box-shadow: var(--shadow-sm); cursor: pointer; transition: .2s ease; }
-    .trending-grid > .shop-card, .horizontal-grid > .shop-card { width: 100%; }
-    .trending-card:hover { border-color: #93c5fd; box-shadow: var(--shadow-md); transform: translateY(-2px); }
-    .trending-logo { width: 48px; height: 48px; flex: 0 0 48px; border: 1px solid var(--line); border-radius: 13px; object-fit: cover; background: var(--blue-soft); }
-    .trending-copy { min-width: 0; }
-    .trending-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .87rem; font-weight: 800; }
-    .trending-meta { margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: .74rem; }
-    .trending-label { display: inline-flex; align-items: center; gap: 4px; margin-top: 7px; color: var(--blue); font-size: .7rem; font-weight: 800; }
+/* ===== Filters ===== */
+.filter-row{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin-top:11px;position:relative}
+.filter-chip{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:7px 12px;
+  border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--muted);
+  font-size:.78rem;font-weight:600;transition:.15s;white-space:nowrap}
+.filter-chip:hover{border-color:#bfdbfe;color:var(--blue)}
+.filter-chip.active{border-color:var(--blue);background:var(--blue);color:#fff;box-shadow:0 4px 10px rgba(37,99,235,.22)}
+.filter-chip.near-active{border-color:var(--success);background:var(--success);color:#fff;box-shadow:0 4px 10px rgba(5,150,105,.22)}
+.filter-chip > i.fa-chevron-down{font-size:.65rem;opacity:.7;transition:.15s}
+.filter-chip.active > i.fa-chevron-down{opacity:1}
+.filter-chip .chip-value{max-width:130px;overflow:hidden;text-overflow:ellipsis}
+.filter-chip .clear-chip{display:none;font-size:.7rem;opacity:.85;padding:2px;border-radius:50%;width:16px;height:16px;align-items:center;justify-content:center}
+.filter-chip.active .clear-chip,.filter-chip.near-active .clear-chip{display:inline-flex}
+.filter-chip .clear-chip:hover{background:rgba(255,255,255,.25)}
+.clear-filters{display:none;margin-left:auto;color:var(--blue);font-size:.78rem;font-weight:700;padding:6px 8px;border-radius:8px}
+.clear-filters:hover{background:var(--blue-soft)}
+.clear-filters.visible{display:inline-flex}
+.location-note{display:flex;align-items:center;gap:7px;margin:10px 2px 0;color:var(--muted);font-size:.76rem;min-height:18px}
+.location-note.error{color:#b91c1c}
+.location-note.success{color:var(--success)}
 
-    .results-section { min-height: 240px; }
-    .results-toolbar { display: flex; align-items: end; justify-content: space-between; gap: 15px; margin-bottom: 16px; }
-    .results-title { margin: 0; font-size: 1.25rem; letter-spacing: -.04em; }
-    .results-subtitle { margin: 5px 0 0; color: var(--muted); font-size: .82rem; }
-    .result-count { color: var(--muted); font-size: .78rem; font-weight: 700; white-space: nowrap; }
-    .shops-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
-    .shop-card { display: flex; flex-direction: column; min-width: 0; padding: 19px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: white; box-shadow: var(--shadow-sm); transition: .2s ease; }
-    .shop-card:hover { border-color: #93c5fd; box-shadow: var(--shadow-md); transform: translateY(-3px); }
-    .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-    .card-identity { display: flex; align-items: center; min-width: 0; gap: 11px; }
-    .card-logo { width: 56px; height: 56px; flex: 0 0 56px; border: 1px solid var(--line); border-radius: 15px; object-fit: cover; background: var(--blue-soft); }
-    .card-name-wrap { min-width: 0; flex: 1 1 auto; }
-    .card-name-line { display: flex; align-items: center; min-width: 0; width: 100%; }
-    .card-name { min-width: 0; flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .98rem; font-weight: 850; letter-spacing: -.02em; }
-    .card-tagline { margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: .76rem; }
-    .verified-mark { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; flex: 0 0 18px; margin-left: 6px; border-radius: 50%; color: #fff; font-size: .62rem; line-height: 1; vertical-align: middle; box-shadow: 0 2px 6px rgba(15,23,42,.15); }
-    .verified-mark.pro { background: #0084ff; }
-    .verified-mark.premium { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
-    .verified-mark:hover { transform: scale(1.08); }
-    .card-description { display: -webkit-box; min-height: 43px; margin: 16px 0 13px; overflow: hidden; color: var(--muted); font-size: .79rem; line-height: 1.55; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-    .card-facts { display: flex; flex-wrap: wrap; gap: 7px; }
-    .fact { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; padding: 6px 8px; border-radius: 8px; background: var(--page); color: var(--muted); font-size: .68rem; }
-    .fact i { color: var(--blue); }
-    .card-bottom { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 17px; padding-top: 13px; border-top: 1px solid var(--line-soft); }
-    .member-note { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted-2); font-size: .67rem; }
-    .view-button { display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; padding: 9px 11px; border: 0; border-radius: 10px; background: var(--blue); color: white; font-size: .7rem; font-weight: 800; text-decoration: none; }
-    .view-button:hover { background: var(--blue-dark); }
-    .share-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-    .share-button { display: inline-flex; align-items: center; gap: 5px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 9px; background: white; color: var(--muted); font-size: .68rem; font-weight: 800; }
-    .share-button:hover { border-color: #93c5fd; color: var(--blue); background: var(--blue-soft); }
-    .share-button.whatsapp:hover { border-color: #86efac; color: #15803d; background: #f0fdf4; }
-    .share-button.facebook:hover { border-color: #93c5fd; color: #1d4ed8; background: #eff6ff; }
+/* ===== Filter menu (positioned by JS) ===== */
+.filter-menu{position:fixed;z-index:100;display:none;width:min(320px,calc(100vw - 24px));
+  padding:6px;border:1px solid var(--line);border-radius:14px;background:#fff;box-shadow:var(--sh-lg)}
+.filter-menu.open{display:block;animation:menuIn .14s ease}
+@keyframes menuIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.menu-search{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;outline:0;font-size:.85rem;margin-bottom:4px}
+.menu-search:focus{border-color:#93c5fd;box-shadow:0 0 0 3px var(--blue-ring)}
+.menu-options{max-height:250px;overflow:auto;scrollbar-width:thin}
+.menu-option{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:9px 11px;border-radius:9px;color:var(--ink);font-size:.82rem;text-align:left;transition:.12s}
+.menu-option:hover{background:var(--blue-soft);color:var(--blue)}
+.menu-option.selected{background:var(--blue-soft);color:var(--blue);font-weight:700}
+.menu-count{color:var(--muted-2);font-size:.7rem;font-weight:500}
+.menu-empty{padding:16px 12px;color:var(--muted);font-size:.82rem;text-align:center}
 
-    .state-box { padding: 48px 20px; border: 1px dashed #cbd5e1; border-radius: var(--radius-lg); background: rgba(255,255,255,.66); text-align: center; }
-    .state-icon { display: grid; width: 48px; height: 48px; margin: 0 auto 13px; place-items: center; border-radius: 15px; background: var(--blue-soft); color: var(--blue); font-size: 1.15rem; }
-    .state-box h3 { margin: 0; font-size: 1rem; }
-    .state-box p { max-width: 430px; margin: 8px auto 0; color: var(--muted); font-size: .8rem; line-height: 1.55; }
-    .state-action { margin-top: 16px; padding: 10px 14px; border: 0; border-radius: 10px; background: var(--blue); color: white; font-size: .78rem; font-weight: 800; }
-    .skeleton { height: 242px; border-radius: var(--radius-lg); background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 37%, #f1f5f9 63%); background-size: 400% 100%; animation: shimmer 1.4s ease infinite; }
-    .skeleton.trending { height: 82px; }
-    @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+/* ===== Sections ===== */
+.content{padding:22px 0 64px}
+.section-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:14px}
+.section-heading h2{margin:0;font-size:1.15rem;font-weight:800;letter-spacing:-.025em}
+.section-heading p{margin:4px 0 0;color:var(--muted);font-size:.82rem}
+.heading-action{color:var(--blue);font-size:.78rem;font-weight:700;padding:6px 10px;border-radius:8px;transition:.15s}
+.heading-action:hover{background:var(--blue-soft)}
+.trending-section{margin-bottom:32px}
+.discover-section{margin-bottom:32px}
+.discover-section[hidden]{display:none}
 
-    .directory-intro { margin-top: 34px; padding: 24px; border: 1px solid #dbeafe; border-radius: var(--radius-lg); background: linear-gradient(135deg, #eff6ff, #ffffff 65%); }
-    .directory-intro h2 { margin: 0; font-size: 1.15rem; letter-spacing: -.03em; }
-    .directory-intro p { max-width: 760px; margin: 9px 0 0; color: var(--muted); font-size: .82rem; line-height: 1.65; }
-    .directory-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 16px; }
-    .directory-action { display: inline-flex; align-items: center; gap: 7px; padding: 10px 13px; border-radius: 10px; background: var(--blue); color: #fff; font-size: .75rem; font-weight: 800; text-decoration: none; }
-    .directory-action.secondary { border: 1px solid #bfdbfe; background: #fff; color: var(--blue); }
-    .site-footer { padding: 24px 0; border-top: 1px solid var(--line); background: white; color: var(--muted); font-size: .75rem; }
-    .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-    .footer-links { display: flex; flex-wrap: wrap; gap: 12px; }
-    .footer-links a { color: var(--muted); text-decoration: none; }
-    .footer-links a:hover { color: var(--blue); }
+/* ===== Rails & grid ===== */
+.rail{display:grid;grid-auto-flow:column;grid-auto-columns:320px;gap:16px;
+  overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x proximity;
+  scroll-padding-left:4px;padding:4px 4px 18px;margin:-4px -4px 0}
+.rail > *{scroll-snap-align:start}
+.rail::-webkit-scrollbar{height:8px}
+.rail::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:99px}
+.rail::-webkit-scrollbar-track{background:transparent}
+.shops-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:stretch}
 
-    @media (max-width: 900px) {
-      .trending-grid, .shops-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-    @media (max-width: 640px) {
-      .container { width: min(100% - 24px, 560px); }
-      .header-inner { min-height: 61px; }
-      .header-link { display: none; }
-      .header-cta { padding: 9px 12px; font-size: .75rem; }
-      .hero { padding: 43px 0 24px; }
-      .hero h1 { font-size: 2.25rem; }
-      .hero p { font-size: .87rem; }
-      .search-panel { margin-top: 22px; padding: 12px; border-radius: 18px; }
-      .search-row { display: block; }
-      .search-button { width: 100%; min-height: 44px; margin-top: 9px; }
-      .filter-row { flex-wrap: nowrap; margin-right: -4px; padding-bottom: 2px; overflow-x: auto; scrollbar-width: none; }
-      .filter-row::-webkit-scrollbar { display: none; }
-      .filter-chip { flex: 0 0 auto; }
-      .clear-filters { margin-left: 0; flex: 0 0 auto; }
-      .trending-grid, .shops-grid { grid-template-columns: 1fr; }
-      .trending-grid { display: grid; margin-right: 0; padding-right: 0; overflow: visible; scroll-snap-type: none; }
-      .trending-card { min-width: 0; scroll-snap-align: none; }
-      .results-toolbar { align-items: flex-start; }
-      .result-count { margin-top: 2px; }
-      .footer-inner { align-items: flex-start; flex-direction: column; }
-    }
-  </style>
+/* ===== Card ===== */
+.shop-card{display:flex;flex-direction:column;padding:18px;border:1px solid var(--line);
+  border-radius:var(--r-lg);background:#fff;box-shadow:var(--sh-sm);
+  transition:box-shadow .2s,transform .2s,border-color .2s;height:100%}
+.shop-card:hover{border-color:#bfdbfe;box-shadow:var(--sh-md);transform:translateY(-2px)}
+.card-top{display:flex;align-items:flex-start;gap:12px}
+.card-logo{width:52px;height:52px;flex:0 0 52px;border-radius:14px;object-fit:cover;
+  background:var(--blue-soft);border:1px solid var(--line-soft)}
+.card-name-wrap{min-width:0;flex:1}
+.card-name-line{display:flex;align-items:center;min-width:0;gap:6px}
+.card-name{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:.96rem;font-weight:800;letter-spacing:-.015em;color:var(--ink)}
+.card-cat{margin-top:3px;color:var(--muted);font-size:.75rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.verified-mark{display:inline-flex;align-items:center;justify-content:center;
+  width:16px;height:16px;flex:0 0 16px;border-radius:50%;color:#fff;font-size:.55rem;
+  box-shadow:0 2px 6px rgba(15,23,42,.18)}
+.verified-mark.pro{background:#0084ff}
+.verified-mark.premium{background:linear-gradient(135deg,#f59e0b,#fbbf24)}
+.card-description{margin:14px 0 0;color:var(--muted);font-size:.81rem;line-height:1.55;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.5em}
+.card-facts{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.fact{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:7px;
+  background:var(--page);color:var(--muted);font-size:.68rem;font-weight:500;max-width:100%}
+.fact i{color:var(--blue);font-size:.65rem}
+.fact span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-spacer{flex:1 1 auto;min-height:14px}
+.card-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding-top:13px;border-top:1px solid var(--line-soft)}
+.member-note{color:var(--muted-2);font-size:.68rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.card-actions{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+.icon-btn{width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;
+  border-radius:9px;border:1px solid var(--line);color:var(--muted);background:#fff;transition:.15s;font-size:.78rem}
+.icon-btn:hover{border-color:#bfdbfe;color:var(--blue);background:var(--blue-soft)}
+.view-button{display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border-radius:9px;
+  background:var(--blue);color:#fff;font-size:.73rem;font-weight:700;transition:.15s;white-space:nowrap}
+.view-button:hover{background:var(--blue-dark)}
+.view-button i{font-size:.6rem}
+
+/* CTA card inside rail */
+.cta-card{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:12px;
+  padding:22px;border-radius:var(--r-lg);
+  background:linear-gradient(140deg,#2563eb 0%,#7c3aed 100%);
+  color:#fff;box-shadow:var(--sh-md);height:100%;min-height:100%}
+.cta-card h3{margin:0;font-size:1.05rem;font-weight:800;letter-spacing:-.02em;line-height:1.25}
+.cta-card p{margin:0;font-size:.8rem;line-height:1.5;color:rgba(255,255,255,.85)}
+.cta-card .cta-btn{display:inline-flex;align-items:center;gap:7px;margin-top:4px;padding:10px 16px;
+  border-radius:10px;background:#fff;color:var(--blue);font-size:.8rem;font-weight:800;transition:.15s}
+.cta-card .cta-btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.18)}
+
+/* ===== States ===== */
+.state-box{padding:44px 22px;border:1px dashed #cbd5e1;border-radius:var(--r-lg);
+  background:rgba(255,255,255,.6);text-align:center}
+.state-icon{display:grid;width:52px;height:52px;margin:0 auto 14px;place-items:center;
+  border-radius:14px;background:var(--blue-soft);color:var(--blue);font-size:1.15rem}
+.state-box h3{margin:0 0 6px;font-size:1.02rem;font-weight:800}
+.state-box p{max-width:440px;margin:0 auto;color:var(--muted);font-size:.82rem;line-height:1.55}
+.state-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px}
+.state-action{padding:10px 16px;border-radius:10px;background:var(--blue);color:#fff;font-size:.8rem;font-weight:700;transition:.15s}
+.state-action:hover{background:var(--blue-dark)}
+.state-action.secondary{background:#fff;color:var(--blue);border:1px solid #bfdbfe}
+.state-action.secondary:hover{background:var(--blue-soft)}
+
+.skeleton{height:230px;border-radius:var(--r-lg);
+  background:linear-gradient(90deg,#eef2f7 25%,#e2e8f0 37%,#eef2f7 63%);
+  background-size:400% 100%;animation:shimmer 1.3s ease infinite}
+.skeleton.rail-skel{width:320px;flex:0 0 320px}
+@keyframes shimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
+
+/* ===== Bottom CTA band ===== */
+.band{margin-top:38px;padding:26px;border-radius:var(--r-lg);
+  background:linear-gradient(135deg,#eff6ff,#fff 60%);border:1px solid #dbeafe}
+.band h2{margin:0;font-size:1.15rem;font-weight:800;letter-spacing:-.025em}
+.band p{max-width:720px;margin:9px 0 0;color:var(--muted);font-size:.83rem;line-height:1.65}
+.band-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}
+.band-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 14px;border-radius:10px;
+  background:var(--blue);color:#fff;font-size:.78rem;font-weight:700;transition:.15s}
+.band-btn:hover{background:var(--blue-dark);transform:translateY(-1px)}
+.band-btn.secondary{background:#fff;color:var(--blue);border:1px solid #bfdbfe}
+.band-btn.secondary:hover{background:var(--blue-soft)}
+
+/* ===== Footer ===== */
+.site-footer{margin-top:40px;padding:22px 0;border-top:1px solid var(--line);background:#fff;color:var(--muted);font-size:.76rem}
+.footer-inner{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.footer-links{display:flex;flex-wrap:wrap;gap:14px}
+.footer-links a:hover{color:var(--blue)}
+
+/* ===== Toast ===== */
+.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,80px);
+  padding:10px 16px;border-radius:99px;background:#0b1220;color:#fff;font-size:.8rem;font-weight:600;
+  box-shadow:var(--sh-lg);opacity:0;transition:.28s;z-index:200;pointer-events:none}
+.toast.show{transform:translate(-50%,0);opacity:1}
+
+/* ===== Responsive ===== */
+@media (max-width:960px){
+  .shops-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rail{grid-auto-columns:300px}
+}
+@media (max-width:640px){
+  .container{width:min(100% - 24px,560px)}
+  .header-inner{min-height:58px}
+  .header-link{display:none}
+  .header-cta{padding:8px 12px;font-size:.78rem}
+  .header-cta span.label{display:none}
+  .hero{padding:36px 0 18px}
+  .hero h1{font-size:2rem;margin-top:14px}
+  .hero > .container > p:not(.search-hint){font-size:.88rem}
+  .search-panel{margin-top:20px;padding:11px;border-radius:16px}
+  .search-row{display:block}
+  .search-button{width:100%;min-height:44px;margin-top:8px}
+  .filter-row{flex-wrap:nowrap;margin-right:-11px;padding-right:11px;overflow-x:auto;scrollbar-width:none}
+  .filter-row::-webkit-scrollbar{display:none}
+  .filter-chip,.clear-filters{flex:0 0 auto}
+  .clear-filters{margin-left:0}
+  .rail{grid-auto-flow:row;grid-auto-columns:unset;grid-template-columns:1fr;
+    overflow:visible;padding-bottom:0;margin-bottom:0}
+  .rail > *{scroll-snap-align:none}
+  .shops-grid{grid-template-columns:1fr}
+  .section-heading{align-items:flex-start}
+  .footer-inner{flex-direction:column;align-items:flex-start}
+  .state-box{padding:36px 18px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+  html{scroll-behavior:auto}
+}
+</style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="container header-inner">
-      <a class="brand" href="/"><img src="/icon.svg" alt="MyShub" /><span>MyShub</span></a>
-      <nav class="header-actions" aria-label="Main navigation">
-        <a class="header-link" href="/blog/">Blog</a>
-        <a class="header-link" href="/">Home</a>
-        <a class="header-cta" href="/app.html">List your business</a>
-      </nav>
-    </div>
-  </header>
 
-  <main>
-    <section class="hero">
-      <div class="container">
-        <span class="eyebrow"><i class="fa-solid fa-compass"></i> The business discovery network</span>
-        <h1>Discover businesses near you</h1>
-        <p>Find shops, services, churches, and local brands by category, location, or proximity.</p>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="/"><img src="/icon.svg" alt="" /><span>MyShub</span></a>
+    <nav class="header-actions" aria-label="Main">
+      <a class="header-link" href="/blog/">Blog</a>
+      <a class="header-link" href="/">Home</a>
+      <a class="header-cta" href="/app.html">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+        <span class="label">List your business</span>
+      </a>
+    </nav>
+  </div>
+</header>
 
-        <div class="search-panel" id="searchPanel">
-          <div class="search-row">
-            <label class="search-input-wrap" for="searchInput">
-              <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-              <input id="searchInput" type="search" autocomplete="off" placeholder="Try “churches in Olambe” or “makeup shops near me" aria-label="Search businesses, categories, or locations" />
-            </label>
-            <button class="search-button" id="searchButton" type="button">Search</button>
-          </div>
-          <div class="filter-row" aria-label="Discover filters">
-            <button class="filter-chip" type="button" data-filter="category"><i class="fa-solid fa-layer-group"></i><span class="chip-value">Category</span><i class="fa-solid fa-chevron-down"></i><span class="clear-chip" aria-label="Clear category"><i class="fa-solid fa-xmark"></i></span></button>
-            <button class="filter-chip" type="button" data-filter="country"><i class="fa-solid fa-earth-africa"></i><span class="chip-value">Country</span><i class="fa-solid fa-chevron-down"></i><span class="clear-chip" aria-label="Clear country"><i class="fa-solid fa-xmark"></i></span></button>
-            <button class="filter-chip" type="button" data-filter="state"><i class="fa-solid fa-map"></i><span class="chip-value">State</span><i class="fa-solid fa-chevron-down"></i><span class="clear-chip" aria-label="Clear state"><i class="fa-solid fa-xmark"></i></span></button>
-            <button class="filter-chip" type="button" data-filter="city"><i class="fa-solid fa-location-dot"></i><span class="chip-value">City</span><i class="fa-solid fa-chevron-down"></i><span class="clear-chip" aria-label="Clear city"><i class="fa-solid fa-xmark"></i></span></button>
-            <button class="filter-chip" id="nearMeButton" type="button"><i class="fa-solid fa-crosshairs"></i><span class="chip-value">Near Me</span></button>
-            <button class="clear-filters" id="clearFilters" type="button">Clear filters</button>
-          </div>
-          <div class="filter-menu" id="filterMenu" role="dialog" aria-label="Filter options"></div>
-          <div class="location-note" id="locationNote" aria-live="polite"><i class="fa-solid fa-circle-info"></i><span>Search by business name, category, or location.</span></div>
+<main>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow"><i class="fa-solid fa-compass" aria-hidden="true"></i> Discover on MyShub</span>
+      <h1>Find businesses people love near you</h1>
+      <p>Search shops, services, churches, and local brands by name, category, or location.</p>
+
+      <div class="search-panel" id="searchPanel">
+        <div class="search-row">
+          <label class="search-input-wrap" for="searchInput">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <input id="searchInput" type="search" autocomplete="off" enterkeyhint="search"
+              placeholder="Try “churches in Olambe” or “makeup near me”"
+              aria-label="Search businesses by name, category, or location" />
+          </label>
+          <button class="search-button" id="searchButton" type="button">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <span>Search</span>
+          </button>
+        </div>
+
+        <div class="filter-row" role="toolbar" aria-label="Filters">
+          <button class="filter-chip" type="button" data-filter="category" aria-haspopup="dialog" aria-expanded="false">
+            <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+            <span class="chip-value">Category</span>
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+            <span class="clear-chip" role="button" tabindex="0" aria-label="Clear category"><i class="fa-solid fa-xmark" aria-hidden="true"></i></span>
+          </button>
+          <button class="filter-chip" type="button" data-filter="country" aria-haspopup="dialog" aria-expanded="false">
+            <i class="fa-solid fa-earth-africa" aria-hidden="true"></i>
+            <span class="chip-value">Country</span>
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+            <span class="clear-chip" role="button" tabindex="0" aria-label="Clear country"><i class="fa-solid fa-xmark" aria-hidden="true"></i></span>
+          </button>
+          <button class="filter-chip" type="button" data-filter="state" aria-haspopup="dialog" aria-expanded="false">
+            <i class="fa-solid fa-map" aria-hidden="true"></i>
+            <span class="chip-value">State</span>
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+            <span class="clear-chip" role="button" tabindex="0" aria-label="Clear state"><i class="fa-solid fa-xmark" aria-hidden="true"></i></span>
+          </button>
+          <button class="filter-chip" type="button" data-filter="city" aria-haspopup="dialog" aria-expanded="false">
+            <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+            <span class="chip-value">City</span>
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+            <span class="clear-chip" role="button" tabindex="0" aria-label="Clear city"><i class="fa-solid fa-xmark" aria-hidden="true"></i></span>
+          </button>
+          <button class="filter-chip" id="nearMeButton" type="button" aria-pressed="false">
+            <i class="fa-solid fa-crosshairs" aria-hidden="true"></i>
+            <span class="chip-value">Near me</span>
+          </button>
+          <button class="clear-filters" id="clearFilters" type="button">Clear all</button>
+        </div>
+
+        <div class="location-note" id="locationNote" role="status" aria-live="polite">
+          <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+          <span>Search by business name, category, or location.</span>
         </div>
       </div>
-    </section>
-
-    <section class="content">
-      <div class="container">
-        <section class="trending-section" id="trendingSection">
-          <div class="section-heading">
-            <div><h2>Trending Businesses</h2><p>Explore businesses people are discovering on MyShub.</p></div>
-            <button class="heading-action" id="refreshTrending" type="button">Refresh <i class="fa-solid fa-rotate-right"></i></button>
-          </div>
-          <div class="trending-grid" id="trendingGrid"></div>
-        </section>
-
-        <section class="discover-section" id="newSection" hidden>
-          <div class="section-heading"><div><h2>Newly added businesses</h2><p>Meet the latest businesses joining MyShub.</p></div></div>
-          <div class="horizontal-grid" id="newGrid"></div>
-        </section>
-        <section class="discover-section" id="featuredSection" hidden>
-          <div class="section-heading"><div><h2>Featured businesses</h2><p>Explore businesses with enhanced MyShub profiles.</p></div></div>
-          <div class="horizontal-grid" id="featuredGrid"></div>
-        </section>
-        <section class="results-section" id="resultsSection">
-          <div class="results-toolbar">
-            <div><h2 class="results-title" id="resultsTitle">Explore businesses</h2><p class="results-subtitle" id="resultsSubtitle">Search or choose a filter to find a business.</p></div>
-            <span class="result-count" id="resultCount"></span>
-          </div>
-          <div class="shops-grid" id="shopsGrid"></div>
-        </section>
-
-        <section class="directory-intro" aria-labelledby="directoryIntroTitle">
-          <h2 id="directoryIntroTitle">Find businesses online and list yours on MyShub</h2>
-          <p>MyShub is a searchable business directory and online marketplace discovery hub. Explore local shops, services, churches, creators, and brands by category or location, then open a business profile to connect with them. If you run a business, you can create your own professional hub and make it easier for customers to find your links in one place.</p>
-          <div class="directory-actions"><a class="directory-action" href="/app.html"><i class="fa-solid fa-plus"></i> List your business free</a><a class="directory-action secondary" href="/blog/"><i class="fa-solid fa-book-open"></i> Read business guides</a></div>
-        </section>
-      </div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="container footer-inner">
-      <span>© MyShub · A helpful bridge for businesses</span>
-      <div class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/blog/">Blog</a><a href="/app.html">List your business</a></div>
     </div>
-  </footer>
+  </section>
 
-  <script>
-    const API = 'https://emltechstudio-myshub-api.hf.space';
-    const $ = (id) => document.getElementById(id);
-    const refs = {
-      input: $('searchInput'), searchButton: $('searchButton'), filterMenu: $('filterMenu'),
-      locationNote: $('locationNote'), clearFilters: $('clearFilters'), nearMeButton: $('nearMeButton'),
-      trendingSection: $('trendingSection'), trendingGrid: $('trendingGrid'), newSection: $('newSection'), newGrid: $('newGrid'), featuredSection: $('featuredSection'), featuredGrid: $('featuredGrid'), shopsGrid: $('shopsGrid'),
-      resultsTitle: $('resultsTitle'), resultsSubtitle: $('resultsSubtitle'), resultCount: $('resultCount')
-    };
-    const state = { q: '', category: '', country: '', state: '', city: '', nearMe: false, lat: null, lng: null, radius: 50, mode: 'trending' };
-    let filterData = { categories: [], countries: [], states: [], cities: [], categoryOptions: [], countryOptions: [], stateOptions: [], cityOptions: [], directoryBySlug: {} };
-    let openFilter = '';
+  <div class="filter-menu" id="filterMenu" role="dialog" aria-label="Filter options"></div>
 
-    function escapeHtml(value) {
-      return String(value ?? '').replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
-    }
+  <section class="content">
+    <div class="container">
 
-    function normalizeApiList(value) { return Array.isArray(value) ? value : []; }
-    function optionName(option) { return typeof option === 'string' ? option : option?.name || ''; }
-    function optionCount(option) { return typeof option === 'object' ? option.count || 0 : ''; }
-    function optionCountry(option) { return typeof option === 'object' ? (option.country || option.country_name || '') : ''; }
-    function optionState(option) { return typeof option === 'object' ? (option.state || option.state_name || '') : ''; }
-    function samePlace(left, right) { return String(left || '').trim().toLowerCase() === String(right || '').trim().toLowerCase(); }
-    function mergeOptions(existing, derived, fields = []) {
-      const output = [];
-      const seen = new Set();
-      [...(Array.isArray(existing) ? existing : []), ...(Array.isArray(derived) ? derived : [])].forEach((item) => {
-        const name = optionName(item);
-        if (!name) return;
-        const key = [name, ...fields.map((field) => item?.[field] || '')].join('|').toLowerCase();
-        if (seen.has(key)) return;
-        seen.add(key);
-        output.push(typeof item === 'string' ? { name: item, count: 0 } : item);
-      });
-      return output;
-    }
-    function normalizeClientQuery(value) {
-      let query = String(value || '').trim().replace(/\s+/g, ' ');
-      const aliases = [
-        [/\bchurches\b/gi, 'church'], [/\bministries\b/gi, 'ministry'],
-        [/\bmakeup shops?\b/gi, 'makeup'], [/\bcosmetics shops?\b/gi, 'beauty'],
-        [/\bhair vendors?\b/gi, 'haircare'], [/\brestaurants?\b/gi, 'food'],
-        [/\btech companies?\b/gi, 'tech'], [/\bnearby\b/gi, 'near me']
-      ];
-      aliases.forEach(([pattern, replacement]) => { query = query.replace(pattern, replacement); });
-      return query.replace(/\s+/g, ' ').trim();
-    }
-    function getLogoUrl(shop) {
-      return shop?.logo_url || shop?.shop_json?.logo_url || shop?.logo || '/icon.svg';
-    }
-    function cleanDate(value) { return value ? String(value).slice(0, 10) : ''; }
-    function formatViews(value) {
-      const count = Number(value || 0);
-      if (!count) return 'No views yet';
-      return `${count.toLocaleString()} view${count === 1 ? '' : 's'}`;
-    }
-    function hasFilters() { return Boolean(state.q || state.category || state.country || state.state || state.city || state.nearMe); }
+      <section class="trending-section" id="trendingSection" aria-labelledby="trendingTitle">
+        <div class="section-heading">
+          <div>
+            <h2 id="trendingTitle">Trending right now</h2>
+            <p>Businesses people are discovering on MyShub.</p>
+          </div>
+          <button class="heading-action" id="refreshTrending" type="button">
+            <i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Refresh
+          </button>
+        </div>
+        <div class="rail" id="trendingRail" aria-busy="true"></div>
+      </section>
 
-    function setNote(message, type = '') {
-      refs.locationNote.className = `location-note${type ? ` ${type}` : ''}`;
-      refs.locationNote.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-triangle-exclamation' : 'fa-circle-info'}"></i><span>${escapeHtml(message)}</span>`;
-    }
-
-    function updateChip(filter, value) {
-      const button = document.querySelector(`[data-filter="${filter}"]`);
-      if (!button) return;
-      const label = button.querySelector('.chip-value');
-      const clear = button.querySelector('.clear-chip');
-      const defaultLabels = { category: 'Category', country: 'Country', state: 'State', city: 'City' };
-      label.textContent = value || defaultLabels[filter];
-      button.classList.toggle('active', Boolean(value));
-      clear?.setAttribute('aria-hidden', value ? 'false' : 'true');
-    }
-
-    function updateControls() {
-      updateChip('category', state.category);
-      updateChip('country', state.country);
-      updateChip('state', state.state);
-      updateChip('city', state.city);
-      refs.nearMeButton.classList.toggle('near-active', state.nearMe);
-      refs.clearFilters.classList.toggle('visible', hasFilters());
-    }
-
-    function getOptions(type) {
-      if (type === 'category') return filterData.categoryOptions.length ? filterData.categoryOptions : filterData.categories;
-      if (type === 'country') return filterData.countryOptions.length ? filterData.countryOptions : filterData.countries;
-      if (type === 'state') {
-        const options = filterData.stateOptions.length ? filterData.stateOptions : filterData.states;
-        // Once a country is selected, only states belonging to that country remain.
-        return options.filter((item) => !state.country || samePlace(optionCountry(item), state.country));
-      }
-      const options = filterData.cityOptions.length ? filterData.cityOptions : filterData.cities;
-      // Cities are dependent on both selected country and selected state.
-      return options.filter((item) => (!state.country || samePlace(optionCountry(item), state.country)) && (!state.state || samePlace(optionState(item), state.state)));
-    }
-
-    function closeFilterMenu() { openFilter = ''; refs.filterMenu.classList.remove('open'); }
-
-    function renderFilterMenu(type) {
-      openFilter = type;
-      const labels = { category: 'Choose a category', country: 'Choose a country', state: 'Choose a state', city: 'Choose a city' };
-      const options = getOptions(type);
-      refs.filterMenu.innerHTML = `<input class="menu-search" id="menuSearch" type="search" placeholder="${labels[type]}" aria-label="Search ${type} options"><div class="menu-options" id="menuOptions"></div>`;
-      refs.filterMenu.classList.add('open');
-      const search = $('menuSearch');
-      const renderOptions = (term = '') => {
-        const filtered = options.filter((option) => optionName(option).toLowerCase().includes(term.toLowerCase()));
-        const list = $('menuOptions');
-        if (!filtered.length) { list.innerHTML = '<div class="menu-empty">No available options yet.</div>'; return; }
-        list.innerHTML = filtered.map((option) => {
-          const name = optionName(option);
-          const count = optionCount(option);
-          const selected = state[type].toLowerCase() === name.toLowerCase();
-          return `<button class="menu-option${selected ? ' selected' : ''}" type="button" data-value="${escapeHtml(name)}"><span>${escapeHtml(name)}</span>${count ? `<span class="menu-count">${count}</span>` : ''}</button>`;
-        }).join('');
-        list.querySelectorAll('.menu-option').forEach((button) => button.addEventListener('click', () => {
-          state[type] = button.dataset.value || '';
-          if (type === 'country') { state.state = ''; state.city = ''; }
-          if (type === 'state') state.city = '';
-          closeFilterMenu();
-          updateControls();
-          loadDiscover();
-        }));
-      };
-      search.addEventListener('input', () => renderOptions(search.value));
-      renderOptions();
-      search.focus();
-    }
-
-    async function loadFilterData() {
-      try {
-        const [categoriesResponse, locationsResponse, directoryResponse] = await Promise.all([
-          fetch(`${API}/discover/categories`), fetch(`${API}/discover/locations`), fetch(`${API}/discover/search?limit=100`)
-        ]);
-        if (!categoriesResponse.ok || !locationsResponse.ok) throw new Error('Filter data unavailable');
-        const categories = await categoriesResponse.json();
-        const locations = await locationsResponse.json();
-        const directory = directoryResponse.ok ? await directoryResponse.json() : {};
-        const directoryResults = Array.isArray(directory.results) ? directory.results : [];
-        const derivedCountries = directoryResults.filter((shop) => shop.country).map((shop) => ({ name: shop.country, count: 0 }));
-        const derivedStates = directoryResults.filter((shop) => shop.state).map((shop) => ({ name: shop.state, country: shop.country || '', count: 0 }));
-        const derivedCities = directoryResults.filter((shop) => shop.city).map((shop) => ({ name: shop.city, state: shop.state || '', country: shop.country || '', count: 0 }));
-        filterData = {
-          categories: normalizeApiList(categories.categories || categories),
-          countries: normalizeApiList(locations.countries),
-          states: normalizeApiList(locations.states),
-          cities: normalizeApiList(locations.cities || locations.lgas),
-          categoryOptions: normalizeApiList(categories.category_options),
-          countryOptions: mergeOptions(normalizeApiList(locations.country_options), derivedCountries, []),
-          stateOptions: mergeOptions(normalizeApiList(locations.state_options), derivedStates, ['country']),
-          cityOptions: mergeOptions(normalizeApiList(locations.city_options || locations.lga_options), derivedCities, ['state', 'country'])
-        };
-        filterData.countries = filterData.countryOptions.map(optionName);
-        filterData.states = filterData.stateOptions.map(optionName);
-        filterData.cities = filterData.cityOptions.map(optionName);
-        filterData.directoryBySlug = Object.fromEntries(directoryResults.filter((shop) => shop.slug).map((shop) => [shop.slug, shop]));
-      } catch (error) {
-        console.warn('Discover filter data could not be loaded.', error);
-        setNote('Filters are temporarily unavailable, but you can still search by text.', 'error');
-      }
-    }
-
-    function renderSkeletons(target, count, trending = false) {
-      target.innerHTML = Array.from({ length: count }, () => `<div class="skeleton${trending ? ' trending' : ''}"></div>`).join('');
-    }
-
-    function cardMarkup(shop) {
-      const logo = getLogoUrl(shop);
-      const plan = String(shop.plan || 'free').toLowerCase();
-      const verification = plan === 'premium' ? '<span class="verified-mark premium" title="MyShub profile badge" aria-label="MyShub profile badge"><i class="fa-solid fa-check"></i></span>' : (plan === 'pro' ? '<span class="verified-mark pro" title="MyShub profile badge" aria-label="MyShub profile badge"><i class="fa-solid fa-check"></i></span>' : '');
-      const location = shop.location_label || [shop.city, shop.state, shop.country].filter(Boolean).join(', ') || 'Location not provided';
-      const description = shop.short_description || shop.description || 'A business on MyShub.';
-      const distance = shop.distance_label ? `<span class="fact"><i class="fa-solid fa-location-arrow"></i>${escapeHtml(shop.distance_label)}</span>` : '';
-      const views = Number(shop.visit_count || 0) ? `<span class="fact"><i class="fa-solid fa-eye"></i>${escapeHtml(formatViews(shop.visit_count))}</span>` : '';
-      const memberSince = cleanDate(shop.member_since);
-      return `<article class="shop-card" data-shop-slug="${escapeHtml(shop.slug || '')}">
-        <div class="card-top">
-          <div class="card-identity">
-            <img class="card-logo" src="${escapeHtml(logo)}" alt="${escapeHtml(shop.business_name || 'Business')} logo" loading="lazy" onerror="this.onerror=null;this.src='/icon.svg';">
-            <div class="card-name-wrap"><div class="card-name-line"><div class="card-name" title="${escapeHtml(shop.business_name)}">${escapeHtml(shop.business_name || 'Unnamed business')}</div>${verification}</div><div class="card-tagline">${escapeHtml(shop.tagline || shop.category || 'Business on MyShub')}</div></div>
+      <section class="discover-section" id="newSection" hidden aria-labelledby="newTitle">
+        <div class="section-heading">
+          <div>
+            <h2 id="newTitle">Just joined</h2>
+            <p>The latest businesses on MyShub.</p>
           </div>
         </div>
-        <p class="card-description">${escapeHtml(description)}</p>
-        <div class="card-facts"><span class="fact"><i class="fa-solid fa-tag"></i>${escapeHtml(shop.category || 'Business')}</span><span class="fact"><i class="fa-solid fa-location-dot"></i>${escapeHtml(location)}</span>${distance}${views}</div>
-        <div class="card-bottom"><span class="member-note">${memberSince ? `Member since ${escapeHtml(memberSince)}` : 'MyShub member'}</span><a class="view-button discover-shop-link" href="${escapeHtml(shop.shop_url || `/${shop.slug}`)}" target="_blank" rel="noopener">View business <i class="fa-solid fa-arrow-up-right-from-square"></i></a></div>
-        <div class="share-actions" aria-label="Share this business">
-          <button class="share-button" type="button" data-share="native" data-slug="${escapeHtml(shop.slug || '')}" data-name="${escapeHtml(shop.business_name || 'Business')}"><i class="fa-solid fa-share-nodes"></i> Share business</button>
+        <div class="rail" id="newRail"></div>
+      </section>
+
+      <section class="discover-section" id="featuredSection" hidden aria-labelledby="featuredTitle">
+        <div class="section-heading">
+          <div>
+            <h2 id="featuredTitle">Featured</h2>
+            <p>Businesses with enhanced MyShub profiles.</p>
+          </div>
         </div>
-      </article>`;
-    }
+        <div class="rail" id="featuredRail"></div>
+      </section>
 
-    // Kept as a compatibility alias for older callers; Trending now uses the same
-    // complete rich card markup as the normal result list.
-    function trendingMarkup(shop) { return cardMarkup(shop); }
+      <section class="results-section" id="resultsSection" hidden aria-labelledby="resultsTitle">
+        <div class="section-heading">
+          <div>
+            <h2 id="resultsTitle">Results</h2>
+            <p id="resultsSubtitle"></p>
+          </div>
+          <span class="result-count" id="resultCount" aria-live="polite"></span>
+        </div>
+        <div class="shops-grid" id="shopsGrid" aria-live="polite" aria-busy="false"></div>
+      </section>
 
-    function renderEmpty(message, detail, actionText = 'Clear filters') {
-      refs.shopsGrid.innerHTML = `<div class="state-box" style="grid-column:1/-1"><div class="state-icon"><i class="fa-solid fa-compass"></i></div><h3>${escapeHtml(message)}</h3><p>${escapeHtml(detail)}</p>${actionText ? `<button class="state-action" id="emptyAction" type="button">${escapeHtml(actionText)}</button>` : ''}</div>`;
-      $('emptyAction')?.addEventListener('click', clearAll);
-    }
+      <section class="band" aria-labelledby="bandTitle">
+        <h2 id="bandTitle">Have a business? Get found on MyShub.</h2>
+        <p>Create your free profile in minutes. Share one link with everything — location, contacts, socials, and your story. Verified profiles get a badge and priority placement.</p>
+        <div class="band-actions">
+          <a class="band-btn" href="/app.html"><i class="fa-solid fa-plus" aria-hidden="true"></i> List your business free</a>
+          <a class="band-btn secondary" href="/blog/"><i class="fa-solid fa-book-open" aria-hidden="true"></i> Read growth guides</a>
+        </div>
+      </section>
 
-    function sectionRows(data, key) {
-      const rows = Array.isArray(data?.[key]) ? data[key] : (Array.isArray(data?.results) ? data.results : []);
-      return rows.map((shop) => ({ ...(filterData.directoryBySlug[shop.slug] || {}), ...shop }));
-    }
+    </div>
+  </section>
+</main>
 
-    function renderHomeSection(refSection, refGrid, rows) {
-      if (!refSection || !refGrid) return;
-      refSection.hidden = !rows.length;
-      refGrid.innerHTML = rows.length ? rows.map(cardMarkup).join('') : '';
-    }
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <span>© MyShub · A helpful bridge for businesses</span>
+    <div class="footer-links">
+      <a href="/privacy.html">Privacy</a>
+      <a href="/terms.html">Terms</a>
+      <a href="/blog/">Blog</a>
+      <a href="/app.html">List your business</a>
+    </div>
+  </div>
+</footer>
 
-    async function loadHomeSections() {
-      const requests = await Promise.allSettled([
-        fetch(`${API}/discover/trending?limit=10`),
-        fetch(`${API}/discover/recent?limit=10`),
-        fetch(`${API}/discover/featured?limit=10`)
-      ]);
-      const payloads = await Promise.all(requests.map(async (result) => result.status === 'fulfilled' && result.value.ok ? result.value.json() : {}));
-      renderHomeSection(refs.trendingSection, refs.trendingGrid, sectionRows(payloads[0], 'trending'));
-      renderHomeSection(refs.newSection, refs.newGrid, sectionRows(payloads[1], 'recent'));
-      renderHomeSection(refs.featuredSection, refs.featuredGrid, sectionRows(payloads[2], 'featured'));
-      observeDiscoverCards();
-    }
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-    function renderResults(data) {
-      // Support both the new API contract (`results`) and the currently live
-      // legacy Trending contract (`trending`) during deployment transition.
-      const rawResults = Array.isArray(data.results) ? data.results : (Array.isArray(data.trending) ? data.trending : []);
-      const results = rawResults.map((shop) => ({ ...(filterData.directoryBySlug[shop.slug] || {}), ...shop }));
-      const intent = data.query || {};
-      if (state.mode === 'trending') {
-        refs.trendingSection.style.display = '';
-        refs.shopsGrid.innerHTML = '';
-        refs.resultsTitle.textContent = 'Explore businesses';
-        refs.resultsSubtitle.textContent = 'Search or choose a filter to find a business.';
-        refs.resultCount.textContent = '';
-        loadHomeSections();
-        return;
-      }
+<script>
+(() => {
+'use strict';
 
-      refs.trendingSection.style.display = 'none';
-      if (refs.newSection) refs.newSection.hidden = true;
-      if (refs.featuredSection) refs.featuredSection.hidden = true;
-      const locationText = [intent.city || state.city, intent.state || state.state, intent.country || state.country].filter(Boolean).join(', ');
-      const queryText = state.q || intent.category || state.category || locationText;
-      refs.resultsTitle.textContent = queryText ? `Results for “${queryText}”` : 'Search results';
-      refs.resultsSubtitle.textContent = state.nearMe ? `Businesses within ${state.radius} km of your location.` : 'Businesses matching your search and selected filters.';
-      refs.resultCount.textContent = `${Number(data.total || 0).toLocaleString()} found`;
-      syncSearchUrl();
-      if (!results.length) { renderEmpty('No businesses found', 'Try a broader search, remove a filter, or choose another location.'); return; }
-      refs.shopsGrid.innerHTML = results.map(cardMarkup).join('');
-    }
+const API = 'https://emltechstudio-myshub-api.hf.space';
+const $ = (id) => document.getElementById(id);
 
-    function syncSearchUrl() {
-      const params = new URLSearchParams();
-      if (state.q) params.set('q', state.q);
-      ['category', 'country', 'state', 'city'].forEach((key) => { if (state[key]) params.set(key, state[key]); });
-      if (state.nearMe) { params.set('near_me', 'true'); if (state.lat != null) params.set('lat', state.lat); if (state.lng != null) params.set('lng', state.lng); params.set('radius', state.radius); }
-      const next = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
-      window.history.replaceState({}, '', next);
-    }
+const refs = {
+  input: $('searchInput'),
+  searchButton: $('searchButton'),
+  filterMenu: $('filterMenu'),
+  locationNote: $('locationNote'),
+  clearFilters: $('clearFilters'),
+  nearMeButton: $('nearMeButton'),
+  trendingSection: $('trendingSection'),
+  trendingRail: $('trendingRail'),
+  newSection: $('newSection'), newRail: $('newRail'),
+  featuredSection: $('featuredSection'), featuredRail: $('featuredRail'),
+  resultsSection: $('resultsSection'),
+  shopsGrid: $('shopsGrid'),
+  resultsTitle: $('resultsTitle'),
+  resultsSubtitle: $('resultsSubtitle'),
+  resultCount: $('resultCount'),
+  toast: $('toast'),
+  searchPanel: $('searchPanel')
+};
 
-    function businessUrl(slug) {
-      return `${window.location.origin}/${encodeURIComponent(String(slug || '').replace(/^\/+/, ''))}`;
-    }
+const state = {
+  q:'', category:'', country:'', state:'', city:'',
+  nearMe:false, lat:null, lng:null, radius:50,
+  mode:'trending'
+};
 
-    async function handleShare(button) {
-      const slug = button.dataset.slug || '';
-      const name = button.dataset.name || 'Business';
-      const url = businessUrl(slug);
-      if (window.MyShubAnalytics) MyShubAnalytics.discoverInteraction('discover_share', slug, 'native');
-      try {
-        if (navigator.share) {
-          await navigator.share({ title: name, text: `Check out ${name} on MyShub`, url });
-        } else if (navigator.clipboard) {
-          await navigator.clipboard.writeText(url);
-          button.innerHTML = '<i class="fa-solid fa-check"></i> Link copied';
-          setTimeout(() => { button.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Share business'; }, 1800);
-        } else {
-          window.prompt('Copy this business link:', url);
-        }
-      } catch (error) {
-        if (error?.name !== 'AbortError') console.warn('Business share was not completed.', error);
-      }
-    }
+const filterData = {
+  categories:[], countries:[], states:[], cities:[],
+  categoryOptions:[], countryOptions:[], stateOptions:[], cityOptions:[],
+  directoryBySlug:{}
+};
 
-    function observeDiscoverCards() {
-      if (!window.IntersectionObserver) return;
-      const observer = new IntersectionObserver((entries) => entries.forEach((entry) => {
-        if (!entry.isIntersecting || entry.target.dataset.impressed) return;
-        entry.target.dataset.impressed = '1';
-        if (window.MyShubAnalytics) MyShubAnalytics.discoverInteraction('discover_card_hover', entry.target.dataset.shopSlug, 'impression');
-      }), { threshold: 0.55 });
-      document.querySelectorAll('[data-shop-slug]').forEach((card) => observer.observe(card));
-    }
+let openFilterEl = null;
+let searchAbort = null;
+let trendingAbort = null;
+let ctaDismissed = false;
 
-    function observeScrollDepth() {
-      let sent = {};
-      window.addEventListener('scroll', () => {
-        const height = document.documentElement.scrollHeight - window.innerHeight;
-        if (height <= 0) return;
-        const depth = Math.min(100, Math.round((window.scrollY / height) * 100));
-        [25, 50, 75, 100].forEach((mark) => {
-          if (depth >= mark && !sent[mark]) {
-            sent[mark] = true;
-            if (window.MyShubAnalytics) MyShubAnalytics.discoverInteraction('discover_scroll_depth', '', `${mark}%`);
-          }
-        });
-      }, { passive: true });
-    }
+/* ---------- utils ---------- */
+const esc = (v) => String(v ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+const safeUrl = (u) => { if(!u) return ''; try{ const x=new URL(u, location.origin); return (x.protocol==='http:'||x.protocol==='https:')?x.href:''; }catch{ return ''; } };
+const optName = (o) => typeof o==='string' ? o : (o?.name||'');
+const optCount = (o) => typeof o==='object' ? (o?.count||0) : 0;
+const optCountry = (o) => typeof o==='object' ? (o?.country||o?.country_name||'') : '';
+const optState = (o) => typeof o==='object' ? (o?.state||o?.state_name||'') : '';
+const same = (a,b) => String(a||'').trim().toLowerCase() === String(b||'').trim().toLowerCase();
+const hasFilters = () => Boolean(state.q||state.category||state.country||state.state||state.city||state.nearMe);
 
-    async function loadDiscover() {
-      state.q = refs.input.value.trim();
-      state.mode = hasFilters() ? 'search' : 'trending';
-      if (state.mode === 'search' && window.MyShubAnalytics) {
-        MyShubAnalytics.discoverSearch({ category: state.category, country: state.country, state: state.state, city: state.city, query: state.q });
-      }
-      document.body.classList.toggle('search-active', state.mode === 'search');
-      refs.searchButton.disabled = true;
-      refs.searchButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-      renderSkeletons(refs.shopsGrid, 6);
-      if (state.mode === 'trending') renderSkeletons(refs.trendingGrid, 3, true);
-      const params = new URLSearchParams();
-      if (state.mode === 'trending') {
-        if (state.category) params.set('category', state.category);
-        if (state.country) params.set('country', state.country);
-        if (state.state) params.set('state', state.state);
-        if (state.city) params.set('city', state.city);
-        if (state.nearMe) { params.set('near_me', 'true'); params.set('lat', state.lat); params.set('lng', state.lng); params.set('radius', state.radius); }
-      } else {
-        if (state.q) params.set('q', normalizeClientQuery(state.q));
-        ['category', 'country', 'state', 'city'].forEach((key) => { if (state[key]) params.set(key, state[key]); });
-        if (state.nearMe) { params.set('near_me', 'true'); params.set('lat', state.lat); params.set('lng', state.lng); params.set('radius', state.radius); }
-      }
-      const endpoint = state.mode === 'trending' ? `${API}/discover/trending` : `${API}/discover/search`;
-      try {
-        const response = await fetch(`${endpoint}?${params.toString()}`);
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.detail || 'Search failed');
-        renderResults(data);
-        if (state.nearMe) setNote(`Showing businesses within ${state.radius} km of your location.`);
-        else if (state.mode === 'trending') setNote('Search by business name, category, or location.');
-        else setNote('Filters are combined to narrow your results.');
-      } catch (error) {
-        console.error('Discover search failed.', error);
-        refs.trendingSection.style.display = state.mode === 'trending' ? '' : 'none';
-        renderEmpty('Discover is temporarily unavailable', 'Please try again in a moment. Your search has not been lost.', 'Try again');
-        $('emptyAction')?.addEventListener('click', loadDiscover);
-        setNote('We could not reach the Discover service.', 'error');
-      } finally {
-        refs.searchButton.disabled = false;
-        refs.searchButton.textContent = 'Search';
-      }
-    }
+function mergeOptions(existing, derived, fields=[]) {
+  const out=[], seen=new Set();
+  [...(Array.isArray(existing)?existing:[]), ...(Array.isArray(derived)?derived:[])].forEach(it=>{
+    const name = optName(it); if(!name) return;
+    const key = [name, ...fields.map(f=>it?.[f]||'')].join('|').toLowerCase();
+    if(seen.has(key)) return; seen.add(key);
+    out.push(typeof it==='string' ? {name:it, count:0} : it);
+  });
+  return out;
+}
 
-    function clearAll() {
-      state.q = ''; state.category = ''; state.country = ''; state.state = ''; state.city = ''; state.nearMe = false; state.lat = null; state.lng = null;
-      refs.input.value = '';
-      updateControls(); closeFilterMenu(); setNote('Search by business name, category, or location.'); loadDiscover();
-    }
+function normalizeQuery(v){
+  let q = String(v||'').trim().replace(/\s+/g,' ');
+  [ [/\bchurches\b/gi,'church'], [/\bministries\b/gi,'ministry'],
+    [/\bmakeup shops?\b/gi,'makeup'], [/\bnearby\b/gi,'near me']
+  ].forEach(([p,r])=>{ q = q.replace(p,r); });
+  return q.trim();
+}
 
-    function requestNearMe() {
-      if (state.nearMe) { state.nearMe = false; state.lat = null; state.lng = null; updateControls(); loadDiscover(); return; }
-      if (!navigator.geolocation) { setNote('Your browser does not support location search. Use the city or state filters instead.', 'error'); return; }
-      setNote('Requesting your location…');
-      navigator.geolocation.getCurrentPosition((position) => {
-        state.nearMe = true; state.lat = position.coords.latitude; state.lng = position.coords.longitude; updateControls(); loadDiscover();
-      }, () => setNote('Location permission was not granted. You can still search by country, state, or city.', 'error'), { enableHighAccuracy: false, timeout: 9000, maximumAge: 300000 });
-    }
+const getLogo = (s) => safeUrl(s?.logo_url||s?.shop_json?.logo_url||s?.logo) || '/icon.svg';
+const cleanDate = (v) => v ? String(v).slice(0,10) : '';
+const fmtViews = (v) => { const n=Number(v||0); if(!n) return ''; return `${n.toLocaleString()} view${n===1?'':'s'}`; };
 
-    document.querySelectorAll('[data-filter]').forEach((button) => button.addEventListener('click', (event) => {
-      if (event.target.closest('.clear-chip')) {
-        const type = button.dataset.filter; state[type] = ''; if (type === 'country') { state.state = ''; state.city = ''; } if (type === 'state') state.city = ''; updateControls(); loadDiscover(); return;
-      }
-      if (openFilter === button.dataset.filter) closeFilterMenu(); else renderFilterMenu(button.dataset.filter);
-    }));
-    refs.nearMeButton.addEventListener('click', requestNearMe);
-    refs.clearFilters.addEventListener('click', clearAll);
-    refs.searchButton.addEventListener('click', loadDiscover);
-    refs.input.addEventListener('keydown', (event) => { if (event.key === 'Enter') loadDiscover(); });
-    $('refreshTrending').addEventListener('click', loadDiscover);
-    document.addEventListener('click', (event) => {
-      if (!event.target.closest('.filter-chip') && !event.target.closest('.filter-menu')) closeFilterMenu();
-      const shareButton = event.target.closest('[data-share]');
-      if (shareButton) { handleShare(shareButton); return; }
-      const link = event.target.closest('.discover-shop-link');
-      if (!link || !window.MyShubAnalytics) return;
-      const card = link.closest('[data-shop-slug]');
-      const slug = card?.dataset.shopSlug;
-      if (!slug) return;
-      const container = card.closest('#shopsGrid, #trendingGrid') || document;
-      const cards = Array.from(container.querySelectorAll('[data-shop-slug]'));
-      MyShubAnalytics.discoverResultOpen(slug, cards.indexOf(card) + 1);
-      MyShubAnalytics.discoverShopClick(slug, 'shop');
-    });
+function toast(msg){
+  refs.toast.textContent = msg;
+  refs.toast.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>refs.toast.classList.remove('show'), 2000);
+}
 
-    updateControls();
-    (async function init() {
-      const url = new URLSearchParams(window.location.search);
-      state.q = url.get('q') || '';
-      state.category = url.get('category') || '';
-      state.country = url.get('country') || '';
-      state.state = url.get('state') || '';
-      state.city = url.get('city') || '';
-      state.nearMe = url.get('near_me') === 'true';
-      state.lat = url.get('lat') ? Number(url.get('lat')) : null;
-      state.lng = url.get('lng') ? Number(url.get('lng')) : null;
-      if (state.nearMe && (!Number.isFinite(state.lat) || !Number.isFinite(state.lng))) state.nearMe = false;
-      refs.input.value = state.q;
+function setNote(msg, type=''){
+  refs.locationNote.className = `location-note${type?` ${type}`:''}`;
+  const icon = type==='error' ? 'fa-triangle-exclamation' : (type==='success'?'fa-circle-check':'fa-circle-info');
+  refs.locationNote.innerHTML = `<i class="fa-solid ${icon}" aria-hidden="true"></i><span>${esc(msg)}</span>`;
+}
+
+/* ---------- chip UI ---------- */
+function updateChip(type, value){
+  const chip = document.querySelector(`[data-filter="${type}"]`);
+  if(!chip) return;
+  const label = chip.querySelector('.chip-value');
+  const defaults = { category:'Category', country:'Country', state:'State', city:'City' };
+  label.textContent = value || defaults[type];
+  chip.classList.toggle('active', Boolean(value));
+  const clear = chip.querySelector('.clear-chip');
+  if(clear) clear.setAttribute('aria-hidden', value ? 'false':'true');
+}
+
+function updateControls(){
+  updateChip('category', state.category);
+  updateChip('country', state.country);
+  updateChip('state', state.state);
+  updateChip('city', state.city);
+  refs.nearMeButton.classList.toggle('near-active', state.nearMe);
+  refs.nearMeButton.setAttribute('aria-pressed', state.nearMe ? 'true':'false');
+  refs.clearFilters.classList.toggle('visible', hasFilters());
+}
+
+/* ---------- filter menu ---------- */
+function positionMenu(chip){
+  const r = chip.getBoundingClientRect();
+  const menu = refs.filterMenu;
+  const w = Math.min(320, window.innerWidth - 24);
+  menu.style.width = w + 'px';
+  let left = r.left;
+  if(left + w > window.innerWidth - 12) left = window.innerWidth - 12 - w;
+  if(left < 12) left = 12;
+  menu.style.left = left + 'px';
+  menu.style.top = (r.bottom + 6) + 'px';
+}
+
+function closeMenu(){
+  if(!openFilterEl) return;
+  openFilterEl.setAttribute('aria-expanded','false');
+  refs.filterMenu.classList.remove('open');
+  openFilterEl = null;
+}
+
+function getOptions(type){
+  if(type==='category') return filterData.categoryOptions.length ? filterData.categoryOptions : filterData.categories;
+  if(type==='country') return filterData.countryOptions.length ? filterData.countryOptions : filterData.countries;
+  if(type==='state'){
+    const opts = filterData.stateOptions.length ? filterData.stateOptions : filterData.states;
+    return opts.filter(o => !state.country || same(optCountry(o), state.country));
+  }
+  const opts = filterData.cityOptions.length ? filterData.cityOptions : filterData.cities;
+  return opts.filter(o => (!state.country || same(optCountry(o), state.country)) && (!state.state || same(optState(o), state.state)));
+}
+
+function openMenu(chip, type){
+  if(openFilterEl === chip){ closeMenu(); return; }
+  closeMenu();
+  openFilterEl = chip;
+  chip.setAttribute('aria-expanded','true');
+  const labels = { category:'Search categories', country:'Search countries', state:'Search states', city:'Search cities' };
+  const options = getOptions(type);
+
+  refs.filterMenu.innerHTML = `
+    <input class="menu-search" id="menuSearch" type="search" placeholder="${labels[type]}" aria-label="${labels[type]}">
+    <div class="menu-options" id="menuOptions"></div>`;
+  positionMenu(chip);
+  refs.filterMenu.classList.add('open');
+
+  const searchEl = $('menuSearch');
+  const listEl = $('menuOptions');
+
+  const render = (term='') => {
+    const t = term.trim().toLowerCase();
+    const filtered = t ? options.filter(o => optName(o).toLowerCase().includes(t)) : options;
+    if(!filtered.length){ listEl.innerHTML = '<div class="menu-empty">No options available yet.</div>'; return; }
+    listEl.innerHTML = filtered.map(o => {
+      const n = optName(o); const c = optCount(o);
+      const sel = same(state[type], n);
+      return `<button type="button" class="menu-option${sel?' selected':''}" data-value="${esc(n)}">
+        <span>${esc(n)}</span>${c?`<span class="menu-count">${c}</span>`:''}
+      </button>`;
+    }).join('');
+    listEl.querySelectorAll('.menu-option').forEach(btn => btn.addEventListener('click', () => {
+      state[type] = btn.dataset.value || '';
+      if(type==='country'){ state.state=''; state.city=''; }
+      if(type==='state'){ state.city=''; }
+      closeMenu();
       updateControls();
-      observeScrollDepth();
-      const openedAt = Date.now();
-      window.addEventListener('pagehide', () => {
-        const seconds = Math.min(600, Math.round((Date.now() - openedAt) / 1000));
-        if (window.MyShubAnalytics && seconds >= 3) MyShubAnalytics.discoverInteraction('discover_dwell', '', `${seconds}s`);
-        if (window.MyShubAnalytics) MyShubAnalytics.flush();
-      }, { capture: true });
-      await loadFilterData();
-      await loadDiscover();
-    })();
-  </script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      if (window.MyShubAnalytics) MyShubAnalytics.init({ surface: 'discover' });
-    });
-  </script>
+      runSearch();
+    }));
+  };
+
+  searchEl.addEventListener('input', () => render(searchEl.value));
+  render();
+
+  // Only autofocus on pointer-fine devices — avoids mobile keyboard jump
+  if(window.matchMedia('(pointer:fine)').matches){
+    setTimeout(() => searchEl.focus(), 30);
+  }
+
+  // Reposition on scroll/resize
+  const reposition = () => { if(openFilterEl) positionMenu(openFilterEl); };
+  window.addEventListener('scroll', reposition, {passive:true, once:true});
+  window.addEventListener('resize', reposition, {passive:true, once:true});
+}
+
+/* ---------- filter data ---------- */
+async function loadFilterData(){
+  try{
+    const [catsRes, locRes, dirRes] = await Promise.all([
+      fetch(`${API}/discover/categories`).catch(()=>null),
+      fetch(`${API}/discover/locations`).catch(()=>null),
+      fetch(`${API}/discover/search?limit=100`).catch(()=>null)
+    ]);
+    if(!catsRes?.ok || !locRes?.ok) return;
+
+    const [cats, locs, dir] = await Promise.all([
+      catsRes.json().catch(()=>({})),
+      locRes.json().catch(()=>({})),
+      dirRes?.ok ? dirRes.json().catch(()=>({})) : Promise.resolve({})
+    ]);
+
+    const dirResults = Array.isArray(dir?.results) ? dir.results : [];
+
+    const dCountries = dirResults.filter(s=>s.country).map(s=>({name:s.country, count:0}));
+    const dStates = dirResults.filter(s=>s.state).map(s=>({name:s.state, country:s.country||'', count:0}));
+    const dCities = dirResults.filter(s=>s.city).map(s=>({name:s.city, state:s.state||'', country:s.country||'', count:0}));
+
+    filterData.categories = Array.isArray(cats.categories) ? cats.categories : (Array.isArray(cats) ? cats : []);
+    filterData.countries = Array.isArray(locs.countries) ? locs.countries : [];
+    filterData.states = Array.isArray(locs.states) ? locs.states : [];
+    filterData.cities = Array.isArray(locs.cities || locs.lgas) ? (locs.cities || locs.lgas) : [];
+
+    filterData.categoryOptions = Array.isArray(cats.category_options) ? cats.category_options : filterData.categories;
+    filterData.countryOptions = mergeOptions(locs.country_options, dCountries, []);
+    filterData.stateOptions = mergeOptions(locs.state_options, dStates, ['country']);
+    filterData.cityOptions = mergeOptions(locs.city_options || locs.lga_options, dCities, ['state','country']);
+
+    filterData.directoryBySlug = Object.fromEntries(
+      dirResults.filter(s=>s.slug).map(s=>[s.slug, s])
+    );
+  }catch(err){
+    console.warn('Filter data failed', err);
+  }
+}
+
+/* ---------- rendering ---------- */
+function cardMarkup(shop){
+  const logo = getLogo(shop);
+  const plan = String(shop.plan||'free').toLowerCase();
+  const badge = plan==='premium'
+    ? '<span class="verified-mark premium" role="img" aria-label="Premium business"><i class="fa-solid fa-check" aria-hidden="true"></i></span>'
+    : plan==='pro'
+      ? '<span class="verified-mark pro" role="img" aria-label="Verified business"><i class="fa-solid fa-check" aria-hidden="true"></i></span>'
+      : '';
+  const city = shop.city || '';
+  const stateName = shop.state || '';
+  const country = shop.country || '';
+  const location = shop.location_label || [city, stateName, country].filter(Boolean).join(', ') || 'Location not provided';
+  const description = shop.short_description || shop.description || 'A business on MyShub.';
+  const dist = shop.distance_label ? `<span class="fact"><i class="fa-solid fa-location-arrow" aria-hidden="true"></i><span>${esc(shop.distance_label)}</span></span>` : '';
+  const views = fmtViews(shop.visit_count) ? `<span class="fact"><i class="fa-solid fa-eye" aria-hidden="true"></i><span>${esc(fmtViews(shop.visit_count))}</span></span>` : '';
+  const since = cleanDate(shop.member_since);
+  const shopHref = safeUrl(shop.shop_url) || `/${encodeURIComponent(String(shop.slug||'').replace(/^\/+/,''))}`;
+  const name = shop.business_name || 'Unnamed business';
+  const slug = shop.slug || '';
+
+  return `<article class="shop-card" data-shop-slug="${esc(slug)}">
+    <div class="card-top">
+      <img class="card-logo" src="${esc(logo)}" alt="" loading="lazy" decoding="async"
+        onerror="this.onerror=null;this.src='/icon.svg';">
+      <div class="card-name-wrap">
+        <div class="card-name-line">
+          <h3 class="card-name" title="${esc(name)}">${esc(name)}</h3>
+          ${badge}
+        </div>
+        <div class="card-cat">${esc(shop.tagline || shop.category || 'Business on MyShub')}</div>
+      </div>
+    </div>
+
+    <p class="card-description">${esc(description)}</p>
+
+    <div class="card-facts">
+      ${shop.category ? `<span class="fact"><i class="fa-solid fa-tag" aria-hidden="true"></i><span>${esc(shop.category)}</span></span>` : ''}
+      <span class="fact"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>${esc(location)}</span></span>
+      ${dist}${views}
+    </div>
+
+    <div class="card-spacer"></div>
+
+    <div class="card-bottom">
+      <span class="member-note">${since ? `Member since ${esc(since)}` : 'MyShub member'}</span>
+      <div class="card-actions">
+        <button class="icon-btn" type="button" data-share data-slug="${esc(slug)}" data-name="${esc(name)}" aria-label="Share ${esc(name)}">
+          <i class="fa-solid fa-share-nodes" aria-hidden="true"></i>
+        </button>
+        <a class="view-button" href="${esc(shopHref)}">
+          View <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </a>
+      </div>
+    </div>
+  </article>`;
+}
+
+function ctaCardMarkup(){
+  return `<a class="cta-card" href="/app.html">
+    <h3>Your business could be here</h3>
+    <p>List free in minutes. Get a verified badge and reach customers searching right now.</p>
+    <span class="cta-btn">List your business <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+  </a>`;
+}
+
+function renderSkeletons(target, count, rail=false){
+  target.setAttribute('aria-busy','true');
+  target.innerHTML = Array.from({length:count}, () =>
+    rail ? '<div class="skeleton rail-skel"></div>' : '<div class="skeleton"></div>'
+  ).join('');
+}
+
+function dedupe(rows){
+  const seen = new Set();
+  return rows.filter(r => {
+    const k = r.slug;
+    if(!k || seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+}
+
+function enrich(rows){
+  return rows.map(s => ({ ...(filterData.directoryBySlug[s.slug]||{}), ...s }));
+}
+
+/* ---------- home sections ---------- */
+async function loadHomeSections(){
+  if(trendingAbort) trendingAbort.abort();
+  trendingAbort = new AbortController();
+  const {signal} = trendingAbort;
+
+  renderSkeletons(refs.trendingRail, 3, true);
+  refs.newSection.hidden = true;
+  refs.featuredSection.hidden = true;
+
+  const results = await Promise.allSettled([
+    fetch(`${API}/discover/trending?limit=10`, {signal}).then(r => r.ok ? r.json() : {}),
+    fetch(`${API}/discover/recent?limit=10`, {signal}).then(r => r.ok ? r.json() : {}),
+    fetch(`${API}/discover/featured?limit=10`, {signal}).then(r => r.ok ? r.json() : {})
+  ]);
+
+  if(signal.aborted) return;
+
+  const pick = (p, key) => {
+    if(p.status !== 'fulfilled') return [];
+    const d = p.value;
+    return Array.isArray(d?.[key]) ? d[key] : (Array.isArray(d?.results) ? d.results : []);
+  };
+
+  const trending = dedupe(enrich(pick(results[0],'trending')));
+  const recent = dedupe(enrich(pick(results[1],'recent')));
+  const featured = dedupe(enrich(pick(results[2],'featured')));
+
+  // dedupe across sections so a business only shows once
+  const seen = new Set(trending.map(s=>s.slug));
+  const recentFiltered = recent.filter(s => !seen.has(s.slug));
+  recentFiltered.forEach(s => seen.add(s.slug));
+  const featuredFiltered = featured.filter(s => !seen.has(s.slug));
+
+  // Trending rail
+  refs.trendingRail.setAttribute('aria-busy','false');
+  if(!trending.length){
+    refs.trendingRail.innerHTML = `<div class="state-box" style="grid-column:1/-1">
+      <div class="state-icon"><i class="fa-solid fa-compass" aria-hidden="true"></i></div>
+      <h3>Nothing trending yet</h3>
+      <p>Be the first business people discover today.</p>
+      <div class="state-actions"><a class="state-action" href="/app.html">List your business</a></div>
+    </div>`;
+  } else {
+    refs.trendingRail.innerHTML = trending.map(cardMarkup).join('') + ctaCardMarkup();
+  }
+
+  refs.newSection.hidden = !recentFiltered.length;
+  refs.newRail.innerHTML = recentFiltered.length ? recentFiltered.map(cardMarkup).join('') : '';
+
+  refs.featuredSection.hidden = !featuredFiltered.length;
+  refs.featuredRail.innerHTML = featuredFiltered.length ? featuredFiltered.map(cardMarkup).join('') : '';
+}
+
+/* ---------- search ---------- */
+function syncUrl(){
+  const params = new URLSearchParams();
+  if(state.q) params.set('q', state.q);
+  ['category','country','state','city'].forEach(k => { if(state[k]) params.set(k, state[k]); });
+  if(state.nearMe){
+    params.set('near_me','true');
+    if(state.lat!=null) params.set('lat', state.lat);
+    if(state.lng!=null) params.set('lng', state.lng);
+    params.set('radius', state.radius);
+  }
+  const next = location.pathname + (params.toString() ? `?${params}` : '');
+  history.replaceState({}, '', next);
+}
+
+function renderEmpty(title, detail, primary, secondary){
+  refs.shopsGrid.setAttribute('aria-busy','false');
+  refs.shopsGrid.innerHTML = `<div class="state-box" style="grid-column:1/-1">
+    <div class="state-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></div>
+    <h3>${esc(title)}</h3>
+    <p>${esc(detail)}</p>
+    <div class="state-actions">
+      ${primary ? `<button class="state-action" id="emptyPrimary" type="button">${esc(primary)}</button>` : ''}
+      ${secondary ? `<a class="state-action secondary" href="/app.html">${esc(secondary)}</a>` : ''}
+    </div>
+  </div>`;
+}
+
+async function runSearch(){
+  state.q = refs.input.value.trim();
+  state.mode = hasFilters() ? 'search' : 'trending';
+  document.body.classList.toggle('search-active', state.mode==='search');
+
+  // URL always reflects state, regardless of mode
+  syncUrl();
+
+  if(state.mode === 'trending'){
+    refs.resultsSection.hidden = true;
+    refs.shopsGrid.innerHTML = '';
+    refs.trendingSection.hidden = false;
+    refs.newSection.hidden = true;
+    refs.featuredSection.hidden = true;
+    setNote('Search by business name, category, or location.');
+    if(trendingAbort) trendingAbort.abort();
+    await loadHomeSections();
+    return;
+  }
+
+  if(trendingAbort) trendingAbort.abort();
+  if(searchAbort) searchAbort.abort();
+  searchAbort = new AbortController();
+  const {signal} = searchAbort;
+
+  refs.trendingSection.hidden = true;
+  refs.newSection.hidden = true;
+  refs.featuredSection.hidden = true;
+  refs.resultsSection.hidden = false;
+
+  const locText = [state.city, state.state, state.country].filter(Boolean).join(', ');
+  const qText = state.q || state.category || locText;
+  refs.resultsTitle.textContent = qText ? `Results for “${qText}”` : 'Results';
+  refs.resultsSubtitle.textContent = state.nearMe
+    ? `Businesses within ${state.radius} km of you.`
+    : 'Businesses matching your search and filters.';
+  refs.resultCount.textContent = '';
+
+  renderSkeletons(refs.shopsGrid, 6);
+
+  const params = new URLSearchParams();
+  if(state.q) params.set('q', normalizeQuery(state.q));
+  ['category','country','state','city'].forEach(k => { if(state[k]) params.set(k, state[k]); });
+  if(state.nearMe){
+    params.set('near_me','true');
+    params.set('lat', state.lat);
+    params.set('lng', state.lng);
+    params.set('radius', state.radius);
+  }
+
+  try{
+    const res = await fetch(`${API}/discover/search?${params}`, {signal});
+    const data = await res.json().catch(()=>({}));
+    if(signal.aborted) return;
+    if(!res.ok) throw new Error(data.detail || 'Search failed');
+
+    const rows = dedupe(enrich(Array.isArray(data.results) ? data.results : []));
+    refs.resultCount.textContent = `${Number(data.total || rows.length || 0).toLocaleString()} found`;
+    refs.shopsGrid.setAttribute('aria-busy','false');
+
+    if(!rows.length){
+      renderEmpty('No businesses found', 'Try a broader search, remove a filter, or pick another location.', 'Clear filters', 'List your business');
+      $('emptyPrimary')?.addEventListener('click', clearAll);
+      return;
+    }
+
+    refs.shopsGrid.innerHTML = rows.map(cardMarkup).join('');
+    setNote(state.nearMe ? `Showing businesses within ${state.radius} km.` : 'Filters are combined to narrow your results.', state.nearMe?'success':'');
+  }catch(err){
+    if(signal.aborted || err.name === 'AbortError') return;
+    console.error('Search failed', err);
+    renderEmpty('Search is temporarily unavailable', 'Please try again in a moment. Your search has not been lost.', 'Try again', 'List your business');
+    $('emptyPrimary')?.addEventListener('click', runSearch);
+    setNote('We could not reach the search service.', 'error');
+  }
+}
+
+function clearAll(){
+  Object.assign(state, {q:'', category:'', country:'', state:'', city:'', nearMe:false, lat:null, lng:null});
+  refs.input.value = '';
+  updateControls();
+  closeMenu();
+  runSearch();
+}
+
+function requestNearMe(){
+  if(state.nearMe){
+    state.nearMe = false; state.lat = null; state.lng = null;
+    updateControls(); runSearch(); return;
+  }
+  if(!navigator.geolocation){
+    setNote('Your browser does not support location search. Use city or state instead.', 'error');
+    return;
+  }
+  setNote('Requesting your location…');
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      state.nearMe = true;
+      state.lat = pos.coords.latitude;
+      state.lng = pos.coords.longitude;
+      updateControls(); runSearch();
+    },
+    () => setNote('Location permission was not granted. Search by country, state, or city instead.', 'error'),
+    {enableHighAccuracy:false, timeout:9000, maximumAge:300000}
+  );
+}
+
+/* ---------- share ---------- */
+async function handleShare(btn){
+  const slug = btn.dataset.slug || '';
+  const name = btn.dataset.name || 'Business';
+  const url = `${location.origin}/${encodeURIComponent(slug.replace(/^\/+/,''))}`;
+
+  if(window.MyShubAnalytics) MyShubAnalytics.discoverInteraction?.('discover_share', slug, 'native');
+
+  try{
+    if(navigator.share){
+      await navigator.share({ title:name, text:`Check out ${name} on MyShub`, url });
+      return;
+    }
+    if(navigator.clipboard){
+      await navigator.clipboard.writeText(url);
+      toast('Link copied to clipboard');
+      return;
+    }
+    window.prompt('Copy this business link:', url);
+  }catch(err){
+    if(err?.name !== 'AbortError') console.warn('Share cancelled', err);
+  }
+}
+
+/* ---------- events ---------- */
+document.querySelectorAll('[data-filter]').forEach(chip => {
+  chip.addEventListener('click', (e) => {
+    const clearEl = e.target.closest('.clear-chip');
+    if(clearEl){
+      e.stopPropagation();
+      const type = chip.dataset.filter;
+      state[type] = '';
+      if(type==='country'){ state.state=''; state.city=''; }
+      if(type==='state'){ state.city=''; }
+      updateControls(); runSearch(); return;
+    }
+    openMenu(chip, chip.dataset.filter);
+  });
+  chip.querySelector('.clear-chip')?.addEventListener('keydown', (e) => {
+    if(e.key==='Enter' || e.key===' '){
+      e.preventDefault();
+      const type = chip.dataset.filter;
+      state[type] = '';
+      if(type==='country'){ state.state=''; state.city=''; }
+      if(type==='state'){ state.city=''; }
+      updateControls(); runSearch();
+    }
+  });
+});
+
+refs.nearMeButton.addEventListener('click', requestNearMe);
+refs.clearFilters.addEventListener('click', clearAll);
+refs.searchButton.addEventListener('click', runSearch);
+refs.input.addEventListener('keydown', (e) => { if(e.key==='Enter') runSearch(); });
+refs.input.addEventListener('input', () => {
+  if(!refs.input.value && state.mode === 'search' && !state.category && !state.country && !state.state && !state.city && !state.nearMe){
+    runSearch();
+  }
+});
+$('refreshTrending').addEventListener('click', () => {
+  // cache-buster so the list actually changes
+  loadHomeSections();
+});
+
+document.addEventListener('click', (e) => {
+  if(!e.target.closest('.filter-chip') && !e.target.closest('.filter-menu')) closeMenu();
+
+  const shareBtn = e.target.closest('[data-share]');
+  if(shareBtn){ e.preventDefault(); handleShare(shareBtn); return; }
+
+  const shopLink = e.target.closest('.view-button');
+  if(shopLink && window.MyShubAnalytics){
+    const card = shopLink.closest('[data-shop-slug]');
+    const slug = card?.dataset.shopSlug;
+    if(slug){
+      const container = card.closest('.rail, .shops-grid') || document;
+      const cards = Array.from(container.querySelectorAll('[data-shop-slug]'));
+      MyShubAnalytics.discoverResultOpen?.(slug, cards.indexOf(card) + 1);
+      MyShubAnalytics.discoverShopClick?.(slug, 'shop');
+    }
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape'){
+    if(openFilterEl){ closeMenu(); openFilterEl = null; return; }
+  }
+});
+
+window.addEventListener('resize', () => { if(openFilterEl) positionMenu(openFilterEl); }, {passive:true});
+window.addEventListener('scroll', () => { if(openFilterEl) positionMenu(openFilterEl); }, {passive:true});
+
+/* ---------- boot ---------- */
+(async function init(){
+  const url = new URLSearchParams(location.search);
+  state.q = url.get('q') || '';
+  state.category = url.get('category') || '';
+  state.country = url.get('country') || '';
+  state.state = url.get('state') || '';
+  state.city = url.get('city') || '';
+  state.nearMe = url.get('near_me') === 'true';
+  state.lat = url.get('lat') != null ? Number(url.get('lat')) : null;
+  state.lng = url.get('lng') != null ? Number(url.get('lng')) : null;
+  state.radius = url.get('radius') != null ? Number(url.get('radius')) : 50;
+  if(state.nearMe && (!Number.isFinite(state.lat) || !Number.isFinite(state.lng))) state.nearMe = false;
+
+  refs.input.value = state.q;
+  updateControls();
+
+  // Paint skeleton immediately so the page never looks empty
+  renderSkeletons(refs.trendingRail, 3, true);
+
+  // Kick off filter data and trending in parallel
+  const filterPromise = loadFilterData();
+  const trendingPromise = loadHomeSections();
+
+  await Promise.allSettled([filterPromise, trendingPromise]);
+
+  // If URL had a search, run it after filters are available
+  if(hasFilters()){
+    state.mode = 'search';
+    await runSearch();
+  }
+
+  if(window.MyShubAnalytics) window.MyShubAnalytics.init?.({ surface:'discover' });
+
+  const openedAt = Date.now();
+  window.addEventListener('pagehide', () => {
+    const secs = Math.min(600, Math.round((Date.now() - openedAt)/1000));
+    if(window.MyShubAnalytics && secs >= 3) window.MyShubAnalytics.discoverInteraction?.('discover_dwell','',`${secs}s`);
+    if(window.MyShubAnalytics) window.MyShubAnalytics.flush?.();
+  }, {capture:true});
+})();
+
+})();
+</script>
 </body>
-</html>
+  </html>
