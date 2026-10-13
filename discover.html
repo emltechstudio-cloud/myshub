@@ -161,6 +161,11 @@
     .member-note { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted-2); font-size: .67rem; }
     .view-button { display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; padding: 9px 11px; border: 0; border-radius: 10px; background: var(--blue); color: white; font-size: .7rem; font-weight: 800; text-decoration: none; }
     .view-button:hover { background: var(--blue-dark); }
+    .share-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .share-button { display: inline-flex; align-items: center; gap: 5px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 9px; background: white; color: var(--muted); font-size: .68rem; font-weight: 800; }
+    .share-button:hover { border-color: #93c5fd; color: var(--blue); background: var(--blue-soft); }
+    .share-button.whatsapp:hover { border-color: #86efac; color: #15803d; background: #f0fdf4; }
+    .share-button.facebook:hover { border-color: #93c5fd; color: #1d4ed8; background: #eff6ff; }
 
     .state-box { padding: 48px 20px; border: 1px dashed #cbd5e1; border-radius: var(--radius-lg); background: rgba(255,255,255,.66); text-align: center; }
     .state-icon { display: grid; width: 48px; height: 48px; margin: 0 auto 13px; place-items: center; border-radius: 15px; background: var(--blue-soft); color: var(--blue); font-size: 1.15rem; }
@@ -255,7 +260,7 @@
       <div class="container">
         <section class="trending-section" id="trendingSection">
           <div class="section-heading">
-            <div><h2>Trending Businesses</h2><p>Explore businesses people are discovering on MyShub.</p></div>
+            <div><h2>Recommended businesses</h2><p>Explore relevant businesses ranked by search, location, profile quality, reviews, and placement.</p></div>
             <button class="heading-action" id="refreshTrending" type="button">Refresh <i class="fa-solid fa-rotate-right"></i></button>
           </div>
           <div class="trending-grid" id="trendingGrid"></div>
@@ -470,6 +475,11 @@
         <p class="card-description">${escapeHtml(description)}</p>
         <div class="card-facts"><span class="fact"><i class="fa-solid fa-tag"></i>${escapeHtml(shop.category || 'Business')}</span><span class="fact"><i class="fa-solid fa-location-dot"></i>${escapeHtml(location)}</span>${distance}${views}</div>
         <div class="card-bottom"><span class="member-note">${memberSince ? `Member since ${escapeHtml(memberSince)}` : 'MyShub member'}</span><a class="view-button discover-shop-link" href="${escapeHtml(shop.shop_url || `/${shop.slug}`)}" target="_blank" rel="noopener">View business <i class="fa-solid fa-arrow-up-right-from-square"></i></a></div>
+        <div class="share-actions" aria-label="Share this business">
+          <button class="share-button whatsapp" type="button" data-share="whatsapp" data-slug="${escapeHtml(shop.slug || '')}" data-name="${escapeHtml(shop.business_name || 'Business')}"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+          <button class="share-button facebook" type="button" data-share="facebook" data-slug="${escapeHtml(shop.slug || '')}" data-name="${escapeHtml(shop.business_name || 'Business')}"><i class="fa-brands fa-facebook"></i> Facebook</button>
+          <button class="share-button" type="button" data-share="copy" data-slug="${escapeHtml(shop.slug || '')}" data-name="${escapeHtml(shop.business_name || 'Business')}"><i class="fa-solid fa-link"></i> Copy link</button>
+        </div>
       </article>`;
     }
 
@@ -494,7 +504,8 @@
         refs.shopsGrid.innerHTML = '';
         refs.resultsTitle.textContent = 'Explore businesses';
         refs.resultsSubtitle.textContent = 'Search or choose a filter to find a business.';
-        refs.resultCount.textContent = results.length ? `${Number(data.total || results.length).toLocaleString()} trending` : '';
+        refs.resultCount.textContent = results.length ? `${Number(data.total || results.length).toLocaleString()} recommended` : '';
+        observeDiscoverCards();
         return;
       }
 
@@ -504,8 +515,69 @@
       refs.resultsTitle.textContent = queryText ? `Results for “${queryText}”` : 'Search results';
       refs.resultsSubtitle.textContent = state.nearMe ? `Businesses within ${state.radius} km of your location.` : 'Businesses matching your search and selected filters.';
       refs.resultCount.textContent = `${Number(data.total || 0).toLocaleString()} found`;
+      syncSearchUrl();
       if (!results.length) { renderEmpty('No businesses found', 'Try a broader search, remove a filter, or choose another location.'); return; }
       refs.shopsGrid.innerHTML = results.map(cardMarkup).join('');
+    }
+
+    function syncSearchUrl() {
+      const params = new URLSearchParams();
+      if (state.q) params.set('q', state.q);
+      ['category', 'country', 'state', 'city'].forEach((key) => { if (state[key]) params.set(key, state[key]); });
+      if (state.nearMe) params.set('near_me', 'true');
+      const next = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
+      window.history.replaceState({}, '', next);
+    }
+
+    function businessUrl(slug) {
+      return `${window.location.origin}/${encodeURIComponent(String(slug || '').replace(/^\/+/, ''))}`;
+    }
+
+    async function handleShare(button) {
+      const slug = button.dataset.slug || '';
+      const name = button.dataset.name || 'Business';
+      const url = businessUrl(slug);
+      const kind = button.dataset.share;
+      const message = `Check out ${name} on MyShub:\n\n${url}`;
+      if (window.MyShubAnalytics) MyShubAnalytics.discoverInteraction(kind === 'whatsapp' ? 'discover_whatsapp_share' : kind === 'facebook' ? 'discover_facebook_share' : kind === 'copy' ? 'discover_copy_link' : 'discover_share', slug, kind);
+      if (kind === 'whatsapp') {
+        window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank', 'noopener');
+      } else if (kind === 'facebook') {
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'noopener');
+      } else {
+        try {
+          await navigator.clipboard.writeText(url);
+          button.innerHTML = '<i class="fa-solid fa-check"></i> Copied';
+          setTimeout(() => { button.innerHTML = '<i class="fa-solid fa-link"></i> Copy link'; }, 1800);
+        } catch (_) {
+          window.prompt('Copy this business link:', url);
+        }
+      }
+    }
+
+    function observeDiscoverCards() {
+      if (!window.IntersectionObserver) return;
+      const observer = new IntersectionObserver((entries) => entries.forEach((entry) => {
+        if (!entry.isIntersecting || entry.target.dataset.impressed) return;
+        entry.target.dataset.impressed = '1';
+        if (window.MyShubAnalytics) MyShubAnalytics.discoverInteraction('discover_card_hover', entry.target.dataset.shopSlug, 'impression');
+      }), { threshold: 0.55 });
+      document.querySelectorAll('[data-shop-slug]').forEach((card) => observer.observe(card));
+    }
+
+    function observeScrollDepth() {
+      let sent = {};
+      window.addEventListener('scroll', () => {
+        const height = document.documentElement.scrollHeight - window.innerHeight;
+        if (height <= 0) return;
+        const depth = Math.min(100, Math.round((window.scrollY / height) * 100));
+        [25, 50, 75, 100].forEach((mark) => {
+          if (depth >= mark && !sent[mark]) {
+            sent[mark] = true;
+            if (window.MyShubAnalytics) MyShubAnalytics.discoverInteraction('discover_scroll_depth', '', `${mark}%`);
+          }
+        });
+      }, { passive: true });
     }
 
     async function loadDiscover() {
@@ -580,6 +652,8 @@
     $('refreshTrending').addEventListener('click', loadDiscover);
     document.addEventListener('click', (event) => {
       if (!event.target.closest('.filter-chip') && !event.target.closest('.filter-menu')) closeFilterMenu();
+      const shareButton = event.target.closest('[data-share]');
+      if (shareButton) { handleShare(shareButton); return; }
       const link = event.target.closest('.discover-shop-link');
       if (!link || !window.MyShubAnalytics) return;
       const card = link.closest('[data-shop-slug]');
@@ -593,8 +667,22 @@
 
     updateControls();
     (async function init() {
-      const urlQuery = new URLSearchParams(window.location.search).get('q');
-      if (urlQuery) refs.input.value = urlQuery;
+      const url = new URLSearchParams(window.location.search);
+      state.q = url.get('q') || '';
+      state.category = url.get('category') || '';
+      state.country = url.get('country') || '';
+      state.state = url.get('state') || '';
+      state.city = url.get('city') || '';
+      state.nearMe = url.get('near_me') === 'true';
+      refs.input.value = state.q;
+      updateControls();
+      observeScrollDepth();
+      const openedAt = Date.now();
+      window.addEventListener('pagehide', () => {
+        const seconds = Math.min(600, Math.round((Date.now() - openedAt) / 1000));
+        if (window.MyShubAnalytics && seconds >= 3) MyShubAnalytics.discoverInteraction('discover_dwell', '', `${seconds}s`);
+        if (window.MyShubAnalytics) MyShubAnalytics.flush();
+      }, { capture: true });
       await loadFilterData();
       await loadDiscover();
     })();

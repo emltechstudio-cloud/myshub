@@ -24,6 +24,13 @@
     'discover_search',
     'discover_result_open',
     'discover_shop_click',
+    'discover_share',
+    'discover_whatsapp_share',
+    'discover_facebook_share',
+    'discover_copy_link',
+    'discover_card_hover',
+    'discover_dwell',
+    'discover_scroll_depth',
     'shop_view',
     'shop_click',
     'signup_started',
@@ -192,6 +199,10 @@
     });
   }
 
+  function discoverInteraction(event, slug, detail) {
+    return track(event, { surface: 'discover', shop_slug: clean(slug || '', 120), detail: clean(detail || '', 180) });
+  }
+
   function signupStarted(source) {
     return track('signup_started', { surface: 'auth', detail: clean(source || '', 120) });
   }
@@ -227,6 +238,7 @@
     discoverSearch: discoverSearch,
     discoverResultOpen: discoverResultOpen,
     discoverShopClick: discoverShopClick,
+    discoverInteraction: discoverInteraction,
     signupStarted: signupStarted,
     signupCompleted: signupCompleted,
     profileCompleted: profileCompleted,
