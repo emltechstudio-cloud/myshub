@@ -124,9 +124,10 @@
     .section-heading p { margin: 5px 0 0; color: var(--muted); font-size: .82rem; }
     .section-heading .heading-action { border: 0; background: transparent; color: var(--blue); font-size: .8rem; font-weight: 800; }
     .trending-section { margin-bottom: 34px; }
-    .trending-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .trending-grid, .horizontal-grid { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(285px, 360px); gap: 16px; overflow-x: auto; overscroll-behavior-inline: contain; padding: 3px 2px 14px; scroll-snap-type: x proximity; }
+    .horizontal-grid > * { scroll-snap-align: start; }
     .trending-card { display: flex; align-items: center; gap: 13px; min-width: 0; padding: 15px; border: 1px solid var(--line); border-radius: var(--radius-md); background: white; box-shadow: var(--shadow-sm); cursor: pointer; transition: .2s ease; }
-    .trending-grid > .shop-card { width: 100%; }
+    .trending-grid > .shop-card, .horizontal-grid > .shop-card { width: 100%; }
     .trending-card:hover { border-color: #93c5fd; box-shadow: var(--shadow-md); transform: translateY(-2px); }
     .trending-logo { width: 48px; height: 48px; flex: 0 0 48px; border: 1px solid var(--line); border-radius: 13px; object-fit: cover; background: var(--blue-soft); }
     .trending-copy { min-width: 0; }
@@ -266,6 +267,14 @@
           <div class="trending-grid" id="trendingGrid"></div>
         </section>
 
+        <section class="discover-section" id="newSection" hidden>
+          <div class="section-heading"><div><h2>Newly added businesses</h2><p>Meet the latest businesses joining MyShub.</p></div></div>
+          <div class="horizontal-grid" id="newGrid"></div>
+        </section>
+        <section class="discover-section" id="featuredSection" hidden>
+          <div class="section-heading"><div><h2>Featured businesses</h2><p>Explore businesses with enhanced MyShub profiles.</p></div></div>
+          <div class="horizontal-grid" id="featuredGrid"></div>
+        </section>
         <section class="results-section" id="resultsSection">
           <div class="results-toolbar">
             <div><h2 class="results-title" id="resultsTitle">Explore businesses</h2><p class="results-subtitle" id="resultsSubtitle">Search or choose a filter to find a business.</p></div>
@@ -296,7 +305,7 @@
     const refs = {
       input: $('searchInput'), searchButton: $('searchButton'), filterMenu: $('filterMenu'),
       locationNote: $('locationNote'), clearFilters: $('clearFilters'), nearMeButton: $('nearMeButton'),
-      trendingSection: $('trendingSection'), trendingGrid: $('trendingGrid'), shopsGrid: $('shopsGrid'),
+      trendingSection: $('trendingSection'), trendingGrid: $('trendingGrid'), newSection: $('newSection'), newGrid: $('newGrid'), featuredSection: $('featuredSection'), featuredGrid: $('featuredGrid'), shopsGrid: $('shopsGrid'),
       resultsTitle: $('resultsTitle'), resultsSubtitle: $('resultsSubtitle'), resultCount: $('resultCount')
     };
     const state = { q: '', category: '', country: '', state: '', city: '', nearMe: false, lat: null, lng: null, radius: 50, mode: 'trending' };
@@ -476,9 +485,7 @@
         <div class="card-facts"><span class="fact"><i class="fa-solid fa-tag"></i>${escapeHtml(shop.category || 'Business')}</span><span class="fact"><i class="fa-solid fa-location-dot"></i>${escapeHtml(location)}</span>${distance}${views}</div>
         <div class="card-bottom"><span class="member-note">${memberSince ? `Member since ${escapeHtml(memberSince)}` : 'MyShub member'}</span><a class="view-button discover-shop-link" href="${escapeHtml(shop.shop_url || `/${shop.slug}`)}" target="_blank" rel="noopener">View business <i class="fa-solid fa-arrow-up-right-from-square"></i></a></div>
         <div class="share-actions" aria-label="Share this business">
-          <button class="share-button whatsapp" type="button" data-share="whatsapp" data-slug="${escapeHtml(shop.slug || '')}" data-name="${escapeHtml(shop.business_name || 'Business')}"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
-          <button class="share-button facebook" type="button" data-share="facebook" data-slug="${escapeHtml(shop.slug || '')}" data-name="${escapeHtml(shop.business_name || 'Business')}"><i class="fa-brands fa-facebook"></i> Facebook</button>
-          <button class="share-button" type="button" data-share="copy" data-slug="${escapeHtml(shop.slug || '')}" data-name="${escapeHtml(shop.business_name || 'Business')}"><i class="fa-solid fa-link"></i> Copy link</button>
+          <button class="share-button" type="button" data-share="native" data-slug="${escapeHtml(shop.slug || '')}" data-name="${escapeHtml(shop.business_name || 'Business')}"><i class="fa-solid fa-share-nodes"></i> Share business</button>
         </div>
       </article>`;
     }
@@ -492,6 +499,30 @@
       $('emptyAction')?.addEventListener('click', clearAll);
     }
 
+    function sectionRows(data, key) {
+      const rows = Array.isArray(data?.[key]) ? data[key] : (Array.isArray(data?.results) ? data.results : []);
+      return rows.map((shop) => ({ ...(filterData.directoryBySlug[shop.slug] || {}), ...shop }));
+    }
+
+    function renderHomeSection(refSection, refGrid, rows) {
+      if (!refSection || !refGrid) return;
+      refSection.hidden = !rows.length;
+      refGrid.innerHTML = rows.length ? rows.map(cardMarkup).join('') : '';
+    }
+
+    async function loadHomeSections() {
+      const requests = await Promise.allSettled([
+        fetch(`${API}/discover/trending?limit=10`),
+        fetch(`${API}/discover/recent?limit=10`),
+        fetch(`${API}/discover/featured?limit=10`)
+      ]);
+      const payloads = await Promise.all(requests.map(async (result) => result.status === 'fulfilled' && result.value.ok ? result.value.json() : {}));
+      renderHomeSection(refs.trendingSection, refs.trendingGrid, sectionRows(payloads[0], 'trending'));
+      renderHomeSection(refs.newSection, refs.newGrid, sectionRows(payloads[1], 'recent'));
+      renderHomeSection(refs.featuredSection, refs.featuredGrid, sectionRows(payloads[2], 'featured'));
+      observeDiscoverCards();
+    }
+
     function renderResults(data) {
       // Support both the new API contract (`results`) and the currently live
       // legacy Trending contract (`trending`) during deployment transition.
@@ -500,16 +531,17 @@
       const intent = data.query || {};
       if (state.mode === 'trending') {
         refs.trendingSection.style.display = '';
-        refs.trendingGrid.innerHTML = results.length ? results.map(cardMarkup).join('') : '<div class="state-box" style="grid-column:1/-1"><div class="state-icon"><i class="fa-solid fa-store-slash"></i></div><h3>Trending is waiting for businesses</h3><p>Be one of the first businesses discovered on MyShub.</p><a class="view-button" href="/app.html" style="display:inline-flex;margin-top:14px">List your business</a></div>';
         refs.shopsGrid.innerHTML = '';
         refs.resultsTitle.textContent = 'Explore businesses';
         refs.resultsSubtitle.textContent = 'Search or choose a filter to find a business.';
-        refs.resultCount.textContent = results.length ? `${Number(data.total || results.length).toLocaleString()} trending` : '';
-        observeDiscoverCards();
+        refs.resultCount.textContent = '';
+        loadHomeSections();
         return;
       }
 
       refs.trendingSection.style.display = 'none';
+      if (refs.newSection) refs.newSection.hidden = true;
+      if (refs.featuredSection) refs.featuredSection.hidden = true;
       const locationText = [intent.city || state.city, intent.state || state.state, intent.country || state.country].filter(Boolean).join(', ');
       const queryText = state.q || intent.category || state.category || locationText;
       refs.resultsTitle.textContent = queryText ? `Results for “${queryText}”` : 'Search results';
@@ -524,7 +556,7 @@
       const params = new URLSearchParams();
       if (state.q) params.set('q', state.q);
       ['category', 'country', 'state', 'city'].forEach((key) => { if (state[key]) params.set(key, state[key]); });
-      if (state.nearMe) params.set('near_me', 'true');
+      if (state.nearMe) { params.set('near_me', 'true'); if (state.lat != null) params.set('lat', state.lat); if (state.lng != null) params.set('lng', state.lng); params.set('radius', state.radius); }
       const next = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
       window.history.replaceState({}, '', next);
     }
@@ -537,21 +569,19 @@
       const slug = button.dataset.slug || '';
       const name = button.dataset.name || 'Business';
       const url = businessUrl(slug);
-      const kind = button.dataset.share;
-      const message = `Check out ${name} on MyShub:\n\n${url}`;
-      if (window.MyShubAnalytics) MyShubAnalytics.discoverInteraction(kind === 'whatsapp' ? 'discover_whatsapp_share' : kind === 'facebook' ? 'discover_facebook_share' : kind === 'copy' ? 'discover_copy_link' : 'discover_share', slug, kind);
-      if (kind === 'whatsapp') {
-        window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank', 'noopener');
-      } else if (kind === 'facebook') {
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'noopener');
-      } else {
-        try {
+      if (window.MyShubAnalytics) MyShubAnalytics.discoverInteraction('discover_share', slug, 'native');
+      try {
+        if (navigator.share) {
+          await navigator.share({ title: name, text: `Check out ${name} on MyShub`, url });
+        } else if (navigator.clipboard) {
           await navigator.clipboard.writeText(url);
-          button.innerHTML = '<i class="fa-solid fa-check"></i> Copied';
-          setTimeout(() => { button.innerHTML = '<i class="fa-solid fa-link"></i> Copy link'; }, 1800);
-        } catch (_) {
+          button.innerHTML = '<i class="fa-solid fa-check"></i> Link copied';
+          setTimeout(() => { button.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Share business'; }, 1800);
+        } else {
           window.prompt('Copy this business link:', url);
         }
+      } catch (error) {
+        if (error?.name !== 'AbortError') console.warn('Business share was not completed.', error);
       }
     }
 
@@ -674,6 +704,9 @@
       state.state = url.get('state') || '';
       state.city = url.get('city') || '';
       state.nearMe = url.get('near_me') === 'true';
+      state.lat = url.get('lat') ? Number(url.get('lat')) : null;
+      state.lng = url.get('lng') ? Number(url.get('lng')) : null;
+      if (state.nearMe && (!Number.isFinite(state.lat) || !Number.isFinite(state.lng))) state.nearMe = false;
       refs.input.value = state.q;
       updateControls();
       observeScrollDepth();
