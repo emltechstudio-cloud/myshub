@@ -260,7 +260,7 @@
       <div class="container">
         <section class="trending-section" id="trendingSection">
           <div class="section-heading">
-            <div><h2>Recommended businesses</h2><p>Explore relevant businesses ranked by search, location, profile quality, reviews, and placement.</p></div>
+            <div><h2>Trending Businesses</h2><p>Explore businesses people are discovering on MyShub.</p></div>
             <button class="heading-action" id="refreshTrending" type="button">Refresh <i class="fa-solid fa-rotate-right"></i></button>
           </div>
           <div class="trending-grid" id="trendingGrid"></div>
@@ -504,7 +504,7 @@
         refs.shopsGrid.innerHTML = '';
         refs.resultsTitle.textContent = 'Explore businesses';
         refs.resultsSubtitle.textContent = 'Search or choose a filter to find a business.';
-        refs.resultCount.textContent = results.length ? `${Number(data.total || results.length).toLocaleString()} recommended` : '';
+        refs.resultCount.textContent = results.length ? `${Number(data.total || results.length).toLocaleString()} trending` : '';
         observeDiscoverCards();
         return;
       }
