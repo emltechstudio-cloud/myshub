@@ -522,6 +522,9 @@ function logoSources(shop){
   const out = [];
   const push = (u) => { if(u && !out.includes(u)) out.push(u); };
 
+  if(!raw && shop?.has_logo && shop?.slug){
+    push(`${API_BASE}/discover/logo/${encodeURIComponent(shop.slug)}`);
+  }
   if(raw){
     const s = String(raw).trim();
     const unsafe = !s
@@ -692,24 +695,16 @@ function openMenu(chip, type){
 /* ---------- filter data ---------- */
 async function loadFilterData(){
   try{
-    const [catsRes, locRes, dirRes] = await Promise.all([
+    const [catsRes, locRes] = await Promise.all([
       fetch(`${API}/discover/categories`).catch(()=>null),
-      fetch(`${API}/discover/locations`).catch(()=>null),
-      fetch(`${API}/discover/search?limit=100`).catch(()=>null)
+      fetch(`${API}/discover/locations`).catch(()=>null)
     ]);
     if(!catsRes?.ok || !locRes?.ok) return;
 
-    const [cats, locs, dir] = await Promise.all([
+    const [cats, locs] = await Promise.all([
       catsRes.json().catch(()=>({})),
-      locRes.json().catch(()=>({})),
-      dirRes?.ok ? dirRes.json().catch(()=>({})) : Promise.resolve({})
+      locRes.json().catch(()=>({}))
     ]);
-
-    const dirResults = Array.isArray(dir?.results) ? dir.results : [];
-
-    const dCountries = dirResults.filter(s=>s.country).map(s=>({name:s.country, count:0}));
-    const dStates = dirResults.filter(s=>s.state).map(s=>({name:s.state, country:s.country||'', count:0}));
-    const dCities = dirResults.filter(s=>s.city).map(s=>({name:s.city, state:s.state||'', country:s.country||'', count:0}));
 
     filterData.categories = Array.isArray(cats.categories) ? cats.categories : (Array.isArray(cats) ? cats : []);
     filterData.countries = Array.isArray(locs.countries) ? locs.countries : [];
@@ -717,13 +712,10 @@ async function loadFilterData(){
     filterData.cities = Array.isArray(locs.cities || locs.lgas) ? (locs.cities || locs.lgas) : [];
 
     filterData.categoryOptions = Array.isArray(cats.category_options) ? cats.category_options : filterData.categories;
-    filterData.countryOptions = mergeOptions(locs.country_options, dCountries, []);
-    filterData.stateOptions = mergeOptions(locs.state_options, dStates, ['country']);
-    filterData.cityOptions = mergeOptions(locs.city_options || locs.lga_options, dCities, ['state','country']);
-
-    filterData.directoryBySlug = Object.fromEntries(
-      dirResults.filter(s=>s.slug).map(s=>[s.slug, s])
-    );
+    filterData.countryOptions = Array.isArray(locs.country_options) ? locs.country_options : filterData.countries;
+    filterData.stateOptions = Array.isArray(locs.state_options) ? locs.state_options : filterData.states;
+    filterData.cityOptions = Array.isArray(locs.city_options || locs.lga_options) ? (locs.city_options || locs.lga_options) : filterData.cities;
+    filterData.directoryBySlug = {};
   }catch(err){
     console.warn('Filter data failed', err);
   }
@@ -841,11 +833,20 @@ async function loadHomeSections(){
   refs.newSection.hidden = true;
   refs.featuredSection.hidden = true;
 
-  const results = await Promise.allSettled([
-    fetch(`${API}/discover/trending?limit=10`, {signal}).then(r => r.ok ? r.json() : {}),
-    fetch(`${API}/discover/recent?limit=10`, {signal}).then(r => r.ok ? r.json() : {}),
-    fetch(`${API}/discover/featured?limit=10`, {signal}).then(r => r.ok ? r.json() : {})
-  ]);
+  let homePayload = {};
+  try{
+    const homeRes = await fetch(`${API}/discover/home?limit=10`, {signal});
+    if(homeRes.ok) homePayload = await homeRes.json();
+  }catch(err){
+    if(err?.name === 'AbortError') return;
+  }
+  const results = homePayload.trending || homePayload.recent || homePayload.featured
+    ? [{status:'fulfilled', value:homePayload}, {status:'fulfilled', value:homePayload}, {status:'fulfilled', value:homePayload}]
+    : await Promise.allSettled([
+      fetch(`${API}/discover/trending?limit=10`, {signal}).then(r => r.ok ? r.json() : {}),
+      fetch(`${API}/discover/recent?limit=10`, {signal}).then(r => r.ok ? r.json() : {}),
+      fetch(`${API}/discover/featured?limit=10`, {signal}).then(r => r.ok ? r.json() : {})
+    ]);
 
   if(signal.aborted) return;
 
