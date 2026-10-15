@@ -1056,12 +1056,12 @@
                     let link = mp.urlTemplate(primaryMsg.identifier);
                     const href = isDemoMode ? '#' : link;
                     const onclick = isDemoMode ? 'showDemoToast(); return false;' : '';
-                    heroCta += `<a href="${href}" onclick="${onclick}" class="btn-primary"><i class="${mp.icon}"></i> Chat on ${mp.name}</a>`;
+                    heroCta += `<a href="${href}" onclick="${onclick}" data-analytics-type="whatsapp" data-analytics-detail="hero_cta" class="btn-primary"><i class="${mp.icon}"></i> Chat on ${mp.name}</a>`;
                 }
             } else if (hasCatalog) {
                 const href = isDemoMode ? '#' : fixUrl(catalogUrl);
                 const onclick = isDemoMode ? 'showDemoToast(); return false;' : '';
-                heroCta += `<a href="${href}" onclick="${onclick}" class="btn-primary"><i class="fa-solid fa-store"></i> Browse Catalog</a>`;
+                heroCta += `<a href="${href}" onclick="${onclick}" data-analytics-type="catalog" data-analytics-detail="hero_cta" class="btn-primary"><i class="fa-solid fa-store"></i> Browse Catalog</a>`;
             }
             heroCta += '</div>';
 
@@ -1097,7 +1097,7 @@
                     <div class="section-title fade-in"><i class="fa-solid fa-bag-shopping"></i> Catalog</div>
                     <div class="card catalog-card fade-in">
                         <div class="catalog-icon"><i class="${icon}"></i></div>
-                        <a href="${href}" onclick="${onclick}" target="_blank" class="catalog-btn"><i class="fa-solid fa-up-right-from-square"></i> ${btn}</a>
+                        <a href="${href}" onclick="${onclick}" target="_blank" data-analytics-type="catalog" data-analytics-detail="catalog" class="catalog-btn"><i class="fa-solid fa-up-right-from-square"></i> ${btn}</a>
                     </div>
                 </section>`;
             }
@@ -1152,7 +1152,7 @@
                 <div class="card fade-in">
                     <div id="reviewsSummary" class="reviews-summary"><span class="reviews-average">— ★</span><span style="color:var(--text2);font-size:.85rem;">Loading reviews…</span></div>
                     <div id="reviewsList" style="margin-top:12px;"><p style="color:var(--text2);font-size:.88rem;">Loading reviews…</p></div>
-                    <button class="catalog-btn" style="border:0;cursor:pointer;margin-top:14px;" onclick="openFeedbackModal()"><i class="fa-solid fa-pen"></i> Leave a review</button>
+                    <button class="review-btn" style="border:0;cursor:pointer;margin-top:14px;" onclick="openFeedbackModal()"><i class="fa-solid fa-pen"></i> Leave a review</button>
                 </div>
             </section>`;
 
@@ -1360,14 +1360,15 @@
         };
         function attachClickTracking(plan) {
             if (plan === 'free') return;
-            const catalogBtn = document.querySelector('.catalog-btn');
-            if (catalogBtn) catalogBtn.addEventListener('click', () => CLICK_TRACKING.track('catalog', 'catalog'));
+            document.querySelectorAll('[data-analytics-type="catalog"]').forEach(el => {
+                el.addEventListener('click', () => CLICK_TRACKING.track('catalog', el.getAttribute('data-analytics-detail') || 'catalog'));
+            });
             const fab = document.querySelector('.fab');
             if (fab) fab.addEventListener('click', () => CLICK_TRACKING.track('whatsapp', 'fab'));
             document.querySelectorAll('.social-item').forEach(el => { el.addEventListener('click', () => { const platform = el.getAttribute('title') || 'unknown'; CLICK_TRACKING.track('social', platform.toLowerCase()); }); });
             document.querySelectorAll('.custom-link-btn').forEach(el => { el.addEventListener('click', () => { const text = el.textContent.trim().replace(/^\S+\s*/, '').substring(0, 30); CLICK_TRACKING.track('custom_link', text); }); });
             document.querySelectorAll('.msg-btn').forEach(el => { const platform = Array.from(el.classList).find(c => c !== 'msg-btn') || 'unknown'; el.addEventListener('click', () => CLICK_TRACKING.track('social', platform.toLowerCase())); });
-            document.querySelectorAll('.hero-cta a, .hero-cta button').forEach(el => { el.addEventListener('click', () => { const text = el.textContent.trim().toLowerCase(); if (text.includes('chat')) CLICK_TRACKING.track('whatsapp', 'hero_cta'); else if (text.includes('catalog') || text.includes('browse')) CLICK_TRACKING.track('catalog', 'hero_cta'); }); });
+            document.querySelectorAll('.hero-cta [data-analytics-type="whatsapp"]').forEach(el => { el.addEventListener('click', () => CLICK_TRACKING.track('whatsapp', el.getAttribute('data-analytics-detail') || 'hero_cta')); });
         }
 
         // ─── BOOT ─────────────────────────────────────────────────────────
