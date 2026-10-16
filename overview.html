@@ -306,8 +306,12 @@
     .checklist-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border-light); font-size: 13px; }
     .checklist-item:last-child { border-bottom: none; }
     .checklist-item.done { color: var(--text-tertiary); text-decoration: line-through; }
+    .checklist-item.todo { cursor: pointer; }
+    .checklist-item.todo:hover { background: var(--brand-soft); border-radius: 8px; padding-left: 6px; padding-right: 6px; }
+    .checklist-go { margin-left: auto; color: var(--brand); font-weight: 700; font-size: 12px; white-space: nowrap; }
     .checklist-item i { width: 20px; text-align: center; }
     .checklist-item.done i { color: var(--success); }
+    .checklist-all-done { margin-top: 10px; padding: 9px 12px; border-radius: 10px; background: var(--success-soft); color: var(--success); font-size: 12.5px; font-weight: 700; }
 
     .menu-helper {
       text-align: center;
@@ -743,12 +747,12 @@
     const canClaim = referralCount >= target && plan === 'free';
 
     const items = [
-      { label: 'Add business name', done: !!sj.business_name },
-      { label: 'Add tagline', done: !!sj.tagline },
-      { label: 'Upload logo', done: !!(sj.logo_url) },
-      { label: 'Add at least 1 platform', done: Object.keys(sj.socials || {}).length > 0 },
-      { label: 'Add a custom link', done: (sj.custom_links || []).length > 0 },
-      { label: 'Add phone number', done: !!sj.phone }
+      { label: 'Add business name', done: !!sj.business_name, page: 'edit' },
+      { label: 'Add tagline', done: !!sj.tagline, page: 'edit' },
+      { label: 'Upload logo', done: !!(sj.logo_url), page: 'edit' },
+      { label: 'Add at least 1 platform', done: Object.keys(sj.socials || {}).length > 0, page: 'edit' },
+      { label: 'Add a custom link', done: (sj.custom_links || []).length > 0, page: 'edit' },
+      { label: 'Add phone number', done: !!sj.phone, page: 'edit' }
     ];
     const doneCount = items.filter(i => i.done).length;
     const totalItems = items.length;
@@ -888,10 +892,11 @@
           <span class="label">${doneCount}/${totalItems} done</span>
         </div>
         ${items.map(item => `
-          <div class="checklist-item ${item.done ? 'done' : ''}">
-            <i class="fa-solid ${item.done ? 'fa-circle-check' : 'fa-circle'}"></i> ${item.label}
+          <div class="checklist-item ${item.done ? 'done' : 'todo'}" ${item.done ? '' : `onclick="navigate('${item.page}')" role="button" tabindex="0"`}>
+            <i class="fa-solid ${item.done ? 'fa-circle-check' : 'fa-circle'}"></i> ${item.label}${item.done ? '' : ' <span class="checklist-go">Add →</span>'}
           </div>
         `).join('')}
+        ${doneCount === totalItems ? '<div class="checklist-all-done"><i class="fa-solid fa-star"></i> Profile complete — your hub is ready to share.</div>' : ''}
       </div>
     `;
 
