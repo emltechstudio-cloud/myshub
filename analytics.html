@@ -4,11 +4,32 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Analytics – MyShub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <style>
     .analytics-page { --a-ink:#0f172a; --a-muted:#64748b; --a-soft:#f8fafc; --a-line:#e2e8f0; --a-brand:#2563eb; --a-brand-2:#7c3aed; --a-orange:#ea580c; --a-green:#059669; --a-card:#fff; color:var(--text,var(--a-ink)); padding:0; }
     .analytics-page * { box-sizing:border-box; }
     [data-theme="dark"] .analytics-page { --a-ink:#f8fafc; --a-muted:#94a3b8; --a-soft:#111827; --a-line:#334155; --a-card:#1e293b; }
     .analytics-hero { position:relative; overflow:hidden; padding:22px; margin-bottom:16px; border-radius:22px; color:#fff; background:linear-gradient(135deg,#172554 0%,#1d4ed8 53%,#7c3aed 100%); box-shadow:0 14px 35px rgba(37,99,235,.18); }
+    /* Plan-aware hero themes: Premium reads as a gold-luxe layer, Pro as a sharper blue-cyan tier. */
+    .analytics-page.plan-premium .analytics-hero { background:linear-gradient(135deg,#1c1917 0%,#78350f 52%,#d97706 100%); box-shadow:0 14px 35px rgba(217,119,6,.28); }
+    .analytics-page.plan-premium .period-button.active { background:#fff; color:#b4530c; }
+    .analytics-page.plan-premium .card-badge.premium { background:linear-gradient(135deg,#f59e0b,#ca8a04); color:#fff; box-shadow:0 2px 8px rgba(217,119,6,.3); }
+    .analytics-page.plan-pro .analytics-hero { background:linear-gradient(135deg,#0f172a 0%,#1d4ed8 55%,#0e7490 100%); box-shadow:0 14px 35px rgba(8,145,178,.2); }
+    .plan-banner { display:flex; gap:14px; align-items:flex-start; margin-bottom:16px; padding:16px 18px; border-radius:18px; }
+    .plan-banner.premium-banner { background:linear-gradient(135deg,#fffbeb,#fef3c7); border:1px solid #fcd34d; }
+    .plan-banner.pro-banner { background:var(--a-soft); border:1px dashed var(--a-line); align-items:center; }
+    .plan-banner-icon { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:17px; color:#fff; flex-shrink:0; background:linear-gradient(135deg,#f59e0b,#d97706); }
+    .plan-banner.pro-banner .plan-banner-icon { background:linear-gradient(135deg,#7c3aed,#2563eb); }
+    .plan-banner h4 { margin:0 0 4px; font-size:14.5px; font-weight:900; color:#92400e; }
+    .plan-banner.pro-banner h4 { color:var(--a-ink); }
+    .plan-banner p { margin:0; font-size:12.5px; color:#a16207; line-height:1.5; }
+    .plan-banner.pro-banner p { color:var(--a-muted); }
+    .plan-banner ul { margin:8px 0 0; padding-left:16px; font-size:12px; color:#92400e; line-height:1.7; columns:2; }
+    .plan-banner .banner-action { margin-left:auto; flex-shrink:0; }
+    [data-theme="dark"] .plan-banner.premium-banner { background:rgba(217,119,6,.14); border-color:rgba(217,119,6,.45); }
+    [data-theme="dark"] .plan-banner.premium-banner h4 { color:#fbbf24; }
+    [data-theme="dark"] .plan-banner.premium-banner p, [data-theme="dark"] .plan-banner.premium-banner ul { color:#fcd34d; }
+    @media (max-width:700px) { .plan-banner ul { columns:1; } .plan-banner { flex-wrap:wrap; } .plan-banner .banner-action { margin-left:0; width:100%; } }
     .analytics-hero:after { content:""; position:absolute; width:190px; height:190px; right:-55px; top:-75px; border-radius:50%; background:rgba(255,255,255,.12); }
     .hero-top { position:relative; z-index:1; display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
     .hero-kicker { margin:0 0 7px; color:rgba(255,255,255,.7); font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
@@ -307,12 +328,20 @@
       const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})), link=document.createElement('a'); link.href=url; link.download='myshub-analytics-' + state.period + '-' + new Date().toISOString().slice(0,10) + '.csv'; link.click(); URL.revokeObjectURL(url); notify('Analytics exported.', 'success');
     }
 
+    function planBanners(){
+      if(isPremium()) return '<section class="plan-banner premium-banner"><div class="plan-banner-icon"><i class="fa-solid fa-crown"></i></div><div><h4>Full picture unlocked</h4><p>Nothing is held back in this period — every measured signal is shown exactly as recorded.</p><ul><li>Every city &amp; region</li><li>Every country</li><li>All click destinations</li><li>Year-over-year comparison</li><li>Daily audience signals</li><li>CSV export</li></ul></div></section>';
+      if(isPro()) return '<section class="plan-banner pro-banner"><div class="plan-banner-icon"><i class="fa-solid fa-chart-simple"></i></div><div><h4>You are seeing Pro analytics</h4><p>Leading cities, destinations and12 months of daily history. Premium opens every row, year-over-year comparison and CSV export.</p></div><button class="upgrade-button banner-action" data-upgrade="1">See Premium</button></section>';
+      return '';
+    }
     function render() {
       const app=document.getElementById('analyticsApp'); if (!app) return;
+      app.classList.remove('plan-free','plan-pro','plan-premium');
+      app.classList.add('plan-' + (isPremium() ? 'premium' : isPro() ? 'pro' : 'free'));
       const data=state.data || {}, summary=data.summary || {}, clicks=periodClicks(data), plan=state.plan, change=summary.visits_change_percentage;
       const changeText=change == null ? 'No baseline' : ((change >= 0 ? '+' : '') + change + '%');
       const changeClass=change == null ? '' : (change >= 0 ? 'change-up' : 'change-down');
-      let html='<section class="analytics-hero"><div class="hero-top"><div><p class="hero-kicker">MyShub intelligence</p><h1 class="hero-title">See what your hub is doing.</h1><p class="hero-copy">Understand who is discovering your business, where visitors come from, and which destinations they actually click.</p></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><select class="translate-select" id="translateLanguage" data-myshub-translate aria-label="Translate dashboard"><option value="">Translate dashboard</option><option value="fr">Français</option><option value="es">Español</option><option value="pt">Português</option><option value="ar">العربية</option><option value="de">Deutsch</option><option value="sw">Kiswahili</option><option value="yo">Yoruba</option><option value="ha">Hausa</option></select><span class="hero-badge">● ' + esc(planLabel()) + '</span></div></div><div class="hero-bottom"><div class="period-bar">' + periodButtons() + '</div><span class="updated-note">' + (data.last_updated ? 'Last activity ' + esc(new Date(data.last_updated).toLocaleString()) : 'Waiting for activity') + '</span></div></section>';
+      let html='<section class="analytics-hero"><div class="hero-top"><div><p class="hero-kicker">MyShub intelligence</p><h1 class="hero-title">See what your hub is doing.</h1><p class="hero-copy">Understand who is discovering your business, where visitors come from, and which destinations they actually click.</p></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><select class="translate-select" id="translateLanguage" data-myshub-translate aria-label="Translate dashboard"><option value="">Translate dashboard</option><option value="fr">Français</option><option value="es">Español</option><option value="pt">Português</option><option value="ar">العربية</option><option value="de">Deutsch</option><option value="sw">Kiswahili</option><option value="yo">Yoruba</option><option value="ha">Hausa</option></select><span class="hero-badge">' + (isPremium() ? '★ ' : '● ') + esc(planLabel()) + '</span></div></div><div class="hero-bottom"><div class="period-bar">' + periodButtons() + '</div><span class="updated-note">' + (data.last_updated ? 'Last activity ' + esc(new Date(data.last_updated).toLocaleString()) : 'Waiting for activity') + '</span></div></section>';
+      html += planBanners();
       html+='<section class="summary-grid"><div class="stat-card"><div class="stat-label"><span class="stat-icon">◉</span>Visits</div><div class="stat-value">' + num(summary.visits) + '</div><div class="stat-help">Recorded in selected period</div></div><div class="stat-card"><div class="stat-label"><span class="stat-icon">↗</span>Tracked actions</div><div class="stat-value">' + (isPro() ? num(summary.actions) : '—') + '</div><div class="stat-help">Clicks on available destinations</div></div><div class="stat-card"><div class="stat-label"><span class="stat-icon">%</span>Action rate</div><div class="stat-value">' + (isPro() ? percent(summary.action_rate) : '—') + '</div><div class="stat-help">Actions compared with visits</div></div><div class="stat-card"><div class="stat-label"><span class="stat-icon">↕</span>Period change</div><div class="stat-value ' + changeClass + '" style="font-size:22px">' + (isPro() ? esc(changeText) : '—') + '</div><div class="stat-help">Visits vs previous period</div></div></section>';
       html+='<section class="analytics-card"><div class="card-heading"><div><h3>Traffic and engagement trend</h3><p>Visits and tracked actions are shown together for each day in the selected period.</p></div><span class="card-badge">' + esc(data.from || '') + ' → ' + esc(data.to || '') + '</span></div>' + trendChart(data.daily || []) + '</section>';
       html+=(isPremium() ? yearOverYearCard(data) : lockedCard('Year-over-year comparison','Premium compares the latest 12 months with the 12 months before them.','Premium'));
