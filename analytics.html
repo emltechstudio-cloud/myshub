@@ -118,6 +118,25 @@
     [data-theme="dark"] .locked-overlay { background:rgba(15,23,42,.86); }
     .upgrade-button, .export-button, .retry-button { border:0; border-radius:10px; padding:9px 14px; background:var(--a-brand); color:#fff; font-size:11px; font-weight:850; cursor:pointer; }
     .export-row { display:flex; justify-content:flex-end; gap:8px; }
+    /* Chart-first activity cards: segmented Week/Month + Chart/Table controls */
+    .seg-group { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .seg-toggle { display:inline-flex; border:1px solid var(--a-line); border-radius:10px; overflow:hidden; }
+    .seg-btn { border:0; background:var(--a-soft); color:var(--a-muted); font:inherit; font-size:10.5px; font-weight:800; padding:6px 10px; cursor:pointer; }
+    .seg-btn.active { background:var(--a-brand); color:#fff; }
+    .seg-btn + .seg-btn { border-left:1px solid var(--a-line); }
+    .act-pair { display:flex; align-items:flex-end; justify-content:center; gap:3px; width:100%; height:160px; }
+    .act-track { width:46%; max-width:15px; flex:1; }
+    .act-seg { width:100%; }
+    .seg-catalog { background:#2563eb; }
+    .seg-whatsapp { background:#10b981; }
+    .seg-socials { background:#7c3aed; }
+    .seg-links { background:#f59e0b; }
+    .seg-catalog-bg { background:#2563eb; }
+    .seg-whatsapp-bg { background:#10b981; }
+    .seg-socials-bg { background:#7c3aed; }
+    .seg-links-bg { background:#f59e0b; }
+    .daily-details { margin-top:12px; }
+    .daily-details summary { cursor:pointer; color:var(--a-brand); font-size:12px; font-weight:800; padding:8px 0; }
     .empty { padding:25px 8px; color:var(--a-muted); text-align:center; font-size:12px; }
     .loading, .error-state { padding:65px 20px; color:var(--a-muted); text-align:center; }
     .error-state h3 { margin:0 0 8px; color:var(--a-ink); }
@@ -138,7 +157,7 @@
     'use strict';
 
     const API = window.API || 'https://emltechstudio-myshub-api.hf.space';
-    const state = { period: '30d', plan: 'free', data: null, session: null };
+    const state = { period: '30d', plan: 'free', data: null, session: null, actView: 'chart', actBucket: 'week' };
 
     function getSession() {
       if (window.S && window.S.email) return window.S;
@@ -287,6 +306,128 @@
       }).join('') + '</tbody></table></div>';
     }
 
+    function mergeCounts(target, source) {
+      if (!source) return;
+      Object.keys(source).forEach(function(key){ target[key] = rawNum(target[key]) + rawNum(source[key]); });
+    }
+
+    /* Aggregate daily rows into Monday-based ISO weeks or calendar months. */
+    function bucketDaily(rows, mode) {
+      if (!rows || !rows.length) return [];
+      const sorted = rows.slice().sort(function(a,b){ return String(a.date).localeCompare(String(b.date)); });
+      const map = new Map();
+      sorted.forEach(function(row){
+        const date = String(row.date || '');
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+        const d = new Date(date + 'T00:00:00Z');
+        let key, label;
+        if (mode === 'month') {
+          key = date.slice(0,7);
+          label = d.toLocaleDateString('en-US', { month:'short', timeZone:'UTC' }) + ' ' + String(d.getUTCFullYear()).slice(2);
+        } else {
+          const dow = (d.getUTCDay() + 6) % 7;
+          const monday = new Date(d.getTime() - dow * 86400000);
+          const sunday = new Date(monday.getTime() + 6 * 86400000);
+          key = monday.toISOString().slice(0,10);
+          const sameMonth = monday.getUTCMonth() === sunday.getUTCMonth();
+          label = shortDate(key) + (sameMonth ? '–' + sunday.getUTCDate() : ' – ' + shortDate(sunday.toISOString().slice(0,10)));
+        }
+        let b = map.get(key);
+        if (!b) {
+          b = { label:label, visits:0, actions:0, catalog:0, whatsapp:0, socials:0, links:0, referrers:{}, countries:{}, locations:{}, devices:{}, days:0 };
+          map.set(key, b);
+        }
+        b.days++;
+        b.visits += rawNum(row.visits);
+        b.actions += rawNum(row.actions);
+        const c = emptyClicks(); addClicks(c, row.clicks || {});
+        b.catalog += rawNum(c.catalog); b.whatsapp += rawNum(c.whatsapp);
+        b.socials += Object.values(c.socials).reduce(function(a,v){ return a + rawNum(v); }, 0);
+        b.links += Object.values(c.custom_links).reduce(function(a,v){ return a + rawNum(v); }, 0);
+        mergeCounts(b.referrers, row.referrers); mergeCounts(b.countries, row.countries);
+        mergeCounts(b.locations, row.locations); mergeCounts(b.devices, row.devices);
+      });
+      return Array.from(map.values());
+    }
+
+    function bucketWord() { return state.actBucket === 'month' ? 'month' : 'week'; }
+
+    function segControls() {
+      return '<span class="seg-group">' +
+        '<span class="seg-toggle"><button class="seg-btn' + (state.actBucket==='week' ? ' active' : '') + '" data-act-bucket="week">Week</button>' +
+        '<button class="seg-btn' + (state.actBucket==='month' ? ' active' : '') + '" data-act-bucket="month">Month</button></span>' +
+        '<span class="seg-toggle"><button class="seg-btn' + (state.actView==='chart' ? ' active' : '') + '" data-act-view="chart">Chart</button>' +
+        '<button class="seg-btn' + (state.actView==='table' ? ' active' : '') + '" data-act-view="table">Table</button></span></span>';
+    }
+
+    /* Visits column + stacked destination-clicks column, per week/month. */
+    function activityChart(buckets) {
+      if (!buckets.length) return '<div class="empty">No activity data yet for this period.</div>';
+      const max = Math.max.apply(null, buckets.map(function(b){ return Math.max(b.visits, b.catalog + b.whatsapp + b.socials + b.links); }).concat([1]));
+      const seg = function(cls, value, total){
+        if (!value || !total) return '';
+        return '<div class="act-seg ' + cls + '" style="height:' + ((value/total)*100).toFixed(1) + '%"></div>';
+      };
+      const bars = buckets.map(function(b){
+        const actions = b.catalog + b.whatsapp + b.socials + b.links;
+        const title = b.label + ': ' + num(b.visits) + ' visits, ' + num(actions) + ' tracked actions — catalog ' + num(b.catalog) + ', WhatsApp ' + num(b.whatsapp) + ', socials ' + num(b.socials) + ', links ' + num(b.links);
+        return '<div class="trend-bar" title="' + esc(title) + '"><div class="trend-value">' + num(b.visits) + '</div>' +
+          '<div class="act-pair">' +
+          '<div class="bar-track act-track"><div class="bar-stack" style="height:' + Math.max(2,(b.visits/max)*100).toFixed(1) + '%"><div class="bar-visits" style="height:100%"></div></div></div>' +
+          '<div class="bar-track act-track"><div class="bar-stack" style="height:' + (actions ? Math.max(2,(actions/max)*100).toFixed(1) : '0') + '%">' +
+          seg('seg-catalog', b.catalog, actions) + seg('seg-whatsapp', b.whatsapp, actions) + seg('seg-socials', b.socials, actions) + seg('seg-links', b.links, actions) +
+          '</div></div></div><div class="bar-label">' + esc(b.label) + '</div></div>';
+      }).join('');
+      return '<div class="trend-wrap"><div class="trend-chart">' + bars + '</div></div>' +
+        '<div class="legend"><span><i class="visits-dot"></i>Visits</span><span><i class="seg-catalog-bg"></i>Catalog</span><span><i class="seg-whatsapp-bg"></i>WhatsApp</span><span><i class="seg-socials-bg"></i>Socials</span><span><i class="seg-links-bg"></i>Custom links</span></div>';
+    }
+
+    function activityTable(buckets) {
+      if (!buckets.length) return '<div class="empty">No activity data yet for this period.</div>';
+      return '<div class="daily-wrap"><table class="daily-table"><thead><tr><th>Period</th><th>Visits</th><th>Catalog</th><th>WhatsApp</th><th>Socials</th><th>Custom links</th><th>Total actions</th></tr></thead><tbody>' +
+        buckets.slice().reverse().map(function(b){
+          return '<tr><td>' + esc(b.label) + '</td><td>' + num(b.visits) + '</td><td>' + num(b.catalog) + '</td><td>' + num(b.whatsapp) + '</td><td>' + num(b.socials) + '</td><td>' + num(b.links) + '</td><td class="total">' + num(b.actions) + '</td></tr>';
+        }).join('') + '</tbody></table></div>';
+    }
+
+    /* Stacked composition of visitor countries per week/month. */
+    function audienceChart(buckets) {
+      if (!buckets.length) return '<div class="empty">No audience data yet for this period.</div>';
+      const totals = {};
+      buckets.forEach(function(b){ mergeCounts(totals, b.countries); });
+      const top = ensurePercentages(valueEntries(totals)).slice(0,4).map(function(e){ return e.name; });
+      const palette = ['#2563eb','#7c3aed','#0891b2','#f59e0b'];
+      const bucketTotal = function(b){ return Object.keys(b.countries).reduce(function(a,k){ return a + rawNum(b.countries[k]); }, 0); };
+      const max = Math.max.apply(null, buckets.map(bucketTotal).concat([1]));
+      const bars = buckets.map(function(b){
+        const total = bucketTotal(b);
+        const parts = [];
+        top.forEach(function(name, idx){ const v = rawNum(b.countries[name]); if (v > 0) parts.push({ name:name, value:v, color:palette[idx] }); });
+        let others = 0;
+        Object.keys(b.countries).forEach(function(name){ if (top.indexOf(name) === -1) others += rawNum(b.countries[name]); });
+        if (others > 0) parts.push({ name:'Others', value:others, color:'#94a3b8' });
+        const stack = parts.map(function(p){
+          return '<div class="act-seg" style="height:' + (total ? (p.value/total*100).toFixed(1) : 0) + '%;background:' + p.color + '" title="' + esc(p.name + ': ' + num(p.value)) + '"></div>';
+        }).join('');
+        return '<div class="trend-bar" title="' + esc(b.label + ': ' + num(total) + ' recorded visitor locations') + '"><div class="trend-value">' + num(total) + '</div>' +
+          '<div class="bar-track"><div class="bar-stack" style="height:' + (total ? Math.max(2,(total/max)*100).toFixed(1) : '0') + '%">' + stack + '</div></div>' +
+          '<div class="bar-label">' + esc(b.label) + '</div></div>';
+      }).join('');
+      const legend = top.map(function(name, idx){ return '<span><i style="background:' + palette[idx] + '"></i>' + esc(name) + '</span>'; }).join('') + '<span><i style="background:#94a3b8"></i>Others</span>';
+      return '<div class="trend-wrap"><div class="trend-chart">' + bars + '</div></div><div class="legend">' + legend + '</div>';
+    }
+
+    function audienceTable(buckets) {
+      if (!buckets.length) return '<div class="empty">No audience data yet for this period.</div>';
+      const label = function(entry){ return entry ? esc(entry.name) + ' · ' + num(entry.count) : 'No data'; };
+      const rollup = '<div class="daily-wrap"><table class="daily-table"><thead><tr><th>Period</th><th>Top referrer</th><th>Top country</th><th>Top city / region</th><th>Top device</th></tr></thead><tbody>' +
+        buckets.slice().reverse().map(function(b){
+          return '<tr><td>' + esc(b.label) + '</td><td>' + label(topEntry(b.referrers)) + '</td><td>' + label(topEntry(b.countries)) + '</td><td>' + label(topEntry(b.locations)) + '</td><td>' + label(topEntry(b.devices)) + '</td></tr>';
+        }).join('') + '</tbody></table></div>';
+      const dailyRows = (state.data && state.data.daily) || [];
+      return rollup + '<details class="daily-details"><summary>Show individual days (' + dailyRows.length + ')</summary>' + dailyAudienceTable(dailyRows) + '</details>';
+    }
+
     function lockedCard(title, description, plan) {
       return '<section class="analytics-card locked-box"><div class="locked-content"><div class="card-heading"><div><h3>' + esc(title) + '</h3><p>' + esc(description) + '</p></div></div><div style="height:105px;border-radius:13px;background:var(--a-soft)"></div></div><div class="locked-overlay"><div>' + esc(plan) + ' analytics includes this insight.</div><button class="upgrade-button" data-upgrade="1">View plans</button></div></section>';
     }
@@ -340,7 +481,7 @@
       const data=state.data || {}, summary=data.summary || {}, clicks=periodClicks(data), plan=state.plan, change=summary.visits_change_percentage;
       const changeText=change == null ? 'No baseline' : ((change >= 0 ? '+' : '') + change + '%');
       const changeClass=change == null ? '' : (change >= 0 ? 'change-up' : 'change-down');
-      let html='<section class="analytics-hero"><div class="hero-top"><div><p class="hero-kicker">MyShub intelligence</p><h1 class="hero-title">See what your hub is doing.</h1><p class="hero-copy">Understand who is discovering your business, where visitors come from, and which destinations they actually click.</p></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><select class="translate-select" id="translateLanguage" data-myshub-translate aria-label="Translate dashboard"><option value="">Translate dashboard</option><option value="fr">Français</option><option value="es">Español</option><option value="pt">Português</option><option value="ar">العربية</option><option value="de">Deutsch</option><option value="sw">Kiswahili</option><option value="yo">Yoruba</option><option value="ha">Hausa</option></select><span class="hero-badge">' + (isPremium() ? '★ ' : '● ') + esc(planLabel()) + '</span></div></div><div class="hero-bottom"><div class="period-bar">' + periodButtons() + '</div><span class="updated-note">' + (data.last_updated ? 'Last activity ' + esc(new Date(data.last_updated).toLocaleString()) : 'Waiting for activity') + '</span></div></section>';
+      let html='<section class="analytics-hero"><div class="hero-top"><div><p class="hero-kicker">MyShub intelligence</p><h1 class="hero-title">See what your hub is doing.</h1><p class="hero-copy">Understand who is discovering your business, where visitors come from, and which destinations they actually click.</p></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="hero-badge">' + (isPremium() ? '★ ' : '● ') + esc(planLabel()) + '</span></div></div><div class="hero-bottom"><div class="period-bar">' + periodButtons() + '</div><span class="updated-note">' + (data.last_updated ? 'Last activity ' + esc(new Date(data.last_updated).toLocaleString()) : 'Waiting for activity') + '</span></div></section>';
       html += planBanners();
       html+='<section class="summary-grid"><div class="stat-card"><div class="stat-label"><span class="stat-icon">◉</span>Visits</div><div class="stat-value">' + num(summary.visits) + '</div><div class="stat-help">Recorded in selected period</div></div><div class="stat-card"><div class="stat-label"><span class="stat-icon">↗</span>Tracked actions</div><div class="stat-value">' + (isPro() ? num(summary.actions) : '—') + '</div><div class="stat-help">Clicks on available destinations</div></div><div class="stat-card"><div class="stat-label"><span class="stat-icon">%</span>Action rate</div><div class="stat-value">' + (isPro() ? percent(summary.action_rate) : '—') + '</div><div class="stat-help">Actions compared with visits</div></div><div class="stat-card"><div class="stat-label"><span class="stat-icon">↕</span>Period change</div><div class="stat-value ' + changeClass + '" style="font-size:22px">' + (isPro() ? esc(changeText) : '—') + '</div><div class="stat-help">Visits vs previous period</div></div></section>';
       html+='<section class="analytics-card"><div class="card-heading"><div><h3>Traffic and engagement trend</h3><p>Visits and tracked actions are shown together for each day in the selected period.</p></div><span class="card-badge">' + esc(data.from || '') + ' → ' + esc(data.to || '') + '</span></div>' + trendChart(data.daily || []) + '</section>';
@@ -349,8 +490,15 @@
       const destinationLimit = isPremium() ? 0 : 6;
       html+='<div class="detail-grid">' + (isPro() ? detailTable('Social destinations','Pro shows the leading destinations and groups the rest; Premium shows every recorded destination.',clicks.socials,'No social clicks recorded for this period.',destinationLimit,!isPremium()) : lockedCard('Social destination clicks','See the exact social platforms visitors selected.','Pro')) + (isPro() ? detailTable('Custom-link destinations','Pro shows the leading links and groups the rest; Premium shows every recorded link.',clicks.custom_links,'No custom-link clicks recorded for this period.',destinationLimit,!isPremium()) : lockedCard('Custom-link destination clicks','See which named links received attention.','Pro')) + '</div>';
       html+='<div class="detail-grid">' + (isPro() ? detailTable('Catalog destinations','See whether clicks came from the main catalog button or a specific catalog call-to-action.',clicks.catalog_details,'No labeled catalog detail is available for this period.',destinationLimit,!isPremium()) : lockedCard('Catalog destination detail','See which catalog call-to-action visitors selected.','Pro')) + (isPro() ? detailTable('WhatsApp destinations','See whether visitors used the floating button, hero call-to-action, or another WhatsApp entry point.',clicks.whatsapp_details,'No labeled WhatsApp detail is available for this period.',destinationLimit,!isPremium()) : lockedCard('WhatsApp destination detail','See which WhatsApp entry point visitors selected.','Pro')) + '</div>';
-      html+='<section class="analytics-card"><div class="card-heading"><div><h3>Daily destination activity</h3><p>Clicks are shown beside visits instead of being hidden in a single total.</p></div></div>' + (isPro() ? dailyTable(data.daily || []) : lockedCard('Daily click activity','See catalog, WhatsApp, social, and custom-link clicks by day.','Pro')) + '</section>';
-      html+='<section class="analytics-card"><div class="card-heading"><div><h3>Daily audience signals</h3><p>See the leading source, country, city/region, and device on each day where the backend has recorded them.</p></div><span class="card-badge' + (isPremium() ? ' premium' : '') + '">' + (isPremium() ? 'Premium detail' : isPro() ? 'Pro detail' : 'Pro') + '</span></div>' + (isPro() ? dailyAudienceTable(data.daily || []) : lockedCard('Daily audience signals','See how referrers, countries, and devices change day by day.','Pro')) + '</section>';
+      const buckets = bucketDaily(data.daily || [], state.actBucket);
+      const bucketCopy = 'Grouped ' + (state.actBucket === 'month' ? 'month by month' : 'week by week') + '. Hover a bar for the breakdown.';
+      const activityBody = isPro() ? (state.actView === 'chart' ? activityChart(buckets) : activityTable(buckets)) : lockedCard('Activity by ' + bucketWord(), 'See visits and destination clicks grouped over time.','Pro');
+      const activityHead = '<div class="card-heading"><div><h3>Destination activity</h3><p>' + bucketCopy + '</p></div>' + (isPro() ? segControls() : '<span class="card-badge">Pro</span>') + '</div>';
+      html+='<section class="analytics-card">' + activityHead + activityBody + '</section>';
+      const audienceBody = isPro() ? (state.actView === 'chart' ? audienceChart(buckets) : audienceTable(buckets)) : lockedCard('Audience by ' + bucketWord(), 'See how your visitor mix shifts over time.','Pro');
+      const audienceHead = '<div class="card-heading"><div><h3>Audience over time</h3><p>' + (state.actView === 'chart' ? 'Visitor locations grouped ' + (state.actBucket === 'month' ? 'month by month' : 'week by week') + '.' : 'Leading referrer, country, city and device for each ' + bucketWord() + '.') + '</p></div>' + (isPro() ? segControls() : '<span class="card-badge">Pro</span>') + (isPro() && isPremium() ? '<span class="card-badge premium">Premium detail</span>' : isPro() ? '<span class="card-badge">Pro detail</span>' : '') + '</div>';
+      html+='<section class="analytics-card">' + audienceHead + audienceBody + '</section>';
+
       html+='<div class="two-col">' + (isPro() ? '<section class="analytics-card"><div class="card-heading"><div><h3>Where visitors came from</h3><p>Pro shows the leading sources plus Others; Premium shows every recorded source.</p></div></div>' + metricList(data.referrers,'No referrer data recorded yet.',isPremium() ? 0 : 5,!isPremium()) + '</section>' : lockedCard('Referrer intelligence','See which sources send visitors to your hub.','Pro')) + (isPro() ? '<section class="analytics-card"><div class="card-heading"><div><h3>Visitor locations</h3><p>Pro shows up to four leading countries plus Others; Premium shows every recorded country.</p></div></div>' + metricList(data.countries,'No country data recorded yet.',isPremium() ? 0 : 4,!isPremium()) + '</section>' : lockedCard('Visitor locations','Understand where your visitors are coming from.','Pro')) + '</div>';
       html+='<div class="two-col">' + (isPro() ? '<section class="analytics-card"><div class="card-heading"><div><h3>Visitor cities and regions</h3><p>Approximate city-level buckets from visitor IP geolocation. Raw IP addresses are never shown or stored in this report.</p></div><span class="card-badge' + (isPremium() ? ' premium' : '') + '">' + (isPremium() ? 'Premium detail' : 'Top locations') + '</span></div>' + metricList(data.locations,'No city-level data recorded yet.',isPremium() ? 0 : 6,!isPremium()) + '</section>' : lockedCard('Visitor cities and regions','See the approximate cities and regions discovering your hub.','Pro')) + (isPro() ? '<section class="analytics-card"><div class="card-heading"><div><h3>Devices</h3><p>Pro gets the practical device mix; Premium gets the complete device detail.</p></div><span class="card-badge' + (isPremium() ? ' premium' : '') + '">' + (isPremium() ? 'Premium' : 'Pro') + '</span></div>' + metricList(data.devices,'No device data recorded yet.',0,false) + '</section>' : lockedCard('Device intelligence','See whether visitors use mobile, desktop, or tablet.','Pro')) + (isPremium() ? '<section class="analytics-card"><div class="card-heading"><div><h3>Export this report</h3><p>Download the selected period, including every destination and daily detail.</p></div><span class="card-badge premium">Premium</span></div><div class="export-row"><button class="export-button" id="exportCsv">Export CSV</button></div></section>' : lockedCard('Complete history and export','Premium reveals the complete measured picture and downloadable detail.','Premium')) + '</div>';
       html+='<section class="analytics-card"><div class="card-heading"><div><h3>What this means</h3><p>Useful signals from measured activity—not a promise of completed sales.</p></div></div>' + insights(data,clicks) + '</section>';
@@ -358,13 +506,15 @@
       app.innerHTML=html;
       document.querySelectorAll('[data-period]').forEach(function(button){button.addEventListener('click',function(){if(button.classList.contains('locked')){navigate('upgrade');return;}state.period=button.dataset.period;refresh();});});
       document.querySelectorAll('[data-upgrade]').forEach(function(button){button.addEventListener('click',function(){navigate('upgrade');});});
+      document.querySelectorAll('[data-act-view]').forEach(function(button){button.addEventListener('click',function(){state.actView=button.dataset.actView;render();});});
+      document.querySelectorAll('[data-act-bucket]').forEach(function(button){button.addEventListener('click',function(){state.actBucket=button.dataset.actBucket;render();});});
       const exportButton=document.getElementById('exportCsv'); if(exportButton) exportButton.addEventListener('click',exportCsv);
       if (window.MyShubTranslate) { window.MyShubTranslate.bind(); window.MyShubTranslate.retranslate(); }
     }
 
     async function refresh() {
       const app=document.getElementById('analyticsApp'); if(app && !state.data) app.innerHTML='<div class="loading"><div class="spinner"></div>Loading your analytics…</div>';
-      try { state.data=await load(state.period); state.plan=String(state.data.plan || (state.session && state.session.plan) || 'free').toLowerCase(); render(); }
+      try { state.data=await load(state.period); state.plan=String(state.data.plan || (state.session && state.session.plan) || 'free').toLowerCase(); state.actBucket=(state.period==='365d'||state.period==='730d') ? 'month' : 'week'; render(); }
       catch(error){ if(app) app.innerHTML='<div class="error-state"><h3>Analytics unavailable</h3><p>' + esc(error.message || 'Please try again.') + '</p><button class="retry-button" id="retryAnalytics">Try again</button></div>'; const retry=document.getElementById('retryAnalytics'); if(retry) retry.addEventListener('click',refresh); }
     }
 

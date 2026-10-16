@@ -91,6 +91,78 @@
     }
   }
 
+  /* ---- Language chip: one visible globe control, placed beside each page's
+         menu button (hamburger / nav toggle), or at the far end of the nav on
+         desktop, or fixed top-right as a last resort. ---- */
+  var CHIP_ID = 'myshubLangChip';
+  var CHIP_POOLS = ['.hamburger', '#menuToggle', '.nav-toggle', '.nav-links', '.header-actions', '.head-actions'];
+  var CHIP_CSS = '.myshub-lang-chip{display:inline-flex;align-items:center;gap:5px;border:1px solid rgba(120,130,150,.4);' +
+    'background:rgba(255,255,255,.95);color:#1f2937;border-radius:999px;padding:5px 10px;cursor:pointer;font-weight:700;' +
+    'font-size:12px;box-shadow:0 2px 8px rgba(15,23,42,.08);vertical-align:middle;margin:0 6px;line-height:1.2}' +
+    '.myshub-lang-chip i{font-size:12px;color:#2563eb}' +
+    '.myshub-lang-chip select{border:none;background:transparent;color:inherit;font:inherit;font-weight:700;font-size:12px;' +
+    'cursor:pointer;outline:none;max-width:92px;padding:0}' +
+    '.myshub-lang-chip.myshub-chip-fixed{position:fixed;top:10px;right:14px;z-index:95}';
+
+  function injectChipStyles() {
+    if (document.getElementById('myshub-chip-style')) return;
+    var st = document.createElement('style');
+    st.id = 'myshub-chip-style';
+    st.textContent = CHIP_CSS;
+    (document.head || document.getElementsByTagName('head')[0] || document.documentElement).appendChild(st);
+  }
+
+  function chipTarget() {
+    for (var p = 0; p < CHIP_POOLS.length; p++) {
+      var nodes = document.querySelectorAll(CHIP_POOLS[p]);
+      for (var i = 0; i < nodes.length; i++) {
+        if (nodes[i].offsetParent !== null) return { el: nodes[i], mode: CHIP_POOLS[p] };
+      }
+    }
+    return null;
+  }
+
+  function placeChip(chip) {
+    var target = chipTarget();
+    if (!target) { chip.classList.add('myshub-chip-fixed'); return; }
+    chip.classList.remove('myshub-chip-fixed');
+    if (target.mode === '.hamburger' || target.mode === '#menuToggle' || target.mode === '.nav-toggle') {
+      target.el.parentNode.insertBefore(chip, target.el.nextSibling);
+    } else {
+      target.el.insertBefore(chip, target.el.firstChild);
+    }
+  }
+
+  function ensureChip() {
+    var chip = document.getElementById(CHIP_ID);
+    if (!chip) {
+      injectChipStyles();
+      chip = document.createElement('span');
+      chip.className = 'myshub-lang-chip';
+      chip.id = CHIP_ID;
+      chip.title = 'Choose language';
+      chip.innerHTML = '<i class="fa-solid fa-globe" aria-hidden="true"></i>' +
+        '<select data-myshub-translate aria-label="Translate this page">' +
+        '<option value="">English</option><option value="fr">Français</option><option value="es">Español</option>' +
+        '<option value="pt">Português</option><option value="ar">العربية</option><option value="de">Deutsch</option>' +
+        '<option value="sw">Kiswahili</option><option value="yo">Yoruba</option><option value="ha">Hausa</option></select>';
+      placeChip(chip);
+      bindSelects();
+      return;
+    }
+    // Late-rendered navbars (API shop pages): move a fixed fallback chip into place.
+    if (chip.classList.contains('myshub-chip-fixed') && chipTarget()) placeChip(chip);
+  }
+
+  function observeNewSelects() {
+    if (!window.MutationObserver || !document.documentElement) return;
+    var timer = null;
+    new MutationObserver(function () {
+      if (timer) return;
+      timer = setTimeout(function () { timer = null; bindSelects(); ensureChip(); }, 300);
+    }).observe(document.documentElement, { childList: true, subtree: true });
+  }
+
   function boot() {
     if (!document.getElementById('google_translate_element')) {
       var box = document.createElement('div');
@@ -100,6 +172,8 @@
       (document.body || document.documentElement).appendChild(box);
     }
     bindSelects();
+    ensureChip();
+    observeNewSelects();
     initWidget();
     if (lang()) {
       // First pass runs at load; API content usually lands shortly after, so
