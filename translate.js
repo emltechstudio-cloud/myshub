@@ -85,6 +85,7 @@
         if (active && el.querySelector('option[value="' + active + '"]')) el.value = active;
         el.addEventListener('change', function () {
           if (el.value) select(el.value);
+          else if (lang()) clear();
         });
       })(nodes[i]);
     }
