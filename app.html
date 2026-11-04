@@ -532,6 +532,16 @@ const API = 'https://emltechstudio-myshub-api.hf.space';
 const APP_URL = 'https://myshub.site';
 const FETCH_TIMEOUT = 8000;
 
+// Preserve a referral through the OTP signup steps. The backend validates
+// the code and decides whether any promotion applies.
+const referralFromUrl = new URLSearchParams(window.location.search).get('ref');
+if (referralFromUrl && referralFromUrl.trim()) {
+  localStorage.setItem('myshub_referral', referralFromUrl.trim());
+}
+function getSignupReferral() {
+  return (localStorage.getItem('myshub_referral') || '').trim();
+}
+
 let S = {
   email: '', password: '', slug: '', plan: 'free',
   shopData: null, shopJson: null,
@@ -1170,7 +1180,8 @@ async function registerComplete() {
       registration_token: S.registrationToken,
       business_name: business,
       preferred_slug: slug,
-      phone
+      phone,
+      referred_by: getSignupReferral()
     });
     if (window.MyShubAnalytics) MyShubAnalytics.signupCompleted('app');
 
@@ -1186,6 +1197,7 @@ async function registerComplete() {
     S.plan = session.plan;
     S.firstSession = true;
     S.registrationToken = null;
+    localStorage.removeItem('myshub_referral');
 
     // Seed dashboard state with what the user just typed, so the
     // dashboard has something to render even if /shop/preview
