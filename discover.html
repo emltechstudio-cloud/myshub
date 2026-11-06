@@ -407,6 +407,17 @@ body.search-active .hero > .container > p{display:none}
         <div class="rail" id="featuredRail"></div>
       </section>
 
+      <section class="discover-section all-section" id="allSection" aria-labelledby="allTitle">
+        <div class="section-heading">
+          <div>
+            <h2 id="allTitle">All businesses on MyShub</h2>
+            <p id="allSubtitle">Explore every active business currently listed in the directory.</p>
+          </div>
+          <span class="result-count" id="allCount" aria-live="polite"></span>
+        </div>
+        <div class="shops-grid" id="allGrid" aria-live="polite" aria-busy="true"></div>
+      </section>
+
       <section class="results-section" id="resultsSection" hidden aria-labelledby="resultsTitle">
         <div class="section-heading">
           <div>
@@ -464,6 +475,7 @@ const refs = {
   trendingRail: $('trendingRail'),
   newSection: $('newSection'), newRail: $('newRail'),
   featuredSection: $('featuredSection'), featuredRail: $('featuredRail'),
+  allSection: $('allSection'), allGrid: $('allGrid'), allCount: $('allCount'),
   resultsSection: $('resultsSection'),
   shopsGrid: $('shopsGrid'),
   resultsTitle: $('resultsTitle'),
@@ -806,6 +818,28 @@ function ctaCardMarkup(){
   </a>`;
 }
 
+async function loadAllBusinesses(){
+  renderSkeletons(refs.allGrid, 6, false);
+  refs.allGrid.setAttribute('aria-busy','true');
+  refs.allCount.textContent = '';
+  try{
+    const res = await fetch(`${API}/discover/search?limit=100&page=1`);
+    const data = await res.json().catch(() => ({}));
+    if(!res.ok) throw new Error(data.detail || 'Directory unavailable');
+
+    const rows = dedupe(enrich(Array.isArray(data.results) ? data.results : []));
+    refs.allCount.textContent = `${Number(data.total || rows.length || 0).toLocaleString()} listed`;
+    refs.allGrid.setAttribute('aria-busy','false');
+    refs.allGrid.innerHTML = rows.length
+      ? rows.map(cardMarkup).join('')
+      : '<div class="state-box" style="grid-column:1/-1"><div class="state-icon"><i class="fa-solid fa-store-slash"></i></div><h3>No businesses listed yet</h3><p>Be one of the first businesses discovered on MyShub.</p><a class="view-button" href="/app.html" style="display:inline-flex;margin-top:14px">List your business</a></div>';
+  }catch(err){
+    console.error('Directory load failed', err);
+    refs.allGrid.setAttribute('aria-busy','false');
+    refs.allGrid.innerHTML = '<div class="state-box" style="grid-column:1/-1"><div class="state-icon"><i class="fa-solid fa-circle-exclamation"></i></div><h3>Directory is temporarily unavailable</h3><p>Refresh the page to try loading the full business directory again.</p></div>';
+  }
+}
+
 function renderSkeletons(target, count, rail=false){
   target.setAttribute('aria-busy','true');
   target.innerHTML = Array.from({length:count}, () =>
@@ -922,6 +956,7 @@ async function runSearch(){
     refs.resultsSection.hidden = true;
     refs.shopsGrid.innerHTML = '';
     refs.trendingSection.hidden = false;
+    refs.allSection.hidden = false;
     setNote('Search by business name, category, or location.');
     if(trendingAbort) trendingAbort.abort();
     await loadHomeSections();
@@ -936,6 +971,7 @@ async function runSearch(){
   refs.trendingSection.hidden = true;
   refs.newSection.hidden = true;
   refs.featuredSection.hidden = true;
+  refs.allSection.hidden = true;
   refs.resultsSection.hidden = false;
 
   const locText = [state.city, state.state, state.country].filter(Boolean).join(', ');
@@ -1123,8 +1159,9 @@ window.addEventListener('scroll', () => { if(openFilterEl) positionMenu(openFilt
 
   const filterPromise = loadFilterData();
   const trendingPromise = loadHomeSections();
+  const allBusinessesPromise = loadAllBusinesses();
 
-  await Promise.allSettled([filterPromise, trendingPromise]);
+  await Promise.allSettled([filterPromise, trendingPromise, allBusinessesPromise]);
 
   if(hasFilters()){
     state.mode = 'search';
@@ -1143,7 +1180,5 @@ window.addEventListener('scroll', () => { if(openFilterEl) positionMenu(openFilt
 
 })();
 </script>
-
-<script src="/translate.js" defer></script>
 </body>
   </html>
