@@ -133,6 +133,9 @@ body.search-active .hero > .container > p{display:none}
 .discover-section{margin-bottom:32px}
 .discover-section[hidden]{display:none}
 .results-section[hidden]{display:none}
+.all-section .section-heading{margin-bottom:10px}
+.all-section .shops-grid{gap:12px}
+.all-section .shop-card{padding:14px;border-radius:16px}
 
 /* ===== Rails (mobile-first) ===== */
 .rail{display:grid;grid-auto-flow:column;grid-auto-columns:300px;gap:16px;
@@ -410,10 +413,9 @@ body.search-active .hero > .container > p{display:none}
       <section class="discover-section all-section" id="allSection" aria-labelledby="allTitle">
         <div class="section-heading">
           <div>
-            <h2 id="allTitle">All businesses on MyShub</h2>
-            <p id="allSubtitle">Explore every active business currently listed in the directory.</p>
+            <h2 id="allTitle">Explore businesses</h2>
+            <p id="allSubtitle">Discover businesses on MyShub.</p>
           </div>
-          <span class="result-count" id="allCount" aria-live="polite"></span>
         </div>
         <div class="shops-grid" id="allGrid" aria-live="polite" aria-busy="true"></div>
       </section>
@@ -475,7 +477,7 @@ const refs = {
   trendingRail: $('trendingRail'),
   newSection: $('newSection'), newRail: $('newRail'),
   featuredSection: $('featuredSection'), featuredRail: $('featuredRail'),
-  allSection: $('allSection'), allGrid: $('allGrid'), allCount: $('allCount'),
+  allSection: $('allSection'), allGrid: $('allGrid'),
   resultsSection: $('resultsSection'),
   shopsGrid: $('shopsGrid'),
   resultsTitle: $('resultsTitle'),
@@ -821,14 +823,12 @@ function ctaCardMarkup(){
 async function loadAllBusinesses(){
   renderSkeletons(refs.allGrid, 6, false);
   refs.allGrid.setAttribute('aria-busy','true');
-  refs.allCount.textContent = '';
   try{
     const res = await fetch(`${API}/discover/search?limit=100&page=1`);
     const data = await res.json().catch(() => ({}));
     if(!res.ok) throw new Error(data.detail || 'Directory unavailable');
 
     const rows = dedupe(enrich(Array.isArray(data.results) ? data.results : []));
-    refs.allCount.textContent = `${Number(data.total || rows.length || 0).toLocaleString()} listed`;
     refs.allGrid.setAttribute('aria-busy','false');
     refs.allGrid.innerHTML = rows.length
       ? rows.map(cardMarkup).join('')
