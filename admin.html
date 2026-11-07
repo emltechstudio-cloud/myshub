@@ -773,10 +773,16 @@ async function loadAnalyticsSection() {
             return rows.map(([name, value]) => `<div class="referrer-bar"><div class="referrer-name" title="${esc(name)}">${esc(name)}</div><div class="referrer-track"><div class="referrer-fill" style="width:${Math.max(3, countOf(value) / max * 100)}%;"></div></div><div class="referrer-count">${num(countOf(value))}<small style="display:block;color:var(--text2);font-weight:400;">${percent(pctOf(value))}</small></div></div>`).join('');
         };
 
+        const dailyTable = (rows, columns) => {
+            if (!rows.length) return '<div class="empty-state" style="padding:24px 8px;">No daily data recorded for this period.</div>';
+            const headers = columns.map(column => `<th>${esc(column.label)}</th>`).join('');
+            const body = rows.slice().reverse().map(row => `<tr>${columns.map(column => `<td>${column.format ? column.format(row) : num(row[column.key])}</td>`).join('')}</tr>`).join('');
+            return `<div class="table-wrap" style="margin-top:14px;"><table><thead><tr>${headers}</tr></thead><tbody>${body}</tbody></table></div>`;
+        };
         const trendChart = (rows, label = 'Page views') => {
             if (!rows.length) return '<div class="empty-state" style="padding:36px 8px;">No trend data recorded for this period.</div>';
             const max = Math.max(...rows.map(row => Math.max(Number(row.page_views || 0), Number(row.actions || 0))), 1);
-            return `<div class="chart-container" style="height:250px;"><div class="chart-bar">${rows.map(row => `<div class="bar" title="${esc(row.date)}: ${num(row.page_views)} views, ${num(row.actions)} actions" style="height:${Math.max(2, Number(row.page_views || 0) / max * 100)}%;"><div class="bar-value">${num(row.page_views)}</div><div class="bar-label">${esc(String(row.date || '').slice(5))}</div></div>`).join('')}</div></div><div style="font-size:.78rem;color:var(--text2);margin-top:4px;">${esc(label)} · Actions are tracked searches, result opens, shop clicks, signups, and profile completions.</div>`;
+            return `<div class="chart-container" style="height:250px;"><div class="chart-bar">${rows.map(row => `<div style="flex:1;display:flex;align-items:flex-end;gap:2px;height:100%;position:relative;" title="${esc(row.date)}: ${num(row.page_views)} views, ${num(row.actions)} actions"><div class="bar" style="height:${Math.max(2, Number(row.page_views || 0) / max * 100)}%;background:linear-gradient(to top,var(--brand),var(--brand-light));"></div><div class="bar" style="height:${Math.max(2, Number(row.actions || 0) / max * 100)}%;background:linear-gradient(to top,var(--success),#34d399);"></div><div class="bar-label">${esc(String(row.date || '').slice(5))}</div></div>`).join('')}</div></div><div style="font-size:.78rem;color:var(--text2);margin-top:4px;">${esc(label)} · Blue = views, green = actions.</div>`;
         };
 
         const stat = (value, label, className = '') => `<div class="stat-card ${className}"><h3>${num(value)}</h3><p>${label}</p></div>`;
@@ -802,11 +808,11 @@ async function loadAnalyticsSection() {
                 ${stat(planBreakdown.pro || 0, 'Pro listings', '')}
             </div>
             <div class="platform-visits-grid">
-                <div class="card"><h2><i class="fa-solid fa-chart-column"></i> Platform traffic</h2>${trendChart(daily, 'Platform daily traffic')}</div>
+                <div class="card"><h2><i class="fa-solid fa-chart-column"></i> Platform traffic</h2>${trendChart(daily, 'Platform daily traffic')}${dailyTable(daily, [{label:'Date',key:'date',format: row => esc(row.date)},{label:'Views',key:'page_views'},{label:'Actions',key:'actions'},{label:'Events',key:'events'}])}</div>
                 <div class="card"><h2><i class="fa-solid fa-layer-group"></i> Traffic by surface</h2>${metricList(surfaces, 'No surface traffic recorded.')}</div>
             </div>
             <div class="platform-visits-grid">
-                <div class="card"><h2><i class="fa-solid fa-compass"></i> Discover activity</h2><div class="stats-grid" style="margin-bottom:12px;grid-template-columns:repeat(3,1fr);">${stat(discoverSummary.page_views, 'Discover views', 'info')}${stat(discoverSummary.events, 'Discover events', '')}${stat(discoverSummary.actions, 'Discover actions', 'success')}</div>${metricList(discoverEvents.reduce((acc, [key,value]) => (acc[key] = value, acc), {}), 'No Discover events recorded.')}</div>
+                <div class="card"><h2><i class="fa-solid fa-compass"></i> Discover activity</h2><div class="stats-grid" style="margin-bottom:12px;grid-template-columns:repeat(3,1fr);">${stat(discoverSummary.page_views, 'Discover views', 'info')}${stat(discoverSummary.events, 'Discover events', '')}${stat(discoverSummary.actions, 'Discover actions', 'success')}</div>${metricList(discoverEvents.reduce((acc, [key,value]) => (acc[key] = value, acc), {}), 'No Discover events recorded.')}${dailyTable(Array.isArray(discover.daily) ? discover.daily : [], [{label:'Date',key:'date',format: row => esc(row.date)},{label:'Views',key:'page_views'},{label:'Searches',key:'searches'},{label:'Result opens',key:'result_opens'},{label:'Shop clicks',key:'shop_clicks'},{label:'Shares',key:'shares'}])}</div>
                 <div class="card"><h2><i class="fa-solid fa-arrow-trend-up"></i> Discover-to-shop traffic</h2><div class="table-wrap"><table><thead><tr><th>Rank</th><th>Shop</th><th>Activity</th><th>Share</th></tr></thead><tbody>${discoverShopTable}</tbody></table></div></div>
             </div>
             <div class="platform-visits-grid">

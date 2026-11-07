@@ -1389,7 +1389,7 @@
                 ? `${API_BASE}/shop/admin-preview/${encodeURIComponent(slug)}?token=${encodeURIComponent(adminToken)}`
                 : (isPreview && previewEmail && previewPassword
                     ? `${API_BASE}/shop/preview/${slug}?email=${encodeURIComponent(previewEmail)}&password=${encodeURIComponent(previewPassword)}`
-                    : `${API_BASE}/shop/live/${slug}`);
+                    : `${API_BASE}/shop/live/${slug}${urlParams.get('source') === 'discover' ? '?source=discover' : ''}`);
             fetch(apiUrl)
                 .then(res => res.ok ? res.json() : Promise.reject())
                 .then(shop => { renderShop(shop); CLICK_TRACKING.init(slug, shop.plan || 'free'); attachClickTracking(shop.plan || 'free'); })

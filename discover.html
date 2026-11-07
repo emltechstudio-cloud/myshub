@@ -564,6 +564,16 @@ function getShopHref(shop){
   return slug ? `/${encodeURIComponent(slug)}` : '#';
 }
 
+function addDiscoverAttribution(href){
+  if(!href || href === '#') return href;
+  try{
+    const url = new URL(href, location.origin);
+    if(url.origin !== location.origin) return href;
+    url.searchParams.set('source', 'discover');
+    return url.pathname + url.search + url.hash;
+  }catch(_){ return href; }
+}
+
 /* Global image fallback walker — every <img data-logo-fallbacks="..."> walks
    its chain on error and lands on the last entry (always /icon.svg). */
 document.addEventListener('error', (e) => {
@@ -756,7 +766,7 @@ function cardMarkup(shop){
   const dist = shop.distance_label ? `<span class="fact"><i class="fa-solid fa-location-arrow" aria-hidden="true"></i><span>${esc(shop.distance_label)}</span></span>` : '';
   const views = fmtViews(shop.visit_count) ? `<span class="fact"><i class="fa-solid fa-eye" aria-hidden="true"></i><span>${esc(fmtViews(shop.visit_count))}</span></span>` : '';
   const since = cleanDate(shop.member_since);
-  const shopHref = getShopHref(shop);
+  const shopHref = addDiscoverAttribution(getShopHref(shop));
   const name = shop.business_name || 'Unnamed business';
   const slug = shop.slug || '';
 
