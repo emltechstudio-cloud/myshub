@@ -78,9 +78,9 @@ def page_html(shop: dict) -> str:
         x for x in (shop.get("city"), shop.get("state"), shop.get("country")) if x
     ), 120)
     category = clean_text(shop.get("category"), 80)
-    # Public human URL. GitHub Pages serves 404.html for this path, and the
-    # existing 404.html is the MyShub storefront SPA for /<slug>.
-    live_url = f"{SITE_BASE}/{urllib.parse.quote(slug)}"
+    # Static URL is the crawler/social-preview document. Humans are sent to
+    # the existing storefront SPA through its explicit 404.html query route.
+    live_url = f"{SITE_BASE}/404.html?slug={urllib.parse.quote(slug)}"
     public_url = f"{SITE_BASE}/seo-pages/{urllib.parse.quote(slug)}/"
     logo_url = f"{API_BASE}/discover/logo/{urllib.parse.quote(slug)}" if shop.get("has_logo") else f"{SITE_BASE}/icon.svg"
     page_title = f"{name} | MyShub"
@@ -143,8 +143,9 @@ def sitemap_xml(shops: list[dict]) -> str:
         (f"{SITE_BASE}/", "daily", "1.0"),
         (f"{SITE_BASE}/discover.html", "daily", "0.9"),
     ]
-    # Canonicals point at the public /<slug> storefront URL, not this generator directory.
-    urls.extend((f"{SITE_BASE}/{urllib.parse.quote(safe_slug(s['slug']))}", "daily", "0.7") for s in shops)
+    # The generated files are the crawler/social-preview documents. Their
+    # canonical URL is the existing human storefront query route.
+    urls.extend((f"{SITE_BASE}/seo-pages/{urllib.parse.quote(safe_slug(s['slug']))}/", "daily", "0.7") for s in shops)
     body = ["<?xml version=\"1.0\" encoding=\"UTF-8\"?>", '<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">']
     for loc, freq, priority in urls:
         body.append(f"  <url><loc>{html.escape(loc)}</loc><changefreq>{freq}</changefreq><priority>{priority}</priority></url>")
@@ -155,11 +156,21 @@ def sitemap_xml(shops: list[dict]) -> str:
 def merge_root_sitemap(shops: list[dict]) -> None:
     root_path = Path(__file__).parent.parent / "sitemap.xml"
     text = root_path.read_text(encoding="utf-8") if root_path.exists() else '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n</urlset>\n'
+    # Replace shop entries managed by this generator. Keep the site's ordinary
+    # pages and blog URLs untouched, but do not advertise the GitHub Pages
+    # fallback route as the crawler document.
+    managed_slugs = {safe_slug(shop["slug"]) for shop in shops}
+    for slug in managed_slugs:
+        for loc in (
+            f"{SITE_BASE}/{urllib.parse.quote(slug)}",
+            f"{SITE_BASE}/seo-pages/{urllib.parse.quote(slug)}/",
+        ):
+            text = re.sub(r"\s*<url>\s*<loc>" + re.escape(loc) + r"</loc>.*?</url>", "", text, flags=re.DOTALL)
     existing = set(re.findall(r"<loc>([^<]+)</loc>", text))
     additions: list[str] = []
     for shop in shops:
         slug = safe_slug(shop["slug"])
-        loc_value = f"{SITE_BASE}/{urllib.parse.quote(slug)}"
+        loc_value = f"{SITE_BASE}/seo-pages/{urllib.parse.quote(slug)}/"
         if loc_value in existing:
             continue
         additions.append(f"    <url>\n        <loc>{html.escape(loc_value)}</loc>\n        <changefreq>daily</changefreq>\n        <priority>0.7</priority>\n    </url>\n")
