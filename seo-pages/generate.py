@@ -15,7 +15,6 @@ import shutil
 import sys
 import urllib.parse
 import urllib.request
-from datetime import datetime, timezone
 from pathlib import Path
 
 API_BASE = os.environ.get("MYSHUB_API_BASE", "https://emltechstudio-myshub-api.hf.space").rstrip("/")
@@ -70,7 +69,7 @@ def get_all_shops() -> list[dict]:
     return list(unique.values())
 
 
-def page_html(shop: dict, generated_at: str) -> str:
+def page_html(shop: dict) -> str:
     slug = safe_slug(shop["slug"])
     name = clean_text(shop.get("business_name") or slug, 120)
     tagline = clean_text(shop.get("tagline"), 160)
@@ -134,13 +133,12 @@ def page_html(shop: dict, generated_at: str) -> str:
     <p><a href=\"{esc(live_url)}\">Open the live MyShub storefront</a></p>
     <noscript><p class=\"muted\">JavaScript is disabled. Use the link above to open the live storefront.</p></noscript>
   </main>
-  <!-- Generated {esc(generated_at)} from public MyShub discovery data. -->
 </body>
 </html>
 """
 
 
-def sitemap_xml(shops: list[dict], generated_at: str) -> str:
+def sitemap_xml(shops: list[dict]) -> str:
     urls = [
         (f"{SITE_BASE}/", "daily", "1.0"),
         (f"{SITE_BASE}/discover.html", "daily", "0.9"),
@@ -183,15 +181,14 @@ def main() -> int:
             shutil.rmtree(child)
         else:
             child.unlink()
-    generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
     for shop in shops:
         slug = safe_slug(shop["slug"])
         target = OUTPUT_DIR / slug
         target.mkdir(parents=True, exist_ok=True)
-        (target / "index.html").write_text(page_html(shop, generated_at), encoding="utf-8")
-    (Path(__file__).parent / "sitemap-shops.xml").write_text(sitemap_xml(shops, generated_at), encoding="utf-8")
+        (target / "index.html").write_text(page_html(shop), encoding="utf-8")
+    (Path(__file__).parent / "sitemap-shops.xml").write_text(sitemap_xml(shops), encoding="utf-8")
     merge_root_sitemap(shops)
-    (Path(__file__).parent / "manifest.json").write_text(json.dumps({"generated_at": generated_at, "count": len(shops), "slugs": [s["slug"] for s in shops]}, indent=2) + "\n", encoding="utf-8")
+    (Path(__file__).parent / "manifest.json").write_text(json.dumps({"count": len(shops), "slugs": [s["slug"] for s in shops]}, indent=2) + "\n", encoding="utf-8")
     print(f"Generated {len(shops)} static MyShub SEO pages in {OUTPUT_DIR}")
     return 0
 
