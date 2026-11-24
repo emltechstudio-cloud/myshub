@@ -83,7 +83,17 @@ def get_all_shops() -> list[dict]:
         if not slug:
             continue
         unique[safe_slug(slug)] = item
-    return list(unique.values())
+    complete: list[dict] = []
+    for slug, summary in unique.items():
+        try:
+            detail = fetch_json(f"/discover/{urllib.parse.quote(slug)}")
+            if not is_indexable_shop(detail):
+                continue
+            complete.append({**summary, **detail})
+        except Exception as exc:
+            print(f"Warning: using discovery search fallback for {slug}: {exc}", file=sys.stderr)
+            complete.append(summary)
+    return complete
 
 
 def page_html(shop: dict) -> str:
@@ -91,10 +101,14 @@ def page_html(shop: dict) -> str:
     name = clean_text(shop.get("business_name") or slug, 120)
     tagline = clean_text(shop.get("tagline"), 160)
     description = clean_text(shop.get("description") or tagline or f"Discover {name} on MyShub.", 160)
-    location = clean_text(shop.get("location_label") or ", ".join(
+    location = clean_text(", ".join(
         x for x in (shop.get("city"), shop.get("state"), shop.get("country")) if x
     ), 120)
     category = clean_text(shop.get("category"), 80)
+    socials = shop.get("socials") if isinstance(shop.get("socials"), dict) else {}
+    public_links = [(clean_text(label, 40), str(url).strip()) for label, url in socials.items() if str(url or "").strip()]
+    if shop.get("catalog_url"):
+        public_links.append(("Catalog", str(shop["catalog_url"]).strip()))
     # Public human URL. GitHub Pages serves 404.html for this path, and the
     # existing 404.html is the MyShub storefront SPA for /<slug>.
     live_url = f"{SITE_BASE}/{urllib.parse.quote(slug)}"
@@ -117,6 +131,9 @@ def page_html(shop: dict) -> str:
         json_ld["address"] = {"@type": "PostalAddress", "addressLocality": location}
     if category:
         json_ld["additionalType"] = category
+    if public_links:
+        json_ld["sameAs"] = [url for _, url in public_links[:20]]
+    link_html = "".join(f'<li><a href="{esc(url)}" rel="noopener noreferrer">{esc(label)}</a></li>' for label, url in public_links[:20])
     return f"""<!doctype html>
 <html lang=\"en\">
 <head>
@@ -137,7 +154,7 @@ def page_html(shop: dict) -> str:
   <meta name=\"twitter:description\" content=\"{esc(description)}\">
   <meta name=\"twitter:image\" content=\"{esc(logo_url)}\">
   <script type=\"application/ld+json\">{json.dumps(json_ld, ensure_ascii=False, separators=(",", ":"))}</script>
-  <style>body{{font-family:system-ui,-apple-system,Segoe UI,sans-serif;max-width:760px;margin:0 auto;padding:48px 22px;color:#172033;line-height:1.6}}img{{width:96px;height:96px;object-fit:cover;border-radius:22px}}h1{{line-height:1.15}}.muted{{color:#667085}}a{{color:#175cd3;font-weight:700}}</style>
+  <style>body{{font-family:system-ui,-apple-system,Segoe UI,sans-serif;max-width:760px;margin:0 auto;padding:48px 22px;color:#172033;line-height:1.6}}img{{width:96px;height:96px;object-fit:cover;border-radius:22px}}h1{{line-height:1.15}}h2{{margin-top:28px;font-size:1.1rem}}ul{{padding-left:20px}}.muted{{color:#667085}}a{{color:#175cd3;font-weight:700}}</style>
   <script>window.setTimeout(function(){{window.location.replace({json.dumps(live_url)});}},80);</script>
 </head>
 <body>
@@ -147,6 +164,7 @@ def page_html(shop: dict) -> str:
     {f'<p><strong>{esc(tagline)}</strong></p>' if tagline else ''}
     <p>{esc(body_desc)}</p>
     {f'<p class=\"muted\">{esc(context)}</p>' if context else ''}
+    {f'<h2>Find {esc(name)} online</h2><ul>{link_html}</ul>' if link_html else ''}
     <p><a href=\"{esc(live_url)}\">Open the live MyShub storefront</a></p>
     <noscript><p class=\"muted\">JavaScript is disabled. Use the link above to open the live storefront.</p></noscript>
   </main>
