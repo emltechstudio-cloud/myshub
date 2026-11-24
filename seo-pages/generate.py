@@ -48,6 +48,21 @@ def safe_slug(value: str) -> str:
     return value
 
 
+def is_indexable_shop(item: dict) -> bool:
+    """Apply a defensive moderation/visibility filter to public API records."""
+    blocked_boolean_fields = (
+        "flagged", "is_flagged", "suspended", "is_suspended", "disabled",
+        "is_disabled", "hidden", "is_hidden", "private", "is_private",
+    )
+    if any(item.get(field) is True for field in blocked_boolean_fields):
+        return False
+    if item.get("is_public") is False or item.get("public") is False:
+        return False
+    blocked_statuses = {"flagged", "suspended", "disabled", "hidden", "private", "blocked", "removed"}
+    status = str(item.get("status") or item.get("visibility") or "").strip().lower()
+    return status not in blocked_statuses
+
+
 def get_all_shops() -> list[dict]:
     first = fetch_json(f"/discover/search?limit={PAGE_SIZE}&page=1")
     total = int(first.get("total") or len(first.get("results") or []))
@@ -62,6 +77,8 @@ def get_all_shops() -> list[dict]:
         page += 1
     unique: dict[str, dict] = {}
     for item in results:
+        if not is_indexable_shop(item):
+            continue
         slug = item.get("slug")
         if not slug:
             continue
@@ -139,12 +156,37 @@ def page_html(shop: dict) -> str:
 
 
 def sitemap_xml(shops: list[dict]) -> str:
-    urls = [(f"{SITE_BASE}/businesses/{urllib.parse.quote(safe_slug(s['slug']))}.html", "daily", "0.7") for s in shops]
+    urls = [(f"{SITE_BASE}/businesses/", "daily", "0.9")]
+    urls.extend((f"{SITE_BASE}/businesses/{urllib.parse.quote(safe_slug(s['slug']))}.html", "daily", "0.7") for s in shops)
     body = ["<?xml version=\"1.0\" encoding=\"UTF-8\"?>", '<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">']
     for loc, freq, priority in urls:
         body.append(f"  <url><loc>{html.escape(loc)}</loc><changefreq>{freq}</changefreq><priority>{priority}</priority></url>")
     body.append("</urlset>")
     return "\n".join(body) + "\n"
+
+
+def directory_index_html(shops: list[dict]) -> str:
+    links = []
+    for shop in sorted(shops, key=lambda item: clean_text(item.get("business_name") or item.get("slug"), 120).lower()):
+        slug = safe_slug(shop["slug"])
+        name = clean_text(shop.get("business_name") or slug, 120)
+        category = clean_text(shop.get("category"), 80)
+        location = clean_text(shop.get("location_label"), 120)
+        detail = " · ".join(x for x in (category, location) if x)
+        links.append(f'<li><a href="{esc(slug)}.html">{esc(name)}</a>{f" <span>{esc(detail)}</span>" if detail else ""}</li>')
+    return f"""<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Businesses on MyShub</title>
+  <meta name="description" content="Browse public businesses, shops, services, and brands listed on MyShub.">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="{esc(SITE_BASE)}/businesses/">
+  <style>body{{font-family:system-ui,-apple-system,Segoe UI,sans-serif;max-width:900px;margin:0 auto;padding:36px 22px;color:#172033;line-height:1.6}}h1{{line-height:1.15}}ul{{padding:0;list-style:none}}li{{padding:12px 0;border-bottom:1px solid #e5e7eb}}a{{color:#175cd3;font-weight:700}}span{{color:#667085;font-size:.9rem}}</style>
+</head><body><main>
+  <h1>Businesses on MyShub</h1>
+  <p>Discover public businesses, shops, services, and brands listed on MyShub.</p>
+  <ul>{''.join(links)}</ul>
+</main></body></html>\n"""
 
 
 def merge_root_sitemap(shops: list[dict]) -> None:
@@ -179,6 +221,7 @@ def main() -> int:
     for shop in shops:
         slug = safe_slug(shop["slug"])
         (OUTPUT_DIR / f"{slug}.html").write_text(page_html(shop), encoding="utf-8")
+    (OUTPUT_DIR / "index.html").write_text(directory_index_html(shops), encoding="utf-8")
     (OUTPUT_DIR / "sitemap.xml").write_text(sitemap_xml(shops), encoding="utf-8")
     (OUTPUT_DIR / "manifest.json").write_text(json.dumps({"count": len(shops), "slugs": [s["slug"] for s in shops]}, indent=2) + "\n", encoding="utf-8")
     print(f"Generated {len(shops)} static MyShub business pages in {OUTPUT_DIR}")
