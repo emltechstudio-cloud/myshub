@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://myshub.site/sitemap.xml
+Sitemap: https://myshub.site/businesses/sitemap.xml

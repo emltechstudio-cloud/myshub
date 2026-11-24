@@ -19,7 +19,7 @@ from pathlib import Path
 
 API_BASE = os.environ.get("MYSHUB_API_BASE", "https://emltechstudio-myshub-api.hf.space").rstrip("/")
 SITE_BASE = os.environ.get("MYSHUB_SITE_BASE", "https://myshub.site").rstrip("/")
-OUTPUT_DIR = Path(os.environ.get("MYSHUB_SEO_DIR", Path(__file__).parent / "generated"))
+OUTPUT_DIR = Path(os.environ.get("MYSHUB_BUSINESSES_DIR", Path(__file__).parent.parent / "businesses"))
 PAGE_SIZE = 100
 
 
@@ -81,7 +81,7 @@ def page_html(shop: dict) -> str:
     # Public human URL. GitHub Pages serves 404.html for this path, and the
     # existing 404.html is the MyShub storefront SPA for /<slug>.
     live_url = f"{SITE_BASE}/{urllib.parse.quote(slug)}"
-    public_url = f"{SITE_BASE}/seo-pages/{urllib.parse.quote(slug)}/"
+    public_url = f"{SITE_BASE}/businesses/{urllib.parse.quote(slug)}.html"
     logo_url = f"{API_BASE}/discover/logo/{urllib.parse.quote(slug)}" if shop.get("has_logo") else f"{SITE_BASE}/icon.svg"
     page_title = f"{name} | MyShub"
     bits = [x for x in (category, location) if x]
@@ -139,12 +139,7 @@ def page_html(shop: dict) -> str:
 
 
 def sitemap_xml(shops: list[dict]) -> str:
-    urls = [
-        (f"{SITE_BASE}/", "daily", "1.0"),
-        (f"{SITE_BASE}/discover.html", "daily", "0.9"),
-    ]
-    # Canonicals point at the public /<slug> storefront URL, not this generator directory.
-    urls.extend((f"{SITE_BASE}/{urllib.parse.quote(safe_slug(s['slug']))}", "daily", "0.7") for s in shops)
+    urls = [(f"{SITE_BASE}/businesses/{urllib.parse.quote(safe_slug(s['slug']))}.html", "daily", "0.7") for s in shops]
     body = ["<?xml version=\"1.0\" encoding=\"UTF-8\"?>", '<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">']
     for loc, freq, priority in urls:
         body.append(f"  <url><loc>{html.escape(loc)}</loc><changefreq>{freq}</changefreq><priority>{priority}</priority></url>")
@@ -183,13 +178,10 @@ def main() -> int:
             child.unlink()
     for shop in shops:
         slug = safe_slug(shop["slug"])
-        target = OUTPUT_DIR / slug
-        target.mkdir(parents=True, exist_ok=True)
-        (target / "index.html").write_text(page_html(shop), encoding="utf-8")
-    (Path(__file__).parent / "sitemap-shops.xml").write_text(sitemap_xml(shops), encoding="utf-8")
-    merge_root_sitemap(shops)
-    (Path(__file__).parent / "manifest.json").write_text(json.dumps({"count": len(shops), "slugs": [s["slug"] for s in shops]}, indent=2) + "\n", encoding="utf-8")
-    print(f"Generated {len(shops)} static MyShub SEO pages in {OUTPUT_DIR}")
+        (OUTPUT_DIR / f"{slug}.html").write_text(page_html(shop), encoding="utf-8")
+    (OUTPUT_DIR / "sitemap.xml").write_text(sitemap_xml(shops), encoding="utf-8")
+    (OUTPUT_DIR / "manifest.json").write_text(json.dumps({"count": len(shops), "slugs": [s["slug"] for s in shops]}, indent=2) + "\n", encoding="utf-8")
+    print(f"Generated {len(shops)} static MyShub business pages in {OUTPUT_DIR}")
     return 0
 
 
